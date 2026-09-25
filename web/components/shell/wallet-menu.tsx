@@ -119,8 +119,19 @@ export function ConnectedWallet({
         </span>
         <ChevronDownIcon aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" collisionPadding={8} style={{ width: "min(16rem, calc(100vw - 1rem))" }}>
-        <DropdownMenuLabel className="font-mono text-xs font-normal whitespace-normal break-all">{address}</DropdownMenuLabel>
+      <DropdownMenuContent
+        align="end"
+        collisionPadding={8}
+        className="!w-64 !min-w-64 !max-w-[calc(100vw-1.5rem)] !overflow-hidden"
+      >
+        <DropdownMenuLabel asChild>
+          <p
+            className="font-mono text-xs font-normal text-muted-foreground"
+            style={{ overflowWrap: "anywhere", whiteSpace: "normal" }}
+          >
+            {address}
+          </p>
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => void copyAddress(address)}>Copy address</DropdownMenuItem>
         {explorerUrl ? (
