@@ -12,6 +12,7 @@ import { useRisk } from "./risk-data"
 import { Check } from "./badges"
 import { DataTable, type Column } from "./data-table"
 import { REJECT_TEXT, type PricePost, type SessionPost } from "./events"
+import { EventSourceNote } from "./status-bar"
 import { Empty, LoadError, Panel, RowsSkeleton, Section, TxRef } from "./states"
 import { clock, day, diffBps, duration, pctBps, usd18, usdgUsd } from "./format"
 import type { RiskParams } from "./use-risk-params"
@@ -154,7 +155,11 @@ export function PricePostsView() {
     <Section
       id="prices"
       title="Price posts"
-      description={`Each ${market.symbol} quote the keeper sent to the relay, with the guard that stopped it when one did. A rejected post changes nothing onchain.`}
+      description={
+        <>
+          Each {market.symbol} quote the keeper sent to the relay, with the guard that stopped it when one did. A rejected post changes nothing onchain. <EventSourceNote />
+        </>
+      }
       actions={
         <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
           <TabsList aria-label="Filter price posts">

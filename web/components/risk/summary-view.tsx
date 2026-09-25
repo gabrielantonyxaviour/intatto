@@ -4,6 +4,7 @@
 import { Progress } from "@/components/ui/progress"
 import { useRisk } from "./risk-data"
 import { SessionBadge } from "./badges"
+import { EventSourceNote, useDirectPlace } from "./status-bar"
 import { LoadError, Panel, Section } from "./states"
 import { Tile, TileGrid, TileSkeleton } from "./tiles"
 import { ago, blockNo, clock, pctBps, usd18, usdg, utc } from "./format"
@@ -14,6 +15,7 @@ function ratioBps(part: bigint, whole: bigint): bigint | null {
 
 export function SummaryView() {
   const { market, marketState, vaultState, rows, now, loans, latestBlock } = useRisk()
+  const place = useDirectPlace()
   const s = marketState.data
   const v = vaultState.data
   const accepted = rows.prices.filter((p) => p.accepted)
@@ -28,7 +30,8 @@ export function SummaryView() {
       title={`${market.symbol} summary`}
       description={
         <>
-          Read {latestBlock !== null ? <>at block {blockNo(latestBlock)} </> : null}(chain time {utc(now)}). The price is the issuer&apos;s
+          Market lens and vault figures are read directly from {place}
+          {latestBlock !== null ? <> at block {blockNo(latestBlock)}</> : null} (chain time {utc(now)}). The price is the issuer&apos;s
           indicative quote relayed by Intatto&apos;s keeper; it carries no source timestamp, so only the keeper&apos;s fetch time is shown.
         </>
       }
@@ -98,7 +101,7 @@ export function SummaryView() {
         )}
       </TileGrid>
 
-      <Panel title="Across the loans read" description="Borrowers are found from Borrow events in the scanned blocks.">
+      <Panel title="Across the loans read" description={<>Borrowers are found from Borrow events in the scanned blocks. <EventSourceNote /></>}>
         {s && v ? (
           <div className="grid gap-4">
             <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">

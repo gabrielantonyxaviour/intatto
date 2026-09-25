@@ -8,6 +8,7 @@ import { useState, type ReactNode } from "react"
 import { ChevronRightIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRisk } from "./risk-data"
+import { useDirectPlace } from "./status-bar"
 import { Empty, LoadError, Panel, RowsSkeleton, Section } from "./states"
 import { pctBps, usdg } from "./format"
 import { liquidatableAfter, shockedValue, type Loan } from "./use-loans"
@@ -66,6 +67,7 @@ function Figures({ items }: { items: [string, string][] }) {
 
 export function PriceShockView() {
   const { loans, market, marketState, vaultState, params } = useRisk()
+  const place = useDirectPlace()
   const [s1, setS1] = useState<number>(0.2)
   const [s3, setS3] = useState<number>(0.5)
   const lt = marketState.data?.liquidationThresholdBps ?? params.data?.market.liquidationThresholdBps ?? 6_500n
@@ -77,7 +79,7 @@ export function PriceShockView() {
     <Section
       id="shock"
       title="Price shock"
-      description={`What happens to the ${market.symbol} loans read if the relayed price falls. Estimates from each loan's current collateral and debt; the real liquidator sells in slices at a floor below the relayed price, so proceeds can be lower.`}
+      description={`What happens to the ${market.symbol} loans read if the relayed price falls. Estimates from each loan's collateral and debt, read directly from ${place}; the real liquidator sells in slices at a floor below the relayed price, so proceeds can be lower.`}
     >
       {loans.isPending ? <RowsSkeleton rows={3} label="Loading loans" /> : null}
       {loans.isError ? <LoadError what="the loans" error={loans.error} onRetry={() => loans.refetch()} /> : null}

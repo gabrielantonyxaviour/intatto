@@ -50,7 +50,7 @@ export function KeeperServiceLog() {
   return (
     <>
       <KeeperReading url={LOG_URL} />
-      <Panel title="Keeper service log" description="The keeper's own record of its last 50 steps, including backoffs and skipped cycles that send no transaction.">
+      <Panel title="Keeper service log" description="From the keeper service (GET /log), not from the chain. The keeper's own record of its last 50 steps, including backoffs and skipped cycles that send no transaction.">
         {query.isPending ? <RowsSkeleton rows={3} /> : null}
         {query.isError ? <LoadError what="the keeper service log" error={query.error} onRetry={() => query.refetch()} /> : null}
         {query.data && query.data.length === 0 ? <Empty>The keeper has not logged anything yet.</Empty> : null}

@@ -9,6 +9,7 @@ import { AddressDisplay } from "@/components/ui/web3"
 import { useRisk } from "./risk-data"
 import { SessionBadge } from "./badges"
 import { DataTable, type Column } from "./data-table"
+import { EventSourceNote, useDirectPlace } from "./status-bar"
 import { Empty, LoadError, Panel, RowsSkeleton, Section, TxRef } from "./states"
 import { clock, day, perShare, pctBps, tokens18, usdg } from "./format"
 import type { Slice } from "./events"
@@ -17,6 +18,7 @@ const orDash = (v: bigint | null | undefined, f: (x: bigint) => string) => (v ==
 
 export function LiquidationsView() {
   const { rows, logs, vaultState, params, market } = useRisk()
+  const place = useDirectPlace()
   const v = vaultState.data
   const lp = params.data?.liquidator
   const executed = rows.slices.filter((s) => s.executed)
@@ -89,7 +91,12 @@ export function LiquidationsView() {
     <Section
       id="liquidations"
       title="Liquidations"
-      description={`Past ${pctBps(params.data?.market.liquidationThresholdBps ?? 6_500n, 0)} LTV a position is sold into the pool in slices, never below a floor under the relayed price${lp?.openFloorBps !== undefined && lp.closedFloorBps !== undefined ? ` (${pctBps(lp.openFloorBps, 0)} below while trading, ${pctBps(lp.closedFloorBps, 0)} while CLOSED)` : ""}. A slice that cannot fill at its floor waits.`}
+      description={
+        <>
+          Past {pctBps(params.data?.market.liquidationThresholdBps ?? 6_500n, 0)} LTV a position is sold into the pool in slices, never below a floor under the relayed price
+          {lp?.openFloorBps !== undefined && lp.closedFloorBps !== undefined ? ` (${pctBps(lp.openFloorBps, 0)} below while trading, ${pctBps(lp.closedFloorBps, 0)} while CLOSED)` : ""}. A slice that cannot fill at its floor waits. Reserve and deficit figures are read directly from {place}. <EventSourceNote />
+        </>
+      }
     >
       {vaultState.isError && !v ? <LoadError what="the reserve" error={vaultState.error} onRetry={() => vaultState.refetch()} /> : null}
       <Panel>

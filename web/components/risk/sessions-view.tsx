@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useRisk } from "./risk-data"
 import { SessionBadge } from "./badges"
 import { DataTable } from "./data-table"
+import { EventSourceNote, useDirectPlace } from "./status-bar"
 import { Empty, LoadError, Panel, RowsSkeleton, Section, TxRef } from "./states"
 import { ago, clock, day, duration, pctBps, utc } from "./format"
 import type { SessionPost } from "./events"
@@ -50,9 +51,10 @@ export function SessionsView() {
     },
   ]
   const timeline = segments(rows.sessions)
+  const place = useDirectPlace()
 
   return (
-    <Section id="sessions" title="Sessions" description="The keeper posts the stock market's session from the issuer's trading period; the session sets how far anyone can borrow. The liquidation LTV does not change with it.">
+    <Section id="sessions" title="Sessions" description={<>The keeper posts the stock market&apos;s session from the issuer&apos;s trading period; the session sets how far anyone can borrow. The liquidation LTV does not change with it. The session now is read directly from {place}.</>}>
       {marketState.isError && !s ? <LoadError what="the session" error={marketState.error} onRetry={() => marketState.refetch()} /> : null}
       <div className="grid gap-3 md:grid-cols-2">
         <Panel title="Now">
@@ -81,7 +83,7 @@ export function SessionsView() {
             <RowsSkeleton rows={3} />
           )}
         </Panel>
-        <Panel title="New-borrow LTV by session" description="Read from the session controller. Liquidation stays at 65% in every row.">
+        <Panel title="New-borrow LTV by session" description={`The session controller, read directly from ${place}. Liquidation stays at 65% in every row.`}>
           <Table aria-label="New-borrow LTV by session">
             <TableHeader>
               <TableRow>
@@ -106,7 +108,7 @@ export function SessionsView() {
         </Panel>
       </div>
 
-      <Panel title="Timeline" description="Each run of identical posts, oldest first.">
+      <Panel title="Timeline" description={<>Each run of identical posts, oldest first. <EventSourceNote /></>}>
         {logs.status === "pending" ? <RowsSkeleton rows={2} /> : null}
         {logs.range && timeline.length === 0 ? <Empty>No session posts in the scanned blocks.</Empty> : null}
         {timeline.length ? (

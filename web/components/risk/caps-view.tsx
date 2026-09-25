@@ -8,6 +8,7 @@ import type { ReactNode } from "react"
 import { Progress } from "@/components/ui/progress"
 import { useRisk } from "./risk-data"
 import { DataTable } from "./data-table"
+import { EventSourceNote, useDirectPlace } from "./status-bar"
 import { Empty, LoadError, Panel, RowsSkeleton, Section, TxRef } from "./states"
 import { clock, day, pctBps, usdg } from "./format"
 import { LtvHistogram } from "./ltv-histogram"
@@ -15,6 +16,7 @@ import type { CapPost } from "./events"
 
 export function CapsView() {
   const { rows, marketState, params, loans, logs, market } = useRisk()
+  const place = useDirectPlace()
   const s = marketState.data
   const latest = rows.caps[0]
   const used = s && s.capUsdg > 0n ? (s.totalDebt * 10_000n) / s.capUsdg : null
@@ -28,7 +30,7 @@ export function CapsView() {
     >
       {marketState.isError && !s ? <LoadError what="the cap" error={marketState.error} onRetry={() => marketState.refetch()} /> : null}
       <div className="grid gap-3 md:grid-cols-2">
-        <Panel title="Credit cap" description="Read from the depth cap registry now.">
+        <Panel title="Credit cap" description={`The depth cap registry, read directly from ${place}.`}>
           {s ? (
             <dl className="grid gap-2 text-sm" data-testid="cap-usage">
               <Row k="Debt cap" v={<span data-value="cap">{usdg(s.capUsdg)}</span>} />
@@ -63,7 +65,7 @@ export function CapsView() {
         </Panel>
       </div>
 
-      <Panel title="Caps the keeper posted" description="CapPosted events: target from sampled depth, slice size, and the cap in force right after the post.">
+      <Panel title="Caps the keeper posted" description={<>CapPosted events: target from sampled depth, slice size, and the cap in force right after the post. <EventSourceNote /></>}>
         {logs.status === "pending" ? <RowsSkeleton rows={3} /> : null}
         {logs.range && rows.caps.length === 0 ? <Empty>No cap posts in the scanned blocks.</Empty> : null}
         {rows.caps.length ? (

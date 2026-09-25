@@ -11,6 +11,7 @@ import { useIntatto } from "@/lib/chain"
 import { useRisk } from "./risk-data"
 import { Check } from "./badges"
 import { DataTable } from "./data-table"
+import { EventSourceNote } from "./status-bar"
 import { Empty, LoadError, Panel, RowsSkeleton, Section, TxRef } from "./states"
 import { ago, clock, day, duration, multiplier, pctBps, usd18, utc } from "./format"
 import type { ActionEvent } from "./events"
@@ -82,7 +83,7 @@ export function ActionsView() {
         )}
       </Panel>
 
-      <Panel title="Action history" description="ActionPosted, ActionResolved and ActionCleared events.">
+      <Panel title="Action history" description={<>ActionPosted, ActionResolved and ActionCleared events. <EventSourceNote /></>}>
         {logs.status === "pending" ? <RowsSkeleton rows={2} /> : null}
         {logs.range && rows.actions.length === 0 ? <Empty>No corporate action events in the scanned blocks.</Empty> : null}
         {rows.actions.length ? (

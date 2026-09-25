@@ -7,6 +7,7 @@
 import { cn } from "@/lib/utils"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useRisk } from "./risk-data"
+import { useDirectPlace } from "./status-bar"
 import { LoadError, RowsSkeleton, Section } from "./states"
 import { Tile, TileGrid, TileSkeleton } from "./tiles"
 import { blockNo, pctBps, usd18, usdg, utc } from "./format"
@@ -21,6 +22,7 @@ function stress(bps: bigint | null): string | undefined {
 
 export function OverviewView() {
   const { market, marketState, vaultState, loans, latestBlock, now, params } = useRisk()
+  const place = useDirectPlace()
   const s = marketState.data
   const v = vaultState.data
   const capUsed = s && s.capUsdg > 0n ? (s.totalDebt * 10_000n) / s.capUsdg : null
@@ -45,7 +47,7 @@ export function OverviewView() {
     <Section
       id="overview"
       title={`Market overview: ${market.symbol}`}
-      description={<>Data read at block {latestBlock !== null ? blockNo(latestBlock) : "–"}, chain time {utc(now)}. Refreshes every few seconds.</>}
+      description={<>Contract parameters read directly from {place} at block {latestBlock !== null ? blockNo(latestBlock) : "–"}, chain time {utc(now)}. Refreshes every few seconds.</>}
     >
       {failed ? (
         <LoadError

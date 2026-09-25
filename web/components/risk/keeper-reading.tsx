@@ -136,7 +136,7 @@ export function KeeperReading({ url }: { url: string }) {
   return (
     <Panel
       title="Last issuer read"
-      description="The quote, trading period, halt flags and multiplier from the keeper's latest read of the issuer. A disagreement is why that cycle posted nothing from the reading."
+      description="From the keeper service (GET /status), not from the chain. The quote, trading period, halt flags and multiplier from the keeper's latest read of the issuer. A disagreement is why that cycle posted nothing from the reading."
     >
       <div data-testid="last-issuer-read">
         {query.isPending ? <RowsSkeleton rows={3} label="Loading the last issuer read" /> : null}

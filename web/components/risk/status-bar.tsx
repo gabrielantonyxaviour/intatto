@@ -9,8 +9,23 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRisk } from "./risk-data"
+import { eventSourceLabel } from "./use-risk-logs"
 import { LoadError } from "./states"
 import { blockNo, utc } from "./format"
+
+/** "X Layer" on mainnet, "the sandbox session" on a sandbox. */
+export function useDirectPlace(): string {
+  const { mode } = useIntatto()
+  return mode === "sandbox" ? "the sandbox session" : "X Layer"
+}
+
+/** The event source that actually served the rows, once the first chunk has landed. */
+export function EventSourceNote() {
+  const { logs } = useRisk()
+  const text = eventSourceLabel(logs.eventSource)
+  if (!text) return null
+  return <span data-event-source={logs.eventSource}>{text}.</span>
+}
 
 export function ScanStatus() {
   const { logs, now, latestBlock } = useRisk()
@@ -43,8 +58,13 @@ export function ScanStatus() {
           Still loading older blocks back to the deployment ({Math.round(logs.progress * 100)}% read); rows appear as they arrive.
         </p>
       ) : null}
+      {logs.eventSource ? (
+        <p className="w-full min-w-0 break-words" data-testid="event-source">
+          {eventSourceLabel(logs.eventSource)}.
+        </p>
+      ) : null}
       {logs.error && logs.range ? (
-        <p className="w-full text-warning-foreground">X Layer is limiting reads; retrying with backoff. Rows read so far stay on screen.</p>
+        <p className="w-full text-warning-foreground">Reads are being limited; retrying with backoff. Rows read so far stay on screen.</p>
       ) : null}
     </div>
   )
@@ -93,6 +113,7 @@ export function GuardAlerts() {
 
 export function WalletNote() {
   const { chain } = useIntatto()
+  const where = useDirectPlace()
   const { address, chainId } = useAccount()
   if (!address || chainId === chain.id) return null
   return (
@@ -101,7 +122,7 @@ export function WalletNote() {
       <AlertTitle>Your wallet is on another network (chain {chainId})</AlertTitle>
       <AlertDescription>
         <p>
-          This console reads {chain.name} directly, so every number here is still correct. Switch to {chain.name} before you borrow or lend.
+          Contract state is read directly from {where}, not from your wallet&apos;s network, so those figures stay correct. Switch to {chain.name} before you borrow or lend.
         </p>
       </AlertDescription>
     </Alert>

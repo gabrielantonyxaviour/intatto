@@ -3,8 +3,9 @@
 /**
  * Reads every Intatto event from the deployment block to the latest block, newest first, one eth_getLogs per
  * 100-block chunk for all contracts at once (decoded here), paced under the public RPC's rate limit with retry and
- * backoff. Rows appear as chunks land. On mainnet the cached /api/risk/logs route is the source, with direct reads as
- * the fallback; a sandbox reads its fork directly. New blocks are picked up by polling the head.
+ * backoff. Rows appear as chunks land. On mainnet /api/risk/logs (raw eth_getLogs, cached, not modified) is tried
+ * first and a direct eth_getLogs is the fallback; a sandbox reads its session RPC directly. New blocks are picked up
+ * by polling the head. `eventSource` records which of those actually served the rows.
  */
 import { useEffect, useMemo, useRef, useState } from "react"
 import { parseEventLogs, type Address, type Hex, type PublicClient } from "viem"
@@ -16,6 +17,31 @@ const PERMISSIONLESS = new Set(["ActionResolved", "ActionCleared", "SliceWaiting
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 const hex = (n: bigint) => `0x${n.toString(16)}`
 
+/** Where the event rows on screen were actually loaded from. */
+export type EventSource = "cache" | "direct" | "mixed" | "sandbox"
+
+export function eventSourceLabel(source: EventSource | null): string | null {
+  switch (source) {
+    case "cache":
+      return "Events via Intatto log cache"
+    case "direct":
+      return "Events read directly from X Layer"
+    case "mixed":
+      return "Events via Intatto log cache, with some ranges read directly from X Layer"
+    case "sandbox":
+      return "Events read directly from the sandbox"
+    default:
+      return null
+  }
+}
+
+function eventSourceOf(live: boolean, cache: number, rpc: number): EventSource | null {
+  if (cache === 0 && rpc === 0) return null
+  if (!live) return "sandbox"
+  if (cache > 0 && rpc > 0) return "mixed"
+  return cache > 0 ? "cache" : "direct"
+}
+
 type Snapshot = {
   logs: DecodedLog[]
   times: Map<bigint, number>
@@ -26,8 +52,9 @@ type Snapshot = {
   firstDone: boolean
   error: Error | null
   refreshing: boolean
+  eventSource: EventSource | null
 }
-const EMPTY: Snapshot = { logs: [], times: new Map(), senders: new Map(), head: null, oldest: null, scanned: 0n, firstDone: false, error: null, refreshing: false }
+const EMPTY: Snapshot = { logs: [], times: new Map(), senders: new Map(), head: null, oldest: null, scanned: 0n, firstDone: false, error: null, refreshing: false, eventSource: null }
 
 type Opts = { client: PublicClient; addresses: Address[]; floor: bigint; live: boolean; onChange: (s: Snapshot) => void }
 
@@ -39,6 +66,7 @@ class Scanner {
   private slot: Promise<void> = Promise.resolve()
   private last = 0
   private routeFailures = 0
+  private via = { cache: 0, rpc: 0 }
   private timer: ReturnType<typeof setInterval> | null = null
 
   constructor(private o: Opts) {}
@@ -111,15 +139,18 @@ class Scanner {
       const body = res?.ok ? ((await res.json().catch(() => null)) as { logs?: RawLog[]; to?: string } | null) : null
       if (body?.logs && body.to === toBlock.toString()) {
         this.routeFailures = 0
+        this.via.cache++
         return body.logs
       }
       this.routeFailures++
     }
     await this.pace(this.o.live ? 350 : 0)
-    return this.o.client.request({
+    const logs = (await this.o.client.request({
       method: "eth_getLogs",
       params: [{ address: this.o.addresses, fromBlock: hex(fromBlock) as Hex, toBlock: hex(toBlock) as Hex }],
-    } as never) as Promise<RawLog[]>
+    } as never)) as RawLog[]
+    this.via.rpc++
+    return logs
   }
 
   private async loop() {
@@ -164,6 +195,7 @@ class Scanner {
         oldest: oldest ?? chunk.fromBlock,
         scanned: this.snap.scanned + (chunk.toBlock - chunk.fromBlock + 1n),
         firstDone: true,
+        eventSource: eventSourceOf(this.o.live, this.via.cache, this.via.rpc),
       })
     }
   }
@@ -185,6 +217,8 @@ export type RiskLogs = {
   progress: number
   refreshing: boolean
   refresh: () => void
+  /** Null until the first chunk lands. */
+  eventSource: EventSource | null
 }
 
 export function useRiskLogs(): RiskLogs {
@@ -219,6 +253,7 @@ export function useRiskLogs(): RiskLogs {
       progress: total > 0n ? Math.min(1, Number((snap.scanned * 1000n) / total) / 1000) : 0,
       refreshing: snap.refreshing,
       refresh: () => void scanner.current?.refresh(),
+      eventSource: snap.eventSource,
     }
   }, [snap, floor])
 }

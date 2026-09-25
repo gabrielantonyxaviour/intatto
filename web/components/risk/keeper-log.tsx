@@ -10,6 +10,7 @@ import { shortAddress } from "@/components/ui/web3/format"
 import { useRisk, type RiskData } from "./risk-data"
 import { DataTable } from "./data-table"
 import { Empty, LoadError, Panel, RowsSkeleton, Section, TxRef } from "./states"
+import { EventSourceNote } from "./status-bar"
 import { KeeperServiceLog } from "./keeper-service-log"
 import { clock, day, multiplier, usd18, usdg, utc } from "./format"
 
@@ -55,7 +56,11 @@ export function KeeperLogView() {
     <Section
       id="keeper"
       title="Keeper log"
-      description="The keeper is Intatto's agent: an off-chain service that relays the issuer's quote and the market session, samples pool depth and runs liquidations. Everything it sent onchain is listed here."
+      description={
+        <>
+          The keeper is Intatto&apos;s agent: an off-chain service that relays the issuer&apos;s quote and the market session, samples pool depth and runs liquidations. The onchain actions below are event history. <EventSourceNote /> The keeper service log and last issuer read, when shown, come from the keeper service.
+        </>
+      }
     >
       <Panel title="Keeper identity">
         <dl className="grid gap-2 text-sm sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-x-6">

@@ -7,6 +7,7 @@
 import { Badge } from "@/components/ui/badge"
 import { AddressDisplay } from "@/components/ui/web3"
 import { useRisk } from "./risk-data"
+import { useDirectPlace } from "./status-bar"
 import { LoadError, Panel, Section } from "./states"
 import { duration, pctBps, usdg } from "./format"
 
@@ -14,6 +15,7 @@ const or = (v: bigint | undefined, f: (x: bigint) => string) => (v === undefined
 
 export function TrustView() {
   const { params, deployment, market } = useRisk()
+  const place = useDirectPlace()
   const p = params.data
   const r = p?.relay
   const s = p?.session
@@ -38,7 +40,7 @@ export function TrustView() {
   ]
 
   return (
-    <Section id="trust" title="Trust and bounds" description="What you are trusting when you use Intatto, and where the contracts stop that trust.">
+    <Section id="trust" title="Trust and bounds" description={`What you are trusting when you use Intatto, and where the contracts stop that trust. The bounds below are read directly from ${place}.`}>
       {params.isError && !p ? <LoadError what="the contract parameters" error={params.error} onRetry={() => params.refetch()} /> : null}
       <div className="grid gap-3 md:grid-cols-2">
         <Panel title="The keeper is a trusted relayer">
@@ -97,7 +99,7 @@ export function TrustView() {
         </Panel>
       </div>
 
-      <Panel title="Bounds read onchain" description="Each mechanism and the number the contract enforces now.">
+      <Panel title="Bounds read onchain" description="Each mechanism and the number the contract enforces now, read directly by your browser.">
         <dl className="grid gap-3 md:grid-cols-2">
           {sheet.map(([k, v, why]) => (
             <div key={k} className="grid min-w-0 gap-0.5 rounded-lg border p-3" data-param={k}>

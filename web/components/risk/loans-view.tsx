@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AddressDisplay } from "@/components/ui/web3"
 import { useRisk } from "./risk-data"
 import { DataTable, type Column } from "./data-table"
+import { EventSourceNote, useDirectPlace } from "./status-bar"
 import { Empty, LoadError, RowsSkeleton, Section } from "./states"
 import { blockNo, pctBps, pctFraction, tokens18, usd18, usdg } from "./format"
 import { distanceBps, dropToLiquidation, type Loan } from "./use-loans"
@@ -32,6 +33,7 @@ function Filter({ id, label, children }: { id: string; label: string; children: 
 
 export function LoansView() {
   const { loans, market, marketState, params, account, logs } = useRisk()
+  const place = useDirectPlace()
   const [sort, setSort] = useState<Sort>("distance")
   const [top, setTop] = useState<(typeof TOP)[number]>("30")
   const [hideRepaid, setHideRepaid] = useState(true)
@@ -114,8 +116,8 @@ export function LoansView() {
       title="Loans near liquidation"
       description={
         <>
-          Every borrower found in the scanned blocks, read now through the market lens
-          {loans.data ? <> at block {blockNo(loans.data.block)}</> : null}. Distance is the LTV points left before {pctBps(lt, 0)}, and the price
+          Every borrower found in the scanned blocks. Positions are read directly from {place} through the market lens
+          {loans.data ? <> at block {blockNo(loans.data.block)}</> : null}. <EventSourceNote /> Distance is the LTV points left before {pctBps(lt, 0)}, and the price
           fall that would get there.
         </>
       }
