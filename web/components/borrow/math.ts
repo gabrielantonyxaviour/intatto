@@ -24,8 +24,6 @@ export const CHIP_TARGETS = [
 /** Monday-open gaps the position panel always stresses, in percent; deeper ones are added around the liquidation line. */
 export const GAP_STEPS = [5, 10, 20, 30] as const
 const DEEPER_STEPS = [40, 50, 60, 70, 80, 90] as const
-/** Liquidation penalty the loss waterfall takes from sale proceeds first (CollateralMarket.settle). */
-const PENALTY_BPS = 500n
 
 export type Position = { shares: bigint; assets: bigint; debt: bigint }
 
@@ -149,7 +147,7 @@ export type GapRow = {
   ltvBps: bigint
   healthE18: bigint
   liquidatable: boolean
-  /** Debt the collateral would not repay after the 5% penalty, at the gapped oracle price (no slippage). */
+  /** Debt the collateral would not repay after the active-chain penalty, at the gapped oracle price (no slippage). */
   shortfall: bigint
   /** What lenders would lose: the shortfall the gap reserve cannot cover. */
   lenderLoss: bigint
@@ -163,11 +161,11 @@ export function liquidationGapBps(m: Metrics, ltBps: bigint): bigint | null {
   return ceilDiv((PPM - keepPpm) * BPS, PPM)
 }
 
-function gapRow(m: Metrics, priceE18: bigint, ltBps: bigint, reserve: bigint, dropBps: bigint, line: boolean): GapRow {
+function gapRow(m: Metrics, priceE18: bigint, ltBps: bigint, reserve: bigint, penaltyBps: bigint, dropBps: bigint, line: boolean): GapRow {
   const keep = BPS - dropBps
   const value = (m.valueUsdg * keep) / BPS
   const liquidatable = line || (m.debt > 0n && m.debt * BPS > value * ltBps)
-  const recovered = (value * BPS) / (BPS + PENALTY_BPS)
+  const recovered = (value * BPS) / (BPS + penaltyBps)
   const shortfall = liquidatable && recovered < m.debt ? m.debt - recovered : 0n
   return {
     dropBps,
@@ -185,7 +183,7 @@ function gapRow(m: Metrics, priceE18: bigint, ltBps: bigint, reserve: bigint, dr
  * Health, LTV and lender loss if the stock reopens lower: the fixed steps, the exact liquidation line for this
  * position as its own row, and the deeper steps around and past it (same test as CollateralMarketBase.isLiquidatable).
  */
-export function gapRows(m: Metrics, priceE18: bigint, ltBps: bigint, reserve: bigint): GapRow[] {
+export function gapRows(m: Metrics, priceE18: bigint, ltBps: bigint, reserve: bigint, penaltyBps: bigint): GapRow[] {
   const line = liquidationGapBps(m, ltBps)
   const lineAt = line ?? 0n
   const steps = new Set<number>(GAP_STEPS)
@@ -199,8 +197,8 @@ export function gapRows(m: Metrics, priceE18: bigint, ltBps: bigint, reserve: bi
     }
   }
   if (line !== null) steps.delete(Number(line) / 100)
-  const rows = [...steps].map((s) => gapRow(m, priceE18, ltBps, reserve, BigInt(s * 100), false))
-  if (line !== null) rows.push(gapRow(m, priceE18, ltBps, reserve, line, true))
+  const rows = [...steps].map((s) => gapRow(m, priceE18, ltBps, reserve, penaltyBps, BigInt(s * 100), false))
+  if (line !== null) rows.push(gapRow(m, priceE18, ltBps, reserve, penaltyBps, line, true))
   return rows.sort((a, b) => (a.dropBps < b.dropBps ? -1 : a.dropBps > b.dropBps ? 1 : 0))
 }
 

@@ -1,14 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import { ReviewDialog } from "@/components/ui/ix"
 import type { Address, Hex } from "viem"
 import { collateralMarketAbi } from "@intatto/config/abi"
-import type { MarketState, VaultState } from "@/lib/chain"
+import { useIntatto, type MarketState, type VaultState } from "@/lib/chain"
 import { ApproveThenAct, TxButton } from "@/components/ui/web3"
-import { usdg } from "./format"
+import { pct, usdg } from "./format"
 import { useNames } from "./names"
 import type { RepayPlan } from "./plan"
-import { DoneRow, FinishedNote, PreviewCard, ReceiptRow, ReviewHeader, UpcomingRow, type DoneStep } from "./review-parts"
+import { DoneRow, FinishedNote, PreviewCard, ReceiptRow, UpcomingRow, type DoneStep } from "./review-parts"
 
 type Props = {
   m: MarketState
@@ -23,6 +24,7 @@ type Props = {
 
 /** Review & send for the mirrored panel: approve → repay, then withdraw (collateral comes back unwrapped to the stock token). */
 export function RepayWithdrawReview({ m, v, market, usdgAddress, plan, onBack, onRepaid, onWithdrawn }: Props) {
+  const [before] = useState(plan.before)
   const [snap] = useState(() => ({
     repay: plan.repayAll ? plan.before.debt : plan.repay,
     repayAll: plan.repayAll,
@@ -33,6 +35,7 @@ export function RepayWithdrawReview({ m, v, market, usdgAddress, plan, onBack, o
   }))
   const [done, setDone] = useState<DoneStep[]>([])
   const names = useNames()
+  const { chain, mode } = useIntatto()
   const nvdax = names.tokens
   const pendingRepay = plan.repay > 0n
   const pendingWithdraw = plan.withdrawShares > 0n
@@ -41,24 +44,12 @@ export function RepayWithdrawReview({ m, v, market, usdgAddress, plan, onBack, o
   const repayTitle = plan.repayAll ? "Repay the whole loan" : `Repay ${usdg(plan.repay)}`
 
   return (
-    <div className="grid gap-5" data-testid="repay-review">
-      <ReviewHeader title={finished ? "Done" : "Review & send"} onBack={onBack} />
-      <PreviewCard caption={finished ? "Your position" : "Position after · preview"} after={plan.after} m={m} v={v} />
-
-      <div>
-        {snap.repay > 0n ? (
-          <ReceiptRow
-            label="Repay"
-            value={usdg(snap.repay)}
-            sub={snap.repayAll ? "The whole loan, plus interest accrued until it lands" : "From your wallet"}
-          />
-        ) : null}
-        {snap.shares > 0n ? (
-          <ReceiptRow label="Withdraw collateral" value={nvdax(snap.assets)} sub={`${names.shares(snap.shares)} unwrapped to ${names.token}`} />
-        ) : null}
-        <ReceiptRow label="Price or session checks on repay" value="None" sub="Repay works in every session, even when borrowing is paused" />
-      </div>
-
+    <ReviewDialog open onOpenChange={(open) => { if (!open) onBack() }}
+      title="Review repay & withdraw" amount={snap.repay > 0n ? usdg(snap.repay) : nvdax(snap.assets)} asset=""
+      chain={`${chain.name}${mode === "sandbox" ? " · no real money" : ""}`}
+      beforeAfter={<PreviewCard caption={finished ? "Your position" : "Position after · preview"} before={before} after={plan.after} v={v} />}
+      limit={<p className="text-xs text-muted-foreground">{m.session} session · new-borrow limit {pct(m.maxLtvBps)} · liquidation at {pct(m.liquidationThresholdBps)}</p>}
+      testId="repay-review" actionLabel="Transaction steps" action={
       <div className="grid gap-3">
         {done.length > 0 ? (
           <ol className="grid gap-2">
@@ -113,6 +104,22 @@ export function RepayWithdrawReview({ m, v, market, usdgAddress, plan, onBack, o
           <p className="text-xs text-muted-foreground">Each button opens your wallet to sign one transaction.</p>
         )}
       </div>
-    </div>
+      }
+      feeInfo="Network fees are estimated by your wallet before signing each transaction."
+    >
+      <div>
+        {snap.repay > 0n ? (
+          <ReceiptRow
+            label="Repay"
+            value={usdg(snap.repay)}
+            sub={snap.repayAll ? "The whole loan, plus interest accrued until it lands" : "From your wallet"}
+          />
+        ) : null}
+        {snap.shares > 0n ? (
+          <ReceiptRow label="Withdraw collateral" value={nvdax(snap.assets)} sub={`${names.shares(snap.shares)} unwrapped to ${names.token}`} />
+        ) : null}
+        <ReceiptRow label="Price or session checks on repay" value="None" sub="Repay works in every session, even when borrowing is paused" />
+      </div>
+    </ReviewDialog>
   )
 }

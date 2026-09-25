@@ -2,11 +2,11 @@
 
 import Link from "next/link"
 import type { Session } from "@intatto/config/session"
-import { InfoIcon, TriangleAlertIcon } from "lucide-react"
-import type { MarketState } from "@/lib/chain"
+import { TriangleAlertIcon } from "lucide-react"
+import { useProtocolParams, usePriceProvenance, type MarketState } from "@/lib/chain"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { DefinitionPopover } from "@/components/ui/ix"
 import { formatUtc } from "@/components/ui/web3/format"
 import { pct, price, sessionMeaning, shortUtc } from "./format"
 import { useNames } from "./names"
@@ -28,44 +28,32 @@ export function SessionBadge({ session }: { session: Session }) {
   )
 }
 
-function Hint({ label, children }: { label: string; children: string }) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button type="button" aria-label={label} className="inline-flex text-muted-foreground hover:text-foreground">
-          <InfoIcon aria-hidden className="size-3.5" />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent className="max-w-72">{children}</TooltipContent>
-    </Tooltip>
-  )
-}
-
 /** Consequence line under the collateral field: the relayed price and the session's new-borrow limit. */
 export function CollateralLine({ m, decay }: { m: MarketState; decay: { floorBps: bigint; duration: number } | null }) {
-  const { token } = useNames()
+  const { token, symbol } = useNames()
+  const { data: params } = useProtocolParams(symbol)
+  const provenance = usePriceProvenance()
   const floorAt = decay ? m.periodChangedAt + decay.duration : null
   return (
     <div className="grid gap-1 text-xs text-muted-foreground sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4">
       <span className="flex flex-wrap items-center gap-x-1.5">
         {token} price <span className="font-medium text-foreground tabular-nums" data-testid="relayed-price">{price(m.priceE18)}</span>
         <span>· fetched by the keeper at {formatUtc(m.fetchedAt)}</span>
-        <Hint label="About this price">
-          The issuer's indicative quote, relayed onchain by Intatto's keeper. The quote carries no source timestamp, so
-          this is when the keeper fetched it, not a market-price time. The contract refuses it if the post is older than
-          30 minutes or strays from the pool's 30-minute average.
-        </Hint>
+        <DefinitionPopover term="this price" source={params ? `Bounds read at block ${params.blockNumber}` : "Parameter reads unavailable or loading"}>
+          {provenance.detail.replace("wNVDAx/USDG", `w${token}/USDG`)} {params ? `Keeper post liveness: ${Number(params.relay.priceLiveness) / 60} minutes. Pool TWAP window: ${Number(params.relay.twapWindow) / 60} minutes.` : "Price bounds unavailable."}
+        </DefinitionPopover>
       </span>
+      <span data-testid="borrow-price-source">{provenance.short}</span>
       <span className="flex flex-wrap items-center gap-x-1.5">
         {m.session} session · max new-borrow LTV{" "}
         <span className="font-medium text-foreground tabular-nums" data-testid="session-max-ltv">
           {pct(m.maxLtvBps)}
         </span>
         {m.session === "CLOSED" && decay && floorAt ? <span>· falls to {pct(decay.floorBps)} by {shortUtc(floorAt)}</span> : null}
-        <Hint label="About session limits">
-          New loans may reach 50% LTV while the US market is open, 40% in extended hours and 30% falling to 20% over a
-          closed weekend. Liquidation stays at 65% LTV in every session.
-        </Hint>
+        <span>· liquidation at {pct(m.liquidationThresholdBps)}</span>
+        <DefinitionPopover term="session limits" source={params ? `SessionRiskController · block ${params.blockNumber}` : undefined}>
+          {params ? `New-borrow LTV: OPEN ${pct(params.session.openBps)}, EXTENDED ${pct(params.session.extendedBps)}, CLOSED ${pct(params.session.closedStartBps)} falling to ${pct(params.session.closedFloorBps)} over ${Number(params.session.closedDecayDuration) / 3600} hours. Liquidation threshold: ${pct(params.market.liquidationThresholdBps)}.` : "Session schedule parameters are unavailable or loading. The current session limit above comes from the market read."}
+        </DefinitionPopover>
         <Link href="/risk" className="underline underline-offset-4 hover:text-foreground" data-testid="risk-link">
           Sessions, guards and caps on the Risk page
         </Link>
@@ -80,11 +68,11 @@ export function MarketStatusAlert({ m }: { m: MarketState }) {
   const reasons: string[] = []
   if (m.issuerPaused) reasons.push(`the token issuer has paused ${token}`)
   if (m.corporateActionPaused) reasons.push("a split or dividend is being applied")
-  if (m.session === "UNKNOWN") reasons.push("the keeper's session post is missing or older than 30 minutes")
+  if (m.session === "UNKNOWN") reasons.push("the keeper's session post is missing or outside its liveness limit")
   if (m.session === "HALTED") reasons.push(`trading in ${underlying} is halted`)
   if (m.session === "CORPORATE_ACTION" && !m.corporateActionPaused) reasons.push("the keeper reports a corporate action in progress")
-  if (!m.fresh) reasons.push("the keeper's last price post is older than 30 minutes")
-  if (!m.inBand) reasons.push("the relayed price is outside the band around the pool's 30-minute average")
+  if (!m.fresh) reasons.push("the keeper's last price post is outside its liveness limit")
+  if (!m.inBand) reasons.push("the relayed price is outside the permitted band around the pool average")
   if (!m.pegOk) reasons.push("USDG is off its $1 peg or its feed is stale")
   if (reasons.length === 0) return null
   return (

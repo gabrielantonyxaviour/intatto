@@ -31,7 +31,7 @@ function Loss({ row }: { row: GapRow }) {
 }
 
 /** What a Monday open lower than Friday's close would do to the position, down to where lenders start to lose. */
-export function GapTable({ position, m, reserveUsdg }: { position: Metrics; m: MarketState; reserveUsdg: bigint }) {
+export function GapTable({ position, m, reserveUsdg, penaltyBps }: { position: Metrics; m: MarketState; reserveUsdg: bigint; penaltyBps?: bigint }) {
   const { token } = useNames()
   if (position.debt === 0n) {
     return (
@@ -40,7 +40,8 @@ export function GapTable({ position, m, reserveUsdg }: { position: Metrics; m: M
       </p>
     )
   }
-  const rows = gapRows(position, m.priceE18, m.liquidationThresholdBps, reserveUsdg)
+  if (penaltyBps === undefined) return <p role="status" className="text-sm text-muted-foreground">Gap estimates unavailable until the liquidation penalty is read from the chain.</p>
+  const rows = gapRows(position, m.priceE18, m.liquidationThresholdBps, reserveUsdg, penaltyBps)
   return (
     <div data-testid="gap-table" className="grid gap-2">
       <ul className="grid gap-2 sm:hidden">
@@ -104,8 +105,8 @@ export function GapTable({ position, m, reserveUsdg }: { position: Metrics; m: M
         </TableBody>
       </Table>
       <p className="text-xs text-muted-foreground" data-testid="gap-note">
-        Liquidation starts above {pct(m.liquidationThresholdBps)} LTV (health below 1.00) in every session, with a 5% penalty.
-        Lender loss is an estimate at the oracle price with no slippage: the debt that selling all the collateral would not
+        Liquidation starts above {pct(m.liquidationThresholdBps)} LTV (health below 1.00) in every session, with a {pct(penaltyBps)} penalty.
+        What-if price drops are assumptions, not a forecast or historical replay. Lender loss is an estimate at the oracle price with no slippage: the debt that selling all the collateral would not
         repay after the penalty, less the gap reserve&apos;s {usdg(reserveUsdg)} (shared by every position).{" "}
         <Link href="/risk" className="underline underline-offset-4 hover:text-foreground">
           Market-wide stress on the Risk page

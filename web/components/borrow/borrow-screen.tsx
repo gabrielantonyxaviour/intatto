@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import type { Address } from "viem"
 import { InfoIcon } from "lucide-react"
 import type { MarketSymbol } from "@/lib/chain"
@@ -32,10 +32,6 @@ function Header({ selection, session }: { selection: MarketSelection; session?: 
         <MarketSelect symbol={selection.symbol} available={selection.available} />
         {session ? <SessionBadge session={session} /> : null}
       </div>
-      <p className="max-w-2xl text-sm text-muted-foreground">
-        Deposit {token} and borrow USDG against it. How much you can borrow follows the US market session; the liquidation
-        line stays at 65% LTV around the clock.
-      </p>
     </header>
   )
 }
@@ -65,10 +61,20 @@ function UnknownMarket({ requested, symbol }: { requested: string; symbol: Marke
 function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: MarketSelection }) {
   const names = useNames()
   const data = useBorrowData(symbol)
+  const formCard = useRef<HTMLDivElement>(null)
   const [tab, setTab] = useState<Tab>("borrow")
   const [reviewing, setReviewing] = useState(false)
   const [borrowDraft, setBorrowDraft] = useState<BorrowDraft>(EMPTY_BORROW)
   const [repayDraft, setRepayDraft] = useState<RepayDraft>(EMPTY_REPAY)
+  const closeReview = () => {
+    setReviewing(false)
+    requestAnimationFrame(() => {
+      const root = formCard.current
+      const target = root?.querySelector<HTMLButtonElement>('[data-state="active"] [data-slot="form-cta"] button:not(:disabled)')
+        ?? root?.querySelector<HTMLInputElement>('[data-state="active"] input')
+      target?.focus()
+    })
+  }
   const unknown = selection.unknown ? <UnknownMarket requested={selection.unknown} symbol={symbol} /> : null
 
   if (!data.deployment || !data.market) {
@@ -107,7 +113,7 @@ function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: 
       <MarketStatusAlert m={m} />
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)]">
-        <Card>
+        <Card ref={formCard}>
           <CardContent>
             <Tabs
               value={tab}
@@ -121,23 +127,6 @@ function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: 
                 <TabsTrigger value="repay">Repay & withdraw</TabsTrigger>
               </TabsList>
               <TabsContent value="borrow" className="pt-4">
-                {reviewing && tab === "borrow" ? (
-                  <DepositBorrowReview
-                    m={m}
-                    v={v}
-                    market={market}
-                    plan={bPlan}
-                    onBack={() => setReviewing(false)}
-                    onDeposited={async () => {
-                      await refetch()
-                      setBorrowDraft((d) => ({ ...d, collateral: "" }))
-                    }}
-                    onBorrowed={async () => {
-                      await refetch()
-                      setBorrowDraft(EMPTY_BORROW)
-                    }}
-                  />
-                ) : (
                   <DepositBorrowForm
                     m={m}
                     v={v}
@@ -149,27 +138,25 @@ function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: 
                     plan={bPlan}
                     onReview={() => setReviewing(true)}
                   />
-                )}
-              </TabsContent>
-              <TabsContent value="repay" className="pt-4">
-                {reviewing && tab === "repay" ? (
-                  <RepayWithdrawReview
+                {reviewing && tab === "borrow" ? (
+                  <DepositBorrowReview
                     m={m}
                     v={v}
                     market={market}
-                    usdgAddress={data.deployment.usdg as Address}
-                    plan={rPlan}
-                    onBack={() => setReviewing(false)}
-                    onRepaid={async () => {
+                    plan={bPlan}
+                    onBack={closeReview}
+                    onDeposited={async () => {
                       await refetch()
-                      setRepayDraft((d) => ({ ...d, repay: "", all: false }))
+                      setBorrowDraft((d) => ({ ...d, collateral: "" }))
                     }}
-                    onWithdrawn={async () => {
+                    onBorrowed={async () => {
                       await refetch()
-                      setRepayDraft(EMPTY_REPAY)
+                      setBorrowDraft(EMPTY_BORROW)
                     }}
                   />
-                ) : (
+                ) : null}
+              </TabsContent>
+              <TabsContent value="repay" className="pt-4">
                   <RepayWithdrawForm
                     m={m}
                     a={a}
@@ -179,7 +166,24 @@ function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: 
                     plan={rPlan}
                     onReview={() => setReviewing(true)}
                   />
-                )}
+                {reviewing && tab === "repay" ? (
+                  <RepayWithdrawReview
+                    m={m}
+                    v={v}
+                    market={market}
+                    usdgAddress={data.deployment.usdg as Address}
+                    plan={rPlan}
+                    onBack={closeReview}
+                    onRepaid={async () => {
+                      await refetch()
+                      setRepayDraft((d) => ({ ...d, repay: "", all: false }))
+                    }}
+                    onWithdrawn={async () => {
+                      await refetch()
+                      setRepayDraft(EMPTY_REPAY)
+                    }}
+                  />
+                ) : null}
               </TabsContent>
             </Tabs>
           </CardContent>
@@ -193,6 +197,7 @@ function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: 
           before={active.before}
           after={active.empty ? null : active.after}
           reserveUsdg={v.reserveBalance}
+          penaltyBps={data.params.data?.market.penaltyBps}
         />
       </div>
     </div>

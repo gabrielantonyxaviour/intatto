@@ -1,12 +1,12 @@
 "use client"
 
-import { ChevronDownIcon, TriangleAlertIcon } from "lucide-react"
-import type { MarketState, VaultState } from "@/lib/chain"
+import { TriangleAlertIcon } from "lucide-react"
+import { useProtocolParams, type MarketState, type VaultState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { DefinitionPopover } from "@/components/ui/ix"
 import { RISK_LEVELS, RiskMeter, riskLevel } from "@/components/ui/web3"
 import { formatTokenAmount } from "@/components/ui/web3/format"
 import { capacityUsdg, liqPrice, pct, usdg } from "./format"
@@ -121,30 +121,24 @@ export function LoanLine({ m, before, after, previewing }: {
 
 /** The rate panel: Intatto's rate is variable (no manual mode), so the menu explains it instead. */
 export function RateRow({ v, debtAfter }: { v: VaultState; debtAfter: bigint }) {
+  const { symbol } = useNames()
+  const { data: params } = useProtocolParams(symbol)
   return (
     <div className="grid gap-1 rounded-lg border p-3">
       <div className="flex items-center justify-between gap-3">
         <span className="text-sm font-medium">Interest rate</span>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button type="button" variant="outline" size="xs">
-              Variable <ChevronDownIcon aria-hidden />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="grid w-72 gap-2 text-sm">
-            <p className="font-medium">Variable rate</p>
-            <p className="text-muted-foreground">
-              Set by how much of the lending vault is lent out (now {pct(v.utilizationBps)}). It moves as people borrow and
-              repay; there is no fixed or manual rate. 20% of the interest funds the gap reserve.
-            </p>
-          </PopoverContent>
-        </Popover>
+        <span className="inline-flex items-center text-xs">Variable
+          <DefinitionPopover term="variable rate" source={params ? `Reserve factor read at block ${params.blockNumber}` : undefined}>
+            Set by vault utilisation (now {pct(v.utilizationBps)}); changes as people borrow and repay.
+            {params ? ` ${pct(params.market.reserveFactorBps)} of interest funds the gap reserve.` : " Reserve allocation unavailable or loading."}
+          </DefinitionPopover>
+        </span>
       </div>
       <p className="text-2xl font-medium tabular-nums" data-testid="borrow-rate">
         {pct(v.borrowRateBps)}
       </p>
       <p className="text-xs text-muted-foreground">
-        {debtAfter > 0n ? `≈ ${usdg(yearlyInterest(debtAfter, v.borrowRateBps))} / year on ${usdg(debtAfter)} at today's rate` : "– USDG / year"}
+        {debtAfter > 0n ? `≈ ${usdg(yearlyInterest(debtAfter, v.borrowRateBps))} / year on ${usdg(debtAfter)} at today's rate (estimate)` : "– USDG / year"}
       </p>
     </div>
   )
@@ -157,7 +151,8 @@ export function RiskAck({ after, lt, checked, onChange }: {
   checked: boolean
   onChange: (v: boolean) => void
 }) {
-  const { underlying } = useNames()
+  const { underlying, symbol } = useNames()
+  const { data: params } = useProtocolParams(symbol)
   const drop = dropToLiquidation(after, lt)
   return (
     <div className="grid gap-3" data-testid="risk-ack">
@@ -166,7 +161,7 @@ export function RiskAck({ after, lt, checked, onChange }: {
         <AlertTitle>High liquidation risk</AlertTitle>
         <AlertDescription>
           After this loan your LTV is {pct(after.ltvBps)}.
-          {drop !== null ? ` If ${underlying} opens ${(drop * 100).toFixed(1)}% lower after a weekend, this position can be liquidated with a 5% penalty.` : null}
+          {drop !== null ? ` If ${underlying} opens ${(drop * 100).toFixed(1)}% lower after a weekend, this position can be liquidated with ${params ? `a ${pct(params.market.penaltyBps)} penalty` : "a liquidation penalty (rate unavailable)"}.` : null}
         </AlertDescription>
       </Alert>
       <label className="flex items-center gap-2 text-sm">

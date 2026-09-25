@@ -63,7 +63,7 @@ export function RepayWithdrawForm({ m, a, marketAddress, draft, onDraft, plan, o
           max={a && debt > 0n ? plan.repayMax : undefined}
           tooLargeMessage={plan.walletShort ? "Insufficient USDG balance" : "More than you owe"}
           error={plan.repayError === "Nothing to repay" ? "You have no debt to repay." : null}
-          footer={<span className="tabular-nums">Owed {plan.walletShort ? `${owed} USDG` : usdg(debt)}</span>}
+          footer={<span className="tabular-nums">Owed {a ? plan.walletShort ? `${owed} USDG` : usdg(debt) : "—"}</span>}
         />
         {plan.walletShort ? (
           <p className="text-xs text-warning-foreground" data-testid="repay-wallet-short">
@@ -95,18 +95,18 @@ export function RepayWithdrawForm({ m, a, marketAddress, draft, onDraft, plan, o
           error={plan.withdrawError}
           footer={
             <span className="tabular-nums">
-              Deposited {names.tokens(plan.before.assets)} ({names.shares(plan.before.shares)})
+              {a ? `Deposited ${names.tokens(plan.before.assets)}` : "Deposited collateral unavailable or loading"}
             </span>
           }
         />
         <p className="text-xs text-muted-foreground">
-          {debt === 0n
+          {!a ? "Account data is needed to calculate how much you can withdraw." : debt === 0n
             ? "With no debt you can take everything out, whatever the session."
             : `With debt open, what stays must keep the position within the ${m.session} session's limit, and the price must be fresh. Collateral comes back as ${names.token}.`}
         </p>
       </div>
 
-      <FormCta cta={cta} onReview={onReview} />
+      <FormCta cta={a ? cta : { label: "Account data unavailable or loading", enabled: false }} onReview={onReview} />
     </div>
   )
 }

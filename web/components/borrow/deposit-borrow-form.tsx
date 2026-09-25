@@ -65,7 +65,7 @@ export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraf
           footer={
             plan.deposit > 0n ? (
               <span className="tabular-nums">
-                ≈ {usd6(valueOf(plan.deposit, m.priceE18))} · held as {names.shares(plan.depositShares)}
+                ≈ {usd6(valueOf(plan.deposit, m.priceE18))}
               </span>
             ) : (
               "Adds to your collateral"
@@ -104,16 +104,16 @@ export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraf
           }
         />
         {a && hasCollateral && plan.marketRefusal ? <RefusedNow refusal={plan.marketRefusal} /> : null}
-        <LoanLine m={m} before={plan.before} after={plan.after} previewing={!plan.empty} />
+        {a ? <LoanLine m={m} before={plan.before} after={plan.after} previewing={!plan.empty} /> : <p className="text-xs text-muted-foreground">Position preview requires account data.</p>}
       </div>
 
       <RateRow v={v} debtAfter={plan.after.debt} />
 
-      {plan.needsAck ? (
+      {a && plan.needsAck ? (
         <RiskAck after={plan.after} lt={m.liquidationThresholdBps} checked={draft.ack} onChange={(ack) => onDraft({ ack })} />
       ) : null}
 
-      <FormCta cta={cta} onReview={onReview} />
+      <FormCta cta={a ? cta : { label: "Account data unavailable or loading", enabled: false }} onReview={onReview} />
     </div>
   )
 }

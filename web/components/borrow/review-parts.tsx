@@ -2,29 +2,16 @@
 
 import type { ReactNode } from "react"
 import type { Hex } from "viem"
-import { ArrowLeftIcon, CheckIcon } from "lucide-react"
-import type { MarketState, VaultState } from "@/lib/chain"
+import { CheckIcon } from "lucide-react"
+import type { VaultState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ExplorerLink, RISK_LEVELS, riskLevel } from "@/components/ui/web3"
+import { ExplorerLink, RISK_LEVELS, riskLevel, ValueChange } from "@/components/ui/web3"
 import { health, liqPrice, pct, usdg } from "./format"
 import { bpsToFraction, type Metrics } from "./math"
 import { useNames } from "./names"
 
-export function ReviewHeader({ title, onBack }: { title: string; onBack: () => void }) {
-  return (
-    <div className="flex items-center gap-2">
-      <Button type="button" variant="ghost" size="sm" onClick={onBack}>
-        <ArrowLeftIcon aria-hidden />
-        Back
-      </Button>
-      <h3 className="text-base font-medium">{title}</h3>
-    </div>
-  )
-}
-
-const TONE = { Low: "text-success-foreground", Medium: "text-warning-foreground", High: "text-destructive" } as const
 const DOT = { Low: "bg-success", Medium: "bg-warning", High: "bg-destructive" } as const
 
 function Cell({ label, children, testId }: { label: string; children: ReactNode; testId?: string }) {
@@ -39,7 +26,7 @@ function Cell({ label, children, testId }: { label: string; children: ReactNode;
 }
 
 /** The position as it will be once every step below has gone through (Liquity's preview card, neutral). */
-export function PreviewCard({ caption, after, m, v }: { caption: string; after: Metrics; m: MarketState; v: VaultState }) {
+export function PreviewCard({ caption, before, after, v }: { caption: string; before: Metrics; after: Metrics; v: VaultState }) {
   const names = useNames()
   const level = after.debt > 0n ? riskLevel(bpsToFraction(after.ltvBps), RISK_LEVELS) : null
   return (
@@ -50,15 +37,10 @@ export function PreviewCard({ caption, after, m, v }: { caption: string; after: 
           <span className="text-2xl font-medium tabular-nums">{usdg(after.debt)}</span>
         </div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-          <Cell label="Collateral">
-            {names.tokens(after.assets)}
-            <span className="block text-xs text-muted-foreground">{names.shares(after.shares)}</span>
-          </Cell>
-          <Cell label="Liquidation price">{after.debt > 0n ? liqPrice(after.liquidationPriceE18) : "–"}</Cell>
-          <Cell label="LTV">
-            <span className={level ? TONE[level] : undefined}>{after.debt > 0n ? pct(after.ltvBps) : "–"}</span>
-            <span className="text-muted-foreground"> of {pct(m.maxLtvBps)} allowed</span>
-          </Cell>
+          <ValueChange className="col-span-2 flex-wrap [&>span:last-child]:flex-wrap" label="Collateral" before={before.assets} after={after.assets} format={(value) => names.tokens(BigInt(value))} />
+          <ValueChange className="col-span-2 flex-wrap [&>span:last-child]:flex-wrap" label="Debt" before={before.debt} after={after.debt} format={(value) => usdg(BigInt(value))} />
+          <ValueChange className="col-span-2 flex-wrap" label="Liquidation price" before={before.liquidationPriceE18} after={after.liquidationPriceE18} format={(value) => liqPrice(BigInt(value))} />
+          <ValueChange className="col-span-2 flex-wrap" label="LTV" before={before.ltvBps} after={after.ltvBps} format={(value) => pct(BigInt(value))} />
           <Cell label="Interest rate">{pct(v.borrowRateBps)} variable</Cell>
           <Cell label="Liquidation risk">
             {level ? (
@@ -70,7 +52,7 @@ export function PreviewCard({ caption, after, m, v }: { caption: string; after: 
               "None"
             )}
           </Cell>
-          <Cell label="Health factor">{health(after.healthE18)}</Cell>
+          <ValueChange className="col-span-2 flex-wrap" label="Health factor" before={before.healthE18} after={after.healthE18} format={(value) => health(BigInt(value))} />
         </div>
       </CardContent>
     </Card>
