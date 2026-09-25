@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { explorerTx } from "@intatto/config/xlayer"
-import { useIntatto } from "@/lib/chain"
-import { AddressDisplay } from "@/components/ui/web3"
 import { Badge } from "@/components/ui/badge"
 import { DefinitionPopover, EvidenceSheet } from "@/components/ui/ix"
+import { KeeperAddress } from "./keeper-address"
 import { EndpointList, ParameterList } from "./endpoints"
 import { TryIt } from "./try-it"
 import { ChainNotices } from "./notices"
@@ -28,7 +27,6 @@ import {
 } from "./content"
 
 export function CreditService() {
-  const { deployment } = useIntatto()
   const [calls, setCalls] = useState<CallLog[]>([])
 
   useEffect(() => {
@@ -74,7 +72,7 @@ export function CreditService() {
             evidenceFor="agent"
             testId="agent-details"
           >
-            <AgentRecord keeper={deployment?.keeper} />
+            <AgentRecord />
           </EvidenceSheet>
           <Link href="/risk" className="text-sm underline underline-offset-4">
             see every keeper post on the Risk console
@@ -102,12 +100,12 @@ export function CreditService() {
   )
 }
 
-function AgentRecord({ keeper }: { keeper?: string }) {
+function AgentRecord() {
   return (
     <div className="grid gap-3 text-sm">
       <div className="grid gap-1">
         <span className="text-muted-foreground">Keeper</span>
-        {keeper ? <AddressDisplay address={keeper} chars={6} /> : <span>No keeper yet</span>}
+        <KeeperAddress />
       </div>
       <div className="grid gap-1">
         <span className="text-muted-foreground">Registration transaction</span>

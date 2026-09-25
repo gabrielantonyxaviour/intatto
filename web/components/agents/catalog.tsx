@@ -1,11 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { useIntatto } from "@/lib/chain"
-import { AddressDisplay } from "@/components/ui/web3"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { KeeperAddress } from "./keeper-address"
 import {
   KEEPER_IDENTITY,
   KEEPER_ROLE,
@@ -19,8 +18,6 @@ import {
 import { ChainNotices } from "./notices"
 
 export function AgentsCatalog() {
-  const { deployment } = useIntatto()
-
   return (
     <div className="grid gap-6">
       <header className="grid gap-1">
@@ -61,11 +58,7 @@ export function AgentsCatalog() {
             <CardDescription>{KEEPER_ROLE}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3">
-            {deployment?.keeper ? (
-              <AddressDisplay address={deployment.keeper} chars={6} />
-            ) : (
-              <p className="text-sm text-muted-foreground">The keeper address appears once Intatto is deployed.</p>
-            )}
+            <KeeperAddress />
             <Badge variant="outline">{KEEPER_IDENTITY}</Badge>
           </CardContent>
         </Card>
