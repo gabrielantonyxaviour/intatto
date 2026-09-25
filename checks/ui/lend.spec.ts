@@ -11,14 +11,13 @@ import { test, expect, viewports, expectNoHorizontalScroll } from "./fixtures"
 import { startForkHarness, SANDBOX_LENDER, type ForkHarness } from "../fork/harness.ts"
 import * as scenarios from "../fork/lib/scenarios.ts"
 import { formatTokenAmount } from "../../web/components/ui/web3/format.ts"
+import { lossExample, usdg } from "../../web/components/lend/lend-format.ts"
 
 test.describe.configure({ mode: "serial" })
 // Several specs share checks/ui/.results and each run clears it; a trace file removed mid-run fails the test,
 // so this spec keeps no trace. Its evidence is the proof/lend*.png screenshots and the assertions.
 test.use({ trace: "off" })
 
-const usdg = (v: bigint, digits = 2) =>
-  `${formatTokenAmount(v, 6, { maxFractionDigits: digits, minFractionDigits: digits })} USDG`
 const bps = (v: bigint) => `${(Number(v) / 100).toFixed(2)}%`
 const REPLAYS = new URL("../../data/replays/", import.meta.url)
 const replay = (name: string) => JSON.parse(readFileSync(new URL(name, REPLAYS), "utf8"))
@@ -79,6 +78,24 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   await h?.stop()
+})
+
+test("small amounts keep their digits and the loss example never states more than 100%", () => {
+  // X Layer mainnet held about 1.4975 USDG when QA found "1 USDG" and a 66,777.829% drop per 1,000 USDG.
+  expect(usdg(1_497_500n, 0)).toBe("1.4975 USDG")
+  expect(usdg(1_497_502n)).toBe("1.4975 USDG")
+  expect(usdg(400_000n)).toBe("0.40 USDG")
+  expect(usdg(150_500_000n, 0)).toBe("150.5 USDG")
+  expect(usdg(50_150_000_000n, 0)).toBe("50,150 USDG")
+  expect(lossExample(1_497_500n)).toBe(
+    "The vault holds 1.4975 USDG today, so a write-off that size would wipe out all deposits.",
+  )
+  expect(lossExample(50_150_000_000n)).toContain("by 1.994% at today's deposits")
+  for (const total of [0n, 1n, 1_497_500n, 999_999_999n, 1_000_000_000n, 1_000_000_001n, 50_150_000_000n, 10n ** 18n]) {
+    for (const m of lossExample(total).matchAll(/([\d.,]+)%/g)) {
+      expect(Number(m[1]!.replace(/,/g, "")), lossExample(total)).toBeLessThanOrEqual(100)
+    }
+  }
 })
 
 test("not deployed on X Layer: the screen points to the sandbox", async ({ page }) => {
@@ -221,6 +238,8 @@ test("reserve exhaustion: the idle limit, then the recognised deficit and the lo
   const lens = await lensVault()
   await expect(page.getByTestId("reserve-balance")).toHaveText(usdg(lens.reserveBalance))
   await expect(page.getByTestId("waterfall-reserve")).toHaveText(usdg(lens.reserveBalance))
+  await expect(page.getByTestId("loss-example")).toHaveText(lossExample(await readVault<bigint>("totalAssets")))
+  await expect(page.getByTestId("risk-page-link")).toHaveAttribute("href", "/risk")
 
   // Full-page capture from the top, so the sticky header and panel sit where a person sees them.
   await page.evaluate(() => window.scrollTo(0, 0))

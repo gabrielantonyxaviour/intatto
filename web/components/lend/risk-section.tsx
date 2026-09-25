@@ -1,17 +1,12 @@
 "use client"
 
+import Link from "next/link"
 import { useIntatto, type MarketState, type VaultState } from "@/lib/chain"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AddressDisplay, ExplorerLink } from "@/components/ui/web3"
-import { bpsText, ratioText, usdg } from "./lend-format"
+import { bpsText, lossExample, ratioText, usdg } from "./lend-format"
 import { Section } from "./overview-section"
 import { SummaryRow } from "./summary-row"
-
-/** Share price drop, in percent, for each 1,000 USDG written off against the vault's assets. */
-function dropPer1000(totalAssets: bigint): string {
-  if (totalAssets === 0n) return "–"
-  return `${((1_000_000_000 / Number(totalAssets)) * 100).toFixed(3)}%`
-}
 
 /** The loss waterfall with live numbers, the gap reserve's funding rule and who controls what. */
 export function RiskSection({ vault, market }: { vault: VaultState; market: MarketState }) {
@@ -21,6 +16,7 @@ export function RiskSection({ vault, market }: { vault: VaultState; market: Mark
       title: "Recovered collateral",
       value: usdg(market.totalCollateralValue),
       testId: "waterfall-collateral",
+      note: undefined,
       body: `An unhealthy position's NVDAx is sold into the pool in bounded slices. The proceeds repay its debt and the 5% penalty first. ${
         market.totalDebt === 0n
           ? "No loans are open right now."
@@ -35,15 +31,15 @@ export function RiskSection({ vault, market }: { vault: VaultState; market: Mark
       title: "Gap reserve",
       value: usdg(vault.reserveBalance),
       testId: "waterfall-reserve",
+      note: undefined,
       body: "If the collateral is gone and debt is left, the gap reserve pays the rest straight into the vault, up to its balance.",
     },
     {
       title: "Lenders, pro rata",
       value: usdg(vault.totalAssets),
       testId: "waterfall-lenders",
-      body: `Whatever the reserve cannot pay is written off. Every share loses the same fraction: each 1,000 USDG written off lowers the share price by ${dropPer1000(
-        vault.totalAssets,
-      )} at today's deposits.`,
+      body: "Whatever the reserve cannot pay is written off. Every share loses the same fraction.",
+      note: lossExample(vault.totalAssets),
     },
   ]
   return (
@@ -70,10 +66,25 @@ export function RiskSection({ vault, market }: { vault: VaultState; market: Mark
               <p data-testid={s.testId} className="text-lg font-medium tabular-nums">
                 {s.value}
               </p>
-              <p className="text-sm text-muted-foreground">{s.body}</p>
+              <p className="text-sm text-muted-foreground">
+                {s.body}
+                {s.note ? (
+                  <>
+                    {" "}
+                    <span data-testid="loss-example">{s.note}</span>
+                  </>
+                ) : null}
+              </p>
             </li>
           ))}
         </ol>
+        <p className="text-sm text-muted-foreground">
+          Every open loan, ranked by how close it is to liquidation, and price-shock scenarios are on the{" "}
+          <Link href="/risk" className="text-foreground underline underline-offset-4" data-testid="risk-page-link">
+            Risk page
+          </Link>
+          .
+        </p>
       </div>
 
       <div className="grid gap-2">

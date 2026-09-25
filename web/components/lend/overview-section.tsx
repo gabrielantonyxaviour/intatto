@@ -5,7 +5,7 @@ import { useAccount } from "wagmi"
 import { useIntatto, type AccountState, type VaultState } from "@/lib/chain"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ExplorerLink, TokenAmount } from "@/components/ui/web3"
-import { SHARE_SYMBOL, USDG_DECIMALS, ratioText, sharePriceText, usdg } from "./lend-format"
+import { SHARE_SYMBOL, USDG_DECIMALS, amount6, ratioText, sharePriceText, usdg } from "./lend-format"
 import { SummaryRow } from "./summary-row"
 
 export function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
@@ -36,7 +36,7 @@ export function OverviewSection({ vault }: { vault: VaultState }) {
           {SHARE_SYMBOL} (ERC-4626, 6 decimals)
         </SummaryRow>
         <SummaryRow label="Shares outstanding" className="border-b pb-3">
-          <TokenAmount value={vault.totalSupply} decimals={USDG_DECIMALS} maxFractionDigits={2} symbol={SHARE_SYMBOL} />
+          {amount6(vault.totalSupply)} {SHARE_SYMBOL}
         </SummaryRow>
         <SummaryRow label="Withdrawals" className="border-b pb-3">
           Any time, up to the idle USDG
