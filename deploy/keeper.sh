@@ -15,4 +15,5 @@ c.vars={...c.vars, LIVE_DEPLOYMENT: process.argv[1]}; fs.writeFileSync("wrangler
 trap 'rm -f wrangler.deploy.json' EXIT
 npx wrangler deploy --config wrangler.deploy.json
 printf '%s' "$CLOSE_GUARD_OPERATOR_PK" | npx wrangler secret put OPERATOR_PK --config wrangler.deploy.json >/dev/null
-echo "keeper deployed; OPERATOR_PK secret set"
+if [ -n "${RECEIPT_TOKEN:-}" ]; then printf '%s' "$RECEIPT_TOKEN" | npx wrangler secret put RECEIPT_TOKEN --config wrangler.deploy.json >/dev/null; fi
+echo "keeper deployed; OPERATOR_PK secret set${RECEIPT_TOKEN:+; RECEIPT_TOKEN set}"

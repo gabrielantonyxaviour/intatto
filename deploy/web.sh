@@ -23,4 +23,6 @@ if grep -qE "_PK|API_TOKEN|API_KEY|PRIVATE" web/.open-next/cloudflare/next-env.m
 fi
 cp "$REPO/deploy/wrangler.web.jsonc" web/wrangler.deploy.jsonc
 cd web && npx wrangler deploy --config wrangler.deploy.jsonc \
-  --var "LIVE_DEPLOYMENT:${LIVE:-}" --var "SANDBOX_API_URL:$SANDBOX_API_URL"
+  --var "LIVE_DEPLOYMENT:${LIVE:-}" --var "SANDBOX_API_URL:$SANDBOX_API_URL" \
+  --var "RECEIPT_URL:${RECEIPT_URL:-https://intatto-keeper.larinova.com}"
+if [ -n "${RECEIPT_TOKEN:-}" ]; then printf '%s' "$RECEIPT_TOKEN" | npx wrangler secret put RECEIPT_TOKEN --config wrangler.deploy.jsonc >/dev/null; fi
