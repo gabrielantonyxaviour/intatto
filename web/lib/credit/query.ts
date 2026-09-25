@@ -30,11 +30,23 @@ const session = z
   .regex(/^[A-Za-z0-9_-]{1,64}$/, "session must be a sandbox session id (letters, digits, - and _, up to 64)")
   .optional()
 
+/** An optional chain id must match the network: 196 for mainnet, 1960196 for the sandbox. */
+const chain = z
+  .string()
+  .trim()
+  .regex(/^\d{1,10}$/, "chain must be a chain id: 196 (mainnet) or 1960196 (sandbox)")
+  .transform(Number)
+  .optional()
+
 const creditQuery = z
-  .object({ wallet, market, network, session })
+  .object({ wallet, market, network, session, chain })
   .refine((q) => !q.session || q.network === "sandbox", {
     message: "session applies only to network=sandbox",
     path: ["session"],
+  })
+  .refine((q) => q.chain === undefined || q.chain === (q.network === "sandbox" ? 1960196 : 196), {
+    message: "chain does not match the network: use 196 for mainnet or 1960196 with network=sandbox",
+    path: ["chain"],
   })
 
 const healthQuery = z
@@ -54,6 +66,7 @@ const CODES: Record<string, string> = {
   market: "INVALID_MARKET",
   network: "INVALID_NETWORK",
   session: "INVALID_SESSION",
+  chain: "WRONG_CHAIN",
 }
 
 /** Reads each known key once; an empty value counts as missing. Unknown keys are ignored. */
@@ -75,7 +88,7 @@ function parse<T>(schema: z.ZodType<T, z.ZodTypeDef, unknown>, input: unknown): 
 }
 
 export function parseCreditQuery(params: URLSearchParams): Parsed<CreditQuery> {
-  return parse(creditQuery, pick(params, ["wallet", "market", "network", "session"])) as Parsed<CreditQuery>
+  return parse(creditQuery, pick(params, ["wallet", "market", "network", "session", "chain"])) as Parsed<CreditQuery>
 }
 
 export function parseHealthQuery(params: URLSearchParams): Parsed<HealthQuery> {
