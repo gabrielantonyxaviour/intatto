@@ -24,6 +24,7 @@ export type MarketTerms = {
   maxMoveBps: bigint
   priceLivenessSeconds: bigint
   pegBps: bigint
+  twapWindowSeconds: bigint
 }
 import { ago, bpsShort, diffBps, duration, formatUtc, usdPrice } from "./format"
 
@@ -49,7 +50,7 @@ export const SESSION_TONE: Record<Session, Tone> = {
 
 /** What the session in force means for a borrower right now. Bands and limits are the active deployment's. */
 export function sessionMeaning(s: MarketState, p: MarketTerms, now: number): string {
-  const bandOpen = ` The relayed price must stay within ±${bpsShort(p.bandOpenBps)} of the pool's 30-minute average.`
+  const bandOpen = ` The relayed price must stay within ±${bpsShort(p.bandOpenBps)} of the pool's ${duration(p.twapWindowSeconds)} average.`
   const bandOther = ` The price band is ±${bpsShort(p.bandOtherBps)}.`
   switch (s.session) {
     case "OPEN":
@@ -90,7 +91,7 @@ export function refusalReason(name: RefusalName, s: MarketState): string {
 }
 
 /** One sentence: why new borrowing is off, what is refused and what still works. */
-export function pausedSentence(first: RefusalName, s: MarketState, symbol: string, pegBps?: bigint): string {
+export function pausedSentence(first: RefusalName, s: MarketState, symbol: string, pegBps?: bigint, twapWindowSeconds?: bigint): string {
   const works = "repaying and adding collateral still work"
   switch (first) {
     case "IssuerPaused":
@@ -102,7 +103,7 @@ export function pausedSentence(first: RefusalName, s: MarketState, symbol: strin
     case "StalePrice":
       return `The keeper's last price is too old: new borrowing, liquidations and withdrawals that leave debt are refused; ${works}.`
     case "PriceOutOfBand":
-      return `The relayed price is outside the band around the pool's 30-minute average: new borrowing is refused; ${works}.`
+      return `The relayed price is outside the band around the pool's ${twapWindowSeconds === undefined ? "average" : `${duration(twapWindowSeconds)} average`}: new borrowing is refused; ${works}.`
     case "CorporateActionPending":
       return `A split or dividend is activating for ${symbol}: new borrowing and liquidations are paused until it settles; ${works}.`
     case "TickerCapReached":
@@ -125,7 +126,9 @@ export function guardResults(
   now: number,
   symbol: string,
   relayFailed = false,
+  twapWindowSeconds?: bigint,
 ): GuardResult[] {
+  const twap = twapWindowSeconds === undefined ? "TWAP" : `${duration(twapWindowSeconds)} TWAP`
   const unread = relayFailed ? "The relay's inputs could not be read from the RPC." : "Reading the relay's inputs…"
   const noPrice = s.priceE18 === 0n
   const liveness = relay ? ` (limit ${duration(relay.priceLivenessSeconds)})` : ""
@@ -140,8 +143,8 @@ export function guardResults(
   else if (relay && relay.twapOk) {
     const width = s.session === "OPEN" ? relay.bandOpenBps : relay.bandOtherBps
     const dev = Math.abs(diffBps(relay.impliedE18, relay.twapE18)) / 100
-    band = `Implied w${symbol} price ${usdPrice(relay.impliedE18)} is ${dev.toFixed(2)}% from the pool's 30-min TWAP ${usdPrice(relay.twapE18)}; ${s.inBand ? "inside" : "outside"} ±${bpsShort(width)}.`
-  } else if (relay && !relay.twapOk) band = "The pool cannot supply a 30-minute TWAP right now."
+    band = `Implied w${symbol} price ${usdPrice(relay.impliedE18)} is ${dev.toFixed(2)}% from the pool's ${twap} ${usdPrice(relay.twapE18)}; ${s.inBand ? "inside" : "outside"} ±${bpsShort(width)}.`
+  } else if (relay && !relay.twapOk) band = `The pool cannot supply a ${twap} right now.`
 
   let peg = unread
   if (relay) {
@@ -183,7 +186,7 @@ export const RELAY_BOUNDS_LEAD = "trusted relayer, bounded onchain by keeper liv
 export function priceBoundLines(terms: MarketTerms, symbol: string): string[] {
   const band = `±${bpsShort(terms.bandOpenBps)} while open, ±${bpsShort(terms.bandOtherBps)} otherwise`
   return [
-    `Checked against the w${symbol}/USDG pool's 30-minute TWAP (${band}); a post that moves more than ${bpsShort(terms.maxMoveBps)} from the last one is rejected.`,
+    `Checked against the w${symbol}/USDG pool's ${duration(terms.twapWindowSeconds)} TWAP (${band}); a post that moves more than ${bpsShort(terms.maxMoveBps)} from the last one is rejected.`,
     `USDG is converted with Chainlink USDG/USD, which must be recent and within ${bpsShort(terms.pegBps)} of $1.`,
   ]
 }

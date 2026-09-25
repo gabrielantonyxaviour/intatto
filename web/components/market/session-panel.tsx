@@ -90,7 +90,7 @@ export function SessionPanel({ symbol, state: s, terms, params, now }: Props) {
             <CircleAlertIcon aria-hidden />
             <AlertTitle>New borrowing is off</AlertTitle>
             <AlertDescription>
-              <p>{pausedSentence(refusals[0]!, s, symbol, terms?.pegBps)}</p>
+              <p>{pausedSentence(refusals[0]!, s, symbol, terms?.pegBps, terms?.twapWindowSeconds)}</p>
               {refusals.length > 1 ? (
                 <p>
                   {refusals.length === 2 ? "1 more check also refuses it" : `${refusals.length - 1} more checks also refuse it`}; see the

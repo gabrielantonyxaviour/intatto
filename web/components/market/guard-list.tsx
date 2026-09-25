@@ -6,14 +6,21 @@ import type { MarketState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
 import { DefinitionPopover } from "@/components/ui/ix"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { guardResults } from "./copy"
+import { guardResults, type MarketTerms } from "./copy"
 import type { RelayDetail } from "./use-market-params"
 
-type Props = { symbol: string; state: MarketState; relay: RelayDetail | undefined; relayFailed: boolean; now: number }
+type Props = {
+  symbol: string
+  state: MarketState
+  relay: RelayDetail | undefined
+  relayFailed: boolean
+  now: number
+  terms: MarketTerms | undefined
+}
 
-/** The five checks a new borrow must pass, each ✓/✗ with a one-line reason. */
-export function GuardList({ symbol, state, relay, relayFailed, now }: Props) {
-  const guards = guardResults(state, relay, now, symbol, relayFailed)
+/** Pass or fail stays on the row. The reading behind a passing check opens from its button. */
+export function GuardList({ symbol, state, relay, relayFailed, now, terms }: Props) {
+  const guards = guardResults(state, relay, now, symbol, relayFailed, terms?.twapWindowSeconds)
   const failing = guards.filter((g) => !g.ok).length
   return (
     <Card data-testid="guards">
@@ -46,7 +53,13 @@ export function GuardList({ symbol, state, relay, relayFailed, now }: Props) {
                     {g.ok ? "✓" : "✗"}
                   </span>
                 </span>
-                <span className="break-words text-muted-foreground">{g.reason}</span>
+                {g.ok ? (
+                  <DefinitionPopover term={g.label} contentTestId={`guard-${g.key}-meaning`}>
+                    {g.reason}
+                  </DefinitionPopover>
+                ) : (
+                  <span className="break-words text-muted-foreground">{g.reason}</span>
+                )}
               </div>
             </li>
           ))}

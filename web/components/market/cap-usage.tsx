@@ -1,6 +1,6 @@
 import type { MarketState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { bps, usdg, usdgPair } from "./format"
 
 const R = 26
@@ -16,7 +16,6 @@ export function CapUsage({ symbol, state: s }: { symbol: string; state: MarketSt
     <Card data-testid="cap-usage">
       <CardHeader>
         <CardTitle>Borrowing cap for {symbol}</CardTitle>
-        <CardDescription>Total debt against {symbol} may not pass a cap the keeper sizes from what the pool can absorb in a sale.</CardDescription>
       </CardHeader>
       <CardContent className="flex items-center gap-4">
         <div className="relative size-20 shrink-0">

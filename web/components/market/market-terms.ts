@@ -20,5 +20,6 @@ export function marketTerms(p: ProtocolParams): MarketTerms {
     maxMoveBps: p.relay.maxMoveBps,
     priceLivenessSeconds: p.relay.priceLiveness,
     pegBps: p.relay.pegBps,
+    twapWindowSeconds: p.relay.twapWindow,
   }
 }

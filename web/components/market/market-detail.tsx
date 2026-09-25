@@ -42,7 +42,7 @@ export function MarketDetail({ deployment, market, state }: { deployment: Deploy
         <div data-testid="tab-overview" className={cn("grid min-w-0 gap-4 lg:col-span-2", tab !== "overview" && "hidden lg:grid")}>
           <SessionPanel symbol={market.symbol} state={state} terms={terms} params={params.data} now={now.data} />
           {now.data !== undefined ? (
-            <GuardList symbol={market.symbol} state={state} relay={relay.data} relayFailed={relay.isError} now={now.data} />
+            <GuardList symbol={market.symbol} state={state} relay={relay.data} relayFailed={relay.isError} now={now.data} terms={terms} />
           ) : (
             <Skeleton className="h-56" />
           )}
