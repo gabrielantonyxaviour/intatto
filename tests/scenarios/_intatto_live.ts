@@ -64,14 +64,24 @@ export async function openRisk(page: Page, view: string, label: string) {
   return { from: BigInt(m[1]!.replace(/,/g, "")), to: BigInt(m[2]!.replace(/,/g, "")) }
 }
 
+/** Public RPCs cap eth_getLogs at 100 blocks, including both endpoints. */
+async function pagedLogs<T>(from: bigint, to: bigint, read: (fromBlock: bigint, toBlock: bigint) => Promise<T[]>) {
+  const logs: T[] = []
+  for (let start = from; start <= to; start += 100n) {
+    const end = start + 99n < to ? start + 99n : to
+    logs.push(...await read(start, end))
+  }
+  return logs
+}
+
 /** Every keeper-sent event in [from, to], newest first, as the console orders them. */
 export async function keeperEvents(from: bigint, to: bigint) {
   const { client, d, nvda } = mainnet()
   const [prices, sessions, caps, actions] = await Promise.all([
-    client.getLogs({ address: nvda.priceRelay as Address, events: [EVENTS.price, EVENTS.rejected], fromBlock: from, toBlock: to }),
-    client.getLogs({ address: d.sessionRisk as Address, event: EVENTS.session, fromBlock: from, toBlock: to }),
-    client.getLogs({ address: d.depthCaps as Address, event: EVENTS.cap, args: { market: nvda.market as Address }, fromBlock: from, toBlock: to }),
-    client.getLogs({ address: nvda.corporateActionGuard as Address, event: EVENTS.action, fromBlock: from, toBlock: to }),
+    pagedLogs(from, to, (fromBlock, toBlock) => client.getLogs({ address: nvda.priceRelay as Address, events: [EVENTS.price, EVENTS.rejected], fromBlock, toBlock })),
+    pagedLogs(from, to, (fromBlock, toBlock) => client.getLogs({ address: d.sessionRisk as Address, event: EVENTS.session, fromBlock, toBlock })),
+    pagedLogs(from, to, (fromBlock, toBlock) => client.getLogs({ address: d.depthCaps as Address, event: EVENTS.cap, args: { market: nvda.market as Address }, fromBlock, toBlock })),
+    pagedLogs(from, to, (fromBlock, toBlock) => client.getLogs({ address: nvda.corporateActionGuard as Address, event: EVENTS.action, fromBlock, toBlock })),
   ])
   const all = [...prices, ...sessions, ...caps, ...actions]
   return all.sort((a, b) => (a.blockNumber === b.blockNumber ? b.logIndex! - a.logIndex! : a.blockNumber! > b.blockNumber! ? -1 : 1))
