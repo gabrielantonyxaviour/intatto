@@ -1,7 +1,7 @@
 /** ABEL SCENARIO — generated. Fill in selectors and assertions; do not rename step ids.
  *  scenario:   sc_keeper_live
- *  mapping:    1
- *  definition: 90555c298ceacd32f1d78a0f2532bf0e202983c4a0f9d788dba258897b10f4b7
+ *  mapping:    2
+ *  definition: a23cf1d198c2ea614a64ac028e92bf9dd7ab1c56c3c16cf91c7341451e0b9b90
  *
  *  Regenerate with: npm run graph -- scenario-spec --product <id>
  *  Your code between the `>>> abel:<id>` markers is preserved across regeneration.
@@ -41,7 +41,7 @@ scenario("sc_keeper_live", "keeper", () => {
     // <<< abel:keeper_read_issuer
   })
   step("keeper_post", "Post session, price and cap on mainnet", async ({ page }) => {
-    // action:   The keeper posts the session, the price with its fetch time, pending actions and the ticker cap.
+    // action:   The keeper posts the session, the price with its fetch time, pending actions and the ticker cap from sampled QuoterV2 sell depth.
     // expected: Each post is confirmed on mainnet from the keeper address and passes the onchain guards.
     // >>> abel:keeper_post
     const I = await import("./_intatto"), { expect } = I, LV = await import("./_intatto_live")
@@ -76,7 +76,7 @@ scenario("sc_keeper_live", "keeper", () => {
   })
   step("keeper_risk_console", "See the posts on the Risk console", async ({ page }) => {
     // action:   Open the Risk console.
-    // expected: The latest posts appear with fetch time, value and guard results, and each keeper action links to its explorer transaction.
+    // expected: The latest posts show fetch time, value, session, guard results (TWAP band, max move and USDG peg) and the sampled depth behind the cap; each keeper action links to its X Layer explorer transaction.
     // >>> abel:keeper_risk_console
     const I = await import("./_intatto"), { expect } = I, LV = await import("./_intatto_live")
     const { formatUtc } = await import("../../web/components/ui/web3/format.ts")

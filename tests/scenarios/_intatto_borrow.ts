@@ -136,17 +136,32 @@ async function shownGapRows(page: Page) {
 /** The same rows from MarketLens values, with CollateralMarketBase.isLiquidatable's own test. */
 async function chainGapRows() {
   const { L } = await access()
-  const [a, m] = await Promise.all([L.account(), L.market()])
-  return [5, 10, 20, 30].map((drop) => {
-    const keep = BigInt(100 - drop)
-    const value = (a.valueUsdg * keep) / 100n
-    const liquidatable = a.debt * 10_000n > value * m.liquidationThresholdBps
-    const h = (value * m.liquidationThresholdBps * 10n ** 18n) / (a.debt * 10_000n)
-    return `−${drop}% ${usd((m.priceE18 * keep) / 100n)} ${pct((a.debt * 10_000n) / value)} ${health(h)} ${liquidatable ? "Liquidatable" : "Safe"}`
+  const [a, m, v] = await Promise.all([L.account(), L.market(), L.vault()])
+  const keepPpm = a.debt * 10_000n * 1_000_000n / (a.valueUsdg * m.liquidationThresholdBps)
+  const line = keepPpm < 1_000_000n ? ((1_000_000n - keepPpm) * 10_000n + 999_999n) / 1_000_000n : null
+  const drops = new Set([500n, 1000n, 2000n, 3000n])
+  let deeper = 0
+  for (const d of [4000n, 5000n, 6000n, 7000n, 8000n, 9000n]) {
+    if (line !== null && d < line) drops.add(d)
+    else if (d > (line ?? 0n) && deeper < 2) { drops.add(d); deeper++ }
+  }
+  if (line !== null) drops.add(line)
+  return [...drops].sort((x,y) => Number(x-y)).map((drop) => {
+    const keep = 10_000n - drop, value = a.valueUsdg * keep / 10_000n
+    const liquidatable = drop === line || a.debt * 10_000n > value * m.liquidationThresholdBps
+    const h = value * m.liquidationThresholdBps * 10n ** 18n / (a.debt * 10_000n)
+    const recovered = value * 10_000n / 10_500n
+    const shortfall = liquidatable && recovered < a.debt ? a.debt - recovered : 0n
+    const loss = shortfall > v.reserveBalance ? shortfall - v.reserveBalance : 0n
+    const lossText = usdg(loss) + (shortfall > 0n ? `reserve covers ${usdg(shortfall-loss)}` : '')
+    const ltv = a.debt * 10_000n / value
+    return `−${(Number(drop)/100).toFixed(drop%100n===0n?0:2)}% ${usd(m.priceE18*keep/10_000n)} ${ltv>99900n?'>999%':pct(ltv)} ${health(h)} ${drop===line?'Liquidation starts':liquidatable?'Liquidatable':'Safe'} ${lossText}`
   })
 }
 
 export async function gapRowsMatch(page: Page) {
+  await expect(page.getByRole("columnheader", { name: "Lenders lose (est.)" })).toBeVisible()
+  await expect(page.getByTestId("gap-table").locator("table").getByText("Liquidation starts", {exact:true})).toBeVisible()
   await shows("Monday-gap rows", async () => (await shownGapRows(page)).join(" / "), async () => (await chainGapRows()).join(" / "))
   return shownGapRows(page)
 }
@@ -191,14 +206,24 @@ export async function repayAll(page: Page, checks = { tx: "chk_borrow_repay_tx",
 
 /** Withdraw tab: Max withdraws everything (no debt left); the position returns to "No position yet". */
 export async function withdrawAll(page: Page, checks = { tx: "chk_borrow_withdraw_tx", call: "int_borrow_withdraw" }) {
-  const { burner, nvda, L, read } = await access()
+  const { burner, nvda, L, read, client } = await access()
   const review = page.getByTestId("repay-review")
   if (await review.isVisible().catch(() => false)) await review.getByRole("button", { name: "Back to the form" }).click()
   await repayForm(page).locator('[data-slot="amount-input"]').nth(1).getByRole("button", { name: "Max" }).click()
   await expect(repayCta(page)).toHaveText("Review", { timeout: 45_000 })
   await repayCta(page).click()
   await review.getByRole("button", { name: /^Withdraw / }).click({ timeout: 60_000 })
-  await expect(review.getByTestId("review-finished")).toBeVisible({ timeout: 60_000 })
+  try { await expect(review.getByTestId("review-finished")).toBeVisible({ timeout: 60_000 }) }
+  catch(error) {
+    const text=await review.innerText(), hash=text.match(/0x[a-fA-F0-9]{64}/)?.[0] as Hex|undefined
+    if(hash) {
+      const receipt=await client.getTransactionReceipt({hash}),tx=await client.getTransaction({hash})
+      const replay=await client.call({account:tx.from,to:tx.to!,data:tx.input,blockNumber:receipt.blockNumber-1n}).then(()=>({accepted:true}),e=>({accepted:false,error:e.message}))
+      const {writeFileSync}=await import('node:fs')
+      writeFileSync(`${process.env.PW_OUT}/withdraw-diagnostic.json`,JSON.stringify({url:page.url(),text,receipt,transaction:tx,replay},(_,v)=>typeof v==='bigint'?v.toString():v,2))
+    }
+    throw error
+  }
   const hash = await doneHash(page, "repay-review", "Withdrew")
   const r = await receiptFromBurner(hash)
   const [shares, debt] = await read<[bigint, bigint]>(nvda.market, forkAbi.market, "positionOf", [burner])

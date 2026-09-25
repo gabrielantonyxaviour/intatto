@@ -1,7 +1,7 @@
 /** ABEL SCENARIO — generated. Fill in selectors and assertions; do not rename step ids.
  *  scenario:   sc_weekend
- *  mapping:    1
- *  definition: 7b1abbdcb7b9a402bd8a87525919851ac119d89427c5ab5cf134d1c3b6591b8f
+ *  mapping:    2
+ *  definition: c368281ca8e134d595012dd210db4beeb541c191a369f5738ed5167043788f7c
  *
  *  Regenerate with: npm run graph -- scenario-spec --product <id>
  *  Your code between the `>>> abel:<id>` markers is preserved across regeneration.

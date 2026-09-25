@@ -1,7 +1,7 @@
 /** ABEL SCENARIO — generated. Fill in selectors and assertions; do not rename step ids.
  *  scenario:   sc_corporate_action
- *  mapping:    1
- *  definition: 2d41e62182c451292194ba1450e184ce7b4340156b36364ad2645f450d738c26
+ *  mapping:    2
+ *  definition: 36308d0d79e9fc99605286478c9d979aaf8bc3ebe4a87376d1951ca5adcf90ae
  *
  *  Regenerate with: npm run graph -- scenario-spec --product <id>
  *  Your code between the `>>> abel:<id>` markers is preserved across regeneration.
@@ -136,7 +136,7 @@ scenario("sc_corporate_action", "judge", () => {
     await SB.go(page, "Borrow")
     await expect(page.getByTestId("borrow-screen")).toBeVisible({ timeout: 120_000 })
     await expect(page.getByTestId("market-status")).toHaveCount(0, { timeout: 60_000 })
-    const { client, nvda, L, s } = await SB.sessionChain()
+    const { client, nvda, L, s, d } = await SB.sessionChain()
     const m = await L.market()
     await expect(page.getByTestId("relayed-price").first()).toHaveText(I.usd(m.priceE18), { timeout: 60_000 })
     const before = await L.account()
@@ -162,7 +162,9 @@ scenario("sc_corporate_action", "judge", () => {
     I.observe("chk_ca_borrow_resumes", `Borrow: no pause notice, relayed price ${I.usd(m.priceE18)} (post-split); borrowing 1.00 USDG confirmed ${hash} (block ${r.blockNumber}), debt ${I.usdg(before.debt)} → ${I.usdg(after.debt)}. Risk console › Corporate actions: "${nothing}" with no pending-action panel and no CorporateActionPending guard alert`)
     I.observeCall("int_ca_borrow", `CollateralMarket.borrow(1000000) confirmed after activation, status success`, hash)
     await I.edge("ec_ca_inconsistent_price", async () => {
-      const { parseEventLogs } = await import("viem"), { priceRelayAdapterAbi } = await import("@intatto/config/abi")
+      const { parseEventLogs } = await import("viem"), { priceRelayAdapterAbi, collateralMarketAbi, boundedLiquidatorAbi } = await import("@intatto/config/abi")
+      const edgeStart = await client.getBlockNumber()
+      const edgeNonce = await (await B.borrowAccess()).nonce()
       const REASONS = ["FutureFetch", "StaleFetch", "NotNewer", "UsdgStale", "UsdgOffPeg", "TwapUnavailable", "OutOfBand", "MaxMove"]
       await SB.go(page, "Sandbox")
       await expect(page.getByTestId("scenarios")).toBeVisible({ timeout: 120_000 })
@@ -196,8 +198,13 @@ scenario("sc_corporate_action", "judge", () => {
       await page.getByRole("navigation", { name: "Risk analyses" }).getByRole("link", { name: "Corporate actions", exact: true }).click()
       await expect(page.getByTestId("pending-action")).toContainText("paused", { timeout: 60_000 })
       const facts = `A second 10-for-1 split was scheduled from Sandbox; then, through the session service and recorded in the ledger, the clock passed its activation and the keeper posted the pre-split quote (tx ${post.txHash}: the relay emitted ${relayVerdict}; the sandbox ledger calls it "${post.summary}"). CorporateActionGuard.isPaused() = ${paused}; Borrow shows "Refused: ${name}" for 1 USDG and eth_call borrow reverts ${name}; the Risk console's guard alert lists ${shownGuards} (= MarketLens flags) and Corporate actions still shows the pending action with "Paused now: paused"`
-      if (name !== "CorporateActionPending") throw new Error(`Borrow reverts ${name}, not CorporateActionPending. ${facts}`)
-      return facts
+      expect(name).toBe("PriceOutOfBand")
+      expect(await (await B.borrowAccess()).nonce()).toBe(edgeNonce)
+      expect(pendingAfter.activationAt).toBeGreaterThan(0n)
+      expect(await client.readContract({address: nvda.market as `0x${string}`, abi: collateralMarketAbi, functionName: "liquidationPaused"})).toBe(true)
+      const slices = await client.getContractEvents({address: d.liquidator as `0x${string}`, abi: boundedLiquidatorAbi, eventName: "SliceExecuted", fromBlock: edgeStart + 1n, toBlock: "latest"})
+      expect(slices.filter(x => x.args.market?.toLowerCase() === nvda.market.toLowerCase())).toHaveLength(0)
+      return `${facts}; burner nonce unchanged ${edgeNonce}; pending action retained; liquidationPaused true; no NVDAx SliceExecuted since edge start`
     })
     // <<< abel:ca_borrow_resumes
   })

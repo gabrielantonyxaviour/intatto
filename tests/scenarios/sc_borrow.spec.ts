@@ -1,7 +1,7 @@
 /** ABEL SCENARIO — generated. Fill in selectors and assertions; do not rename step ids.
  *  scenario:   sc_borrow
- *  mapping:    1
- *  definition: f100aa42bde8a3ed1be69823bde538268fe062482b619ff7b812c6988666c831
+ *  mapping:    2
+ *  definition: 9e821e1de3d75d3a9fe31ec8cc9e687e6c53ab375f6497a4b61680357c99d557
  *
  *  Regenerate with: npm run graph -- scenario-spec --product <id>
  *  Your code between the `>>> abel:<id>` markers is preserved across regeneration.
@@ -55,7 +55,7 @@ scenario("sc_borrow", "borrower", () => {
     const { f, fork, d } = I.forkAccess()
     const L = await I.lens(fork.client as never, d, f.burnerAddress)
     await page.getByTestId("your-info").getByRole("link", { name: "Borrow USDG" }).click()
-    await expect(page).toHaveURL(/\/borrow$/, { timeout: 60_000 })
+    await expect(page).toHaveURL(/\/borrow(?:\?market=NVDAx)?$/, { timeout: 60_000 })
     await expect(page.getByTestId("borrow-screen")).toBeVisible({ timeout: 120_000 })
     const a = await L.account()
     expect(a.shares).toBe(0n)
@@ -146,11 +146,11 @@ scenario("sc_borrow", "borrower", () => {
     const shown = (await loanField.innerText()).match(/Can borrow ([\d,.]+) USDG/)?.[1]
     await loanField.getByRole("button", { name: "Max" }).click()
     const filled = parseUnits(await page.locator("#borrow-loan").inputValue(), 6)
-    // The screen keeps a fixed 0.01 USDG (plus 5 minutes of interest on existing debt, here none) under the contract limit.
-    expect(filled).toBe(capacity - 10_000n)
+    // With no existing debt or pending collateral, Max fills the contract capacity exactly.
+    expect(filled).toBe(capacity)
     await page.locator("#borrow-loan").fill("")
     I.journey.capacity = capacity
-    I.observe("chk_borrow_capacity_matches", `Borrow shows "Can borrow ${shown} USDG" (Max fills ${formatUnits(filled, 6)}) in the ${session} session; chain: ${I.nvdax(assets)} × relayed ${I.usd(price)} = ${I.usdg(value)} × max LTV ${I.pct(maxLtv)} = ${formatUnits(capacity, 6)} USDG (= MarketLens.borrowCapacity). The screen's figure is exactly that minus its fixed 0.01 USDG accrual margin; the session limit binds (cap room ${I.usdg(capRoom)}, idle ${I.usdg(v.idle)})`)
+    I.observe("chk_borrow_capacity_matches", `Borrow shows "Can borrow ${shown} USDG" (Max fills ${formatUnits(filled, 6)}) in the ${session} session; chain: ${I.nvdax(assets)} × relayed ${I.usd(price)} = ${I.usdg(value)} × max LTV ${I.pct(maxLtv)} = ${formatUnits(capacity, 6)} USDG (= MarketLens.borrowCapacity). The screen's figure equals the contract capacity (no debt or pending-collateral margin); the session limit binds (cap room ${I.usdg(capRoom)}, idle ${I.usdg(v.idle)})`)
     // <<< abel:borrow_capacity
   })
   step("borrow_borrow", "Borrow USDG within the limit", async ({ page }) => {
