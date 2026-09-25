@@ -1,0 +1,21 @@
+{
+  "name": "intatto",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "build:contracts": "forge build --root contracts",
+    "test:contracts": "forge test --root contracts",
+    "abi": "tsx config/scripts/export-abi.ts",
+    "check:addresses": "tsx checks/addresses.ts"
+  },
+  "devDependencies": {
+    "@intatto/config": "workspace:*",
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "viem": "^2.37.0",
+    "zod": "^3.24.1"
+  }
+}

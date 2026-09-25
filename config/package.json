@@ -1,0 +1,18 @@
+{
+  "name": "@intatto/config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./xlayer": "./xlayer.ts",
+    "./session": "./session.ts",
+    "./deployments": "./deployments.ts",
+    "./abi": "./abi/index.ts"
+  },
+  "peerDependencies": {
+    "viem": "^2.37.0"
+  }
+}
