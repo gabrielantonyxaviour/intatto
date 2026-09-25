@@ -1,4 +1,4 @@
-/** GET /api/credit/receipts?source=okx-ai|direct[&limit=] — public counts from the keeper. */
+/** GET /api/credit/receipts[?source=okx-ai|direct][&limit=] — public counts from the keeper. No source merges both. */
 import { handleReceipts } from "../../../../lib/credit/receipts"
 
 export async function GET(req: Request): Promise<Response> {

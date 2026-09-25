@@ -177,9 +177,77 @@ async function proxyUnset() {
   ok("GET /api/credit/receipts without RECEIPT_URL is 503 RECEIPTS_UNAVAILABLE")
 }
 
+async function proxyBare() {
+  type Row = { id: number; at: string; source: "okx-ai" | "direct"; wallet: string; market: string; network: string; status: number; headerNames: string[]; ua: string }
+  const all: Row[] = [1, 2, 3, 4, 5, 6, 7, 8].map((id) => ({
+    id,
+    at: `2026-09-25T12:00:0${id}.000Z`,
+    source: id % 2 === 0 ? "direct" : "okx-ai",
+    wallet: WALLET,
+    market: "NVDAx",
+    network: "sandbox",
+    status: 200,
+    headerNames: ["accept"],
+    ua: "check",
+  }))
+  const hits: string[] = []
+  const server = createServer((req, res) => {
+    const url = new URL(req.url ?? "/", "http://127.0.0.1")
+    hits.push(`${url.pathname}${url.search}`)
+    const source = url.searchParams.get("source")
+    const limit = Number(url.searchParams.get("limit") ?? "20")
+    if (source !== "okx-ai" && source !== "direct") {
+      res.writeHead(400, { "content-type": "application/json" })
+      res.end(JSON.stringify({ error: "source required", code: "bad_query" }))
+      return
+    }
+    const mine = all.filter((r) => r.source === source).sort((a, b) => b.id - a.id)
+    const body = { calls: mine.length, total: all.length, latest: mine.slice(0, limit) }
+    res.writeHead(200, { "content-type": "application/json" })
+    res.end(JSON.stringify(body))
+  })
+  const sockets = track(server)
+  const port = await listen(server)
+  const env = { RECEIPT_URL: `http://127.0.0.1:${port}` }
+  const get = (q: string) => handleReceipts(new Request(`https://intatto.larinova.com/api/credit/receipts${q}`), env)
+  try {
+    const bare = await get("")
+    const body = (await bare.json()) as { calls: { "okx-ai": number; direct: number }; total: number; latest: { id: number; source: string }[] }
+    if (bare.status !== 200) fail(`bare receipts answered ${bare.status}`)
+    if (body.calls["okx-ai"] !== 4 || body.calls.direct !== 4 || body.total !== 8) fail(`bare counts ${JSON.stringify(body.calls)} total ${body.total}`)
+    if (body.latest.map((r) => r.id).join(",") !== "8,7,6,5,4,3,2,1") fail(`bare latest ${body.latest.map((r) => r.id).join(",")}`)
+    if (hits.some((h) => h === "/receipts" || h.startsWith("/receipts?"))) {
+      const bareHit = hits.find((h) => !h.includes("source="))
+      if (bareHit) fail(`bare path called the keeper without a source: ${bareHit}`)
+    }
+    const limited = await get("?limit=5")
+    const five = (await limited.json()) as { latest: { id: number }[] }
+    if (limited.status !== 200 || five.latest.map((r) => r.id).join(",") !== "8,7,6,5,4") fail(`limit=5 latest ${JSON.stringify(five.latest)}`)
+    const one = await get("?source=direct")
+    const direct = (await one.json()) as { calls: number; latest: { source: string }[] }
+    if (one.status !== 200 || direct.calls !== 4 || direct.latest.some((r) => r.source !== "direct")) fail("source=direct did not stay a single-source summary")
+    const before = hits.length
+    const badLimit = await get("?limit=0")
+    const badSource = await get("?source=nope")
+    const zero = (await badLimit.json()) as { code?: string }
+    const nope = (await badSource.json()) as { code?: string }
+    if (badLimit.status !== 400 || zero.code !== "BAD_QUERY") fail(`limit=0 answered ${badLimit.status} ${zero.code}`)
+    if (badSource.status !== 400 || nope.code !== "BAD_QUERY") fail(`bad source answered ${badSource.status} ${nope.code}`)
+    if (hits.length !== before) fail("bad params were forwarded to the keeper")
+    ok("GET /api/credit/receipts with no source merges both sources and honours limit")
+  } finally {
+    await close(server, sockets)
+  }
+  const down = await handleReceipts(new Request("https://intatto.larinova.com/api/credit/receipts"), { RECEIPT_URL: "http://127.0.0.1:1" })
+  const downBody = (await down.json()) as { code?: string }
+  if (down.status !== 503 || downBody.code !== "RECEIPTS_UNAVAILABLE") fail(`down keeper answered ${down.status} ${downBody.code}`)
+  ok("a keeper that is down is 503 RECEIPTS_UNAVAILABLE on the bare path")
+}
+
 sources()
 await postsBody()
 await slowStub()
 storeLayer()
 await proxyUnset()
+await proxyBare()
 ok("credit receipts")

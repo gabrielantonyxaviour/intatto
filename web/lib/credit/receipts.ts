@@ -118,6 +118,70 @@ async function defer(work: Promise<void>): Promise<void> {
   await work
 }
 
+const SOURCES = ["okx-ai", "direct"] as const
+type Source = (typeof SOURCES)[number]
+
+/** Absent source is the combined view. A present source must be one the keeper knows. Limit defaults to 20. */
+const listQuery = z.object({
+  source: z.enum(SOURCES).optional(),
+  limit: z
+    .string()
+    .regex(/^[1-9]\d*$/)
+    .transform(Number)
+    .refine((n) => n <= 100)
+    .optional(),
+})
+
+const receiptRow = z
+  .object({
+    id: z.number().int(),
+    at: z.string(),
+    source: z.enum(SOURCES),
+  })
+  .passthrough()
+
+const summarySchema = z
+  .object({
+    calls: z.number(),
+    total: z.number(),
+    latest: z.array(receiptRow),
+  })
+  .passthrough()
+
+type Summary = z.infer<typeof summarySchema>
+
+function receiptsUrl(base: string, source: Source, limit: number): URL {
+  const target = new URL("/receipts", base.endsWith("/") ? base : `${base}/`)
+  target.searchParams.set("source", source)
+  target.searchParams.set("limit", String(limit))
+  return target
+}
+
+/** One keeper GET /receipts. The keeper requires `source`; a failure is null so the caller can answer 503. */
+async function readSummary(base: string, source: Source, limit: number): Promise<Summary | null> {
+  try {
+    const res = await fetch(receiptsUrl(base, source, limit), {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(4_000),
+    })
+    if (!res.ok) return null
+    const parsed = summarySchema.safeParse(await res.json())
+    return parsed.success ? parsed.data : null
+  } catch {
+    return null
+  }
+}
+
+/** Counts for both sources, and the newest rows across both, capped at `limit`. */
+function mergeSummaries(okx: Summary, direct: Summary, limit: number) {
+  const latest = [...okx.latest, ...direct.latest].sort((a, b) => b.id - a.id).slice(0, limit)
+  return {
+    calls: { "okx-ai": okx.calls, direct: direct.calls },
+    total: okx.calls + direct.calls,
+    latest,
+  }
+}
+
 /** Public proxy of the keeper's GET /receipts. No token and no request headers are forwarded. */
 export async function handleReceipts(req: Request, env: Env = processEnv()): Promise<Response> {
   const base = env.RECEIPT_URL?.trim()
@@ -128,16 +192,25 @@ export async function handleReceipts(req: Request, env: Env = processEnv()): Pro
   } catch {
     return errorResponse(503, "Credit call receipts are unavailable.", "RECEIPTS_UNAVAILABLE")
   }
-  const target = new URL("/receipts", base.endsWith("/") ? base : `${base}/`)
-  const source = incoming.searchParams.get("source")
-  const limit = incoming.searchParams.get("limit")
-  if (source) target.searchParams.set("source", source)
-  if (limit) target.searchParams.set("limit", limit)
-  try {
-    const res = await fetch(target, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(4_000) })
-    if (!res.ok) return errorResponse(503, "Credit call receipts are unavailable.", "RECEIPTS_UNAVAILABLE")
-    return json(await res.json())
-  } catch {
-    return errorResponse(503, "Credit call receipts are unavailable.", "RECEIPTS_UNAVAILABLE")
+  const query = listQuery.safeParse({
+    source: incoming.searchParams.get("source") ?? undefined,
+    limit: incoming.searchParams.get("limit") ?? undefined,
+  })
+  if (!query.success) {
+    return errorResponse(
+      400,
+      "source must be okx-ai or direct when set, and limit an integer from 1 to 100.",
+      "BAD_QUERY",
+    )
   }
+  const limit = query.data.limit ?? 20
+  if (query.data.source) {
+    const one = await readSummary(base, query.data.source, limit)
+    if (!one) return errorResponse(503, "Credit call receipts are unavailable.", "RECEIPTS_UNAVAILABLE")
+    return json(one)
+  }
+  // The keeper refuses a GET without source, so ask for each source and merge.
+  const [okx, direct] = await Promise.all([readSummary(base, "okx-ai", limit), readSummary(base, "direct", limit)])
+  if (!okx || !direct) return errorResponse(503, "Credit call receipts are unavailable.", "RECEIPTS_UNAVAILABLE")
+  return json(mergeSummaries(okx, direct, limit))
 }
