@@ -1,13 +1,13 @@
 "use client"
 
 import { useRef, useState } from "react"
-import type { Address } from "viem"
+import type { Address, Hex } from "viem"
 import { useAccount } from "wagmi"
 import { lendingVaultAbi } from "@intatto/config/abi"
 import { useIntatto, type AccountState, type VaultState } from "@/lib/chain"
 import { Button } from "@/components/ui/button"
 import { ReviewDialog } from "@/components/ui/ix"
-import { AmountInput, TokenAmount, TxButton, ValueChange } from "@/components/ui/web3"
+import { AmountInput, ExplorerLink, TokenAmount, TxButton, ValueChange } from "@/components/ui/web3"
 import { SHARE_SYMBOL, USDG_DECIMALS, amount6, usdg } from "./lend-format"
 import { SummaryRow } from "./summary-row"
 
@@ -30,19 +30,32 @@ export function WithdrawForm({ vault, account }: { vault: VaultState; account: A
   const { deployment, chain } = useIntatto()
   const { address } = useAccount()
   const reviewRef = useRef<HTMLButtonElement>(null)
+  const reviewedFrom = useRef<bigint | null>(null)
   const [value, setValue] = useState("")
   const [amount, setAmount] = useState<bigint | null>(null)
   const [review, setReview] = useState(false)
+  const [done, setDone] = useState<{ amount: bigint; hash: Hex; before: bigint } | null>(null)
   if (!deployment) return null
 
   const deposit = account?.vaultAssets ?? 0n
   const shares = account?.vaultShares ?? 0n
   const max = deposit < vault.idle ? deposit : vault.idle
   const typed = amount !== null && amount > 0n ? amount : null
-  const overDeposit = typed !== null && typed > deposit
-  const overIdle = typed !== null && !overDeposit && typed > vault.idle
+  const shown = done?.amount ?? typed
+  const overDeposit = shown !== null && shown > deposit && done === null
+  const overIdle = shown !== null && !overDeposit && shown > vault.idle && done === null
   const idleText = usdg(vault.idle)
-  const all = typed !== null && typed === deposit && !overIdle
+  const all = shown !== null && shown === deposit && !overIdle && done === null
+  function closeReview(next: boolean) {
+    setReview(next)
+    if (next) return
+    if (done) {
+      setValue("")
+      setAmount(null)
+    }
+    setDone(null)
+    reviewedFrom.current = null
+  }
   const actionLabel = all ? "Withdraw the whole deposit" : "Withdraw USDG"
 
   const disabledReason =
@@ -57,7 +70,7 @@ export function WithdrawForm({ vault, account }: { vault: VaultState; account: A
             : null
 
   const request =
-    typed === null || !address || disabledReason
+    done || typed === null || !address || disabledReason
       ? null
       : all
         ? { address: deployment.vault as Address, abi: lendingVaultAbi, functionName: "redeem", args: [shares, address, address] }
@@ -86,15 +99,15 @@ export function WithdrawForm({ vault, account }: { vault: VaultState; account: A
         <ValueChange
           label="Your deposit"
           before={deposit}
-          after={typed !== null && !overDeposit ? deposit - typed : null}
+          after={done ? null : typed !== null && !overDeposit ? deposit - typed : null}
           format={money}
         />
         <SummaryRow label="Shares burned">
-          {typed !== null && !overDeposit ? (
+          {shown !== null && !overDeposit ? (
             <>
               ≈{" "}
               <TokenAmount
-                value={all ? shares : sharesFor(typed, vault)}
+                value={all || (done !== null && done.amount === deposit) ? shares : sharesFor(shown, vault)}
                 decimals={USDG_DECIMALS}
                 maxFractionDigits={6}
                 symbol={SHARE_SYMBOL}
@@ -111,14 +124,22 @@ export function WithdrawForm({ vault, account }: { vault: VaultState; account: A
       <p className="text-xs text-muted-foreground">
         You can withdraw up to the vault&apos;s idle USDG. What is lent out comes back as borrowers repay or are liquidated.
       </p>
-      <Button ref={reviewRef} type="button" disabled={disabledReason !== null} onClick={() => setReview(true)}>
+      <Button
+        ref={reviewRef}
+        type="button"
+        disabled={disabledReason !== null}
+        onClick={() => {
+          reviewedFrom.current = deposit
+          setReview(true)
+        }}
+      >
         {disabledReason ?? "Review"}
       </Button>
       <ReviewDialog
         open={review}
-        onOpenChange={setReview}
+        onOpenChange={closeReview}
         title="Review withdrawal"
-        amount={typed !== null ? amount6(typed) : "0"}
+        amount={shown !== null ? amount6(shown) : "0"}
         asset="USDG"
         chain={chain.name}
         returnFocusRef={reviewRef}
@@ -127,20 +148,35 @@ export function WithdrawForm({ vault, account }: { vault: VaultState; account: A
         beforeAfter={
           <ValueChange
             label="Your deposit"
-            before={deposit}
-            after={typed !== null && !overDeposit ? deposit - typed : null}
+            before={done?.before ?? deposit}
+            after={done ? done.before - done.amount : shown !== null && !overDeposit ? deposit - shown : null}
             format={money}
           />
         }
         limit={<p>Only {idleText} is idle. This withdrawal does not undo a loss already written off.</p>}
         action={
-          <TxButton
-            label={actionLabel}
-            request={request}
-            disabledReason={disabledReason}
-            reasons={VAULT_REFUSALS}
-            successMessage="Withdrawal confirmed"
-          />
+          done ? (
+            <div className="grid gap-2">
+              <p>Withdrew {usdg(done.amount)}</p>
+              <p>
+                Confirmed · <ExplorerLink hash={done.hash} />
+              </p>
+              <Button type="button" onClick={() => closeReview(false)}>
+                Done
+              </Button>
+            </div>
+          ) : (
+            <TxButton
+              label={actionLabel}
+              request={request}
+              disabledReason={disabledReason}
+              reasons={VAULT_REFUSALS}
+              successMessage="Withdrawal confirmed"
+              onSuccess={(_receipt, hash) => {
+                if (typed !== null && reviewedFrom.current !== null) setDone({ amount: typed, hash, before: reviewedFrom.current })
+              }}
+            />
+          )
         }
       />
     </div>

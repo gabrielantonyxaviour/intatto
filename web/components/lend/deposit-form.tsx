@@ -1,13 +1,13 @@
 "use client"
 
 import { useRef, useState } from "react"
-import type { Address } from "viem"
+import type { Address, Hex } from "viem"
 import { useAccount } from "wagmi"
 import { lendingVaultAbi } from "@intatto/config/abi"
 import { useIntatto, type AccountState, type VaultState } from "@/lib/chain"
 import { Button } from "@/components/ui/button"
 import { DefinitionPopover, ReviewDialog } from "@/components/ui/ix"
-import { AmountInput, ApproveThenAct, TokenAmount, ValueChange, shortAddress } from "@/components/ui/web3"
+import { AmountInput, ApproveThenAct, ExplorerLink, TokenAmount, ValueChange, shortAddress } from "@/components/ui/web3"
 import { SHARE_SYMBOL, USDG_DECIMALS, amount6, bpsText, marketList, projectedEarnings, usdg } from "./lend-format"
 import { useLendMarkets } from "./use-lend-reads"
 import { SummaryRow } from "./summary-row"
@@ -34,16 +34,29 @@ export function DepositForm({
   const { deployment, chain } = useIntatto()
   const { address } = useAccount()
   const reviewRef = useRef<HTMLButtonElement>(null)
+  const reviewedFrom = useRef<bigint | null>(null)
   const [value, setValue] = useState("")
   const [amount, setAmount] = useState<bigint | null>(null)
   const [review, setReview] = useState(false)
+  const [done, setDone] = useState<{ amount: bigint; hash: Hex; before: bigint } | null>(null)
   const markets = useLendMarkets()
   if (!deployment) return null
 
   const wallet = account?.walletUsdg
   const current = account?.vaultAssets ?? 0n
   const typed = amount !== null && amount > 0n ? amount : null
-  const after = typed !== null ? current + typed : null
+  const shown = done?.amount ?? typed
+  const after = shown !== null ? current + shown : null
+  function closeReview(next: boolean) {
+    setReview(next)
+    if (next) return
+    if (done) {
+      setValue("")
+      setAmount(null)
+    }
+    setDone(null)
+    reviewedFrom.current = null
+  }
   const rate = vault.supplyRateBps
   const symbols = deployment.markets.map((m) => m.symbol)
   const lentTo =
@@ -113,20 +126,35 @@ export function DepositForm({
           </Button>
         </div>
       ) : null}
-      <Button ref={reviewRef} type="button" disabled={disabledReason !== null} onClick={() => setReview(true)}>
+      <Button
+        ref={reviewRef}
+        type="button"
+        disabled={disabledReason !== null}
+        onClick={() => {
+          reviewedFrom.current = current
+          setReview(true)
+        }}
+      >
         {disabledReason ?? "Review"}
       </Button>
       <ReviewDialog
         open={review}
-        onOpenChange={setReview}
+        onOpenChange={closeReview}
         title="Review deposit"
-        amount={typed !== null ? amount6(typed) : "0"}
+        amount={shown !== null ? amount6(shown) : "0"}
         asset="USDG"
         chain={chain.name}
         returnFocusRef={reviewRef}
         testId="lend-deposit-review"
         actionLabel="Deposit USDG"
-        beforeAfter={<ValueChange label="Your deposit" before={current} after={after} format={money} />}
+        beforeAfter={
+          <ValueChange
+            label="Your deposit"
+            before={done?.before ?? current}
+            after={done ? done.before + done.amount : after}
+            format={money}
+          />
+        }
         limit={<p>Wallet balance: {wallet !== undefined ? usdg(wallet) : "still reading"}.</p>}
         walletSteps={
           <ol className="list-decimal pl-4 text-sm">
@@ -135,26 +163,37 @@ export function DepositForm({
           </ol>
         }
         action={
-          <ApproveThenAct
-            token={{ address: deployment.usdg as Address, symbol: "USDG", decimals: USDG_DECIMALS }}
-            spender={deployment.vault as Address}
-            amount={typed}
-            action={
-              typed !== null && address
-                ? { address: deployment.vault as Address, abi: lendingVaultAbi, functionName: "deposit", args: [typed, address] }
-                : null
-            }
-            actionLabel="Deposit USDG"
-            disabledReason={disabledReason}
-            successMessage="Deposit confirmed"
-            onSuccess={() => {
-              setValue("")
-              setAmount(null)
-            }}
-          />
+          done ? (
+            <div className="grid gap-2">
+              <p>Deposited {usdg(done.amount)}</p>
+              <p>
+                Confirmed · <ExplorerLink hash={done.hash} />
+              </p>
+              <Button type="button" onClick={() => closeReview(false)}>
+                Done
+              </Button>
+            </div>
+          ) : (
+            <ApproveThenAct
+              token={{ address: deployment.usdg as Address, symbol: "USDG", decimals: USDG_DECIMALS }}
+              spender={deployment.vault as Address}
+              amount={typed}
+              action={
+                typed !== null && address
+                  ? { address: deployment.vault as Address, abi: lendingVaultAbi, functionName: "deposit", args: [typed, address] }
+                  : null
+              }
+              actionLabel="Deposit USDG"
+              disabledReason={disabledReason}
+              successMessage="Deposit confirmed"
+              onSuccess={(_receipt, hash) => {
+                if (typed !== null && reviewedFrom.current !== null) setDone({ amount: typed, hash, before: reviewedFrom.current })
+              }}
+            />
+          )
         }
       >
-        {typed !== null ? (
+        {shown !== null ? (
           <dl className="grid gap-2 rounded-lg border p-3" aria-label="Deposit receipt" data-testid="deposit-receipt">
             <SummaryRow label="From">{address ? `Your wallet (${shortAddress(address)})` : "Your wallet"}</SummaryRow>
             <SummaryRow label="To">Intatto USDG vault</SummaryRow>
@@ -163,7 +202,7 @@ export function DepositForm({
               <span className="text-success-foreground">{bpsText(rate)}</span>
             </SummaryRow>
             <SummaryRow label="You receive">
-              ≈ <TokenAmount value={previewShares(typed, vault)} decimals={USDG_DECIMALS} maxFractionDigits={6} symbol={SHARE_SYMBOL} />
+              ≈ <TokenAmount value={previewShares(shown, vault)} decimals={USDG_DECIMALS} maxFractionDigits={6} symbol={SHARE_SYMBOL} />
             </SummaryRow>
           </dl>
         ) : null}
