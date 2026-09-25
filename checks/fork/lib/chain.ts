@@ -64,9 +64,9 @@ export class ForkChain {
       const revertData = err.data ?? err.cause?.data
       throw new Error(`would revert: ${err.details ?? (e instanceof Error ? e.message.split("\n")[0] : String(e))}${revertData ? ` data=${JSON.stringify(revertData)}` : ""}`)
     })
-    const hash = await this.request<Hex>("eth_sendTransaction", [
-      { from, to, data, value: `0x${value.toString(16)}`, ...(gas ? { gas: `0x${gas.toString(16)}` } : {}) },
-    ])
+    // Forked state loads lazily, so anvil's estimate can come in low: send with 50% headroom.
+    const limit = gas ?? ((BigInt(await this.request<Hex>("eth_estimateGas", [tx])) * 3n) / 2n + 50_000n)
+    const hash = await this.request<Hex>("eth_sendTransaction", [{ ...tx, gas: `0x${limit.toString(16)}` }])
     // eth_sendTransaction can return before the receipt exists, even with auto-mining: poll.
     const receipt = await this.client.waitForTransactionReceipt({ hash, pollingInterval: 250, timeout: 120_000 })
     if (receipt.status !== "success") {
