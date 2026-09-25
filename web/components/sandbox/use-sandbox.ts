@@ -2,10 +2,11 @@
 
 /**
  * Sandbox screen data: which API base the page talks to, the API's health, the stored session's status and
- * ledger, the fork's clock and chain id, the burner's balances, and the admin actions (each refreshes every read).
+ * ledger, the fork's clock and chain id, the burner's balances, and the admin actions. Warp, scenario and
+ * reset each refetch the card's balances and chain status, and a visible page refetches them every 15s.
  */
-import { useMemo } from "react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { erc20Abi, type Address } from "viem"
 import { TICKERS } from "@intatto/config/xlayer"
@@ -93,12 +94,53 @@ export function useRpcChainId() {
 
 export type BurnerBalances = { NVDAx: bigint; SPYx: bigint; USDG: bigint; OKB: bigint }
 
+/** How often a visible sandbox page re-reads the session card. Hidden pages do not poll. */
+const CARD_REFRESH_MS = 15_000
+
+/**
+ * Keys the session card renders: burner balances, the fork head (chain time), the RPC's chain id,
+ * and MarketLens (the market session).
+ */
+const CARD_QUERY_KEYS = [["sandbox:balances"], ["intatto:latest-block"], ["sandbox:rpc-chain-id"], ["lens"]] as const
+
+/** Refetch the session card's chain status, then its balances, so the balances are read at the new head. */
+export function refreshSandboxCard(queryClient: QueryClient) {
+  const refetch = (queryKey: readonly string[]) => queryClient.invalidateQueries({ queryKey, refetchType: "active" })
+  return Promise.all(CARD_QUERY_KEYS.slice(1).map((queryKey) => refetch(queryKey))).then(() => refetch(CARD_QUERY_KEYS[0]))
+}
+
+function usePageVisible() {
+  const [visible, setVisible] = useState(true)
+  useEffect(() => {
+    const sync = () => setVisible(document.visibilityState === "visible")
+    sync()
+    document.addEventListener("visibilitychange", sync)
+    return () => document.removeEventListener("visibilitychange", sync)
+  }, [])
+  return visible
+}
+
+/** While the session card is on a visible page, re-read its balances and chain status every 15 seconds. */
+export function useSandboxCardRefresh(active: boolean) {
+  const queryClient = useQueryClient()
+  const visible = usePageVisible()
+  const seen = useRef(false)
+  useEffect(() => {
+    if (!active || !visible) return
+    // The queries already fetch on mount. Refresh immediately only when the page becomes visible again.
+    if (seen.current) void refreshSandboxCard(queryClient)
+    seen.current = true
+    const id = window.setInterval(() => void refreshSandboxCard(queryClient), CARD_REFRESH_MS)
+    return () => window.clearInterval(id)
+  }, [active, visible, queryClient])
+}
+
 export function useBurnerBalances(address: Address | undefined) {
   const { publicClient, chainId, deployment } = useIntatto()
   return useQuery({
     queryKey: ["sandbox:balances", chainId, address],
     enabled: Boolean(address && deployment),
-    refetchInterval: 15_000,
+    staleTime: 0,
     retry: 1,
     queryFn: async (): Promise<BurnerBalances> => {
       const token = (symbol: "NVDAx" | "SPYx") =>
@@ -131,6 +173,7 @@ export function useAdminAction(base: string | null, sessionId: string | undefine
         description: `${result.entries.length} admin calls in the ledger${result.chain ? ` · chain time ${formatUtc(result.chain.chainTime)} · ${result.chain.session}` : ""}`,
       }),
     onError: (e, r) => toast.error(`${requestLabel(r)} did not complete`, { description: e.message }),
-    onSettled: () => queryClient.invalidateQueries(),
+    // Ledger and session info, then the card. The card's balances are read again after the head moves.
+    onSettled: () => queryClient.invalidateQueries().then(() => refreshSandboxCard(queryClient)),
   })
 }

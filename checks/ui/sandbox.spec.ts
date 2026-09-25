@@ -3,7 +3,8 @@
  * Worker's router and session service, one anvil per session loaded from the snapshot). Through the UI: start a
  * session → the burner's balances equal RPC reads → Jump to Saturday → the banner's chain time equals the latest
  * block and the session reads CLOSED like SessionRiskController.currentSession() → schedule the split → the ledger
- * rows equal GET /session/:id/ledger and include every admin call made → reset → expiry → a new session → end.
+ * rows equal GET /session/:id/ledger and include every admin call made → activate the split → the card's NVDAx
+ * balance equals the burner's balanceOf → reset → expiry → a new session → end.
  */
 import { mkdirSync } from "node:fs"
 import type { Page } from "@playwright/test"
@@ -190,6 +191,18 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   await settle(page)
   await page.screenshot({ path: "proof/sandbox.png", fullPage: true })
   await screenshotsAtWidths(page, "sandbox")
+
+  // 6b. Activate the split. balanceOf rebases when chain time passes activation; the card must show that read.
+  const beforeSplit = await client.readContract({ address: token("NVDAx"), abi: erc20Abi, functionName: "balanceOf", args: [burner] })
+  const activateResponse = page.waitForResponse((r) => r.url().endsWith(`/session/${s.sessionId}/scenario`) && r.request().method() === "POST", { timeout: 300_000 })
+  await page.getByRole("button", { name: "Activate the split" }).click()
+  await activateResponse
+  await expect(page.getByTestId("action-result")).toContainText("Activate the split: done", { timeout: 180_000 })
+  await expect(async () => {
+    const onchain = await client.readContract({ address: token("NVDAx"), abi: erc20Abi, functionName: "balanceOf", args: [burner] })
+    expect(onchain).toBeGreaterThan(beforeSplit)
+    await expect(page.getByTestId("balance-NVDAx")).toHaveText(formatTokenAmount(onchain, 18, { maxFractionDigits: 4 }), { timeout: 2_000 })
+  }).toPass({ timeout: 60_000 })
 
   // 7. Reset → back to the start snapshot: the clock returns, the ledger records the reset.
   await page.getByRole("button", { name: "Reset…" }).click()

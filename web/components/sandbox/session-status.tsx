@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { AddressDisplay, TokenAmount } from "@/components/ui/web3"
 import { formatNumber, formatUtc } from "@/components/ui/web3/format"
 import { SCREENS, SESSION_LIMIT, SESSION_TONE } from "./copy"
-import { useBurnerBalances, useLatestBlock } from "./use-sandbox"
+import { useBurnerBalances, useLatestBlock, useSandboxCardRefresh } from "./use-sandbox"
 
 const BADGE = { success: "success-light", info: "info-light", warning: "warning-light", destructive: "destructive-light" } as const
 
@@ -106,6 +106,7 @@ function Balances({ address }: { address: Address }) {
 
 /** The burner the session funded and the chain state it now sees, with the screens that run on it. */
 export function SessionStatus({ burner, lastActiveAt, idleMinutes, stopped = false }: { burner: Address; lastActiveAt?: string; idleMinutes?: number; stopped?: boolean }) {
+  useSandboxCardRefresh(!stopped)
   const { endSandbox } = useIntatto()
   const { status, address } = useAccount()
   const { connect, connectors } = useConnect()
