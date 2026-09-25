@@ -6,7 +6,7 @@ import { Loader2Icon, TriangleAlertIcon, WalletIcon } from "lucide-react"
 import type { MarketSymbol, MarketState } from "@/lib/chain"
 import { useAccountState, useIntatto } from "@/lib/chain"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { RiskMeter, RISK_LEVELS } from "@/components/ui/web3"
@@ -142,7 +142,6 @@ export function YourInfo({ symbol, market }: { symbol: MarketSymbol; market: Mar
     <Card data-testid="your-info">
       <CardHeader>
         <CardTitle>Your info</CardTitle>
-        <CardDescription>Your balances and position in the {symbol} market.</CardDescription>
       </CardHeader>
       <CardContent>
         <Body symbol={symbol} market={market} />

@@ -118,12 +118,9 @@ async function burnerBorrows(ltvBps: bigint) {
   await h.fork.write(who, m.market as Address, marketAbi, "borrow", [(valueUsdg * ltvBps) / 10_000n])
 }
 
-async function hoverChip(page: Page, id: string): Promise<Locator> {
-  // Leave any open tooltip first, in several pointer moves like a real mouse: Radix closes a tooltip from a
-  // document pointermove after the pointer leaves its hover grace area, so a single jump is never seen.
-  await page.mouse.move(0, 0, { steps: 8 })
-  await expect(page.getByRole("tooltip")).toHaveCount(0)
-  await page.getByTestId(id).hover()
+async function openChip(page: Page, id: string): Promise<Locator> {
+  await page.keyboard.press("Escape")
+  await page.getByTestId(id).getByRole("button").click()
   const tip = page.getByTestId(`${id}-tooltip`)
   await expect(tip).toBeVisible()
   return tip
@@ -179,10 +176,16 @@ test("three keeper sessions: session, max LTV, price, fetch time and guards equa
   await expectHeadlineEqualsChain(page)
   await shows("NVDAx row max LTV", () => page.getByTestId("row-max-ltv-NVDAx").textContent(), async () => bps(await sessionRead<bigint>("maxLtvBps")))
   const [, fetchedAt] = await latestPrice("NVDAx")
-  await expect(await hoverChip(page, "chip-price")).toContainText(`Fetched by the keeper at ${utc(fetchedAt)}`)
-  await expect(await hoverChip(page, "chip-relay")).toContainText("trusted relayer, bounded onchain by keeper liveness")
-  await expect(await hoverChip(page, "chip-liquidation")).toContainText("bounded slices while the market is closed")
-  await page.mouse.move(0, 0, { steps: 8 })
+  await expect(await openChip(page, "chip-price")).toContainText(`Fetched by the keeper at ${utc(fetchedAt)}`)
+  await page.keyboard.press("Escape")
+  const aboutRelay = page.getByTestId("chip-relay").getByRole("button", { name: "About Relay" })
+  await aboutRelay.focus()
+  await page.keyboard.press("Enter")
+  await expect(page.getByTestId("chip-relay-tooltip")).toContainText("trusted relayer, bounded onchain by keeper liveness")
+  await page.keyboard.press("Escape")
+  await expect(aboutRelay).toBeFocused()
+  await expect(await openChip(page, "chip-liquidation")).toContainText("bounded slices while the market is closed")
+  await page.keyboard.press("Escape")
   await expect(page.getByTestId("your-info-connected")).toBeVisible({ timeout: 60_000 })
   await shows("burner USDG", () => page.getByTestId("wallet-usdg").textContent(), async () =>
     usdg(await h.fork.read<bigint>(h.deployment.usdg as Address, erc20, "balanceOf", [h.env.burnerAddress])),
@@ -218,9 +221,17 @@ test("three keeper sessions: session, max LTV, price, fetch time and guards equa
   await expect(page.getByTestId("borrowing-off")).toHaveCount(0)
   await expectCapacity(page, "NVDAx", false)
   const [, closedFetchedAt] = await latestPrice("NVDAx")
-  await expect(await hoverChip(page, "chip-price")).toContainText(`Fetched by the keeper at ${utc(closedFetchedAt)}`)
+  await expect(await openChip(page, "chip-price")).toContainText(`Fetched by the keeper at ${utc(closedFetchedAt)}`)
+  await page.keyboard.press("Escape")
+  await page.getByRole("button", { name: "View price history" }).click()
   await expect(page.getByTestId("price-posts").locator("li").first()).toContainText(utc(closedFetchedAt))
-  await page.mouse.move(0, 0, { steps: 8 })
+  await page.keyboard.press("Escape")
+  const schedule = page.getByTestId("session-schedule")
+  await schedule.locator("summary").focus()
+  await page.keyboard.press("Enter")
+  await expect(schedule).toHaveJSProperty("open", true)
+  await schedule.locator("summary").press("Enter")
+  await expect(schedule).toHaveJSProperty("open", false)
   await expectNoHorizontalScroll(page)
   await proof(page, "proof/market.png")
 

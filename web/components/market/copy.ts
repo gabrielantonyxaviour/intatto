@@ -4,7 +4,27 @@
  */
 import { REFUSALS, type RefusalName, type Session } from "@intatto/config/session"
 import type { MarketState } from "@/lib/chain"
-import type { ProtocolParams, RelayDetail } from "./use-market-params"
+import type { RelayDetail } from "./use-market-params"
+
+/** Session, liquidation and relay bounds taken from useProtocolParams. No typed defaults. */
+export type MarketTerms = {
+  openLtvBps: bigint
+  extendedLtvBps: bigint
+  closedStartBps: bigint
+  closedFloorBps: bigint
+  closedDecaySeconds: bigint
+  sessionLivenessSeconds: bigint
+  penaltyBps: bigint
+  liqOpenFloorBps: bigint
+  liqClosedFloorBps: bigint
+  liqClosedTimeoutFloorBps: bigint
+  liqClosedTimeoutSeconds: bigint
+  bandOpenBps: bigint
+  bandOtherBps: bigint
+  maxMoveBps: bigint
+  priceLivenessSeconds: bigint
+  pegBps: bigint
+}
 import { ago, bpsShort, diffBps, duration, formatUtc, usdPrice } from "./format"
 
 export const SESSION_LABEL: Record<Session, string> = {
@@ -27,10 +47,10 @@ export const SESSION_TONE: Record<Session, Tone> = {
   UNKNOWN: "destructive",
 }
 
-/** What the session in force means for a borrower right now. */
-export function sessionMeaning(s: MarketState, p: ProtocolParams, relay: RelayDetail | undefined, now: number): string {
-  const bandOpen = relay ? ` The relayed price must stay within ±${bpsShort(relay.bandOpenBps)} of the pool's 30-minute average.` : ""
-  const bandOther = relay ? ` The price band is ±${bpsShort(relay.bandOtherBps)}.` : ""
+/** What the session in force means for a borrower right now. Bands and limits are the active deployment's. */
+export function sessionMeaning(s: MarketState, p: MarketTerms, now: number): string {
+  const bandOpen = ` The relayed price must stay within ±${bpsShort(p.bandOpenBps)} of the pool's 30-minute average.`
+  const bandOther = ` The price band is ±${bpsShort(p.bandOtherBps)}.`
   switch (s.session) {
     case "OPEN":
       return `US regular trading hours. New loans can reach ${bpsShort(p.openLtvBps)} of collateral value.${bandOpen}`
@@ -70,7 +90,7 @@ export function refusalReason(name: RefusalName, s: MarketState): string {
 }
 
 /** One sentence: why new borrowing is off, what is refused and what still works. */
-export function pausedSentence(first: RefusalName, s: MarketState, symbol: string): string {
+export function pausedSentence(first: RefusalName, s: MarketState, symbol: string, pegBps?: bigint): string {
   const works = "repaying and adding collateral still work"
   switch (first) {
     case "IssuerPaused":
@@ -88,7 +108,7 @@ export function pausedSentence(first: RefusalName, s: MarketState, symbol: strin
     case "TickerCapReached":
       return `Debt against ${symbol} has reached its cap: new borrowing is refused until loans are repaid or the cap grows; ${works}.`
     case "UsdgOffPeg":
-      return `USDG/USD is stale or more than 1% off $1: new borrowing is refused; ${works}.`
+      return `USDG/USD is stale or more than ${pegBps === undefined ? "its peg band" : bpsShort(pegBps)} off $1: new borrowing is refused; ${works}.`
     default:
       return `${REFUSALS[first]} ${works[0]!.toUpperCase()}${works.slice(1)}.`
   }
@@ -153,15 +173,17 @@ export function guardResults(
   ]
 }
 
-export const RELAY_TOOLTIP =
-  "Relay: keeper relays the xStocks issuer's indicative quote — trusted relayer, bounded onchain by keeper liveness, the pool's 30-minute TWAP band, a max move per update and the USDG/USD peg."
+/** Visible on the market itself. Mode-specific source text stays in the relay definition. */
+export const RELAY_DISCLOSURE = "Price supplied by a trusted relayer"
 
-/** The layered price in words: quote, then the pool TWAP check, then the USDG/USD conversion. */
-export function priceLayers(s: MarketState, relay: RelayDetail, symbol: string): string[] {
-  const band = `±${bpsShort(relay.bandOpenBps)} while open, ±${bpsShort(relay.bandOtherBps)} otherwise`
+/** Kept as one phrase so a click on About Relay still finds the onchain bound. */
+export const RELAY_BOUNDS_LEAD = "trusted relayer, bounded onchain by keeper liveness"
+
+/** The pool check and the USDG conversion. The first line is usePriceProvenance, passed in by the caller. */
+export function priceBoundLines(terms: MarketTerms, symbol: string): string[] {
+  const band = `±${bpsShort(terms.bandOpenBps)} while open, ±${bpsShort(terms.bandOtherBps)} otherwise`
   return [
-    `The keeper relays the issuer's indicative ${symbol}/USD quote: ${usdPrice(s.priceE18)}, fetched by the keeper at ${formatUtc(s.fetchedAt)}. The quote has no source timestamp.`,
-    `Checked against the w${symbol}/USDG pool's 30-minute TWAP (${band}); a post that moves more than ${bpsShort(relay.maxMoveBps)} from the last one is rejected.`,
-    `USDG is converted with Chainlink USDG/USD, which must be recent and within ${bpsShort(relay.pegBps)} of $1.`,
+    `Checked against the w${symbol}/USDG pool's 30-minute TWAP (${band}); a post that moves more than ${bpsShort(terms.maxMoveBps)} from the last one is rejected.`,
+    `USDG is converted with Chainlink USDG/USD, which must be recent and within ${bpsShort(terms.pegBps)} of $1.`,
   ]
 }

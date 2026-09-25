@@ -1,14 +1,13 @@
 "use client"
 
 import { CircleAlertIcon } from "lucide-react"
-import type { MarketState } from "@/lib/chain"
+import type { MarketState, ProtocolParams } from "@/lib/chain"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SessionBadge } from "./session-badge"
-import { SESSION_LABEL, pausedSentence, refusalsFor, sessionMeaning } from "./copy"
-import type { ProtocolParams, RelayDetail } from "./use-market-params"
-import { bps, bpsShort, formatUtc } from "./format"
+import { SESSION_LABEL, pausedSentence, refusalsFor, sessionMeaning, type MarketTerms } from "./copy"
+import { bps, bpsShort, duration, formatUtc } from "./format"
 
 function Tile({ id, label, value, note }: { id: string; label: string; value: string; note: string }) {
   return (
@@ -22,16 +21,43 @@ function Tile({ id, label, value, note }: { id: string; label: string; value: st
   )
 }
 
+function Schedule({ params }: { params: ProtocolParams }) {
+  const rows = [
+    ["Open", params.session.table.OPEN],
+    ["Extended", params.session.table.EXTENDED],
+    ["Closed", params.session.table.CLOSED],
+  ] as const
+  return (
+    <details data-testid="session-schedule" className="rounded-lg border px-3 py-2 text-sm">
+      <summary className="cursor-pointer font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring">Session schedule</summary>
+      <p className="mt-2 text-xs text-muted-foreground">
+        New-loan limits from SessionRiskController on this deployment. Closed moves from {bps(params.session.closedStartBps)} to{" "}
+        {bps(params.session.closedFloorBps)} over {duration(params.session.closedDecayDuration)}.
+      </p>
+      <dl className="mt-2 grid gap-2">
+        {rows.map(([name, row]) => (
+          <div key={name} className="flex items-baseline justify-between gap-3">
+            <dt>{name}</dt>
+            <dd className="text-right text-muted-foreground">
+              {bps(row.atZeroBps)} at the start · {bps(row.atDecayBps)} after the closed decay
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </details>
+  )
+}
+
 type Props = {
   symbol: string
   state: MarketState
+  terms: MarketTerms | undefined
   params: ProtocolParams | undefined
-  relay: RelayDetail | undefined
   now: number | undefined
 }
 
 /** The session in force, what it means now, the three limits, and why new borrowing is off when it is. */
-export function SessionPanel({ symbol, state: s, params, relay, now }: Props) {
+export function SessionPanel({ symbol, state: s, terms, params, now }: Props) {
   const refusals = refusalsFor(s)
   return (
     <Card data-testid="session-panel">
@@ -45,9 +71,9 @@ export function SessionPanel({ symbol, state: s, params, relay, now }: Props) {
         </CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4">
-        {params && now !== undefined ? (
+        {terms && now !== undefined ? (
           <p data-testid="session-meaning" className="text-sm leading-relaxed">
-            {sessionMeaning(s, params, relay, now)}
+            {sessionMeaning(s, terms, now)}
           </p>
         ) : (
           <Skeleton className="h-10" />
@@ -64,7 +90,7 @@ export function SessionPanel({ symbol, state: s, params, relay, now }: Props) {
             <CircleAlertIcon aria-hidden />
             <AlertTitle>New borrowing is off</AlertTitle>
             <AlertDescription>
-              <p>{pausedSentence(refusals[0]!, s, symbol)}</p>
+              <p>{pausedSentence(refusals[0]!, s, symbol, terms?.pegBps)}</p>
               {refusals.length > 1 ? (
                 <p>
                   {refusals.length === 2 ? "1 more check also refuses it" : `${refusals.length - 1} more checks also refuse it`}; see the
@@ -86,10 +112,11 @@ export function SessionPanel({ symbol, state: s, params, relay, now }: Props) {
           <Tile
             id="liq-penalty"
             label="Liquidation penalty"
-            value={params ? bpsShort(params.penaltyBps) : "…"}
+            value={terms ? bpsShort(terms.penaltyBps) : "…"}
             note="Of the debt a liquidation repays"
           />
         </div>
+        {params ? <Schedule params={params} /> : null}
       </CardContent>
     </Card>
   )

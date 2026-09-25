@@ -2,7 +2,7 @@
 
 import type { Deployment, MarketDeployment } from "@intatto/config/deployments"
 import type { MarketState } from "@/lib/chain"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { EvidenceSheet } from "@/components/ui/ix"
 import { AddressDisplay } from "@/components/ui/web3/address-display"
 import { sharesToTokens, tokens, usdg } from "./format"
 
@@ -17,26 +17,30 @@ export function ContractsCard({ deployment, market: m, state: s }: { deployment:
     { label: "USDG vault", address: deployment.vault },
   ]
   return (
-    <Card data-testid="contracts-card">
-      <CardHeader>
-        <CardTitle>Collateral held onchain</CardTitle>
-        <CardDescription>
-          {tokens(sharesToTokens(s.totalShares, s.assetsPerShare), m.symbol)} held as{" "}
-          {tokens(s.totalShares, `w${m.symbol}`)} shares, worth {usdg(s.totalCollateralValue)} at the relayed price.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <dl className="grid gap-2 text-sm sm:grid-cols-2">
+    <div data-testid="contracts-card" className="flex flex-wrap items-center justify-between gap-3 text-sm">
+      <p>
+        {tokens(sharesToTokens(s.totalShares, s.assetsPerShare), m.symbol)} held as {tokens(s.totalShares, `w${m.symbol}`)} shares, worth{" "}
+        {usdg(s.totalCollateralValue)} at the relayed price.
+      </p>
+      <EvidenceSheet
+        title={`${m.symbol} contracts`}
+        triggerLabel="Contracts"
+        summary="Addresses on the active deployment"
+        state="ready"
+        evidenceFor="contracts"
+        testId="contracts-sheet"
+      >
+        <dl className="grid gap-2 text-sm">
           {rows.map((r) => (
-            <div key={r.label} className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2">
-              <dt className="min-w-0 truncate text-muted-foreground">{r.label}</dt>
-              <dd className="shrink-0">
+            <div key={r.label} className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b py-2">
+              <dt className="text-muted-foreground">{r.label}</dt>
+              <dd className="min-w-0">
                 <AddressDisplay address={r.address} explorer />
               </dd>
             </div>
           ))}
         </dl>
-      </CardContent>
-    </Card>
+      </EvidenceSheet>
+    </div>
   )
 }

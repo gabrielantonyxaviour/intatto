@@ -14,8 +14,7 @@ function Intro() {
     <header className="grid gap-1">
       <h1 className="text-2xl font-semibold">Market</h1>
       <p className="max-w-2xl text-sm text-muted-foreground">
-        Borrow USDG against tokenized stocks on X Layer. How much you can borrow follows the US market session; the
-        liquidation line stays put.
+        Borrow USDG against tokenized stocks on X Layer.
       </p>
     </header>
   )

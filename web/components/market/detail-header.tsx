@@ -1,26 +1,37 @@
 "use client"
 
+import type { ReactNode } from "react"
 import Link from "next/link"
 import type { MarketDeployment } from "@intatto/config/deployments"
-import type { MarketState } from "@/lib/chain"
+import { usePriceProvenance, type MarketState } from "@/lib/chain"
+import { DefinitionPopover } from "@/components/ui/ix"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { InfoChip } from "./info-chip"
+import { RELAY_BOUNDS_LEAD, RELAY_DISCLOSURE, type MarketTerms } from "./copy"
 import { SessionBadge } from "./session-badge"
-import { RELAY_TOOLTIP } from "./copy"
-import type { ProtocolParams, RelayDetail } from "./use-market-params"
 import { ago, borrowHref, bpsShort, duration, formatUtc, usdPrice, usdg } from "./format"
 
 type Props = {
   market: MarketDeployment
   state: MarketState
-  relay: RelayDetail | undefined
-  params: ProtocolParams | undefined
+  terms: MarketTerms | undefined
   now: number | undefined
 }
 
-/** The selected market's title, session and the three explained chips: price, relay, liquidation style. */
-export function DetailHeader({ market, state: s, relay, params, now }: Props) {
+function Chip({ testId, label, value, term, children }: { testId: string; label: string; value: string; term: string; children: ReactNode }) {
+  return (
+    <span data-testid={testId} className="inline-flex max-w-full items-center gap-1 rounded-full border bg-background px-2 py-0.5 text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="truncate font-medium tabular-nums">{value}</span>
+      <DefinitionPopover term={term} contentTestId={`${testId}-tooltip`} side="bottom">
+        {children}
+      </DefinitionPopover>
+    </span>
+  )
+}
+
+/** Title, actions, the price and relay that stay visible, and the three one-click definitions. */
+export function DetailHeader({ market, state: s, terms, now }: Props) {
+  const source = usePriceProvenance()
   const noPrice = s.priceE18 === 0n
   return (
     <div className="grid gap-3">
@@ -40,52 +51,70 @@ export function DetailHeader({ market, state: s, relay, params, now }: Props) {
           </Button>
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <InfoChip testId="chip-price" label="Price" value={noPrice ? "not posted" : usdPrice(s.priceE18)}>
+      <p className="text-sm">
+        {noPrice ? (
+          <span data-testid="price-value">No price posted yet</span>
+        ) : (
+          <>
+            <span data-testid="price-value" className="font-medium tabular-nums">
+              {usdPrice(s.priceE18)}
+            </span>{" "}
+            per {market.symbol}, fetched by the keeper at <span data-testid="price-fetched-at">{formatUtc(s.fetchedAt)}</span>
+          </>
+        )}
+      </p>
+      <p data-testid="relay-disclosure" className="text-sm text-muted-foreground">
+        {RELAY_DISCLOSURE}
+        {source.short === RELAY_DISCLOSURE ? "" : ` · ${source.short}`}
+      </p>
+      {!s.fresh ? <p className="text-sm text-destructive">The accepted price is stale.</p> : null}
+      {s.priceE18 > 0n && !s.inBand ? (
+        <p className="text-sm text-destructive">The relayed price is outside the band. The accepted price above is unchanged.</p>
+      ) : null}
+      <div className="flex flex-wrap items-center gap-2">
+        <Chip testId="chip-price" label="Price" term="Price" value={noPrice ? "not posted" : usdPrice(s.priceE18)}>
           {noPrice ? (
             <span>The keeper has not posted a {market.symbol} price to this market yet.</span>
           ) : (
             <span>
               Fetched by the keeper at {formatUtc(s.fetchedAt)}
-              {now ? ` (${ago(now, s.fetchedAt)})` : ""}. The issuer&apos;s quote carries no timestamp of its own, so this is
-              when the keeper fetched it, not when the stock last traded.
+              {now ? ` (${ago(now, s.fetchedAt)})` : ""}. That is when the keeper fetched it. The quote has no source timestamp.
             </span>
           )}
-        </InfoChip>
-        <InfoChip testId="chip-relay" label="Relay" value="keeper, bounded onchain">
+        </Chip>
+        <Chip testId="chip-relay" label="Relay" term="Relay" value={source.short}>
           <span className="grid gap-1.5">
-            <span>{RELAY_TOOLTIP}</span>
-            {relay ? (
+            <span>{RELAY_BOUNDS_LEAD}.</span>
+            <span>{source.detail}</span>
+            {market.symbol === "SPYx" ? <span>This is the SPYx market and its wSPYx/USDG pool, not the NVDAx pool.</span> : null}
+            {terms ? (
               <span>
-                Liveness {duration(relay.priceLivenessSeconds)}; band ±{bpsShort(relay.bandOpenBps)} open, ±
-                {bpsShort(relay.bandOtherBps)} otherwise; max move {bpsShort(relay.maxMoveBps)} per update; peg within{" "}
-                {bpsShort(relay.pegBps)}.
+                Liveness {duration(terms.priceLivenessSeconds)}; band ±{bpsShort(terms.bandOpenBps)} open, ±
+                {bpsShort(terms.bandOtherBps)} otherwise; max move {bpsShort(terms.maxMoveBps)} per update; peg within{" "}
+                {bpsShort(terms.pegBps)}. Keeper session posts lapse after {duration(terms.sessionLivenessSeconds)}.
               </span>
-            ) : null}
+            ) : (
+              <span>Reading the bounds from the active deployment…</span>
+            )}
           </span>
-        </InfoChip>
-        {params ? (
-          <InfoChip testId="chip-liquidation" label="Liquidation" value={`bounded slices · ${bpsShort(params.penaltyBps)} penalty`}>
-            <span className="grid gap-1.5">
-              <span>Liquidation: bounded slices while the market is closed.</span>
+        </Chip>
+        <Chip testId="chip-liquidation" label="Liquidation" term="Liquidation" value={terms ? `bounded slices · ${bpsShort(terms.penaltyBps)} penalty` : "bounded slices"}>
+          <span className="grid gap-1.5">
+            <span>Liquidation: bounded slices while the market is closed.</span>
+            {terms ? (
               <span>
                 A loan can be liquidated once its LTV passes {bpsShort(s.liquidationThresholdBps)}. While the market is closed, each
-                slice sells {s.sliceUsdg > 0n ? `at most ${usdg(s.sliceUsdg)} of` : "a keeper-sized amount of"} w{market.symbol} into
-                the pool{s.sliceUsdg > 0n ? "" : " (the keeper has not posted a size yet, so none can sell)"}, no lower than{" "}
-                {bpsShort(params.liqClosedFloorBps)} under the relayed price; a slice that cannot fill waits, and after{" "}
-                {duration(params.liqClosedTimeoutSeconds)} the floor widens to {bpsShort(params.liqClosedTimeoutFloorBps)}. In open and
-                extended hours the rest sells no lower than {bpsShort(params.liqOpenFloorBps)} under. The penalty is{" "}
-                {bpsShort(params.penaltyBps)} of the debt repaid.
+                slice sells {s.sliceUsdg > 0n ? `at most ${usdg(s.sliceUsdg)} of` : "a keeper-sized amount of"} w{market.symbol} into the
+                pool, no lower than {bpsShort(terms.liqClosedFloorBps)} under the relayed price. After{" "}
+                {duration(terms.liqClosedTimeoutSeconds)} the floor widens to {bpsShort(terms.liqClosedTimeoutFloorBps)}. In open and
+                extended hours the floor is {bpsShort(terms.liqOpenFloorBps)} under. The penalty is {bpsShort(terms.penaltyBps)} of the
+                debt repaid.
               </span>
-              <span>
-                Example: $1,000 of {market.symbol} backing 700 USDG is at 70% LTV, past {bpsShort(s.liquidationThresholdBps)}, so slices
-                sell collateral until the debt plus the penalty is repaid.
-              </span>
-            </span>
-          </InfoChip>
-        ) : (
-          <Skeleton className="h-7 w-48 rounded-full" />
-        )}
+            ) : (
+              <span>Reading the liquidation bounds from the active deployment…</span>
+            )}
+          </span>
+        </Chip>
       </div>
     </div>
   )

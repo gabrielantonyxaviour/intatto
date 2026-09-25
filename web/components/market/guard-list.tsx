@@ -1,7 +1,10 @@
+"use client"
+
 import Link from "next/link"
 import { CircleCheckIcon, CircleXIcon } from "lucide-react"
 import type { MarketState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
+import { DefinitionPopover } from "@/components/ui/ix"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { guardResults } from "./copy"
 import type { RelayDetail } from "./use-market-params"
@@ -15,7 +18,13 @@ export function GuardList({ symbol, state, relay, relayFailed, now }: Props) {
   return (
     <Card data-testid="guards">
       <CardHeader>
-        <CardTitle>Guards</CardTitle>
+        <CardTitle className="flex items-center gap-1">
+          Guards
+          <DefinitionPopover term="Guards" contentTestId="guards-meaning">
+            Fresh is the keeper post against the relay&apos;s liveness limit. In band is the implied wrapper price against the session&apos;s
+            pool TWAP band. Peg is Chainlink USDG/USD against the relay&apos;s peg band. A failing row is the current outcome, not a definition.
+          </DefinitionPopover>
+        </CardTitle>
         <CardDescription>
           {failing === 0 ? "Every check a new borrow needs passes right now." : `${failing} of ${guards.length} checks fail, so new borrowing is refused.`}
         </CardDescription>
