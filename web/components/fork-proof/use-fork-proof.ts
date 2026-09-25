@@ -8,9 +8,9 @@ import { checkBlocks, type BlocksEvidence } from "./check-blocks"
 import { checkBytecode, type BytecodeEvidence } from "./check-bytecode"
 import { checkIntatto, type IntattoEvidence } from "./check-intatto"
 import { checkState, type StateEvidence } from "./check-state"
-import { fetchLedger, type LedgerState } from "./ledger"
+import { fetchLedger, fetchSandboxOnlyMarkets, type LedgerState } from "./ledger"
 import { Cancelled } from "./pacer"
-import { chainId, pickReference, proofClient, reportedForkBlock, RpcUnreachable, type ProofClient, type ReferencePick } from "./rpc"
+import { chainId, pickReference, proofClient, reportedForkBlock, RpcFailure, type ProofClient, type ReferencePick } from "./rpc"
 import type { CheckId, Outcome, ProofInputs } from "./types"
 
 export type Checks = {
@@ -61,7 +61,11 @@ async function settle<E>(fn: () => Promise<{ pass: boolean; evidence: E }>): Pro
     return { status: pass ? "pass" : "fail", evidence, finishedAt: Date.now() }
   } catch (e) {
     if (e instanceof Cancelled) return RUNNING
-    if (e instanceof RpcUnreachable) return { status: "unreachable", side: e.side, url: e.url, message: e.message, finishedAt: Date.now() }
+    if (e instanceof RpcFailure) {
+      return e.kind === "refused"
+        ? { status: "refused", side: e.side, url: e.url, message: e.message, code: e.code, method: e.method, finishedAt: Date.now() }
+        : { status: "unreachable", side: e.side, url: e.url, message: e.message, finishedAt: Date.now() }
+    }
     return { status: "unreachable", side: "sandbox", url: "", message: e instanceof Error ? e.message : String(e), finishedAt: Date.now() }
   }
 }
@@ -70,6 +74,7 @@ async function runChecks(inputs: ProofInputs, alive: () => boolean, patch: Patch
   const setCheck = <K extends CheckId>(k: K, o: Checks[K]) => patch((r) => ({ checks: { ...r.checks, [k]: o } }))
   const sandbox = proofClient("sandbox", inputs.sandboxRpc, alive)
   const ledgerP = fetchLedger(inputs.apiUrl, inputs.sessionId).then((ledger) => (patch({ ledger }), ledger))
+  const sandboxOnlyP = fetchSandboxOnlyMarkets(inputs.apiUrl)
   const [reference, sandboxId, rpcForkBlock] = await Promise.all([
     pickReference(LIVE_RPC_URLS, XLAYER_CHAIN_ID, alive),
     chainId(sandbox).then(
@@ -105,7 +110,7 @@ async function runChecks(inputs: ProofInputs, alive: () => boolean, patch: Patch
     settle(() => checkBytecode(sandbox, ref, forkBlock)).then((o) => setCheck("bytecode", o)),
     ledgerP.then((ledger) => settle(() => checkState(sandbox, ref, forkBlock, ledger))).then((o) => setCheck("state", o)),
     (deployment
-      ? settle(() => checkIntatto(sandbox, ref, deployment, liveDeployment))
+      ? sandboxOnlyP.then((hint) => settle(() => checkIntatto(sandbox, ref, deployment, liveDeployment, hint)))
       : Promise.resolve<Checks["intatto"]>({
           status: "skipped",
           reason: "No Intatto addresses are known for this RPC. Open this page from a sandbox session to check Intatto's contracts.",

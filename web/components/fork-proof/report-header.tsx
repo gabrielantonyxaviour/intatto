@@ -26,6 +26,7 @@ function Summary({ run }: { run: ProofRun }) {
     `${count("pass")} of ${all.length} passed`,
     count("fail") ? `${count("fail")} failed` : null,
     count("unreachable") ? `${count("unreachable")} could not reach an RPC` : null,
+    count("refused") ? `${count("refused")} had a read refused by an RPC` : null,
     count("running") ? `${count("running")} running` : null,
     count("skipped") ? `${count("skipped")} not run` : null,
   ].filter(Boolean)
@@ -105,6 +106,15 @@ export function ReportHeader({ inputs, run, running, onRerun }: { inputs: ProofI
             <span className="block text-xs text-muted-foreground">
               Public X Layer RPCs, tried in order: {LIVE_RPC_URLS.join(", ")}.
               {fellBack.length > 0 ? ` Skipped: ${fellBack.map((t) => `${t.url} (${t.note})`).join("; ")}.` : ""}
+            </span>
+          </Field>
+          <Field label="Reads">
+            <span>
+              Block hashes at each block number on both RPCs. Code and state: the sandbox now against X Layer at the fork block.
+            </span>
+            <span className="block text-xs text-muted-foreground">
+              A sandbox started from a state snapshot cannot serve state at the fork block itself, and now is what a borrower
+              on the sandbox meets.
             </span>
           </Field>
           <Field label="Run">

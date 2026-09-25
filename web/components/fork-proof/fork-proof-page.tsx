@@ -74,7 +74,7 @@ function ProofReport({ inputs }: { inputs: ProofInputs }) {
         id="bytecode"
         number={2}
         title="Contract code matches X Layer"
-        proves={`Every external contract Intatto relies on has the same runtime code on X Layer at ${at}, on the sandbox at that block, and on the sandbox now.`}
+        proves={`The sandbox's current code for every external contract Intatto relies on equals X Layer's at ${at}. (The sandbox is read now: one started from a snapshot cannot serve state at the fork block itself.)`}
         outcome={run.checks.bytecode}
         evidence={(e) => <BytecodeEvidenceView e={e} forkBlock={block ?? 0n} />}
         commands={rpcs ? (e) => bytecodeCommands(rpcs, e) : undefined}
@@ -84,28 +84,23 @@ function ProofReport({ inputs }: { inputs: ProofInputs }) {
         id="state"
         number={3}
         title="State matches X Layer"
-        proves={`Balances, prices and storage read at ${at} are equal on both RPCs, and storage the sandbox never writes is still what X Layer had.`}
+        proves={`The sandbox's current state equals X Layer's at ${at}, apart from changes its use explains: storage and reads no sandbox action writes must be identical; balances, the pool price and the multiplier are listed apart with the ledger entries behind them.`}
         outcome={run.checks.state}
         evidence={(e) => <StateEvidenceView e={e} forkBlock={block ?? 0n} />}
         commands={rpcs ? (e) => stateCommands(rpcs, e) : undefined}
-        differences={(e) => [
-          ...e.atFork.filter((r) => !r.equal).map((r) => `At the fork block: ${r.contract} ${r.what}${r.note ? ` (${r.note})` : ""}`),
-          ...e.untouched.filter((r) => !r.equal).map((r) => `Changed since the fork: ${r.contract} ${r.what}${r.note ? ` (${r.note})` : ""}`),
-          ...e.explained.filter((r) => r.verdict === "unexplained").map((r) => `Changed with no ledger entry: ${r.contract} ${r.what}`),
-        ]}
+        differences={(e) =>
+          e.unchanged.filter((r) => !r.equal).map((r) => `Changed since the fork: ${r.contract} ${r.what}${r.note ? ` (${r.note})` : ""}`)
+        }
       />
       <CheckSection
         id="intatto"
         number={4}
         title="Intatto's code is the published code"
-        proves="Each Intatto contract on the sandbox runs the same code as the build (or the mainnet deployment, once it exists)."
+        proves="Each Intatto contract on the sandbox runs the same code as the X Layer mainnet deployment when this app has one configured, otherwise as this repo's build; sandbox-only markets are always compared with the build."
         outcome={run.checks.intatto}
         evidence={(e) => <IntattoEvidenceView e={e} />}
         commands={rpcs ? (e) => intattoCommands(rpcs, e) : undefined}
-        differences={(e) => [
-          ...e.rows.filter((r) => !r.equal).map((r) => `${r.label} (${r.contract}) at ${r.address}`),
-          ...e.missing,
-        ]}
+        differences={(e) => e.rows.filter((r) => !r.equal).map((r) => `${r.label} (${r.contract}) at ${r.address}`)}
       />
       <LedgerSection ledger={run.ledger} />
     </div>

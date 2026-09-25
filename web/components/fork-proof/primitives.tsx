@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, type ReactNode } from "react"
-import { CheckIcon, CircleCheckIcon, CircleMinusIcon, CircleXIcon, CopyIcon, EllipsisIcon, UnplugIcon } from "lucide-react"
+import { CheckIcon, CircleAlertIcon, CircleCheckIcon, CircleMinusIcon, CircleXIcon, CopyIcon, EllipsisIcon, UnplugIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import type { CheckStatus } from "./types"
@@ -11,6 +11,7 @@ const STATUS: Record<CheckStatus, { icon: typeof CheckIcon; word: string; tone: 
   pass: { icon: CircleCheckIcon, word: "passed", tone: "text-success-foreground" },
   fail: { icon: CircleXIcon, word: "failed", tone: "text-destructive" },
   unreachable: { icon: UnplugIcon, word: "RPC unreachable", tone: "text-warning-foreground" },
+  refused: { icon: CircleAlertIcon, word: "RPC refused a read", tone: "text-warning-foreground" },
   skipped: { icon: CircleMinusIcon, word: "not run", tone: "text-muted-foreground" },
 }
 

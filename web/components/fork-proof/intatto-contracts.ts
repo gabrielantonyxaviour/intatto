@@ -46,6 +46,8 @@ export type IntattoTarget = {
   label: string
   contract: ArtifactName
   address: `0x${string}`
+  /** The market this contract belongs to; null for shared contracts. */
+  market: string | null
 }
 
 /** Every Intatto contract in a deployment, in a fixed order. */
@@ -53,11 +55,11 @@ export function intattoTargets(d: Deployment): IntattoTarget[] {
   const out: IntattoTarget[] = []
   for (const c of CORE) {
     const address = d[c.key]
-    if (address) out.push({ id: c.key, label: c.label, contract: c.contract, address: address as `0x${string}` })
+    if (address) out.push({ id: c.key, label: c.label, contract: c.contract, address: address as `0x${string}`, market: null })
   }
   for (const m of d.markets) {
     for (const c of PER_MARKET) {
-      out.push({ id: `${m.symbol}.${c.key}`, label: `${m.symbol} ${c.label}`, contract: c.contract, address: m[c.key] as `0x${string}` })
+      out.push({ id: `${m.symbol}.${c.key}`, label: `${m.symbol} ${c.label}`, contract: c.contract, address: m[c.key] as `0x${string}`, market: m.symbol })
     }
   }
   return out

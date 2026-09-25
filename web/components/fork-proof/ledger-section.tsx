@@ -35,7 +35,7 @@ export function LedgerSection({ ledger }: { ledger: LedgerState }) {
             <CircleAlertIcon aria-hidden />
             <AlertTitle className="line-clamp-none">The ledger could not be loaded</AlertTitle>
             <AlertDescription>
-              <p className="break-all">
+              <p className="wrap-anywhere">
                 {ledger.url}: {ledger.message}
               </p>
             </AlertDescription>
@@ -46,19 +46,19 @@ export function LedgerSection({ ledger }: { ledger: LedgerState }) {
         ) : null}
         {ledger.status === "ok" && ledger.entries.length > 0 ? (
           <>
-            <p className="text-xs text-muted-foreground">
+            <p className="min-w-0 text-xs text-muted-foreground wrap-anywhere">
               {ledger.entries.length} entries from <Mono>{ledger.url}</Mono>
             </p>
-            <ol className="grid gap-2">
+            <ol className="grid min-w-0 gap-2">
               {ledger.entries.map((e, i) => (
-                <li key={i} className="grid gap-1 rounded-lg border p-3 text-sm">
+                <li key={i} className="grid min-w-0 gap-1 rounded-lg border p-3 text-sm">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline">{e.kind}</Badge>
                     {e.chainTime ? <span className="text-xs text-muted-foreground tabular-nums">chain time {formatUtc(e.chainTime)}</span> : null}
                   </div>
-                  <p className="break-words">{e.summary}</p>
+                  <p className="min-w-0 wrap-anywhere">{e.summary}</p>
                   {e.txHash ? (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="min-w-0 text-xs text-muted-foreground wrap-anywhere">
                       tx <ExplorerLink hash={e.txHash} className="font-mono break-all" />
                     </p>
                   ) : null}

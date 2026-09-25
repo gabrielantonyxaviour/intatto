@@ -5,7 +5,7 @@ import type { BlocksEvidence } from "./check-blocks"
 import type { BytecodeEvidence } from "./check-bytecode"
 import type { IntattoEvidence } from "./check-intatto"
 import type { StateEvidence } from "./check-state"
-import { abi, FORK_BLOCK_CALLS, LEDGER_EXPLAINED } from "./targets"
+import { abi, MOVING, UNCHANGED_CALLS } from "./targets"
 
 const q = (url: string) => (/^[\w:/.\-]+$/.test(url) ? url : `'${url.replace(/'/g, `'\\''`)}'`)
 
@@ -26,12 +26,11 @@ export function bytecodeCommands(r: Rpcs, e: BytecodeEvidence): string[] {
   return e.rows.flatMap((row) => [
     `# ${row.label}`,
     `cast keccak $(cast code ${row.address} --block ${r.forkBlock} --rpc-url ${q(r.reference)})`,
-    `cast keccak $(cast code ${row.address} --block ${r.forkBlock} --rpc-url ${q(r.sandbox)})`,
     `cast keccak $(cast code ${row.address} --rpc-url ${q(r.sandbox)})`,
   ])
 }
 
-const byId = new Map([...FORK_BLOCK_CALLS, ...LEDGER_EXPLAINED].map((t) => [t.id, t]))
+const byId = new Map([...UNCHANGED_CALLS, ...MOVING].map((t) => [t.id, t]))
 
 /** "slot0()(uint160,int24,…)" plus its arguments, the way cast call wants them. */
 function castSig(id: string): string | null {
@@ -44,16 +43,14 @@ function castSig(id: string): string | null {
 }
 
 export function stateCommands(r: Rpcs, e: StateEvidence): string[] {
-  const read = (row: StateEvidence["atFork"][number], block: string, rpc: string) =>
+  const read = (row: StateEvidence["unchanged"][number], block: string, rpc: string) =>
     row.slot ? `cast storage ${row.address} ${row.slot}${block} --rpc-url ${q(rpc)}` : `cast call ${row.address} ${castSig(row.id)}${block} --rpc-url ${q(rpc)}`
   const at = ` --block ${r.forkBlock}`
   return [
-    "# a. at the fork block, on both RPCs",
-    ...e.atFork.flatMap((row) => [read(row, at, r.reference), read(row, at, r.sandbox)]),
-    "# b. never written by the sandbox: X Layer at the fork block, then the sandbox now",
-    ...e.untouched.flatMap((row) => [read(row, at, r.reference), read(row, "", r.sandbox)]),
-    "# c. changed by recorded sandbox actions: X Layer at the fork block, then the sandbox now",
-    ...e.explained.flatMap((row) => [read(row, at, r.reference), read(row, "", r.sandbox)]),
+    "# a. must be equal: X Layer at the fork block, then the sandbox now",
+    ...e.unchanged.flatMap((row) => [read(row, at, r.reference), read(row, "", r.sandbox)]),
+    "# b. moved by sandbox use: X Layer at the fork block, then the sandbox now",
+    ...e.moving.flatMap((row) => [read(row, at, r.reference), read(row, "", r.sandbox)]),
   ]
 }
 

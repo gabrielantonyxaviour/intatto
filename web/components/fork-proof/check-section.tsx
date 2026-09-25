@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { CircleXIcon, UnplugIcon } from "lucide-react"
+import { CircleAlertIcon, CircleXIcon, UnplugIcon } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -49,11 +49,25 @@ export function CheckSection<E>({ id, number, title, proves, outcome, evidence, 
             <UnplugIcon aria-hidden />
             <AlertTitle className="line-clamp-none">Could not reach the {SIDE_NAME[outcome.side]}</AlertTitle>
             <AlertDescription>
-              <p className="break-all">
+              <p className="wrap-anywhere">
                 {outcome.url ? `${outcome.url}: ` : ""}
                 {outcome.message}
               </p>
-              <p>This check did not run, so it has neither passed nor failed. Re-run once the RPC answers.</p>
+              <p>No answer came back (network, HTTP or timeout), so this check has neither passed nor failed. Re-run once the RPC answers.</p>
+            </AlertDescription>
+          </Alert>
+        ) : null}
+        {outcome.status === "refused" ? (
+          <Alert variant="warning" data-slot="refused">
+            <CircleAlertIcon aria-hidden />
+            <AlertTitle className="line-clamp-none">The {SIDE_NAME[outcome.side]} refused a read</AlertTitle>
+            <AlertDescription>
+              <p className="wrap-anywhere">
+                {outcome.method ? `${outcome.method}` : "A read"}
+                {outcome.code !== null ? ` answered JSON-RPC error ${outcome.code}` : " answered an error"}: {outcome.message}
+              </p>
+              <p className="wrap-anywhere">{outcome.url}</p>
+              <p>The RPC is up but would not serve this read, so the check has neither passed nor failed.</p>
             </AlertDescription>
           </Alert>
         ) : null}
@@ -88,7 +102,7 @@ function Differences({ items }: { items: string[] }) {
       <AlertDescription>
         <ul className="list-disc pl-4">
           {items.map((d) => (
-            <li key={d} className="break-words">
+            <li key={d} className="wrap-anywhere">
               {d}
             </li>
           ))}

@@ -13,9 +13,9 @@ import { test, expect, viewports, expectNoHorizontalScroll } from "./fixtures"
 
 type PwPage = import("@playwright/test").Page
 const USDG = XLAYER.usdg as Hex
-const FEED = XLAYER.chainlinkUsdgUsd as Hex
+/** Aave v3 Pool on X Layer: covered by check 2, never called by check 3, so tampering with it shows in check 2 alone. */
+const AAVE_POOL = "0xe3f3caefdd7180f884c01e57f65df979af84f116" as Hex
 const NVDAX = "0xc845b2894dbddd03858fd2d643b4ef725fe0849d" as Hex
-const CHECKS = ["blocks", "bytecode", "state", "intatto"] as const
 const RUN_TIMEOUT = 240_000
 
 test.describe.configure({ mode: "serial" })
@@ -24,7 +24,8 @@ let h: ForkHarness
 
 test.beforeAll(async () => {
   test.setTimeout(300_000)
-  h = await startForkHarness()
+  // SPYx too, as the hosted sandbox has it: a market with no mainnet counterpart.
+  h = await startForkHarness({ spyx: true })
   // The harness compiled and deployed from contracts/out; ship the same build to the page's check 4.
   writeArtifactsModule()
 })
@@ -33,16 +34,28 @@ test.afterAll(async () => {
   await h?.stop()
 })
 
-async function statuses(page: PwPage) {
-  return Object.fromEntries(await Promise.all(CHECKS.map(async (c) => [c, await page.locator(`[data-check="${c}"]`).getAttribute("data-status")])))
-}
-
-/** Waits until no check is running, then returns every check's status. */
+/**
+ * Waits until the page shows all four checks with none running, read in one snapshot (a dev-server reload can
+ * briefly show no checks at all, which must not count as finished), and returns every check's status.
+ */
 async function settled(page: PwPage) {
-  // The checks render (all "running") once the page hydrates; only then does "none running" mean finished.
-  await expect(page.locator("[data-check]")).toHaveCount(4, { timeout: 120_000 })
-  await expect(page.locator('[data-check][data-status="running"]')).toHaveCount(0, { timeout: RUN_TIMEOUT })
-  return statuses(page)
+  let result: Record<string, string | null> | null = null
+  await expect
+    .poll(
+      async () => {
+        result = await page
+          .evaluate(() => {
+            const els = [...document.querySelectorAll("[data-check]")]
+            if (els.length !== 4 || els.some((e) => e.getAttribute("data-status") === "running")) return null
+            return Object.fromEntries(els.map((e) => [e.getAttribute("data-check"), e.getAttribute("data-status")]))
+          })
+          .catch(() => null)
+        return result !== null
+      },
+      { timeout: RUN_TIMEOUT, intervals: [500] },
+    )
+    .toBe(true)
+  return result!
 }
 
 async function rerun(page: PwPage) {
@@ -102,6 +115,9 @@ test("all four checks pass in the browser, and the shown values equal direct rea
   const supply = await h.fork.client.readContract({ address: USDG, abi: parseAbi(["function totalSupply() view returns (uint256)"]), functionName: "totalSupply", blockNumber: forkBlock })
   await expect(row(page, "state", "usdg.totalSupply")).toContainText(String(supply))
   await expect(row(page, "state", "u.usdg.supply")).toContainText(pad(toHex(supply)))
+  // The harness funded the burner from the real holder: that balance moved, is listed apart, and fails nothing.
+  await expect(row(page, "state", "m.holder")).toHaveAttribute("data-equal", "false")
+  await expect(page.locator('[data-check="state"] [data-slot="differences"]')).toHaveCount(0)
 
   // Check 4: compared with the build artifacts; MarketLens has no immutables, so its hash is the plain code hash.
   await expect(page.locator('[data-check="intatto"] [data-comparison="artifacts"]')).toBeVisible()
@@ -142,8 +158,12 @@ test("an altered storage slot turns the state check red with old → new, and ba
   await expect(changed).toHaveAttribute("data-equal", "false")
   await expect(changed.locator('[data-side="old"]')).toContainText(oldWord)
   await expect(changed.locator('[data-side="new"]')).toContainText(newWord)
-  await expect(page.locator('[data-check="state"] [data-equal="false"]')).toHaveCount(1)
-  await expect(page.locator('[data-check="state"] [data-slot="differences"]')).toContainText("Changed since the fork: USDG slot 0x2 (totalSupply)")
+  // The raw slot and the totalSupply() call that reads it both moved, and nothing else.
+  await expect(page.locator('[data-check="state"] [data-slot="differences"] li')).toHaveText([
+    "Changed since the fork: USDG totalSupply()",
+    "Changed since the fork: USDG slot 0x2 (totalSupply)",
+  ])
+  await expect(row(page, "state", "usdg.totalSupply").locator('[data-side="new"]')).toContainText(String(BigInt(newWord)))
   await changed.scrollIntoViewIfNeeded()
   await page.screenshot({ path: "proof/fork-proof-red.png", fullPage: true })
 
@@ -151,16 +171,47 @@ test("an altered storage slot turns the state check red with old → new, and ba
   expect((await rerun(page)).state).toBe("pass")
 })
 
+test("check 4 compares mainnet contracts with mainnet and sandbox-only markets with the build", async () => {
+  test.setTimeout(180_000)
+  // The same module the page runs. The fork plays both sides: "mainnet" is the harness deployment without SPYx.
+  const { checkIntatto } = await import("../../web/components/fork-proof/check-intatto.ts")
+  const { proofClient } = await import("../../web/components/fork-proof/rpc.ts")
+  const sandbox = proofClient("sandbox", h.env.rpcUrl)
+  const reference = proofClient("reference", h.env.rpcUrl)
+  const live = { ...h.deployment, markets: h.deployment.markets.filter((m) => m.symbol === "NVDAx") }
+  expect(h.deployment.markets.map((m) => m.symbol)).toEqual(["NVDAx", "SPYx"])
+
+  const mainnet = await checkIntatto(sandbox, reference, h.deployment, live)
+  expect(mainnet.pass).toBe(true)
+  expect(mainnet.evidence.comparison).toBe("mainnet")
+  expect(mainnet.evidence.sandboxOnlyMarkets).toEqual(["SPYx"])
+  for (const r of mainnet.evidence.rows) {
+    const spyx = r.id.startsWith("SPYx.")
+    expect([r.id, r.comparedWith, r.sandboxOnly, r.equal]).toEqual([r.id, spyx ? "artifacts" : "mainnet", spyx, true])
+    if (!spyx) expect(r.referenceAddress).toBe(r.address)
+  }
+
+  // No mainnet deployment configured: everything against the build; the session API's hint only labels SPYx.
+  const build = await checkIntatto(sandbox, reference, h.deployment, null, ["SPYx"])
+  expect(build.pass).toBe(true)
+  expect(build.evidence.rows.every((r) => r.comparedWith === "artifacts" && r.sandboxOnly === r.id.startsWith("SPYx."))).toBe(true)
+
+  // A mainnet contract whose code differs from the sandbox's is caught in mainnet mode too.
+  const tampered = await checkIntatto(sandbox, reference, h.deployment, { ...live, vault: h.deployment.gapReserve })
+  expect(tampered.pass).toBe(false)
+  expect(tampered.evidence.rows.find((r) => r.id === "vault")!.equal).toBe(false)
+})
+
 test("replaced code turns the bytecode and Intatto checks red", async ({ page, useFork }) => {
   test.setTimeout(420_000)
-  await flipByte(FEED, 50)
+  await flipByte(AAVE_POOL, 50)
   await flipByte(h.deployment.lens as Hex, 100)
   await useFork(page, h.env)
   await page.goto("/sandbox/proof")
   expect(await settled(page)).toEqual({ blocks: "pass", bytecode: "fail", state: "pass", intatto: "fail" })
-  await expect(row(page, "bytecode", FEED.toLowerCase())).toHaveAttribute("data-equal", "false")
+  await expect(row(page, "bytecode", AAVE_POOL)).toHaveAttribute("data-equal", "false")
   await expect(page.locator('[data-check="bytecode"] [data-equal="false"]')).toHaveCount(1)
-  await expect(page.locator('[data-check="bytecode"] [data-slot="differences"]')).toContainText("Chainlink USDG/USD proxy")
+  await expect(page.locator('[data-check="bytecode"] [data-slot="differences"]')).toContainText("Aave v3 Pool (0x")
   const lens = row(page, "intatto", "lens")
   await expect(lens).toHaveAttribute("data-equal", "false")
   await expect(lens).toContainText("byte 100")
@@ -193,3 +244,28 @@ test("an unreachable RPC shows that state on every check", async ({ page, useFor
   await page.screenshot({ path: "proof/fork-proof-unreachable-390.png", fullPage: true })
 })
 
+
+test("a read the RPC answers with a JSON-RPC error shows as refused, not unreachable", async ({ page, useFork }) => {
+  test.setTimeout(300_000)
+  // Like the hosted sandbox's BlockOutOfRangeError (-32602): the RPC is up but will not serve these reads.
+  const origin = new URL(h.env.rpcUrl).origin
+  await page.route(
+    (url) => url.origin === origin,
+    async (route) => {
+      const body = route.request().postDataJSON() as { id?: number; method?: string } | null
+      if (!body || !["eth_getCode", "eth_getStorageAt", "eth_call"].includes(body.method ?? "")) return route.continue()
+      await route.fulfill({
+        status: 200,
+        headers: { "access-control-allow-origin": "*", "content-type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: body.id, error: { code: -32602, message: "BlockOutOfRangeError: block height is 1 but requested was 2" } }),
+      })
+    },
+  )
+  await useFork(page, h.env)
+  await page.goto("/sandbox/proof")
+  expect(await settled(page)).toEqual({ blocks: "pass", bytecode: "refused", state: "refused", intatto: "refused" })
+  const refused = page.locator('[data-check="bytecode"] [data-slot="refused"]')
+  await expect(refused).toContainText("The sandbox RPC refused a read")
+  await expect(refused).toContainText("JSON-RPC error -32602")
+  await expect(page.locator('[data-slot="unreachable"]')).toHaveCount(0)
+})

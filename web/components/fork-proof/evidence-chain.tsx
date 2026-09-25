@@ -71,15 +71,12 @@ export function BytecodeEvidenceView({ e, forkBlock }: { e: BytecodeEvidence; fo
               </div>
               {row.sandboxResolved ? (
                 <p className="text-sm text-destructive">
-                  The sandbox resolves this address differently at the fork block: <Mono>{row.sandboxResolved}</Mono>
+                  The sandbox now resolves this to a different address: <Mono>{row.sandboxResolved}</Mono>
                 </p>
               ) : null}
               <dl className="grid gap-1.5">
                 <Field label={`X Layer, block ${formatNumber(forkBlock)}`}>
                   <CodeLine c={row.reference} differs={!ref} />
-                </Field>
-                <Field label={`Sandbox, block ${formatNumber(forkBlock)}`}>
-                  <CodeLine c={row.sandboxAtFork} differs={row.sandboxAtFork.hash !== ref} />
                 </Field>
                 <Field label="Sandbox now">
                   <CodeLine c={row.sandboxNow} differs={row.sandboxNow.hash !== ref} />

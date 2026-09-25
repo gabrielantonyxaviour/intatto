@@ -1,15 +1,16 @@
 "use client"
 
 import type { ReactNode } from "react"
+import { InfoIcon } from "lucide-react"
 import { formatNumber } from "@/components/ui/web3/format"
-import type { ExplainedRow, StateEvidence, ValueRow, Verdict } from "./check-state"
+import type { MovingRow, StateEvidence, ValueRow } from "./check-state"
 import { DiffLines, Mono, RowMark } from "./primitives"
 
 function RowHead({ row, mark }: { row: ValueRow; mark: ReactNode }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-2">
       <div className="min-w-0">
-        <p className="text-sm">
+        <p className="text-sm wrap-anywhere">
           <span className="font-medium">{row.contract}</span> · <Mono>{row.what}</Mono>
           {row.note ? <span className="text-muted-foreground"> · {row.note}</span> : null}
         </p>
@@ -49,23 +50,32 @@ function ValueItem({ row, oldLabel, newLabel }: { row: ValueRow; oldLabel: strin
   )
 }
 
-const VERDICT: Record<Verdict, { text: string; ok: boolean }> = {
-  unchanged: { text: "unchanged since the fork", ok: true },
-  explained: { text: "changed, explained by the ledger", ok: true },
-  expected: { text: "changed by sandbox transactions", ok: true },
-  unexplained: { text: "changed, and no ledger entry explains it", ok: false },
-  "no-ledger": { text: "changed; no ledger here to explain it", ok: true },
-}
-
-function ExplainedItem({ row, forkBlock }: { row: ExplainedRow; forkBlock: bigint }) {
-  const v = VERDICT[row.verdict]
+function MovingItem({ row, at }: { row: MovingRow; at: string }) {
+  const note =
+    row.equal || row.explanations.length > 0
+      ? null
+      : row.ledger === "ok"
+        ? "No ledger entry names this change; ordinary sandbox transactions (not admin calls) are not in the ledger."
+        : "This sandbox has no ledger to show here."
   return (
-    <li data-row={row.id} data-verdict={row.verdict} className="grid gap-2 rounded-lg border p-3">
-      <RowHead row={row} mark={<RowMark equal={v.ok} label={v.text} />} />
-      <p className="text-xs text-muted-foreground">{row.why}</p>
+    <li data-row={row.id} data-equal={row.equal} className="grid gap-2 rounded-lg border p-3">
+      <RowHead
+        row={row}
+        mark={
+          row.equal ? (
+            <RowMark equal label="unchanged since the fork" />
+          ) : (
+            <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-muted-foreground">
+              <InfoIcon aria-hidden className="size-3.5" />
+              moved by sandbox use
+            </span>
+          )
+        }
+      />
+      <p className="text-xs text-muted-foreground wrap-anywhere">{row.why}</p>
       <DiffLines
         equal={row.equal}
-        oldLabel={`X Layer, block ${formatNumber(forkBlock)}`}
+        oldLabel={`X Layer, ${at}`}
         newLabel="Sandbox now"
         oldValue={row.reference.raw}
         newValue={row.sandbox.raw}
@@ -73,43 +83,38 @@ function ExplainedItem({ row, forkBlock }: { row: ExplainedRow; forkBlock: bigin
         newShown={row.sandbox.shown}
       />
       {row.explanations.length > 0 ? (
-        <ul className="grid gap-1 text-xs text-muted-foreground">
+        <ul className="grid min-w-0 gap-1 text-xs text-muted-foreground" aria-label="Ledger entries that explain this change">
           {row.explanations.map((e, i) => (
-            <li key={i}>Ledger: {e.summary}</li>
+            <li key={i} className="min-w-0 wrap-anywhere">
+              Ledger ({e.kind}): {e.summary}
+            </li>
           ))}
         </ul>
       ) : null}
+      {note ? <p className="text-xs text-muted-foreground">{note}</p> : null}
     </li>
   )
 }
 
-/** Check 3 evidence, in its three parts. */
+/** Check 3 evidence: what must equal X Layer, then what sandbox use moves, listed apart. */
 export function StateEvidenceView({ e, forkBlock }: { e: StateEvidence; forkBlock: bigint }) {
   const at = `block ${formatNumber(forkBlock)}`
   return (
     <div className="grid gap-5">
       <Group
-        title={`a. State at the fork block (${e.atFork.length} reads)`}
-        note={`Contract calls and raw storage words, read at ${at} on both RPCs.`}
+        title={`a. Equal to X Layer at the fork block (${e.unchanged.length} reads)`}
+        note={`Contract reads and raw storage no sandbox action writes (proxy implementations and admins, total supplies, since the sandbox moves balances but never mints, the token's name, and the feed's answer, aggregator and owner). The sandbox is read now, X Layer at ${at}. Any difference means the sandbox state was edited outside its recorded actions.`}
       >
-        {e.atFork.map((row) => (
-          <ValueItem key={row.id} row={row} oldLabel={`X Layer, ${at}`} newLabel={`Sandbox, ${at}`} />
-        ))}
-      </Group>
-      <Group
-        title={`b. Unchanged since the fork (${e.untouched.length} slots)`}
-        note={`Storage no sandbox action writes (proxy implementations and admins, total supplies, since the sandbox moves balances but never mints, and the feed's aggregator and owner), read on the sandbox now and on X Layer at ${at}. A difference means the sandbox state was edited outside the recorded actions.`}
-      >
-        {e.untouched.map((row) => (
+        {e.unchanged.map((row) => (
           <ValueItem key={row.id} row={row} oldLabel={`X Layer, ${at}`} newLabel="Sandbox now" />
         ))}
       </Group>
       <Group
-        title={`c. Values sandbox use may change (${e.explained.length})`}
-        note={`Listed apart, read on the sandbox now and on X Layer at ${at}. A multiplier change must match a ledger entry; pool and wrapper values move with ordinary transactions.`}
+        title={`b. Moved by sandbox use, listed apart (${e.moving.length} values)`}
+        note={`Balances, the pool price and the multiplier move as the sandbox is used: funding, swaps, time warps and scenarios. Each shows X Layer at ${at}, the sandbox now, and the ledger entries that explain a change. These never fail the check.`}
       >
-        {e.explained.map((row) => (
-          <ExplainedItem key={row.id} row={row} forkBlock={forkBlock} />
+        {e.moving.map((row) => (
+          <MovingItem key={row.id} row={row} at={at} />
         ))}
       </Group>
     </div>

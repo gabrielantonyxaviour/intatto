@@ -1,7 +1,8 @@
 /**
- * Check 2: runtime code of every external contract Intatto touches hashes the same on X Layer at the fork
- * block, on the sandbox at the fork block, and on the sandbox now (nothing replaced it since).
- * Implementations, proxy admins, the feed's aggregator and the Aave pool are resolved onchain at the fork block.
+ * Check 2: every external contract Intatto touches runs, on the sandbox now, the same runtime code X Layer had at
+ * the fork block. Implementations, proxy admins, the feed's aggregator and the Aave pool are resolved onchain on
+ * each side (X Layer at the fork block, the sandbox now), so a swapped implementation shows as a different address.
+ * The sandbox is read at its latest block: one started from a state snapshot cannot serve state at the fork block.
  */
 import { decodeFunctionResult, encodeFunctionData, getAddress, type Hex } from "viem"
 import { call, getCode, getSlot, type BlockRef, type ProofClient } from "./rpc"
@@ -54,10 +55,9 @@ export type CodeRow = {
   label: string
   how: string
   address: Hex
-  /** Set when the sandbox resolves this address differently at the fork block. */
+  /** Set when the sandbox now resolves this address differently from X Layer at the fork block. */
   sandboxResolved: Hex | null
   reference: CodeSummary
-  sandboxAtFork: CodeSummary
   sandboxNow: CodeSummary
   equal: boolean
 }
@@ -67,7 +67,7 @@ export type BytecodeEvidence = { rows: CodeRow[]; omitted: { label: string; reas
 export async function checkBytecode(sandbox: ProofClient, reference: ProofClient, forkBlock: bigint) {
   const resolved = new Map<string, { address: Hex | null; sandbox: Hex | null }>()
   const resolveBoth = async (label: string, fn: Resolve) => {
-    const [r, s] = await Promise.all([fn(reference, forkBlock), fn(sandbox, forkBlock)])
+    const [r, s] = await Promise.all([fn(reference, forkBlock), fn(sandbox, "latest")])
     resolved.set(label, { address: r, sandbox: s })
   }
   await Promise.all(TARGETS.filter((t) => t.resolve).map((t) => resolveBoth(t.label, t.resolve!)))
@@ -92,13 +92,9 @@ export async function checkBytecode(sandbox: ProofClient, reference: ProofClient
   const summary = ({ hash, size }: CodeSummary): CodeSummary => ({ hash, size })
   const rows = await Promise.all(
     work.map(async ({ t, address, sandboxResolved }): Promise<CodeRow> => {
-      const [ref, atFork, now] = await Promise.all([
-        getCode(reference, address, forkBlock),
-        getCode(sandbox, address, forkBlock),
-        getCode(sandbox, address, "latest"),
-      ])
-      const equal = ref.hash !== null && ref.hash === atFork.hash && ref.hash === now.hash && sandboxResolved === null
-      return { label: t.label, how: t.how, address, sandboxResolved, reference: summary(ref), sandboxAtFork: summary(atFork), sandboxNow: summary(now), equal }
+      const [ref, now] = await Promise.all([getCode(reference, address, forkBlock), getCode(sandbox, address, "latest")])
+      const equal = ref.hash !== null && ref.hash === now.hash && sandboxResolved === null
+      return { label: t.label, how: t.how, address, sandboxResolved, reference: summary(ref), sandboxNow: summary(now), equal }
     }),
   )
   return { pass: rows.length > 0 && rows.every((r) => r.equal), evidence: { rows, omitted } satisfies BytecodeEvidence }

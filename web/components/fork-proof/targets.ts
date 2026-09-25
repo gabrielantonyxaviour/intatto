@@ -60,36 +60,26 @@ export type CallTarget = {
 
 const s = (n: number) => `0x${n.toString(16)}` as Hex
 
-/** Check 3a: read on both RPCs at the fork block; every value must be equal. */
-export const FORK_BLOCK_CALLS: CallTarget[] = [
-  { id: "nvdax.totalSupply", contract: "NVDAx", address: NVDAX, fn: "totalSupply", label: "totalSupply()", units: ["NVDAx"] },
-  { id: "nvdax.multiplier", contract: "NVDAx", address: NVDAX, fn: "getCurrentMultiplier", label: "getCurrentMultiplier()", units: ["wad", "uint", "uint"] },
-  { id: "nvdax.holder", contract: "NVDAx", address: NVDAX, fn: "balanceOf", args: [HOLDER], label: `balanceOf(real holder ${HOLDER})`, units: ["NVDAx"] },
-  { id: "wnvdax.convert", contract: "wNVDAx", address: WNVDAX, fn: "convertToAssets", args: [10n ** 18n], label: "convertToAssets(1e18)", units: ["NVDAx"] },
-  { id: "wnvdax.totalSupply", contract: "wNVDAx", address: WNVDAX, fn: "totalSupply", label: "totalSupply()", units: ["wNVDAx"] },
-  { id: "pool.slot0", contract: "wNVDAx/USDG pool", address: POOL, fn: "slot0", label: "slot0()", units: ["uint", "int", "uint", "uint", "uint", "uint", "bool"] },
-  { id: "pool.liquidity", contract: "wNVDAx/USDG pool", address: POOL, fn: "liquidity", label: "liquidity()", units: ["uint"] },
+/*
+ * Check 3 reads the sandbox at its latest block and X Layer at the fork block. (A sandbox started from a state
+ * snapshot cannot serve state AT the fork block, so "now" is the only sandbox state every sandbox can show.)
+ */
+
+/** Check 3a, contract calls no sandbox action can move: the sandbox moves balances but never mints, and nothing updates the feed. */
+export const UNCHANGED_CALLS: CallTarget[] = [
   { id: "usdg.totalSupply", contract: "USDG", address: USDG, fn: "totalSupply", label: "totalSupply()", units: ["USDG"] },
   { id: "feed.latest", contract: "Chainlink USDG/USD", address: USDG_USD, fn: "latestRoundData", label: "latestRoundData()", units: ["uint", "usd8", "time", "time", "uint"] },
 ]
 
-/** Check 3a, raw: storage words read with eth_getStorageAt at the fork block on both RPCs. */
-export const FORK_BLOCK_SLOTS: SlotTarget[] = [
-  { id: "nvdax.slot104", contract: "NVDAx", address: NVDAX, slot: s(104), name: "name", decode: "string" },
-  { id: "nvdax.slot262", contract: "NVDAx", address: NVDAX, slot: s(262), name: "multiplier", decode: "wad" },
-  { id: "nvdax.slot264", contract: "NVDAx", address: NVDAX, slot: s(264), name: "total supply before the multiplier", decode: "NVDAx" },
-  { id: "usdg.slot2", contract: "USDG", address: USDG, slot: s(2), name: "totalSupply", decode: "USDG" },
-  { id: "usdg.impl", contract: "USDG", address: USDG, slot: EIP1967_IMPLEMENTATION, name: "EIP-1967 implementation", decode: "address" },
-]
-
 /**
- * Check 3b: slots no sandbox action ever writes (funding moves balances, the keeper writes only Intatto
- * contracts, scenarios touch the multiplier and the pool). Read on the sandbox NOW and on X Layer at the
- * fork block: any difference means the sandbox state was edited outside the recorded actions.
+ * Check 3a, raw storage no sandbox action writes: proxy implementations and admins, total supplies (funding moves
+ * balances, never mints), the token's name and the feed's aggregator and owner. Any difference means the sandbox
+ * state was edited outside its recorded actions.
  */
-export const UNTOUCHED_SLOTS: SlotTarget[] = [
+export const UNCHANGED_SLOTS: SlotTarget[] = [
   { id: "u.nvdax.impl", contract: "NVDAx", address: NVDAX, slot: EIP1967_IMPLEMENTATION, name: "EIP-1967 implementation", decode: "address" },
   { id: "u.nvdax.admin", contract: "NVDAx", address: NVDAX, slot: EIP1967_ADMIN, name: "EIP-1967 admin", decode: "address" },
+  { id: "u.nvdax.name", contract: "NVDAx", address: NVDAX, slot: s(104), name: "name", decode: "string" },
   { id: "u.nvdax.supply", contract: "NVDAx", address: NVDAX, slot: s(264), name: "total supply before the multiplier", decode: "NVDAx" },
   { id: "u.wnvdax.impl", contract: "wNVDAx", address: WNVDAX, slot: EIP1967_IMPLEMENTATION, name: "EIP-1967 implementation", decode: "address" },
   { id: "u.wnvdax.admin", contract: "wNVDAx", address: WNVDAX, slot: EIP1967_ADMIN, name: "EIP-1967 admin", decode: "address" },
@@ -100,19 +90,25 @@ export const UNTOUCHED_SLOTS: SlotTarget[] = [
 ]
 
 /**
- * Check 3c: values the sandbox is expected to change, listed apart with the ledger entries that explain them.
- * "admin": only an impersonated issuer call can change it, so a change the ledger does not explain fails.
- * "transactions": ordinary sandbox transactions (wrapping, swaps, liquidations) change it; shown, never failed.
+ * Check 3b: values ordinary sandbox use moves, listed apart and never counted as a failure. Each shows the ledger
+ * entries whose summary matches `explainedBy`.
  */
-export type ExplainedTarget = CallTarget & { explainedBy: RegExp; changedBy: "admin" | "transactions"; why: string }
+export type MovingTarget = CallTarget & { explainedBy: RegExp; why: string }
 
-const CORPORATE = /multiplier|corporate/i
+const MULTIPLIER = /multiplier|corporate|warp|weekend|monday|saturday|past the/i
+const FUNDING = /NVDAx transferred from real holder|arbitrag|sold wNVDAx/i
+const WRAPPING = /wrap|collateral|opened|sold w|arbitrag|liquidat/i
 const TRADING = /sold w|arbitrag|swap|liquidat|pool/i
+const MULTIPLIER_WHY = "The issuer's multiplier accrues its fee as time passes (so time warps move it) and the corporate-action scenario schedules a new one."
 
-export const LEDGER_EXPLAINED: ExplainedTarget[] = [
-  { id: "c.multiplier", contract: "NVDAx", address: NVDAX, fn: "multiplier", label: "multiplier()", units: ["wad"], explainedBy: CORPORATE, changedBy: "admin", why: "Only the issuer's multiplier updater can change this; the corporate-action scenario impersonates it and records that in the ledger." },
-  { id: "c.newMultiplier", contract: "NVDAx", address: NVDAX, fn: "newMultiplier", label: "newMultiplier()", units: ["wad"], explainedBy: CORPORATE, changedBy: "admin", why: "Only the issuer's multiplier updater can change this; the corporate-action scenario impersonates it and records that in the ledger." },
-  { id: "c.activation", contract: "NVDAx", address: NVDAX, fn: "newMultiplierActivationTime", label: "newMultiplierActivationTime()", units: ["time"], explainedBy: CORPORATE, changedBy: "admin", why: "Only the issuer's multiplier updater can change this; the corporate-action scenario impersonates it and records that in the ledger." },
-  { id: "c.wrapperSupply", contract: "wNVDAx", address: WNVDAX, fn: "totalSupply", label: "totalSupply()", units: ["wNVDAx"], explainedBy: TRADING, changedBy: "transactions", why: "Any wrap or unwrap changes this, including a borrower adding collateral." },
-  { id: "c.slot0", contract: "wNVDAx/USDG pool", address: POOL, fn: "slot0", label: "slot0()", units: ["uint", "int", "uint", "uint", "uint", "uint", "bool"], explainedBy: TRADING, changedBy: "transactions", why: "Any swap in the pool changes this, including liquidation slices." },
+export const MOVING: MovingTarget[] = [
+  { id: "m.holder", contract: "NVDAx", address: NVDAX, fn: "balanceOf", args: [HOLDER], label: `balanceOf(real holder ${HOLDER})`, units: ["NVDAx"], explainedBy: FUNDING, why: "Every session funds its burner with NVDAx from this real holder." },
+  { id: "m.totalSupply", contract: "NVDAx", address: NVDAX, fn: "totalSupply", label: "totalSupply()", units: ["NVDAx"], explainedBy: MULTIPLIER, why: `Total supply is the raw supply times the multiplier. ${MULTIPLIER_WHY}` },
+  { id: "m.multiplier", contract: "NVDAx", address: NVDAX, fn: "getCurrentMultiplier", label: "getCurrentMultiplier()", units: ["wad", "uint", "uint"], explainedBy: MULTIPLIER, why: MULTIPLIER_WHY },
+  { id: "m.newMultiplier", contract: "NVDAx", address: NVDAX, fn: "newMultiplier", label: "newMultiplier()", units: ["wad"], explainedBy: MULTIPLIER, why: MULTIPLIER_WHY },
+  { id: "m.activation", contract: "NVDAx", address: NVDAX, fn: "newMultiplierActivationTime", label: "newMultiplierActivationTime()", units: ["time"], explainedBy: MULTIPLIER, why: MULTIPLIER_WHY },
+  { id: "m.convert", contract: "wNVDAx", address: WNVDAX, fn: "convertToAssets", args: [10n ** 18n], label: "convertToAssets(1e18)", units: ["NVDAx"], explainedBy: MULTIPLIER, why: `One wrapper share is worth more NVDAx as the multiplier changes. ${MULTIPLIER_WHY}` },
+  { id: "m.wrapperSupply", contract: "wNVDAx", address: WNVDAX, fn: "totalSupply", label: "totalSupply()", units: ["wNVDAx"], explainedBy: WRAPPING, why: "Any wrap or unwrap changes this, including a borrower adding collateral." },
+  { id: "m.slot0", contract: "wNVDAx/USDG pool", address: POOL, fn: "slot0", label: "slot0()", units: ["uint", "int", "uint", "uint", "uint", "uint", "bool"], explainedBy: TRADING, why: "Any swap in the pool changes this, including liquidation slices." },
+  { id: "m.liquidity", contract: "wNVDAx/USDG pool", address: POOL, fn: "liquidity", label: "liquidity()", units: ["uint"], explainedBy: TRADING, why: "A swap that crosses a tick changes the active liquidity." },
 ]

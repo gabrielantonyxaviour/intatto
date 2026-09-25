@@ -64,3 +64,21 @@ export async function fetchLedger(apiUrl: string | null, sessionId: string | nul
     return { status: "error", url, message: e instanceof Error ? e.message : String(e) }
   }
 }
+
+const healthSchema = z.object({ base: z.object({ sandboxOnlyMarkets: z.array(z.string()).optional() }).passthrough().optional() }).passthrough()
+
+/**
+ * Markets the hosted sandbox adds on top of the mainnet deployment (GET {apiUrl}/health → base.sandboxOnlyMarkets).
+ * Only a label for check 4 when the app has no mainnet deployment to tell; empty when there is no session API.
+ */
+export async function fetchSandboxOnlyMarkets(apiUrl: string | null): Promise<string[]> {
+  if (!apiUrl) return []
+  try {
+    const res = await fetch(`${apiUrl.replace(/\/+$/, "")}/health`, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(10_000) })
+    if (!res.ok) return []
+    const parsed = healthSchema.safeParse(await res.json())
+    return parsed.success ? (parsed.data.base?.sandboxOnlyMarkets ?? []) : []
+  } catch {
+    return []
+  }
+}

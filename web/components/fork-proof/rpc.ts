@@ -2,7 +2,7 @@
  * Browser-side JSON-RPC access for the fork proof. Every read goes straight from this browser to the sandbox
  * RPC or to a public X Layer RPC; nothing passes through the Intatto server.
  */
-import { createPublicClient, http, keccak256, type Hex, type PublicClient } from "viem"
+import { createPublicClient, http, HttpRequestError, keccak256, TimeoutError, type Hex, type PublicClient } from "viem"
 import { Cancelled, pacer, RETRYABLE, sleep, type Schedule } from "./pacer"
 
 export type Side = "sandbox" | "reference"
@@ -21,15 +21,39 @@ export type ProofClient = {
 
 export const SIDE_NAME: Record<Side, string> = { sandbox: "sandbox RPC", reference: "X Layer RPC" }
 
-/** A read the RPC could not answer (network failure, timeout, or a JSON-RPC error that is not a revert). */
-export class RpcUnreachable extends Error {
+/**
+ * A read that got no value:
+ * - "unreachable": no JSON-RPC answer at all (network failure, HTTP error, timeout);
+ * - "refused": the RPC answered with a JSON-RPC error (e.g. -32602 for a block it cannot serve) that is not a revert.
+ */
+export class RpcFailure extends Error {
   constructor(
+    readonly kind: "unreachable" | "refused",
     readonly side: Side,
     readonly url: string,
     message: string,
+    readonly code: number | null = null,
+    readonly method: string | null = null,
   ) {
     super(message)
   }
+}
+
+/** The JSON-RPC error code in viem's error chain, or null when the failure happened before any JSON-RPC answer. */
+function rpcErrorCode(e: unknown): number | null {
+  let cur: unknown = e
+  for (let depth = 0; cur && typeof cur === "object" && depth < 8; depth++) {
+    if (cur instanceof HttpRequestError || cur instanceof TimeoutError) return null
+    const code = (cur as { code?: unknown }).code
+    if (typeof code === "number") return code
+    cur = (cur as { cause?: unknown }).cause
+  }
+  return null
+}
+
+function failure(c: ProofClient, e: unknown, method: string): RpcFailure {
+  const code = rpcErrorCode(e)
+  return new RpcFailure(code === null ? "unreachable" : "refused", c.side, c.url, shortError(e), code, method)
 }
 
 export function proofClient(side: Side, url: string, alive: () => boolean = () => true): ProofClient {
@@ -74,7 +98,7 @@ async function raw<T>(c: ProofClient, method: string, params: unknown[], block: 
     return await send<T>(c, method, params, block)
   } catch (e) {
     if (e instanceof Cancelled) throw e
-    throw new RpcUnreachable(c.side, c.url, shortError(e))
+    throw failure(c, e, method)
   }
 }
 
@@ -112,7 +136,7 @@ export async function call(c: ProofClient, to: Hex, data: Hex, block: BlockRef):
     if (e instanceof Cancelled) throw e
     const msg = shortError(e)
     if (/revert/i.test(msg)) return { ok: false, reverted: msg }
-    throw new RpcUnreachable(c.side, c.url, msg)
+    throw failure(c, e, "eth_call")
   }
 }
 
