@@ -183,11 +183,14 @@ contract CollateralMarket is CollateralMarketBase {
         emit LiquidationSettled(user, keeper, proceeds, repaid, penalty, surplus, covered, deficit);
     }
 
+    /// @dev The remaining debt includes the reserve's share of its interest, which lenders never counted as assets:
+    /// that share is forgone, and only the lenders' part is covered by the reserve or recognised as a deficit.
     function _writeOff(address user, uint256 remaining) internal returns (uint256 covered, uint256 deficit) {
         uint256 feesShare = Math.min(reserveFeesOwed, Math.mulDiv(remaining, reserveFeesOwed, totalDebt()));
+        uint256 lendersPart = remaining - feesShare;
         uint256 priceBefore = vault.sharePrice();
-        covered = gapReserve.cover(remaining); // paid straight to the vault
-        deficit = remaining - covered;
+        covered = gapReserve.cover(lendersPart); // paid straight to the vault
+        deficit = lendersPart - covered;
         _burnDebt(user, remaining, feesShare);
         if (deficit > 0) vault.recordDeficit(user, deficit, priceBefore);
     }
