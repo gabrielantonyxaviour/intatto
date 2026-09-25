@@ -9,7 +9,7 @@ import { CollateralLine } from "./market-info"
 import { LoanChips, LoanLine, RateRow, RefusedNow, RiskAck } from "./loan-details"
 import { useNames } from "./names"
 import { usePreflight } from "./preflight"
-import { usd6 } from "./format"
+import { capacityUsdg, usd6 } from "./format"
 import { valueOf } from "./math"
 import type { BorrowPlan } from "./plan"
 
@@ -83,19 +83,23 @@ export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraf
           decimals={6}
           value={draft.loan}
           onChange={(value) => onDraft({ loan: value, ack: false })}
-          balance={a && hasCollateral ? plan.limits.max : undefined}
-          balanceLabel="Can borrow"
           error={loanError}
           footer={
             a && hasCollateral ? (
-              <LoanChips
-                chips={plan.chips}
-                session={m.session}
-                maxLtvBps={m.maxLtvBps}
-                fill={plan.limits.fill}
-                refusal={plan.marketRefusal}
-                onPick={pickLoan}
-              />
+              <span className="flex flex-wrap items-center gap-2">
+                <span className="tabular-nums" data-testid="borrow-capacity">
+                  Can borrow {capacityUsdg(plan.limits.max)}
+                </span>
+                <LoanChips
+                  chips={plan.chips}
+                  session={m.session}
+                  maxLtvBps={m.maxLtvBps}
+                  fill={plan.limits.fill}
+                  capacity={plan.limits.max}
+                  refusal={plan.marketRefusal}
+                  onPick={pickLoan}
+                />
+              </span>
             ) : undefined
           }
         />

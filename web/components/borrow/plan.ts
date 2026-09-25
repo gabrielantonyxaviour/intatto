@@ -5,7 +5,7 @@
 import { REFUSALS, type RefusalName } from "@intatto/config/session"
 import type { AccountState, MarketState, VaultState } from "@/lib/chain"
 import { parseAmount } from "@/components/ui/web3/format"
-import { tokensVs, usdgVs } from "./format"
+import { capacityUsdg, tokensVs } from "./format"
 import type { Names } from "./names"
 import {
   ACK_LTV_BPS,
@@ -151,7 +151,7 @@ export function borrowPlan(
     balanceError,
     marketRefusal: marketRefusal(m, limits, valueWithDeposit > 0n),
     refusal,
-    loanError: amountRefusal ? `${refusal.label}. You can borrow up to ${usdgVs(limits.max, loan)} now.` : null,
+    loanError: amountRefusal ? `${refusal.label}. You can borrow up to ${capacityUsdg(limits.max)} now.` : null,
     needsAck: loan > 0n && !refusal && after.ltvBps > ACK_LTV_BPS,
     empty: deposit === 0n && loan === 0n,
   }

@@ -31,8 +31,8 @@ function fixed(x: bigint, decimals: number, digits: number) {
 }
 const usdg = (x: bigint) => `${fixed(x, 6, 2)} USDG`
 const pct = (bps: bigint) => `${(Number(bps) / 100).toFixed(2)}%`
-/** AmountInput's balance format: 4 decimals, truncated, trailing zeros dropped. */
-const short = (x: bigint, decimals: number) => fixed(x, decimals, 4).replace(/0+$/, "").replace(/\.$/, "")
+/** Lens capacity as Borrow prints it: all 6 USDG decimals. */
+const capacityText = (x: bigint) => `${fixed(x, 6, 6)} USDG`
 /** The drop (bps, rounded up) at which the position's LTV reaches the 65% liquidation threshold. */
 function liquidationLine(a: LensAccount): string {
   const keep = (a.debt * 10_000n * 1_000_000n) / (a.valueUsdg * 6_500n)
@@ -144,9 +144,14 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
 
   // ── Saturday: the keeper posts CLOSED; the screen follows without a reload ──
   await review.getByRole("button", { name: "Back to the form" }).click()
-  // "Can borrow" is the lens's own borrowCapacity, the figure every screen shows.
+  // "Can borrow" and the Max hint are the lens borrowCapacity, all 6 USDG decimals.
   const loanField = form.locator('[data-slot="amount-input"]').nth(1)
-  await expect.poll(async () => (await loanField.innerText()).includes(`Can borrow ${short((await account()).borrowCapacity, 6)} USDG`), { timeout: 30_000 }).toBe(true)
+  await expect.poll(async () => {
+    const cap = capacityText((await account()).borrowCapacity)
+    const text = await loanField.innerText()
+    const title = await loanField.getByRole("button", { name: "Max" }).getAttribute("title")
+    return text.includes(`Can borrow ${cap}`) && title === `Borrow ${cap}`
+  }, { timeout: 30_000 }).toBe(true)
   await weekend(h.ctx)
   await expect(page.getByTestId("session-badge")).toHaveText("CLOSED", { timeout: 45_000 })
   const closed = await read<{ maxLtvBps: bigint }>(d.lens, marketLensAbi as never, "market", [market])
@@ -155,7 +160,7 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   // No room under the CLOSED limit: capacity reads 0 and the chips and Max are disabled with the reason.
   expect((await account()).borrowCapacity).toBe(0n)
   await expect(page.getByTestId("loan-refused-now")).toContainText("Maximum borrowable exceeded for the CLOSED session", { timeout: 45_000 })
-  await expect(loanField).toContainText("Can borrow 0 USDG")
+  await expect(loanField).toContainText(`Can borrow ${capacityText(0n)}`)
   await expect(page.getByRole("button", { name: /^Max, unavailable/ })).toBeDisabled()
   for (const chip of await page.getByRole("button", { name: /risk: borrow/ }).all()) await expect(chip).toBeDisabled()
 
@@ -167,6 +172,7 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   await expect(form).toContainText(REFUSALS.SessionLimit)
   await expect(form).toContainText("Maximum borrowable exceeded for the CLOSED session")
   await expect(form).toContainText("Nothing was signed or sent")
+  await expect(form).toContainText(`You can borrow up to ${capacityText(0n)} now`)
   const simulated = await h.fork.client
     .simulateContract({ address: market, abi: collateralMarketAbi, functionName: "borrow", args: [10_000_000n], account: burner })
     .then(() => "accepted", (e: Error) => e.message)

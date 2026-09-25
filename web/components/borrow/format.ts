@@ -29,6 +29,10 @@ export function distinct(a: bigint, b: bigint, decimals: number, minDigits: numb
 /** A USDG amount shown next to `other` with enough decimals to tell them apart. */
 export const usdgVs = (x: bigint, other: bigint) => `${distinct(x, other, 6, 2)[0]} USDG`
 
+/** Borrow capacity with every USDG decimal, the same figure Market and the credit API show. */
+export const capacityUsdg = (x: bigint) =>
+  `${formatTokenAmount(x, 6, { maxFractionDigits: 6, minFractionDigits: 6 })} USDG`
+
 /** A token amount (18 decimals) shown next to `other` with enough decimals to tell them apart. */
 export const tokensVs = (x: bigint, other: bigint, symbol: string) => `${distinct(x, other, 18, 4)[0]} ${symbol}`
 

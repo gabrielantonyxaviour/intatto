@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RISK_LEVELS, RiskMeter, riskLevel } from "@/components/ui/web3"
 import { formatTokenAmount } from "@/components/ui/web3/format"
-import { liqPrice, pct, usdg } from "./format"
+import { capacityUsdg, liqPrice, pct, usdg } from "./format"
 import { bpsToFraction, dropToLiquidation, yearlyInterest, type Metrics } from "./math"
 import { useNames } from "./names"
 import type { Chip, Refusal } from "./plan"
@@ -20,12 +20,14 @@ const DOT = { Low: "bg-success", Medium: "bg-warning", High: "bg-destructive" } 
  * Preset loans at fixed risk levels (Liquity's chips), each coloured by the risk it lands on, and Max. All of them
  * follow the refusal in force now: when no borrow can go through, they are disabled and say why.
  */
-export function LoanChips({ chips, session, maxLtvBps, fill, refusal, onPick }: {
+export function LoanChips({ chips, session, maxLtvBps, fill, capacity, refusal, onPick }: {
   chips: Chip[]
   session: string
   maxLtvBps: bigint
   /** What Max fills (the lens capacity less the accrual margin). */
   fill: bigint
+  /** Lens borrow capacity, shown on the Max hint with all 6 USDG decimals. */
+  capacity: bigint
   refusal: Refusal | null
   onPick: (amount: bigint) => void
 }) {
@@ -57,7 +59,7 @@ export function LoanChips({ chips, session, maxLtvBps, fill, refusal, onPick }: 
         variant="outline"
         size="xs"
         disabled={refusal !== null || fill === 0n}
-        title={why ?? `Borrow ${usdg(fill)}`}
+        title={why ?? `Borrow ${capacityUsdg(capacity)}`}
         aria-label={refusal ? `Max, unavailable: ${refusal.label}` : "Max"}
         onClick={() => onPick(fill)}
       >
