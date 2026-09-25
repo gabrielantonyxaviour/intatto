@@ -1919,6 +1919,11 @@
       "smoke": {
         "cmd": "test \"$(cast chain-id --rpc-url https://xlayerrpc.okx.com)\" = 196 && cast call 0xc845b2894dbddd03858fd2d643b4ef725fe0849d 'getCurrentMultiplier()(uint256)' --block 69000000 --rpc-url https://xlayerrpc.okx.com >/dev/null",
         "proves": "The primary keyless endpoint is X Layer mainnet and serves historical contract state, which the fork needs."
+      },
+      "verifiedBy": {
+        "cmd": "test \"$(cast chain-id --rpc-url https://xlayerrpc.okx.com)\" = 196 && cast call 0xc845b2894dbddd03858fd2d643b4ef725fe0849d 'getCurrentMultiplier()(uint256)' --block 69000000 --rpc-url https://xlayerrpc.okx.com >/dev/null",
+        "exitCode": 0,
+        "at": 1790316662634
       }
     },
     {
@@ -1934,6 +1939,11 @@
       "smoke": {
         "cmd": "curl -sf -H \"Authorization: Bearer $CLOUDFLARE_API_TOKEN\" 'https://api.cloudflare.com/client/v4/zones?name=larinova.com' | grep -q '\"status\":\"active\"'",
         "proves": "The vaulted token can see the active larinova.com zone the custom domains will be created in."
+      },
+      "verifiedBy": {
+        "cmd": "curl -sf -H \"Authorization: Bearer $CLOUDFLARE_API_TOKEN\" 'https://api.cloudflare.com/client/v4/zones?name=larinova.com' | grep -q '\"status\":\"active\"'",
+        "exitCode": 0,
+        "at": 1790316663740
       }
     },
     {
@@ -1947,7 +1957,16 @@
       "howToGet": "onchainos 4.5.2 on this machine is logged in as Gabriel's Agentic Wallet (email login, 2 accounts). Register the Close Guard ASP and submit the listing through onchainos only after the public endpoint is live and Gabriel confirms the outward submission.",
       "selfServable": true,
       "status": "have",
-      "note": "Lesson from Gabriel's agent #9756 (Touch Grass), rejected: OKX's reviewer pays and calls each service; undelivered calls and undocumented parameters cause rejection. Document every parameter with name, type and example, and prove a real call before submitting."
+      "note": "Lesson from Gabriel's agent #9756 (Touch Grass), rejected: OKX's reviewer pays and calls each service; undelivered calls and undocumented parameters cause rejection. Document every parameter with name, type and example, and prove a real call before submitting.",
+      "smoke": {
+        "cmd": "onchainos wallet status | grep -q '\"loggedIn\":true'",
+        "proves": "onchainos on this machine is logged in to Gabriel's Agentic Wallet, so ASP registration and listing can run from the CLI without his login."
+      },
+      "verifiedBy": {
+        "cmd": "onchainos wallet status | grep -q '\"loggedIn\":true'",
+        "exitCode": 0,
+        "at": 1790316663935
+      }
     },
     {
       "id": "pf_issuer_api",
@@ -1962,6 +1981,11 @@
       "smoke": {
         "cmd": "curl -s -A 'Mozilla/5.0' https://api.xstocks.fi/api/v2/public/assets/NVDAx/price-data | grep -q '\"quote\"'",
         "proves": "The public price endpoint answers with a quote field for NVDAx from this machine."
+      },
+      "verifiedBy": {
+        "cmd": "curl -s -A 'Mozilla/5.0' https://api.xstocks.fi/api/v2/public/assets/NVDAx/price-data | grep -q '\"quote\"'",
+        "exitCode": 0,
+        "at": 1790316663198
       }
     },
     {
@@ -1975,6 +1999,104 @@
       "selfServable": false,
       "status": "needs_gabriel",
       "note": "Optional: the service ships free first."
+    },
+    {
+      "id": "pf_uniswap_quoter",
+      "need": "Uniswap v3 QuoterV2 and the wNVDAx/USDG pool on X Layer",
+      "why": "Depth caps and liquidation sizing read sized quotes from them.",
+      "blocks": [
+        "blk_depth_caps",
+        "blk_liquidation",
+        "blk_keeper"
+      ],
+      "howToGet": "Public contracts: QuoterV2 0xd1b797d92d87b688193a2b976efc8d577d204343, pool 0x2a2b11730c2b6d99a58034a869dd810d7300a7b2 (fee 500, cardinality 256, 30/60-minute observe verified by okx-codex).",
+      "selfServable": true,
+      "status": "have",
+      "smoke": {
+        "cmd": "test \"$(cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 'quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256)' '(0xa8ddb5cd96b5222afe198316e9a57caa642850d5,0x4ae46a509f6b1d9056937ba4500cb143933d2dc8,10000000000000000,500,0)' --rpc-url https://xlayerrpc.okx.com | head -1 | awk '{print $1}')\" -gt 0",
+        "proves": "A real sized quote for selling 0.01 wNVDAx into USDG through the fee-500 pool returns a positive amount on mainnet."
+      },
+      "verifiedBy": {
+        "cmd": "test \"$(cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 'quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256)' '(0xa8ddb5cd96b5222afe198316e9a57caa642850d5,0x4ae46a509f6b1d9056937ba4500cb143933d2dc8,10000000000000000,500,0)' --rpc-url https://xlayerrpc.okx.com | head -1 | awk '{print $1}')\" -gt 0",
+        "exitCode": 0,
+        "at": 1790316664447
+      }
+    },
+    {
+      "id": "pf_usdg_feed",
+      "need": "Chainlink USDG/USD push feed on X Layer",
+      "why": "The USDG peg guard freezes new credit when USDG is stale or off peg.",
+      "blocks": [
+        "blk_price_relay"
+      ],
+      "howToGet": "Public proxy 0x385C6bDDE06b0E438319bF4ddBfFe51C521ABf3D (8 decimals, 24-hour heartbeat, 0.5% deviation per Chainlink's directory).",
+      "selfServable": true,
+      "status": "have",
+      "smoke": {
+        "cmd": "python3 -c \"import subprocess,time,sys; o=subprocess.check_output(['cast','call','0x385C6bDDE06b0E438319bF4ddBfFe51C521ABf3D','latestRoundData()(uint80,int256,uint256,uint256,uint80)','--rpc-url','https://xlayerrpc.okx.com'],text=True).split(); ans=int(o[2]); upd=int(o[-2]); sys.exit(0 if ans>0 and time.time()-upd<26*3600 and abs(ans-100000000)<1000000 else 1)\"",
+        "proves": "The live feed answers a positive price within 1% of $1 updated less than 26 hours ago, the exact rule the guard will enforce."
+      },
+      "verifiedBy": {
+        "cmd": "python3 -c \"import subprocess,time,sys; o=subprocess.check_output(['cast','call','0x385C6bDDE06b0E438319bF4ddBfFe51C521ABf3D','latestRoundData()(uint80,int256,uint256,uint256,uint80)','--rpc-url','https://xlayerrpc.okx.com'],text=True).split(); ans=int(o[2]); upd=int(o[-2]); sys.exit(0 if ans>0 and time.time()-upd<26*3600 and abs(ans-100000000)<1000000 else 1)\"",
+        "exitCode": 0,
+        "at": 1790316664985
+      }
+    },
+    {
+      "id": "pf_wrangler",
+      "need": "Wrangler authenticated to Gabriel's Cloudflare account",
+      "why": "Deploys Workers, Cron Triggers, Containers, D1 and custom domains.",
+      "blocks": [
+        "blk_web_deploy",
+        "blk_keeper",
+        "blk_sandbox_server"
+      ],
+      "howToGet": "CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID from the vault via inject.sh; wrangler 4 reads them from the environment.",
+      "selfServable": true,
+      "status": "have",
+      "smoke": {
+        "cmd": "npx -y wrangler@4 whoami 2>&1 | grep -q 'You are logged in' && npx -y wrangler@4 whoami 2>&1 | grep -q \"$CLOUDFLARE_ACCOUNT_ID\"",
+        "proves": "Wrangler 4 authenticates with the vaulted token and sees the vaulted account id."
+      },
+      "verifiedBy": {
+        "cmd": "npx -y wrangler@4 whoami 2>&1 | grep -q 'You are logged in' && npx -y wrangler@4 whoami 2>&1 | grep -q \"$CLOUDFLARE_ACCOUNT_ID\"",
+        "exitCode": 0,
+        "at": 1790316737663
+      }
+    },
+    {
+      "id": "pf_foundry_fork",
+      "need": "Foundry anvil able to fork X Layer mainnet with the sandbox chain id",
+      "why": "Fork tests, the sandbox container and the fork-proof panel all depend on it.",
+      "blocks": [
+        "blk_fork_integration",
+        "blk_sandbox_server",
+        "blk_ui_fork_proof"
+      ],
+      "howToGet": "Foundry is installed locally; the container image installs it; upstream https://xlayerrpc.okx.com.",
+      "selfServable": true,
+      "status": "have",
+      "smoke": {
+        "cmd": "anvil --fork-url https://xlayerrpc.okx.com --chain-id 1960196 --port 18545 --silent & P=$!; sleep 6; test \"$(cast chain-id --rpc-url http://127.0.0.1:18545)\" = 1960196 && test \"$(cast call 0xc845b2894dbddd03858fd2d643b4ef725fe0849d 'getCurrentMultiplier()(uint256)' --rpc-url http://127.0.0.1:18545 | awk '{print $1}')\" -gt 0; R=$?; kill $P; exit $R",
+        "proves": "anvil forks X Layer mainnet under chain id 1960196 and serves real NVDAx multiplier state from the fork."
+      },
+      "verifiedBy": {
+        "cmd": "anvil --fork-url https://xlayerrpc.okx.com --chain-id 1960196 --port 18545 --silent & P=$!; sleep 6; test \"$(cast chain-id --rpc-url http://127.0.0.1:18545)\" = 1960196 && test \"$(cast call 0xc845b2894dbddd03858fd2d643b4ef725fe0849d 'getCurrentMultiplier()(uint256)' --rpc-url http://127.0.0.1:18545 | awk '{print $1}')\" -gt 0; R=$?; kill $P; exit $R",
+        "exitCode": 0,
+        "at": 1790316675714
+      }
+    },
+    {
+      "id": "pf_replay_data",
+      "need": "Historical NVDA minute data for the 24 and 27 Jan 2025 replay",
+      "why": "The sandbox's weekend-gap scenario replays real price history.",
+      "blocks": [
+        "blk_replays"
+      ],
+      "howToGet": "okx-codex fetched Dukascopy NVDA CFD bid minute bars into ~/Documents/hackathons/okx-dev-day-2026/ideation/research/preflight/ (raw files, decoder, source URL and hashes); the replay block copies them into data/replays with provenance.",
+      "selfServable": true,
+      "status": "have",
+      "note": "CFD bid prices, labelled counterfactual; not historical X Layer liquidity."
     }
   ],
   "done": [
