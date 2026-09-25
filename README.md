@@ -2,29 +2,24 @@
 
 Borrow USDG against tokenized stocks on X Layer, with risk limits that know when the real stock market is closed.
 
-A tokenized stock (xStocks' NVDAx) trades 24/7, but the stock behind it does not. At night and over weekends its
-price comes from thin trading, the issuer cannot mint or redeem, and Monday can open with a gap. Intatto is a
-lending market that plans for that: new borrowing capacity follows the US market session, splits and dividends
-pause a stock instead of mis-valuing it, credit is capped by real exit depth on X Layer, liquidation is bounded
-while the market is closed, and any loss runs through an explicit waterfall that lenders can read.
+A tokenized stock (xStocks' NVDAx) trades 24/7. The stock behind it does not. Intatto is a lending market on X Layer: new borrowing follows the US market session, a split or dividend pauses the stock, credit is capped by pool exit depth, liquidation while the market is closed is sliced, and a shortfall is paid by a gap reserve before it is written onto lenders' shares.
 
-- **Live app (X Layer mainnet):** https://intatto.larinova.com
-- **Hosted sandbox (a fork of X Layer mainnet you can time-travel):** https://intatto.larinova.com/sandbox
-- **Prove the sandbox is a real fork, in your browser:** https://intatto.larinova.com/sandbox/proof
-- **Credit and health API (for agents, OKX AI A2MCP):** https://intatto.larinova.com/api/credit
-- **Keeper log:** https://intatto-keeper.larinova.com/log
+## The rules, in numbers
 
-## Try it in two minutes
+- New-borrow limit: regular hours 50%, pre-market, post-market and overnight 40%, weekend 30% falling to 20% over 64 hours, halted, corporate action or unknown 0%. A session post older than 30 minutes reads UNKNOWN.
+- Liquidation threshold is 65% in every session.
+- `borrow()` refuses with `IssuerPaused`, `UnknownSession`, `SessionLimit`, `StalePrice`, `PriceOutOfBand`, `CorporateActionPending`, `TickerCapReached` or `UsdgOffPeg`. `repay()` and `addCollateral()` never read a guard.
+- A split or dividend pauses the stock 30 minutes before activation.
+- A lower depth cap applies at once. A higher one rises at most 25% per hour.
+- While the market is closed, liquidation runs in slices bounded by pool depth, with a 3% price floor (8% after a 6-hour wait). After the reopen the floor is 15%.
+- Loss waterfall: proceeds repay the debt, a 5% penalty goes half to the keeper and half to the reserve, and any surplus returns to the borrower. The gap reserve pays a shortfall first. The rest is `DeficitRecognised`.
+- **Lenders can lose money in a gap larger than the reserve.**
 
-1. Open the [sandbox](https://intatto.larinova.com/sandbox) and start a session. You get a burner wallet funded with
-   NVDAx and USDG moved from a real X Layer holder (never minted).
-2. On **Borrow**, deposit NVDAx and borrow USDG within the weekday limit.
-3. Back on **Sandbox**, press **Jump to Saturday**. The session turns CLOSED and the borrowing limit drops.
-4. Try to borrow more: the button shows `Refused: SessionLimit` from the contract's own simulation, and nothing is
-   sent. **Repay** still works.
-5. Replay the **Jan 2025 NVDA weekend gap** or the **synthetic gap**, then read the **Risk console** and **Lend**.
+On a fork, the January 2025 NVDA gap (−12.5% at Monday's open) liquidates no position opened within the weekday limit. The synthetic 45% gap drains the reserve and records a deficit (`contracts/test/ForkScenarios.t.sol`).
 
-## Mainnet contracts (X Layer, chain 196, all sources verified on OKLink)
+## What's live
+
+X Layer mainnet, chain 196. Addresses are from [`deployments/xlayer-mainnet.json`](deployments/xlayer-mainnet.json). All sources verified on OKLink. [`deploy/verify-sources.sh`](deploy/verify-sources.sh) submits them.
 
 | Contract | Address |
 |---|---|
@@ -39,85 +34,112 @@ while the market is closed, and any loss runs through an explicit waterfall that
 | InterestRateModel | [0xa3677c6aAC24C366C5A75083738ba568cEf8AD16](https://www.oklink.com/x-layer/address/0xa3677c6aAC24C366C5A75083738ba568cEf8AD16) |
 | MarketLens (read-only views) | [0xb7c45ca15038Ab9b0eDDC9607cdB6e2bfA89dD66](https://www.oklink.com/x-layer/address/0xb7c45ca15038Ab9b0eDDC9607cdB6e2bfA89dD66) |
 
-The deployment lives in [`deployments/xlayer-mainnet.json`](deployments/xlayer-mainnet.json). The gap reserve was
-seeded with 0.5 USDG, and a demo wallet ([0x7F23…a415](https://www.oklink.com/x-layer/address/0x7F23b131F7312bd0f63EF79974E215Dc3E12a415))
-lent 1.4975 USDG, deposited 0.004878 NVDAx and borrowed 0.40 USDG. `npx tsx checks/mainnet.ts --deploy` compares every
-contract's runtime code with the build output.
+`npx tsx checks/mainnet.ts --deploy` compares each contract's runtime code with the build output.
 
-## How it works
+## Links
 
-| Mechanism | Rule |
-|---|---|
-| Collateral | NVDAx is wrapped into the issuer's non-rebasing ERC-4626 wrapper (wNVDAx) and valued as `convertToAssets(shares) × price`. The multiplier is never applied twice. |
-| Session limits | Max **new-borrow** LTV: regular hours 50%, pre/post-market and overnight 40%, weekend 30% decaying to 20% over 64 hours, halted / corporate action / unknown 0%. A session post older than 30 minutes reads UNKNOWN. |
-| Liquidation threshold | Fixed at 65% in every session: the rules never spring on a borrower at Friday's close. |
-| Borrow guards | `borrow()` refuses with a named error: `IssuerPaused`, `UnknownSession`, `SessionLimit`, `StalePrice`, `PriceOutOfBand`, `CorporateActionPending`, `TickerCapReached`, `UsdgOffPeg`. `repay()` and `addCollateral()` never read a guard. |
-| Price | A keeper relays the xStocks issuer's indicative quote. It carries no source timestamp, so the app shows the keeper's fetch time and never claims market-price freshness. Each post must pass onchain guards: fetch age, the wNVDAx/USDG pool's 30-minute TWAP band (3% in regular hours, 8% otherwise), a 15% max move per post unless the pool's own TWAP confirms it, and Chainlink USDG/USD fresh within 26 hours and within 1% of $1. Rejected posts are recorded onchain. |
-| Corporate actions | Around a split or dividend multiplier change the stock pauses 30 minutes before activation, and resumes only when a post-activation price is consistent with the new multiplier. |
-| Depth caps | The keeper samples QuoterV2 sell depth and posts a cap. A lower cap applies at once; a higher one rises at most 25% per hour. |
-| Liquidation | While the market is closed, only slices bounded by pool depth and a 3% price floor execute (8% after a 6-hour wait); after the reopen the rest is liquidated (15% floor). Slices are sold directly into the Uniswap v3 pool with a price limit. |
-| Loss waterfall | Proceeds repay debt, a 5% penalty goes half to the keeper and half to the reserve, and any surplus returns to the borrower. A shortfall is paid by the gap reserve first. Anything beyond it is recognised as a lender deficit (`DeficitRecognised`), which lowers every lender's share value pro rata. **Lenders can lose money in a gap larger than the reserve.** |
+- Live app: https://intatto.larinova.com
+- Sandbox: https://intatto.larinova.com/sandbox
+- Fork proof: https://intatto.larinova.com/sandbox/proof
+- Credit API: https://intatto.larinova.com/api/credit?wallet=0x7F23b131F7312bd0f63EF79974E215Dc3E12a415&market=NVDAx
+- Keeper log: https://intatto-keeper.larinova.com/log
+- Sandbox RPC host: https://intatto-rpc.larinova.com
 
-On a fork of X Layer, the Jan 2025 NVDA weekend gap (−12.5% at Monday's open, CFD minute data) is absorbed by the 65%
-threshold: no position opened within the weekday limit is liquidated. The synthetic 45% gap liquidates the position,
-drains the reserve and records the deficit. `contracts/test/ForkScenarios.t.sol` proves both.
+## Try it in 2 minutes
+
+Use the sandbox. Nothing in these steps is a mainnet transaction.
+
+1. Open [Sandbox](https://intatto.larinova.com/sandbox) and press **Start a session**.
+2. Open **Borrow**. Enter a deposit and a loan, then press **Review**. The dialog title is **Review deposit & borrow**.
+3. Back on **Sandbox**, open **Time travel** and press **Jump to Saturday**.
+4. On **Borrow**, try to borrow more. After the contract simulation, the button reads `Refused: SessionLimit`. Under it: "This borrow would take the position above the current session's borrowing limit." and "The contract refused this in a simulation. Nothing was signed or sent." While that check is still running, the button can read `Maximum borrowable exceeded for the CLOSED session`.
+5. **Repay** still opens. Its dialog title is **Review repay & withdraw**.
+6. On **Sandbox**, press **Replay the January 2025 gap**, then **Run a synthetic 45% gap**. Read **Risk** and **Lend**.
+
+## Architecture in brief
+
+```
+issuer quote → keeper (1 min) → PriceRelayAdapter → CollateralMarket
+USDG holders → LendingVault → borrowers
+shortfall → GapReserve → else DeficitRecognised (every lender's shares)
+```
+
+- **Contracts.** LendingVault holds USDG and issues ERC-4626 shares. CollateralMarket holds wrapped NVDAx and lends against it. SessionRiskController sets the new-borrow limit from the US session. PriceRelayAdapter takes the keeper's price. CorporateActionGuard pauses around a split or dividend. DepthCapRegistry caps debt from pool exit depth. BoundedLiquidator sells closed-market liquidations in slices. GapReserve pays a shortfall before it reaches lenders. InterestRateModel sets the rate. MarketLens is a read-only view.
+- **Keeper.** A Cloudflare Worker on a one-minute cron (`* * * * *`). Each cycle posts session, price, corporate actions and depth caps, and runs bounded liquidations. The action log is a SQLite Durable Object (`KeeperState`). Rejected price posts are recorded.
+- **Price.** The keeper relays the issuer's indicative quote. The quote has no source timestamp. Onchain checks bound it: fetch age, the pool's 30-minute TWAP band, a maximum move per post, and the USDG/USD peg. The app shows the keeper's fetch time.
+- **Credit API.** `GET /api/credit` is free. An x402 challenge (`eip155:196`, USDG) is built and tested. It is switched on only after a real settlement. Listing files are in [`okx-ai/`](okx-ai/).
+- **Sandbox.** One Cloudflare Container per session runs anvil from a snapshot of an X Layer mainnet fork. The public RPC refuses admin methods (`anvil_*`, `evm_*`, and the rest listed in `web/components/sandbox/copy.ts`). In a session the keeper posts a price simulated from the forked pool, not the live issuer quote.
+
+## Reproduce the fork proof
+
+In the browser, open https://intatto.larinova.com/sandbox/proof. Start a sandbox session, or pass your own RPC with `?rpc=` and `?block=`. The page checks, in order: block hashes against X Layer, external contract code, state that should be unchanged since the fork (moving values are listed apart), Intatto bytecode against the mainnet deployment or the published build, then the change ledger and a "Reproduce locally" sheet.
+
+From a terminal:
+
+```sh
+npx tsx checks/public.ts
+```
+
+That check calls the public app health endpoint, opens a sandbox session, checks the sandbox RPC is chain 1960196, checks the fork block hash against X Layer mainnet, and checks that admin methods are refused.
 
 ## OKX integrations
 
-- **X Layer:** every contract, position, keeper post and liquidation is on X Layer mainnet; collateral, the pool,
-  USDG and the USDG/USD feed are native X Layer contracts.
-- **OKX AI (A2MCP):** `GET /api/credit?wallet=0x…&market=NVDAx` answers, from onchain reads only, how much a wallet can
-  borrow right now, the contract error that would refuse it, the keeper's price and fetch time, the guards, the
-  liquidation price and the gap that would liquidate the position. The listing is in [`okx-ai/`](okx-ai/). It ships
-  free; the x402 Payment SDK challenge (`eip155:196`, USDG) is built and tested, and will be switched on only after
-  a real paid settlement succeeds.
-- **Keeper agent:** a Cloudflare cron Worker that reads the issuer every minute and posts session, price, pending
-  corporate actions and depth caps, and runs bounded liquidations. Every action is logged with its transaction.
+- **X Layer.** The contracts, the pool, USDG and the USDG/USD feed are on X Layer mainnet (chain 196).
+- **OKX AI (A2MCP).** Agent **#13907**, listing **under review** (submitted 2026-09-25). The service is `GET /api/credit`. Files are in [`okx-ai/`](okx-ai/). Price is 0.
+- **Keeper.** The same cron Worker. The agents page labels it OKX AI agent #13907.
 
 ## Trust and limits, stated plainly
 
-- The keeper is a **trusted relayer** of the issuer's quote and market session. Onchain bounds limit the price: it
-  cannot move it outside the pool's TWAP band, cannot bypass caps and cannot move funds. It does choose the
-  session and corporate-action posts, so a faulty keeper could, for example, allow the weekday limit on a weekend
-  or pause a stock; a silent keeper makes borrowing stop (UNKNOWN session, stale price) while repay stays open.
-  The [Risk console](https://intatto.larinova.com/risk) lists every post, accepted or rejected.
-- The Chainlink Data Streams v10 adapter is built and unit-tested but **not wired live** (no Data Streams entitlement).
-- In the **sandbox only**, the relay's USDG/USD staleness limit is widened to 30 days, because a forked Chainlink feed
-  cannot update in simulated time (the 1% peg band stays), and the mainnet keeper/owner is impersonated on the fork.
-  Every such change is written to the session's divergence ledger.
-- Replay prices are Dukascopy CFD bid minutes applied as a counterfactual to today's fork, not historical X Layer
-  liquidity. The synthetic gap is labelled synthetic. Hashes and sources are in [`data/replays/`](data/replays/).
-- No token, no governance, no firstness or solvency claims.
+- The keeper is a trusted relayer of the issuer's quote and of the market session. Onchain bounds stop a price outside the pool TWAP band. The keeper does not move funds and does not bypass caps. It does choose the session and corporate-action posts, so a bad post can set the weekday limit on a weekend or pause a stock. If the keeper goes quiet, new borrowing stops (unknown session, stale price) and repay stays open. [Risk](https://intatto.larinova.com/risk) lists posts, including rejected ones.
+- [`ChainlinkV10Adapter.sol`](contracts/src/ChainlinkV10Adapter.sol) verifies a Chainlink Data Streams v10 report. [`ChainlinkV10.t.sol`](contracts/test/ChainlinkV10.t.sol) says Intatto holds no Data Streams subscription and the adapter is not wired live.
+- Sandbox only: the relay's USDG/USD age limit can be widened up to 30 days, because a forked Chainlink feed does not update in simulated time. The peg band stays. The mainnet keeper and owner are impersonated on the fork. Those changes are written to the session divergence ledger.
+- Replay prices in [`data/replays/nvda-2025-01-gap.json`](data/replays/nvda-2025-01-gap.json) are Dukascopy CFD bid minutes, not historical X Layer liquidity. [`data/replays/synthetic-gap.json`](data/replays/synthetic-gap.json) is marked synthetic.
+- SPYx is not in `deployments/xlayer-mainnet.json`. The app marks it sandbox-only.
+- Seeded sandbox amounts (lender funds, reserve top-up, borrow cap, burner balances) are chosen for the fork. They are not organic mainnet activity.
+- No token. No governance.
+
+## Local development
+
+pnpm is pinned at 10.12.1 (`packageManager` in the root `package.json`). Node is not pinned there.
+
+```sh
+pnpm install
+forge test --root contracts
+pnpm -C web dev
+npx tsx checks/fork/self-test.ts
+```
+
+`pnpm -C web dev` runs `next dev`. Names the web app reads, values not listed here: `NEXT_PUBLIC_LIVE_DEPLOYMENT`, `LIVE_DEPLOYMENT`, `NEXT_PUBLIC_SANDBOX_API_URL`, `NEXT_PUBLIC_XLAYER_RPC_URL`, `NEXT_PUBLIC_KEEPER_LOG_URL`.
+
+Checks, each path is in the repo:
+
+```sh
+pnpm install
+forge test --root contracts
+forge test --root contracts --match-contract ForkScenarios --fork-url https://xlayerrpc.okx.com
+npx tsx checks/fork/self-test.ts
+npx tsx checks/keeper.ts
+npx tsx checks/credit-api.ts --mode sandbox
+npx tsx checks/sandbox.ts
+npx playwright test checks/ui
+npx tsx checks/mainnet.ts --deploy
+npx tsx checks/public.ts
+```
 
 ## Repository
 
 | Path | What |
 |---|---|
-| `contracts/` | Foundry project: the protocol (`src/`), unit and fork tests (`test/`), deploy scripts (`script/`) |
-| `web/` | Next.js app (App Router, wagmi/viem, ReUI/shadcn) on Cloudflare Workers via OpenNext, incl. the credit API |
-| `services/keeper/` | Keeper cron Worker with a SQLite Durable Object log |
-| `services/sandbox/` | Hosted sandbox: Worker + Durable Objects + one Cloudflare Container (anvil) per session |
-| `checks/` | End-to-end checks: fork harness, keeper, credit API, sandbox, UI (Playwright), mainnet, public reachability |
-| `config/` | Shared X Layer addresses, deployment schema, session names and generated ABIs |
-| `data/replays/` | Replay data with provenance |
-
-## Run the checks
-
-```sh
-pnpm install
-forge test --root contracts                       # unit tests
-forge test --root contracts --match-contract ForkScenarios --fork-url https://xlayerrpc.okx.com
-npx tsx checks/fork/self-test.ts                  # the shared fork harness
-npx tsx checks/keeper.ts                          # one keeper cycle on a fork
-npx tsx checks/credit-api.ts --mode sandbox       # API answers equal contract reads
-npx tsx checks/sandbox.ts                         # sandbox sessions, time travel, refusal and repay
-npx playwright test checks/ui                     # every screen against a local fork
-npx tsx checks/mainnet.ts --deploy                # mainnet code equals the build
-npx tsx checks/public.ts                          # the public app and sandbox from outside
-```
-
-Built for OKX Dev Day 2026 (Build a Market, with OKX AI).
+| `contracts/` | Foundry project: protocol (`src/`), tests (`test/`), deploy scripts (`script/`) |
+| `web/` | Next.js app (App Router, wagmi/viem) on Cloudflare Workers via OpenNext, including the credit API |
+| `services/keeper/` | Keeper cron Worker and its SQLite Durable Object log |
+| `services/sandbox/` | Sandbox Worker, Durable Objects, and one Cloudflare Container (anvil) per session |
+| `checks/` | Fork harness, keeper, credit API, sandbox, Playwright UI, mainnet, public reachability |
+| `config/` | X Layer addresses, deployment schema, session names, generated ABIs |
+| `data/replays/` | Replay files and their provenance |
+| `okx-ai/` | OKX AI listing files |
+| `deploy/` | Deploy and source-verification scripts |
 
 ## License
 
-MIT (see [LICENSE](LICENSE)); files with their own SPDX header keep that license.
+MIT. See [LICENSE](LICENSE). A file with its own SPDX header keeps that license.
