@@ -1,4 +1,3 @@
-/** Lend screen on a fork: primer, deposit, withdraw, idle limit, then a recognised deficit and a lower share price. */
 import { mkdirSync, readFileSync } from "node:fs"
 import type { Page } from "@playwright/test"
 import { decodeEventLog, type Address, type Hex } from "viem"
@@ -30,17 +29,6 @@ async function lensVault() {
 }
 const readVault = <T>(fn: string, args: unknown[] = []) => h.fork.read<T>(vault, lendingVaultAbi, fn, args)
 
-async function printChainTail() {
-  const latest = await h.fork.client.getBlockNumber()
-  const rows: string[] = []
-  for (let n = latest - 25n; n <= latest; n++) {
-    const blk = await h.fork.client.getBlock({ blockNumber: n })
-    rows.push(`${n}:${blk.timestamp}:${blk.transactions.length}`)
-  }
-  const ledger = h.fork.ledger.entries.slice(-14).map((x) => [x.kind, x.summary.slice(0, 70), x.chainTime, x.detail])
-  console.info(`[lend] blocks ${rows.join(" ")}\n[lend] ledger ${JSON.stringify(ledger)}`)
-}
-
 async function clearToasts(page: Page) {
   await page.mouse.move(1, 1)
   await expect(page.locator("[data-sonner-toast]")).toHaveCount(0, { timeout: 20_000 })
@@ -52,7 +40,6 @@ async function acceptTerms(page: Page) {
   })
 }
 
-/** Focus a disclosure and open it from the keyboard. */
 async function keyOpen(page: Page, name: string) {
   await page.getByRole("button", { name, exact: true }).focus()
   await page.keyboard.press("Enter")
@@ -96,6 +83,25 @@ test("RPC failure: an error with a retry, not a blank page", async ({ page, useF
   await page.goto("/lend")
   await expect(page.getByTestId("lend-error")).toBeVisible({ timeout: 90_000 })
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible()
+})
+
+test("a tick during vault loading still enables Continue", async ({ page, useFork }) => {
+  test.setTimeout(180_000)
+  await useFork(page, h.env)
+  let go!: () => void
+  const gate = new Promise<void>((r) => { go = r })
+  const match = (url: URL) => url.href.startsWith(h.env.rpcUrl)
+  const hold = (route: { continue: () => Promise<void> }) => gate.then(() => route.continue())
+  await page.route(match, hold)
+  try {
+    await page.goto("/lend")
+    const primer = page.getByTestId("lend-primer")
+    await expect(page.getByTestId("lend-loading")).toBeVisible({ timeout: 30_000 })
+    await primer.getByRole("checkbox").click()
+    go()
+    await expect(page.getByTestId("lend-page")).toBeVisible({ timeout: 90_000 })
+    await expect(primer.getByRole("button", { name: "Continue" })).toBeEnabled()
+  } finally { go(); await page.unroute(match, hold) }
 })
 
 test("a burner reads the primer, deposits and withdraws USDG through the UI", async ({ page, useFork }) => {
@@ -187,10 +193,7 @@ test("reserve exhaustion: the idle limit, then the recognised deficit and the lo
 
   const priceBefore = await readVault<bigint>("sharePrice")
   await scenarios.gapReplay(ctx, replay("nvda-2025-01-gap.json"))
-  const { slices } = await scenarios.syntheticGap(ctx, replay("synthetic-gap.json")).catch(async (e) => {
-    await printChainTail()
-    throw e
-  })
+  const { slices } = await scenarios.syntheticGap(ctx, replay("synthetic-gap.json"))
   const events: { amount: bigint; sharePriceBefore: bigint; sharePriceAfter: bigint }[] = []
   for (const hash of slices as Hex[]) {
     const receipt = await fork.client.getTransactionReceipt({ hash })

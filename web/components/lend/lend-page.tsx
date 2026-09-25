@@ -101,60 +101,58 @@ function LendScreen() {
     />
   )
 
-  if (!vault.data || !markets.data) {
-    const failed = vault.error ?? markets.error
-    // The primer waits while the vault cannot be read, so it never covers the error and its retry.
-    if (failed) {
-      return (
-        <ErrorState
-          message={failed instanceof Error ? failed.message.split("\n")[0]! : "The RPC did not answer."}
-          onRetry={() => {
-            void vault.refetch()
-            markets.refetch()
-          }}
-        />
-      )
-    }
+  const failed = !vault.data || !markets.data ? vault.error ?? markets.error : null
+  // The primer stays mounted across loading → loaded. It is absent on the error branch so it never covers retry.
+  if (failed) {
     return (
-      <>
-        {dialog}
-        <LoadingState />
-      </>
+      <ErrorState
+        message={failed instanceof Error ? failed.message.split("\n")[0]! : "The RPC did not answer."}
+        onRetry={() => {
+          void vault.refetch()
+          markets.refetch()
+        }}
+      />
     )
   }
 
   const v = vault.data
   const list = markets.data
   return (
-    <div data-testid="lend-page" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+    <>
       {dialog}
-      <div className="grid min-w-0 grid-cols-1 content-start gap-6 lg:col-start-1">
-        <VaultHero vault={v} />
-        {vault.isRefetchError ? (
-          <p className="text-xs text-destructive">Showing the last numbers read; the latest refresh failed.</p>
-        ) : null}
-      </div>
-      <aside className="min-w-0 lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
-        <LendPanel
-          vault={v}
-          account={account.data}
-          accountError={account.isError}
-          termsAccepted={terms.accepted}
-          onOpenPrimer={() => setPrimer("open")}
-        />
-        <Button variant="link" size="sm" className="mt-1 px-0" onClick={() => setPrimer("open")}>
-          How lending works
-        </Button>
-      </aside>
-      <div className="grid min-w-0 grid-cols-1 content-start gap-10 lg:col-start-1">
-        <SectionNav />
-        <OverviewSection vault={v} />
-        <AllocationSection vault={v} markets={list} />
-        <RatesSection vault={v} />
-        <RiskSection vault={v} markets={list} />
-        <DeficitsSection vault={v} />
-        <PositionSection vault={v} account={account.data} loading={account.isPending && Boolean(address)} />
-      </div>
-    </div>
+      {v && list ? (
+        <div data-testid="lend-page" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+          <div className="grid min-w-0 grid-cols-1 content-start gap-6 lg:col-start-1">
+            <VaultHero vault={v} />
+            {vault.isRefetchError ? (
+              <p className="text-xs text-destructive">Showing the last numbers read; the latest refresh failed.</p>
+            ) : null}
+          </div>
+          <aside className="min-w-0 lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
+            <LendPanel
+              vault={v}
+              account={account.data}
+              accountError={account.isError}
+              termsAccepted={terms.accepted}
+              onOpenPrimer={() => setPrimer("open")}
+            />
+            <Button variant="link" size="sm" className="mt-1 px-0" onClick={() => setPrimer("open")}>
+              How lending works
+            </Button>
+          </aside>
+          <div className="grid min-w-0 grid-cols-1 content-start gap-10 lg:col-start-1">
+            <SectionNav />
+            <OverviewSection vault={v} />
+            <AllocationSection vault={v} markets={list} />
+            <RatesSection vault={v} />
+            <RiskSection vault={v} markets={list} />
+            <DeficitsSection vault={v} />
+            <PositionSection vault={v} account={account.data} loading={account.isPending && Boolean(address)} />
+          </div>
+        </div>
+      ) : (
+        <LoadingState />
+      )}
+    </>
   )
 }
