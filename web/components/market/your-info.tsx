@@ -9,9 +9,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
-import { RiskMeter } from "@/components/ui/web3/risk-meter"
+import { RiskMeter, RISK_LEVELS } from "@/components/ui/web3"
+import { refusalReason, refusalsFor } from "./copy"
 import { LoadError } from "./states"
-import { usdPrice, tokens, usdg } from "./format"
+import { borrowHref, tokens, usdPrice, usdg, usdgExact, usdgPair } from "./format"
 
 function Row({ label, value, testId }: { label: string; value: string; testId?: string }) {
   return (
@@ -24,15 +25,30 @@ function Row({ label, value, testId }: { label: string; value: string; testId?: 
   )
 }
 
-function Actions() {
+function Actions({ symbol }: { symbol: MarketSymbol }) {
   return (
     <div className="grid grid-cols-2 gap-2">
       <Button asChild variant="outline">
         <Link href="/lend">Lend USDG</Link>
       </Button>
       <Button asChild>
-        <Link href="/borrow">Borrow USDG</Link>
+        <Link href={borrowHref(symbol)}>Borrow USDG</Link>
       </Button>
+    </div>
+  )
+}
+
+/** Capacity exactly as MarketLens.account reports it, or 0 with the first reason a borrow would be refused now. */
+function CanBorrow({ capacity, market }: { capacity: bigint; market: MarketState }) {
+  const refused = refusalsFor(market)[0]
+  return (
+    <div className="grid gap-0.5">
+      <Row label="Can borrow now" value={usdgExact(refused ? 0n : capacity)} testId="borrow-capacity" />
+      {refused ? (
+        <p data-testid="borrow-capacity-reason" className="text-right text-xs text-muted-foreground">
+          {refusalReason(refused, market)}
+        </p>
+      ) : null}
     </div>
   )
 }
@@ -58,7 +74,7 @@ function Body({ symbol, market }: { symbol: MarketSymbol; market: MarketState })
           <WalletIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           Connect a wallet with the button at the top to see your {symbol} and USDG balances and your position.
         </p>
-        <Actions />
+        <Actions symbol={symbol} />
       </div>
     )
   }
@@ -81,8 +97,7 @@ function Body({ symbol, market }: { symbol: MarketSymbol; market: MarketState })
 
   const a = account.data
   const ltv = a.debt === 0n ? null : Number(a.ltvBps) / 10_000
-  const maxLtv = Number(market.maxLtvBps) / 10_000
-  const lt = Number(market.liquidationThresholdBps) / 10_000
+  const [valueText, debtText] = usdgPair(a.valueUsdg, a.debt)
   return (
     <div data-testid="your-info-connected" className="grid gap-4">
       <div className="grid gap-2">
@@ -97,20 +112,26 @@ function Body({ symbol, market }: { symbol: MarketSymbol; market: MarketState })
           <p className="text-sm text-muted-foreground">No collateral or loan in this market yet.</p>
         ) : (
           <>
-            <Row label="Collateral" value={`${tokens(a.assets, symbol)} · ${usdg(a.valueUsdg)}`} />
-            <Row label="Debt" value={usdg(a.debt)} />
+            <Row label="Collateral" value={tokens(a.assets, symbol)} />
+            <Row label="Collateral value" value={valueText} testId="position-value" />
+            <Row label="Debt" value={debtText} testId="position-debt" />
             {a.debt > 0n ? <Row label="Liquidation price" value={usdPrice(a.liquidationPriceE18)} /> : null}
-            <RiskMeter ltv={ltv} maxLtv={maxLtv} liquidationThreshold={lt} levels={{ medium: maxLtv || 0.2, high: lt * 0.9 }} />
+            <RiskMeter
+              ltv={ltv}
+              maxLtv={Number(market.maxLtvBps) / 10_000}
+              liquidationThreshold={Number(market.liquidationThresholdBps) / 10_000}
+              levels={RISK_LEVELS}
+            />
           </>
         )}
-        <Row label="Can borrow now" value={usdg(a.borrowCapacity)} testId="borrow-capacity" />
+        <CanBorrow capacity={a.borrowCapacity} market={market} />
       </div>
       <Separator />
       <div className="grid gap-2">
         <h3 className="text-xs font-medium text-muted-foreground">Lending</h3>
         <Row label="In the USDG vault" value={usdg(a.vaultAssets)} />
       </div>
-      <Actions />
+      <Actions symbol={symbol} />
     </div>
   )
 }

@@ -1,12 +1,45 @@
 /**
- * Display helpers for the Market screen. Pure (viem only) so checks/ui/market.spec.ts can reproduce
- * exactly what the page prints from a contract read.
+ * Display helpers for the Market screen. Pure (viem only, relative imports) so checks/ui/market.spec.ts formats
+ * contract reads exactly the way the page prints them.
  */
-import { formatTokenAmount, formatUtc } from "@/components/ui/web3/format"
+import { formatTokenAmount, formatUtc } from "../ui/web3/format.ts"
 
-/** 50,000.00 USDG (6 decimals, truncated to cents). */
-export function usdg(value: bigint): string {
-  return `${formatTokenAmount(value, 6, { maxFractionDigits: 2, minFractionDigits: 2 })} USDG`
+const USDG_DECIMALS = 6
+const TEN_USDG = 10n * 10n ** 6n
+const TEN_TOKENS = 10n * 10n ** 18n
+
+const abs = (v: bigint) => (v < 0n ? -v : v)
+
+/**
+ * USDG (6 decimals). From 10 USDG up: cents. Below 10: every digit the token has (trailing zeros trimmed to two),
+ * so a small balance reads 1.4975 USDG rather than 1.49.
+ */
+export function usdg(value: bigint, fractionDigits?: number): string {
+  const digits = fractionDigits ?? (abs(value) < TEN_USDG ? USDG_DECIMALS : 2)
+  return `${formatTokenAmount(value, USDG_DECIMALS, { maxFractionDigits: digits, minFractionDigits: 2 })} USDG`
+}
+
+/** Every USDG digit (up to 6 decimals): for numbers that must equal a contract read exactly, like borrow capacity. */
+export function usdgExact(value: bigint): string {
+  return usdg(value, USDG_DECIMALS)
+}
+
+/**
+ * Two USDG amounts shown side by side ("holds … / owes …", "… of …"): the fewest decimals (from two) at which
+ * unequal amounts also read unequal, so a comparison never shows the same number on both sides.
+ */
+export function usdgPair(a: bigint, b: bigint): [string, string] {
+  const base = abs(a) < TEN_USDG || abs(b) < TEN_USDG ? USDG_DECIMALS : 2
+  for (let digits = base; digits <= USDG_DECIMALS; digits++) {
+    const pair: [string, string] = [usdg(a, digits), usdg(b, digits)]
+    if (a === b || pair[0] !== pair[1]) return pair
+  }
+  return [usdg(a, USDG_DECIMALS), usdg(b, USDG_DECIMALS)]
+}
+
+/** The Borrow screen with this market selected. */
+export function borrowHref(symbol: string): string {
+  return `/borrow?market=${encodeURIComponent(symbol)}`
 }
 
 /** $226.18: a USD price with 18 decimals, truncated to cents. */
@@ -14,9 +47,10 @@ export function usdPrice(valueE18: bigint): string {
   return `$${formatTokenAmount(valueE18, 18, { maxFractionDigits: 2, minFractionDigits: 2 })}`
 }
 
-/** 12.3456 NVDAx (18 decimals). */
+/** 12.3456 NVDAx (18 decimals); below 10 tokens, six decimals so small collateral stays readable. */
 export function tokens(value: bigint, symbol: string): string {
-  return `${formatTokenAmount(value, 18, { maxFractionDigits: 4 })} ${symbol}`
+  const digits = abs(value) < TEN_TOKENS ? 6 : 4
+  return `${formatTokenAmount(value, 18, { maxFractionDigits: digits })} ${symbol}`
 }
 
 /** Basis points as a percentage with two decimals: 2812n → "28.12%". */

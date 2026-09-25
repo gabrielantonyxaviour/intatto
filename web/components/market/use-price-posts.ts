@@ -18,13 +18,13 @@ export type PricePost = {
 }
 
 const WANT = 8
-/** Live X Layer caps eth_getLogs at ~100 blocks per call, so only the recent past is scanned there. */
-const LIVE_WINDOWS = 10
+/** X Layer caps eth_getLogs at ~100 blocks per call, so only the recent past before a fork (or on mainnet) is scanned. */
+const UPSTREAM_WINDOWS = 10
 
 /** `latestFetchedAt` (the market's current fetch time) is in the key, so a new keeper post refreshes the list at once. */
 export function usePricePosts(symbol: MarketSymbol, latestFetchedAt: number) {
   const m = useMarketDeployment(symbol)
-  const { publicClient, chainId, mode, deployment } = useIntatto()
+  const { publicClient, chainId, deployment, sandbox } = useIntatto()
   return useQuery({
     queryKey: ["market-screen", "price-posts", chainId, m?.priceRelay, latestFetchedAt],
     placeholderData: (previous) => previous,
@@ -36,20 +36,22 @@ export function usePricePosts(symbol: MarketSymbol, latestFetchedAt: number) {
       const fetch = (fromBlock: bigint, toBlock: bigint) =>
         publicClient.getContractEvents({ address, abi: priceRelayAdapterAbi, eventName: "PricePosted", fromBlock, toBlock })
 
+      const deployedAt = BigInt(deployment!.block)
       let logs: Awaited<ReturnType<typeof fetch>> = []
-      let scannedFrom = latest
-      if (mode === "sandbox") {
-        // A fork's own blocks start at the deployment, so one call covers every post.
-        scannedFrom = BigInt(deployment!.block)
-        logs = await fetch(scannedFrom, latest)
-      } else {
-        let to = latest
-        for (let i = 0; i < LIVE_WINDOWS && logs.length < WANT && to > 0n; i++) {
-          const from = to > XLAYER_LOGS_BLOCK_SPAN ? to - XLAYER_LOGS_BLOCK_SPAN + 1n : 0n
-          logs = [...(await fetch(from, to)), ...logs]
-          scannedFrom = from
-          to = from - 1n
-        }
+      let to = latest
+      if (sandbox) {
+        // Blocks mined on the fork are local, so one call covers them. A fork of a live deployment also has
+        // posts from before the fork, which the fork fetches upstream: those go through the windows below.
+        const localFrom = BigInt(sandbox.forkBlock) + 1n > deployedAt ? BigInt(sandbox.forkBlock) + 1n : deployedAt
+        if (localFrom <= latest) logs = await fetch(localFrom, latest)
+        to = localFrom - 1n
+      }
+      let scannedFrom = to + 1n
+      for (let i = 0; i < UPSTREAM_WINDOWS && logs.length < WANT && to >= deployedAt && to > 0n; i++) {
+        const from = to - XLAYER_LOGS_BLOCK_SPAN + 1n > deployedAt ? to - XLAYER_LOGS_BLOCK_SPAN + 1n : deployedAt
+        logs = [...(await fetch(from, to)), ...logs]
+        scannedFrom = from
+        to = from - 1n
       }
       const posts = logs
         .map((l) => ({

@@ -63,6 +63,12 @@ export function refusalsFor(s: MarketState): RefusalName[] {
   return out
 }
 
+/** The contract's refusal in words, with the one case the generic text gets wrong: no price posted at all. */
+export function refusalReason(name: RefusalName, s: MarketState): string {
+  if (name === "StalePrice" && s.priceE18 === 0n) return "No price has been posted for this market yet, so new borrowing is off."
+  return REFUSALS[name]
+}
+
 /** One sentence: why new borrowing is off, what is refused and what still works. */
 export function pausedSentence(first: RefusalName, s: MarketState, symbol: string): string {
   const works = "repaying and adding collateral still work"

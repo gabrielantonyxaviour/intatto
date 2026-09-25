@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { SessionBadge } from "./session-badge"
 import { refusalsFor } from "./copy"
-import { bps, bpsShort, sharesToTokens, tokens, usdg } from "./format"
+import { borrowHref, bps, bpsShort, sharesToTokens, tokens, usdg } from "./format"
 
 export type MarketRow = { deployment: MarketDeployment; state: MarketState }
 
@@ -57,14 +57,14 @@ function StockRow({ row, selected, onSelect }: { row: MarketRow; selected: boole
       </Cell>
       <div className="flex justify-end gap-2 pt-1 lg:pt-0">
         <Button asChild size="sm" variant="outline">
-          <Link href="/borrow">Add collateral</Link>
+          <Link href={borrowHref(d.symbol)}>Add collateral</Link>
         </Button>
       </div>
     </li>
   )
 }
 
-function UsdgRow({ vault, loans }: { vault: VaultState; loans: bigint }) {
+function UsdgRow({ vault, loans, selected }: { vault: VaultState; loans: bigint; selected: string }) {
   return (
     <li data-testid="market-row-USDG" className={cn("grid gap-2 rounded-lg border p-3 text-sm lg:rounded-none lg:border-0 lg:border-t lg:px-3 lg:py-2.5", GRID)}>
       <div className="flex flex-wrap items-center gap-2">
@@ -82,7 +82,7 @@ function UsdgRow({ vault, loans }: { vault: VaultState; loans: bigint }) {
           <Link href="/lend">Lend</Link>
         </Button>
         <Button asChild size="sm">
-          <Link href="/borrow">Borrow</Link>
+          <Link href={borrowHref(selected)}>Borrow</Link>
         </Button>
       </div>
     </li>
@@ -140,7 +140,7 @@ export function MarketsTable({
           {open.map((r) => (
             <StockRow key={r.deployment.symbol} row={r} selected={selected === r.deployment.symbol} onSelect={() => onSelect(r.deployment.symbol)} />
           ))}
-          <UsdgRow vault={vault} loans={loans} />
+          <UsdgRow vault={vault} loans={loans} selected={selected} />
         </ul>
         {off.length > 0 && (showOff || open.length === 0) ? (
           <div data-testid="markets-off" className="grid gap-3 pt-3 lg:gap-0 lg:border-t lg:pt-0">

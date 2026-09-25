@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import type { MarketSymbol, MarketState } from "@/lib/chain"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -68,6 +69,13 @@ export function PricePanel({ symbol, state: s, relay }: { symbol: MarketSymbol; 
           <h3 className="text-sm font-medium">Recent keeper posts</h3>
           <p className="text-xs text-muted-foreground">Newest first. Each post passed the relay&apos;s checks when it landed.</p>
           <RecentPosts symbol={symbol} fetchedAt={s.fetchedAt} />
+          <p className="text-sm text-muted-foreground">
+            The relayed price next to the pool TWAP over time is on{" "}
+            <Link href="/risk" data-testid="price-risk-link" className="font-medium text-foreground underline underline-offset-4">
+              the Risk page
+            </Link>
+            .
+          </p>
         </div>
       </CardContent>
     </Card>

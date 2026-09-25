@@ -1,7 +1,7 @@
 import type { MarketState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { bps, usdg } from "./format"
+import { bps, usdg, usdgPair } from "./format"
 
 const R = 26
 const C = 2 * Math.PI * R
@@ -10,6 +10,7 @@ const C = 2 * Math.PI * R
 export function CapUsage({ symbol, state: s }: { symbol: string; state: MarketState }) {
   const usedBps = s.capUsdg === 0n ? (s.totalDebt > 0n ? 10_000n : 0n) : (s.totalDebt * 10_000n) / s.capUsdg
   const fraction = Math.min(Number(usedBps) / 10_000, 1)
+  const [debtText, capText] = usdgPair(s.totalDebt, s.capUsdg)
   const tone = usedBps >= 10_000n ? "stroke-destructive" : usedBps >= 8_000n ? "stroke-warning" : "stroke-primary"
   return (
     <Card data-testid="cap-usage">
@@ -38,7 +39,7 @@ export function CapUsage({ symbol, state: s }: { symbol: string; state: MarketSt
         </div>
         <div className="grid min-w-0 flex-1 gap-1 text-sm">
           <span className="font-medium tabular-nums">
-            {usdg(s.totalDebt)} <span className="font-normal text-muted-foreground">of</span> {usdg(s.capUsdg)}
+            {debtText} <span className="font-normal text-muted-foreground">of</span> {capText}
           </span>
           <span className="text-xs text-muted-foreground">
             Room left: {usdg(s.capUsdg > s.totalDebt ? s.capUsdg - s.totalDebt : 0n)}.{" "}

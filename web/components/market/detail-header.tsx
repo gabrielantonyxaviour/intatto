@@ -9,7 +9,7 @@ import { InfoChip } from "./info-chip"
 import { SessionBadge } from "./session-badge"
 import { RELAY_TOOLTIP } from "./copy"
 import type { ProtocolParams, RelayDetail } from "./use-market-params"
-import { ago, bpsShort, duration, formatUtc, usdPrice, usdg } from "./format"
+import { ago, borrowHref, bpsShort, duration, formatUtc, usdPrice, usdg } from "./format"
 
 type Props = {
   market: MarketDeployment
@@ -36,7 +36,7 @@ export function DetailHeader({ market, state: s, relay, params, now }: Props) {
             <Link href="/lend">Lend USDG</Link>
           </Button>
           <Button asChild>
-            <Link href="/borrow">Borrow USDG</Link>
+            <Link href={borrowHref(market.symbol)}>Borrow USDG</Link>
           </Button>
         </div>
       </div>

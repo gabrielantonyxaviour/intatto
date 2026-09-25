@@ -2,8 +2,10 @@
  * Market screen (pg_market, route "/") on a fork of X Layer with NVDAx and SPYx deployed. The page is read in three
  * session states the keeper posts (the fork's own EXTENDED, OPEN after moving to regular hours with a borrower at the
  * weekday limit, CLOSED after the weekend scenario); every displayed session, max LTV, price, fetch time and guard
- * result must equal a contract read. Then the SPYx market (no price posted) behind the borrowing-off toggle, the
- * phone/tablet layouts, an RPC failure and the not-deployed live state.
+ * result must equal a contract read, and so must the headline numbers (gap reserve and recognised deficits too) and the
+ * burner's "Can borrow now" (MarketLens.account borrowCapacity, or 0 with the reason when a borrow is refused). Then
+ * SPYx (no price posted) behind the borrowing-off toggle with ?market=SPYx links, phone/tablet layouts, an RPC failure
+ * and the not-deployed live state. Amounts are formatted by the page's own helpers (web/components/market/format.ts).
  */
 import { mkdirSync } from "node:fs"
 import type { Locator, Page } from "@playwright/test"
@@ -18,20 +20,18 @@ import {
 import { SESSIONS } from "@intatto/config/session"
 import { test, expect, viewports, expectNoHorizontalScroll } from "./fixtures"
 import { startForkHarness, type ForkHarness } from "../fork/harness.ts"
-import { erc20 } from "../fork/lib/abis.ts"
+import { erc20, market as marketAbi } from "../fork/lib/abis.ts"
 import { openAtWeekdayLimit, weekend } from "../fork/lib/scenarios.ts"
-import { formatTokenAmount } from "../../web/components/ui/web3/format.ts"
+import { bps, usdPrice as usd, usdg, usdgExact } from "../../web/components/market/format.ts"
 
 test.describe.configure({ mode: "serial" })
 
 type Symbol = "NVDAx" | "SPYx"
 type LensMarket = { totalDebt: bigint; totalCollateralValue: bigint; capUsdg: bigint }
-type LensVault = { idle: bigint; totalAssets: bigint; utilizationBps: bigint }
+type LensVault = { idle: bigint; totalAssets: bigint; utilizationBps: bigint; reserveBalance: bigint; totalDeficit: bigint; deficitCount: bigint }
+type LensAccount = { valueUsdg: bigint; borrowCapacity: bigint }
 
 const BORROWER: Address = "0x000000000000000000000000000000000000ba5e"
-const usdg = (v: bigint) => `${formatTokenAmount(v, 6, { maxFractionDigits: 2, minFractionDigits: 2 })} USDG`
-const usd = (v: bigint) => `$${formatTokenAmount(v, 18, { maxFractionDigits: 2, minFractionDigits: 2 })}`
-const bps = (v: bigint) => `${(Number(v) / 100).toFixed(2)}%`
 const utc = (t: bigint | number) => `${new Date(Number(t) * 1000).toISOString().slice(0, 19).replace("T", " ")} UTC`
 
 let h: ForkHarness
@@ -39,6 +39,8 @@ let h: ForkHarness
 const mkt = (s: Symbol) => h.deployment.markets.find((m) => m.symbol === s)!
 const lensMarket = (s: Symbol) => h.fork.read<LensMarket>(h.deployment.lens as Address, marketLensAbi, "market", [mkt(s).market])
 const lensVault = () => h.fork.read<LensVault>(h.deployment.lens as Address, marketLensAbi, "vault", [mkt("NVDAx").market])
+const lensAccount = (s: Symbol) =>
+  h.fork.read<LensAccount>(h.deployment.lens as Address, marketLensAbi, "account", [mkt(s).market, h.env.burnerAddress])
 const sessionRead = <T>(fn: string) => h.fork.read<T>(h.deployment.sessionRisk as Address, sessionRiskControllerAbi, fn)
 const latestPrice = (s: Symbol) => h.fork.read<[bigint, bigint]>(mkt(s).priceRelay as Address, priceRelayAdapterAbi, "latestPrice")
 
@@ -90,6 +92,30 @@ async function expectHeadlineEqualsChain(page: Page) {
   await shows("available", () => stat("available"), async () => usdg((await lensVault()).idle))
   await shows("collateral value", () => stat("collateral"), async () => usdg((await markets()).reduce((a, m) => a + m.totalCollateralValue, 0n)))
   await shows("utilisation", () => stat("utilisation"), async () => bps((await lensVault()).utilizationBps))
+  await shows("gap reserve", () => stat("reserve"), async () => usdg((await lensVault()).reserveBalance))
+  await shows("recognised deficits", () => stat("deficits"), async () => usdg((await lensVault()).totalDeficit))
+  await shows("deficit count", () => page.getByTestId("deficit-count").textContent(), async () => `${(await lensVault()).deficitCount} recorded`)
+  await expect(page.getByTestId("waterfall-line").getByRole("link", { name: "How losses are covered" })).toHaveAttribute("href", "/lend#risk")
+}
+
+/** "Can borrow now" equals MarketLens.account(...).borrowCapacity to the last digit, or 0 with a reason when refused. */
+async function expectCapacity(page: Page, s: Symbol, refused: boolean) {
+  const info = page.getByTestId("your-info-connected")
+  await expect(info).toBeVisible({ timeout: 60_000 })
+  await shows(`${s} can borrow now`, () => info.getByTestId("borrow-capacity").textContent(), async () =>
+    usdgExact(refused ? 0n : (await lensAccount(s)).borrowCapacity),
+  )
+  await expect(info.getByTestId("borrow-capacity-reason")).toHaveCount(refused ? 1 : 0)
+}
+
+/** The burner adds 1 NVDAx and borrows `ltvBps` of its value, straight on the fork (the Borrow screen is not under test). */
+async function burnerBorrows(ltvBps: bigint) {
+  const m = mkt("NVDAx")
+  const who = h.env.burnerAddress
+  await h.fork.write(who, m.token as Address, erc20, "approve", [m.market, 10n ** 18n])
+  await h.fork.write(who, m.market as Address, marketAbi, "addCollateral", [10n ** 18n])
+  const { valueUsdg } = await lensAccount("NVDAx")
+  await h.fork.write(who, m.market as Address, marketAbi, "borrow", [(valueUsdg * ltvBps) / 10_000n])
 }
 
 async function hoverChip(page: Page, id: string): Promise<Locator> {
@@ -174,6 +200,13 @@ test("three keeper sessions: session, max LTV, price, fetch time and guards equa
     return bps(m.capUsdg === 0n ? 0n : (m.totalDebt * 10_000n) / m.capUsdg)
   })
   await expect(page.getByTestId("tile-max-ltv").locator("[data-slot=value]")).toHaveText("50.00%")
+  await burnerBorrows(3_600n)
+  await expectCapacity(page, "NVDAx", false)
+  // The shared risk scale: 36% LTV is Medium (from 30%), whatever the session limit.
+  await expect(page.getByTestId("your-info").locator("[data-slot=risk-meter]")).toContainText("Medium")
+  await expect(page.getByTestId("market-row-NVDAx").getByRole("link", { name: "Add collateral" })).toHaveAttribute("href", "/borrow?market=NVDAx")
+  await expect(page.getByTestId("guards-risk-link")).toHaveAttribute("href", "/risk")
+  await expect(page.getByTestId("price-risk-link")).toHaveAttribute("href", "/risk")
   await proof(page, "proof/market-open.png")
 
   // 3. The weekend: the keeper posts CLOSED and the limit for new loans starts stepping down.
@@ -183,6 +216,7 @@ test("three keeper sessions: session, max LTV, price, fetch time and guards equa
   await expectHeadlineEqualsChain(page)
   await expect(page.getByTestId("session-meaning")).toContainText("The US stock market is closed")
   await expect(page.getByTestId("borrowing-off")).toHaveCount(0)
+  await expectCapacity(page, "NVDAx", false)
   const [, closedFetchedAt] = await latestPrice("NVDAx")
   await expect(await hoverChip(page, "chip-price")).toContainText(`Fetched by the keeper at ${utc(closedFetchedAt)}`)
   await expect(page.getByTestId("price-posts").locator("li").first()).toContainText(utc(closedFetchedAt))
@@ -199,7 +233,10 @@ test("three keeper sessions: session, max LTV, price, fetch time and guards equa
   await expectDetailEqualsChain(page, "SPYx")
   await expect(page.getByTestId("market-detail-SPYx").getByTestId("borrowing-off")).toContainText("repaying and adding collateral still work")
   await expect(page.getByTestId("chip-price")).toContainText("not posted")
-  await expect(page.getByTestId("your-info-connected")).toBeVisible({ timeout: 60_000 })
+  await expectCapacity(page, "SPYx", true)
+  await expect(page.getByTestId("borrow-capacity-reason")).toHaveText("No price has been posted for this market yet, so new borrowing is off.")
+  await expect(page.getByTestId("market-row-SPYx").getByRole("link", { name: "Add collateral" })).toHaveAttribute("href", "/borrow?market=SPYx")
+  await expect(page.getByTestId("market-detail-SPYx").getByRole("link", { name: "Borrow USDG" }).first()).toHaveAttribute("href", "/borrow?market=SPYx")
   await proof(page, "proof/market-spyx.png")
 })
 

@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { CircleCheckIcon, CircleXIcon } from "lucide-react"
 import type { MarketState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
@@ -41,6 +42,13 @@ export function GuardList({ symbol, state, relay, relayFailed, now }: Props) {
             </li>
           ))}
         </ul>
+        <p className="mt-4 text-sm text-muted-foreground">
+          Each check&apos;s history, the keeper&apos;s log and the caps are on{" "}
+          <Link href="/risk" data-testid="guards-risk-link" className="font-medium text-foreground underline underline-offset-4">
+            the Risk page
+          </Link>
+          .
+        </p>
       </CardContent>
     </Card>
   )
