@@ -59,6 +59,26 @@ export const blockNo = (b: bigint | number) => `#${Number(b).toLocaleString("en-
 /** Value × fraction for a fraction in [0, 1]: "42.1%". */
 export const pctFraction = (f: number | null, digits = 1) => (f === null || !Number.isFinite(f) ? "–" : `${(f * 100).toFixed(digits)}%`)
 
+const unsignedPts = (bps: bigint) => (Math.abs(Number(bps)) / 100).toFixed(2)
+
+/** LTV points versus the liquidation line. A negative gap is already past it. */
+export function distanceToLine(bps: bigint): string {
+  if (bps < 0n) return `past the line by ${unsignedPts(bps)} pts`
+  if (bps === 0n) return "at the line"
+  return `${unsignedPts(bps)} pts to the line`
+}
+
+/**
+ * Room until the liquidation price. A negative fraction means the price is already below it,
+ * so the words carry the direction and the number stays unsigned.
+ */
+export function priceRoom(fraction: number | null): string {
+  if (fraction === null || !Number.isFinite(fraction)) return "–"
+  const pct = `${Math.abs(fraction * 100).toFixed(1)}%`
+  if (fraction < 0) return `price already ${pct} below its liquidation price`
+  return `price can fall ${pct}`
+}
+
 /** |a − b| / b in bps, rounded up like the relay does. */
 export function diffBps(a: bigint, ref: bigint): bigint {
   if (ref === 0n) return 0n

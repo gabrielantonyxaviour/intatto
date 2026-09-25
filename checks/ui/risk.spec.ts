@@ -1,15 +1,13 @@
-/**
- * Risk console (/risk) against a local X Layer fork: after one keeper cycle (session, price, a cap post and one
- * deliberately out-of-band price), the console's rows must equal the emitted events and every transaction it
- * shows must resolve to a receipt on the fork.
- */
+/** Risk console against a local X Layer fork: rows match events, and a past-the-line loan is worded without a double sign. */
 import type { Page } from "@playwright/test"
-import { parseAbiItem, type Address, type Hex } from "viem"
+import { maxUint256, parseAbiItem, type Address, type Hex } from "viem"
 import { marketLensAbi } from "@intatto/config/abi"
 import { SESSIONS } from "@intatto/config/session"
+import { TICKERS, XLAYER } from "@intatto/config/xlayer"
 import { test, expect, viewports, expectNoHorizontalScroll } from "./fixtures"
 import { startForkHarness, type ForkHarness } from "../fork/harness.ts"
-import { keeperTick, openPosition } from "../fork/lib/scenarios.ts"
+import { HOLDER, poolWrapperPrice } from "../fork/lib/actors.ts"
+import { ensureOpen, keeperTick, openPosition } from "../fork/lib/scenarios.ts"
 import * as abi from "../fork/lib/abis.ts"
 
 const REASONS = ["FutureFetch", "StaleFetch", "NotNewer", "UsdgStale", "UsdgOffPeg", "TwapUnavailable", "OutOfBand", "MaxMove"]
@@ -31,10 +29,7 @@ const CAP_SLICE = 2_000n * 10n ** 6n
 
 let h: ForkHarness
 
-const dollars = (v: bigint) => {
-  const cents = v / 10n ** 16n
-  return `$${(cents / 100n).toLocaleString("en-US")}.${(cents % 100n).toString().padStart(2, "0")}`
-}
+const dollars = (v: bigint) => { const c = v / 10n ** 16n; return `$${(c / 100n).toLocaleString("en-US")}.${(c % 100n).toString().padStart(2, "0")}` }
 const usdgText = (v: bigint) => `${(v / 10n ** 6n).toLocaleString("en-US")}.${((v % 10n ** 6n) / 10n ** 4n).toString().padStart(2, "0")} USDG`
 const pct = (bps: bigint) => `${(Number(bps) / 100).toFixed(2)}%`
 const newestFirst = <T extends { blockNumber: bigint | null; logIndex: number | null }>(logs: T[]) =>
@@ -87,7 +82,6 @@ async function expectReceipts(page: Page, scope: string) {
   }
   return hashes
 }
-
 test.describe.configure({ mode: "serial" })
 
 test.beforeAll(async () => {
@@ -95,7 +89,6 @@ test.beforeAll(async () => {
   h = await startForkHarness()
   await openPosition(h.ctx, LOW, 2n * 10n ** 18n, 1_000)
   await openPosition(h.ctx, HIGH, 2n * 10n ** 18n, 1_800)
-  // One keeper cycle: session + price, a cap post, then a quote 25% above the pool so the relay rejects it.
   await h.fork.warpBy(60, "risk check: next keeper cycle")
   const tick = await keeperTick(h.ctx)
   expect(tick.accepted).toBe(true)
@@ -105,11 +98,9 @@ test.beforeAll(async () => {
   const bad = await h.ctx.keeper.price((quote * 125n) / 100n)
   expect(bad.accepted).toBe(false)
 })
-
 test.afterAll(async () => {
   await h?.stop()
 })
-
 test("price posts equal the relay's events, rejection included, and every tx has a receipt", async ({ page, useFork }) => {
   test.setTimeout(240_000)
   await page.setViewportSize(viewports.wide)
@@ -150,7 +141,6 @@ test("price posts equal the relay's events, rejection included, and every tx has
   await expectNoHorizontalScroll(page)
   await page.screenshot({ path: "proof/risk.png", fullPage: true })
 })
-
 test("keeper log merges every keeper-sent event and links each to its transaction", async ({ page, useFork }) => {
   test.setTimeout(180_000)
   await page.setViewportSize(viewports.wide)
@@ -177,7 +167,6 @@ test("keeper log merges every keeper-sent event and links each to its transactio
   await expectNoHorizontalScroll(page)
   await page.screenshot({ path: "proof/risk-keeper.png", fullPage: true })
 })
-
 test("summary, caps and loans equal the contracts", async ({ page, useFork }) => {
   test.setTimeout(180_000)
   await page.setViewportSize(viewports.wide)
@@ -192,18 +181,15 @@ test("summary, caps and loans equal the contracts", async ({ page, useFork }) =>
   await expect(page.locator('[data-tile="deficit"] [data-tile-value]')).toHaveText(usdgText(v.totalDeficit))
   await expectNoHorizontalScroll(page)
   await page.screenshot({ path: "proof/risk-summary.png", fullPage: true })
-
   await openView(page, "Caps and LTV spread")
   const capRows = page.locator('[data-row="cap-post"]:visible')
   await expect(capRows).toHaveCount(1, { timeout: 30_000 })
   await expect(capRows.first()).toHaveAttribute("data-target", CAP_TARGET.toString())
   await expect(page.locator('[data-testid="cap-usage"] [data-value="cap"]')).toHaveText(usdgText(k.capUsdg))
-
   await openView(page, "Loans near liquidation")
   const loanRows = page.locator('[data-row="loan"]:visible')
   await expect(loanRows).toHaveCount(2, { timeout: 60_000 })
   const block = BigInt((await page.locator("[data-loans-block]").getAttribute("data-loans-block"))!)
-  // Ranked by distance to liquidation: the higher-LTV borrower first.
   await expect(loanRows.nth(0)).toHaveAttribute("data-borrower", HIGH.toLowerCase())
   await expect(loanRows.nth(1)).toHaveAttribute("data-borrower", LOW.toLowerCase())
   for (const [i, who] of [HIGH, LOW].entries()) {
@@ -213,8 +199,6 @@ test("summary, caps and loans equal the contracts", async ({ page, useFork }) =>
     await expect(loanRows.nth(i).locator('[data-value="ltv"]')).toHaveText(pct(a.ltvBps))
   }
   await expectNoHorizontalScroll(page)
-
-  // S2 of the price shock: at −90% both loans are past 65%, by the market's own test.
   await openView(page, "Price shock")
   await page.getByText("S2: Collateral at risk along the drop").click()
   let hit = 0
@@ -223,7 +207,6 @@ test("summary, caps and loans equal the contracts", async ({ page, useFork }) =>
     if (a.debt * 10_000n > ((a.valueUsdg * 100_000n) / 1_000_000n) * k.liquidationThresholdBps) hit++
   }
   await expect(page.locator('[data-scenario="S2"] li').last()).toContainText(`${hit} loan${hit === 1 ? "" : "s"}`)
-
   await openView(page, "Sessions")
   const sessionLogs = await h.fork.client.getLogs({ address: h.deployment.sessionRisk as Address, event: SESSION_POSTED, fromBlock: BigInt(h.deployment.block) })
   await expect(page.locator('[data-row="session-post"]:visible')).toHaveCount(sessionLogs.length)
@@ -240,7 +223,6 @@ for (const [name, size] of [["390", viewports.narrow], ["768", viewports.medium]
     await expect(cards.first()).toBeVisible({ timeout: 60_000 })
     await expect(page.locator('[data-section="prices"] [data-form="table"]')).toBeHidden()
     await expectNoHorizontalScroll(page)
-    // The block-range box stacks: its text keeps the box's width instead of being squeezed beside the button.
     const scan = (await page.getByTestId("risk-scan").boundingBox())!
     const text = (await page.getByTestId("risk-scan").locator("p").first().boundingBox())!
     expect(scan.x + scan.width).toBeLessThanOrEqual(size.width)
@@ -256,7 +238,6 @@ for (const [name, size] of [["390", viewports.narrow], ["768", viewports.medium]
 
 test("a failing guard is named with what it refuses once the keeper goes quiet", async ({ page, useFork }) => {
   test.setTimeout(180_000)
-  // Past the 30-minute session liveness and price freshness limits, with no keeper post in between.
   await h.fork.warpBy(31 * 60, "risk check: keeper silent for 31 minutes")
   const k = await h.fork.client.readContract({ address: h.deployment.lens as Address, abi: marketLensAbi, functionName: "market", args: [nvda().market as Address] })
   expect(k.fresh).toBe(false)
@@ -270,4 +251,49 @@ test("a failing guard is named with what it refuses once the keeper goes quiet",
   await expect(alert).toContainText("Repaying and adding collateral stay open")
   await expect(page.locator('[data-tile="max-ltv"] [data-tile-value]')).toHaveText(pct(k.maxLtvBps))
   await page.screenshot({ path: "proof/risk-guard-failed.png" })
+})
+async function dropSpot() {
+  const t = TICKERS.NVDAx, fork = h.fork, w = t.wrapper as Address
+  await fork.write(HOLDER, t.token as Address, abi.erc20, "approve", [w, maxUint256])
+  await fork.write(HOLDER, w, abi.wrapper, "deposit", [(await fork.read<bigint>(t.token as Address, abi.erc20, "balanceOf", [HOLDER])) - 300n * 10n ** 18n, HOLDER])
+  await fork.write(HOLDER, w, abi.erc20, "approve", [XLAYER.swapRouter02, maxUint256])
+  const token0 = (await fork.read<Address>(t.pool as Address, abi.pool, "token0")).toLowerCase()
+  const limit = token0 === w.toLowerCase() ? 4295128740n : 1461446703485210103287273052203988822378723970341n
+  const start = await poolWrapperPrice(fork)
+  let amount = 5n * 10n ** 18n
+  for (let i = 0; i < 30 && (await poolWrapperPrice(fork)) > start * 0.72; i++) {
+    const before = await poolWrapperPrice(fork)
+    const have = await fork.read<bigint>(w, abi.erc20, "balanceOf", [HOLDER])
+    const sell = amount > have ? have : amount
+    if (sell < 10n ** 15n) break
+    await fork.write(HOLDER, XLAYER.swapRouter02, abi.swapRouter02, "exactInputSingle", [{ tokenIn: w, tokenOut: XLAYER.usdg, fee: t.poolFee, recipient: HOLDER, amountIn: sell, amountOutMinimum: 0n, sqrtPriceLimitX96: limit }])
+    const impact = before > 0 ? 1 - (await poolWrapperPrice(fork)) / before : 1
+    amount = impact < 0.01 ? amount * 3n : impact > 0.06 ? amount / 2n || 1n : amount
+  }
+}
+
+test("a loan past the liquidation line says how far past, with no double sign", async ({ page, useFork }) => {
+  test.setTimeout(300_000)
+  const relay = nvda().priceRelay as Address
+  const own = [{ type: "function", name: "setMaxMove", stateMutability: "nonpayable", inputs: [{ type: "uint256" }], outputs: [] }, { type: "function", name: "setBands", stateMutability: "nonpayable", inputs: [{ type: "uint256" }, { type: "uint256" }], outputs: [] }] as const
+  await h.fork.write("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", relay, own, "setMaxMove", [100_000n])
+  await h.fork.write("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", relay, own, "setBands", [5_000n, 5_000n])
+  await ensureOpen(h.ctx)
+  const past = "0x000000000000000000000000000000000000b0b3" as Address
+  await openPosition(h.ctx, past, 2n * 10n ** 18n, 5_000)
+  await dropSpot()
+  await h.fork.warpBy(31 * 60, "risk check: 30-minute TWAP catches the lower spot")
+  expect((await keeperTick(h.ctx)).accepted).toBe(true)
+  const m = nvda().market as Address
+  const lens = h.deployment.lens as Address
+  const market = await h.fork.client.readContract({ address: lens, abi: marketLensAbi, functionName: "market", args: [m] })
+  const high = await h.fork.client.readContract({ address: lens, abi: marketLensAbi, functionName: "account", args: [m, past] })
+  expect(high.liquidatable, `ltv ${high.ltvBps} threshold ${market.liquidationThresholdBps} price ${market.priceE18}`).toBe(true)
+  await page.setViewportSize(viewports.wide)
+  await start(page, useFork, "#loans")
+  const highRow = page.locator(`[data-row="loan"][data-borrower="${past.toLowerCase()}"]:visible`)
+  await expect(highRow).toBeVisible({ timeout: 60_000 })
+  await expect(highRow.locator('[data-value="distance"]')).toHaveText(`past the line by ${(Number(high.ltvBps - market.liquidationThresholdBps) / 100).toFixed(2)} pts`)
+  await expect(highRow.locator('[data-value="fall"]')).toContainText(/liquidatable now · price already [\d.]+% below its liquidation price/)
+  expect(await page.getByTestId("risk-console").innerText()).not.toMatch(/−-|--|−−|-−/)
 })

@@ -14,7 +14,7 @@ import { useRisk } from "./risk-data"
 import { DataTable, type Column } from "./data-table"
 import { EventSourceNote, useDirectPlace } from "./status-bar"
 import { Empty, LoadError, RowsSkeleton, Section } from "./states"
-import { blockNo, pctBps, pctFraction, tokens18, usd18, usdg } from "./format"
+import { blockNo, distanceToLine, pctBps, priceRoom, tokens18, usd18, usdg } from "./format"
 import { distanceBps, dropToLiquidation, type Loan } from "./use-loans"
 
 type Sort = "distance" | "debt" | "collateral"
@@ -82,17 +82,23 @@ export function LoansView() {
       id: "distance",
       header: "Distance to liquidation",
       align: "right",
-      cell: (l) =>
-        l.debt === 0n ? (
-          "–"
-        ) : (
+      cell: (l) => {
+        if (l.debt === 0n) return "–"
+        const gap = distanceBps(l, lt)
+        const drop = dropToLiquidation(l, price)
+        const past = l.liquidatable || gap < 0n
+        const room = priceRoom(drop)
+        return (
           <span className="grid">
-            <span data-value="distance" className={distanceBps(l, lt) <= 0n ? "text-destructive" : undefined}>
-              {(Number(distanceBps(l, lt)) / 100).toFixed(2)} pts
+            <span data-value="distance" className={past ? "text-destructive" : undefined}>
+              {distanceToLine(gap)}
             </span>
-            <span className="text-xs text-muted-foreground">price −{pctFraction(dropToLiquidation(l, price))}</span>
+            <span data-value="fall" className="text-xs text-muted-foreground">
+              {past ? (room.startsWith("price already") ? `liquidatable now · ${room}` : "liquidatable now") : room}
+            </span>
           </span>
-        ),
+        )
+      },
     },
     {
       id: "collateral",
@@ -117,8 +123,7 @@ export function LoansView() {
       description={
         <>
           Every borrower found in the scanned blocks. Positions are read directly from {place} through the market lens
-          {loans.data ? <> at block {blockNo(loans.data.block)}</> : null}. <EventSourceNote /> Distance is the LTV points left before {pctBps(lt, 0)}, and the price
-          fall that would get there.
+          {loans.data ? <> at block {blockNo(loans.data.block)}</> : null}. <EventSourceNote /> Distance is the LTV points left before {pctBps(lt, 0)}, and how far the price can fall before it gets there. A position already past that line says how far past it is, and that it is liquidatable now.
         </>
       }
     >
