@@ -1,8 +1,15 @@
 {
-  "status": "draft: not registered or submitted to OKX AI; registering needs Gabriel's confirmation",
+  "status": "Listing under review (submitted 2026-09-25)",
+  "agentId": "13907",
+  "owner": "0xe7bf3fe39bd5b14d874ccac2c4a771f068c158da",
+  "registrationTx": "0xe1d2770368121cdc5457fcb6adaabdaedf57f7ecd804ca73916bfb0c1dc2b3c7",
+  "submittedAt": "2026-09-25",
+  "avatar": "https://static.okx.com/cdn/web3/wallet/marketplace/headimages/agent/avatar/b311ccfe-b730-4921-993a-5b141c77b3a3.png",
   "service_type": "A2MCP",
-  "name": "Intatto credit and health",
-  "description": "Credit and health of one wallet's Intatto loan on X Layer: USDG borrowed against tokenized NVIDIA (NVDAx) or S&P 500 (SPYx) shares. Returns collateral, debt, loan-to-value, health factor, the USDG it can borrow right now (or the exact contract error that refuses a borrow), and how far the token price can fall before the position becomes liquidatable. Every number is read from the Intatto contracts at one block; nothing is cached or estimated off-chain.",
+  "name": "Intatto",
+  "serviceName": "Borrow capacity and health",
+  "description": "Intatto is a lending market on X Layer where holders of tokenized US stocks (xStocks such as NVDAx) borrow USDG. Borrowing limits follow the real stock market session, the price is a keeper relay bounded onchain, liquidation is bounded while the market is closed and losses run through an explicit reserve-then-lender waterfall. This agent answers, from onchain reads at one block, how much a wallet can borrow right now and how close its loan is to liquidation.",
+  "serviceDescription": "Returns the credit and health of one wallet's Intatto loan on X Layer (USDG borrowed against tokenized stocks): market session and its new-borrow limit, USDG borrowable now or the exact contract error that refuses a borrow, the keeper's price with its fetch time, the price guards, collateral, debt, LTV, health factor, liquidation price and the percent fall that would make the loan liquidatable. Read-only, all values onchain at one block.\nwallet (string, required): the borrower's 0x address, lowercase or EIP-55, e.g. 0x7F23b131F7312bd0f63EF79974E215Dc3E12a415; market (string, required): NVDAx or SPYx, e.g. NVDAx; network (string, optional, default mainnet): mainnet (X Layer, chain 196) or sandbox (a fork session), e.g. mainnet; session (string, optional): fork session id, only with network=sandbox, e.g. zfzgj3Z8H3OReI3wCs-Sxw; chain (integer, optional): 196 for mainnet or 1960196 for sandbox, e.g. 196\nGET\ncurl -s 'https://intatto.larinova.com/api/credit?wallet=0x7F23b131F7312bd0f63EF79974E215Dc3E12a415&market=NVDAx'",
   "purpose": "Lets an agent decide whether a wallet can borrow more, should repay, or is close to liquidation, before it acts for a user.",
   "endpoint": "https://intatto.larinova.com/api/credit",
   "method": "GET",
@@ -30,7 +37,7 @@
         "type": "string",
         "pattern": "^0x[0-9a-fA-F]{40}$",
         "description": "The borrower's address, all lowercase or EIP-55 checksummed.",
-        "example": "0xBc9f5CE82d10813AE411ffFc5315E7907E298755"
+        "example": "0x7F23b131F7312bd0f63EF79974E215Dc3E12a415"
       },
       {
         "name": "market",
@@ -56,6 +63,13 @@
         "type": "string",
         "pattern": "^[A-Za-z0-9_-]{1,64}$",
         "description": "Sandbox session id. Only with network=sandbox."
+      },
+      {
+        "name": "chain",
+        "in": "query",
+        "type": "integer",
+        "description": "196 for mainnet or 1960196 for sandbox.",
+        "example": 196
       }
     ]
   },
@@ -107,6 +121,6 @@
   },
   "health": "https://intatto.larinova.com/api/credit/health",
   "example": {
-    "curl": "curl -s 'https://intatto.larinova.com/api/credit?wallet=0xBc9f5CE82d10813AE411ffFc5315E7907E298755&market=NVDAx'"
+    "curl": "curl -s 'https://intatto.larinova.com/api/credit?wallet=0x7F23b131F7312bd0f63EF79974E215Dc3E12a415&market=NVDAx'"
   }
 }

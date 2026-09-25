@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import {
+  AGENT_LABEL,
   KEEPER_IDENTITY,
   KEEPER_ROLE,
+  LISTING_STATUS,
   PRICE_LABEL,
   SERVICE_DESCRIPTION,
   SERVICE_DOMAIN,
@@ -56,8 +58,7 @@ export function AgentsCatalog() {
         <Alert>
           <AlertTitle>Intatto lists its own service</AlertTitle>
           <AlertDescription>
-            Outside APIs are not added here. The credit service is the one call an agent can make. OKX AI listing: not
-            submitted yet.
+            Outside APIs are not added here. The credit service is the one call an agent can make. {LISTING_STATUS}.
           </AlertDescription>
         </Alert>
       ) : null}
@@ -97,7 +98,10 @@ function ServiceCard() {
       <CardContent className="grid gap-3">
         <p className="font-mono text-sm break-all">{SERVICE_DOMAIN}</p>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant="success-light">{PRICE_LABEL}</Badge>
+          <span className="flex flex-wrap items-center gap-2">
+            <Badge variant="success-light">{PRICE_LABEL}</Badge>
+            <Badge variant="outline">{AGENT_LABEL}</Badge>
+          </span>
           <Button asChild>
             <Link href="/agents/credit">Try it</Link>
           </Button>
@@ -119,6 +123,7 @@ function KeeperCard({ keeper }: { keeper: string | null }) {
           <p className="text-sm text-muted-foreground">The keeper address appears once Intatto is deployed.</p>
         )}
         <Badge variant="warning-light">{KEEPER_IDENTITY}</Badge>
+        <Badge variant="outline">{AGENT_LABEL}</Badge>
       </CardContent>
     </Card>
   )

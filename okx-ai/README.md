@@ -1,7 +1,27 @@
 # Intatto credit and health (OKX AI A2MCP service)
 
-Status: **draft**. Nothing here has been registered or submitted to OKX AI. Registering needs Gabriel's
-confirmation. The listing definition is in [`credit-service.json`](./credit-service.json).
+Status: **Listing under review** (submitted 2026-09-25). OKX AI agent **#13907**, owner
+`0xe7bf3fe39bd5b14d874ccac2c4a771f068c158da`. Registration transaction
+[`0xe1d2770368121cdc5457fcb6adaabdaedf57f7ecd804ca73916bfb0c1dc2b3c7`](https://www.oklink.com/x-layer/tx/0xe1d2770368121cdc5457fcb6adaabdaedf57f7ecd804ca73916bfb0c1dc2b3c7).
+Avatar: `https://static.okx.com/cdn/web3/wallet/marketplace/headimages/agent/avatar/b311ccfe-b730-4921-993a-5b141c77b3a3.png`.
+
+The submitted listing name is **Intatto**. Its description: Intatto is a lending market on X Layer where
+holders of tokenized US stocks (xStocks such as NVDAx) borrow USDG. Borrowing limits follow the real stock
+market session, the price is a keeper relay bounded onchain, liquidation is bounded while the market is closed
+and losses run through an explicit reserve-then-lender waterfall. This agent answers, from onchain reads at
+one block, how much a wallet can borrow right now and how close its loan is to liquidation.
+
+The submitted service is **Borrow capacity and health** (A2MCP, fee 0,
+`https://intatto.larinova.com/api/credit`). Its `serviceDescription` is these four lines:
+
+```text
+Returns the credit and health of one wallet's Intatto loan on X Layer (USDG borrowed against tokenized stocks): market session and its new-borrow limit, USDG borrowable now or the exact contract error that refuses a borrow, the keeper's price with its fetch time, the price guards, collateral, debt, LTV, health factor, liquidation price and the percent fall that would make the loan liquidatable. Read-only, all values onchain at one block.
+wallet (string, required): the borrower's 0x address, lowercase or EIP-55, e.g. 0x7F23b131F7312bd0f63EF79974E215Dc3E12a415; market (string, required): NVDAx or SPYx, e.g. NVDAx; network (string, optional, default mainnet): mainnet (X Layer, chain 196) or sandbox (a fork session), e.g. mainnet; session (string, optional): fork session id, only with network=sandbox, e.g. zfzgj3Z8H3OReI3wCs-Sxw; chain (integer, optional): 196 for mainnet or 1960196 for sandbox, e.g. 196
+GET
+curl -s 'https://intatto.larinova.com/api/credit?wallet=0x7F23b131F7312bd0f63EF79974E215Dc3E12a415&market=NVDAx'
+```
+
+The listing definition is in [`credit-service.json`](./credit-service.json).
 
 The service reports one wallet's Intatto loan on X Layer: collateral, debt, loan-to-value, health factor,
 the USDG it can borrow right now, and how far the token price can fall before liquidation. Every value comes
@@ -19,18 +39,19 @@ from the Intatto contracts (`MarketLens.account`, `market` and `vault`), all rea
 | `market` | yes | string | `NVDAx` or `SPYx` |
 | `network` | no | string | `mainnet` (default, X Layer chain 196) or `sandbox` |
 | `session` | no | string | Sandbox session id (`[A-Za-z0-9_-]{1,64}`), only with `network=sandbox` |
+| `chain` | no | integer | `196` for mainnet or `1960196` for sandbox. Example: `196` |
 
 ## Example
 
 ```bash
-curl -s 'https://intatto.larinova.com/api/credit?wallet=0xBc9f5CE82d10813AE411ffFc5315E7907E298755&market=NVDAx'
+curl -s 'https://intatto.larinova.com/api/credit?wallet=0x7F23b131F7312bd0f63EF79974E215Dc3E12a415&market=NVDAx'
 ```
 
 Until Intatto is deployed on mainnet, that call answers `503 {"error":"Intatto is not deployed on mainnet yet","code":"NOT_DEPLOYED"}`.
 To read a sandbox fork, add `&network=sandbox&session=<id>`, where `<id>` comes from the Intatto sandbox.
 
-The response below was produced by the route on a fork of X Layer at block 71,559,930. A burner deposited
-4 NVDAx and borrowed at 30% LTV in an EXTENDED session:
+The response below was produced by the route on a fork of X Layer at block 71,559,930 (4 NVDAx deposited,
+borrowed at 30% LTV, EXTENDED session). The wallet shown is the live demo wallet.
 
 ```json
 {
@@ -39,7 +60,7 @@ The response below was produced by the route on a fork of X Layer at block 71,55
   "network": "sandbox",
   "chainId": 1960196,
   "block": 71559930,
-  "wallet": "0xBc9f5CE82d10813AE411ffFc5315E7907E298755",
+  "wallet": "0x7F23b131F7312bd0f63EF79974E215Dc3E12a415",
   "market": "NVDAx",
   "session": { "state": "EXTENDED", "maxNewBorrowLtvBps": 4000, "periodChangedAt": "2026-09-25T08:00:00.000Z", "postedAt": "2026-09-25T09:35:48.000Z" },
   "price": { "usdPerToken": "226.187976", "fetchedAt": "2026-09-25T09:35:48.000Z", "sourceTimestamp": null, "source": "keeper relay of the xStocks issuer's indicative quote (trusted relayer, bounded onchain)" },
@@ -122,16 +143,13 @@ When `CREDIT_PAYMENT_MODE=paid`, a valid request that carries no payment gets HT
   been proven end to end.
 - Invalid parameters answer 400 before any challenge, so no caller pays for a malformed request.
 
-## Registering (not done)
+## Submitted listing
 
-On OKX AI, an A2MCP ASP is registered through Onchain OS by giving the service name, description, price and
-endpoint. Values for each are in `credit-service.json`. Before registering:
-
-1. Deploy Intatto on mainnet and set `LIVE_DEPLOYMENT`, so the curl above answers 200.
-2. OKX's self-check sends a bare call (`curl -i -X POST <endpoint>`) and expects 200 from a free endpoint.
-   This endpoint is GET-only and needs `wallet` and `market`, so a bare call answers 400 (or 405 for POST).
-   Confirm with the reviewer that the registered endpoint may carry query parameters.
-3. Get Gabriel's confirmation, then register. Do not register or submit anything before that.
+Submitted 2026-09-25. Status: Listing under review. Agent #13907. Owner
+`0xe7bf3fe39bd5b14d874ccac2c4a771f068c158da`. Registration transaction
+`0xe1d2770368121cdc5457fcb6adaabdaedf57f7ecd804ca73916bfb0c1dc2b3c7`
+(https://www.oklink.com/x-layer/tx/0xe1d2770368121cdc5457fcb6adaabdaedf57f7ecd804ca73916bfb0c1dc2b3c7).
+The live demo wallet in every example is `0x7F23b131F7312bd0f63EF79974E215Dc3E12a415`.
 
 ## Proof
 

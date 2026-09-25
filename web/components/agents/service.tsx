@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ChevronDownIcon } from "lucide-react"
+import { explorerTx } from "@intatto/config/xlayer"
 import { useIntatto } from "@/lib/chain"
 import { AddressDisplay } from "@/components/ui/web3"
 import { Badge } from "@/components/ui/badge"
@@ -21,8 +22,10 @@ import {
   A2MCP_SUMMARY,
   curlFor,
   KEEPER_IDENTITY,
+  DEMO_WALLET,
   LISTING_STATUS,
   PAYMENT_NOTE,
+  REGISTRATION_TX,
   PRICE_LABEL,
   publicEndpointUrl,
   readCalls,
@@ -45,7 +48,7 @@ export function CreditService() {
   }, [])
 
   const example = curlFor(
-    `${publicEndpointUrl("/api/credit")}?wallet=0x0000000000000000000000000000000000000001&market=NVDAx&network=mainnet`,
+    `${publicEndpointUrl("/api/credit")}?wallet=${DEMO_WALLET}&market=NVDAx&network=mainnet`,
   )
 
   return (
@@ -83,7 +86,17 @@ export function CreditService() {
           <p className="text-sm">
             <span className="font-medium">{PRICE_LABEL}</span> per call. {PAYMENT_NOTE}.
           </p>
-          <p className="text-sm">{LISTING_STATUS}.</p>
+          <p className="text-sm">
+            {LISTING_STATUS}{" "}
+            <a
+              href={explorerTx(REGISTRATION_TX)}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="font-mono break-all underline underline-offset-4"
+            >
+              {REGISTRATION_TX}
+            </a>
+          </p>
         </div>
         <dl className="grid gap-3 rounded-lg border p-4 text-sm">
           <div className="flex items-center justify-between gap-3">
@@ -123,7 +136,12 @@ export function CreditService() {
           <p className="font-medium">OKX AI agents via A2MCP</p>
           <p className="text-muted-foreground">{A2MCP_SUMMARY}</p>
           <p>{KEEPER_IDENTITY}.</p>
-          <p>{LISTING_STATUS}.</p>
+          <p>
+            {LISTING_STATUS}{" "}
+            <a href={explorerTx(REGISTRATION_TX)} target="_blank" rel="noreferrer noopener" className="underline underline-offset-4">
+              registration tx
+            </a>
+          </p>
         </div>
       ) : null}
 

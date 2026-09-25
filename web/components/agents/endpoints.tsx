@@ -1,7 +1,7 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import { curlFor, ENDPOINTS, PARAMETERS, PRICE_LABEL, publicEndpointUrl } from "./content"
+import { curlFor, DEMO_WALLET, ENDPOINTS, PARAMETERS, PRICE_LABEL, publicEndpointUrl } from "./content"
 import { CopyButton } from "./copy-button"
 
 export function EndpointList() {
@@ -13,7 +13,7 @@ export function EndpointList() {
           const url = publicEndpointUrl(endpoint.path)
           const curl = curlFor(
             endpoint.path === "/api/credit"
-              ? `${url}?wallet=0x0000000000000000000000000000000000000001&market=NVDAx&network=mainnet`
+              ? `${url}?wallet=${DEMO_WALLET}&market=NVDAx&network=mainnet`
               : url,
           )
           return (

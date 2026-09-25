@@ -43,7 +43,7 @@ test("agents credit call matches the fork", async ({ page, useFork }) => {
   await page.getByRole("link", { name: "Try it" }).click()
   await expect(page).toHaveURL(/\/agents\/credit$/)
   await expect(page.getByRole("heading", { name: "Intatto credit and health" })).toBeVisible()
-  await expect(page.getByText("OKX AI listing: not submitted yet.")).toBeVisible()
+  await expect(page.getByText("OKX AI listing: under review (agent #13907)")).toBeVisible()
   await expect(page.getByText("x402 on X Layer (eip155:196) after a real paid settlement is proven")).toBeVisible()
   await expect(page.getByTestId("credit-call-count")).toHaveText("0")
 
