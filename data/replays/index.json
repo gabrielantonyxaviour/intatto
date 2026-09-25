@@ -1,0 +1,23 @@
+[
+  {
+    "id": "nvda-2025-01-gap",
+    "kind": "cfd-counterfactual",
+    "label": "CFD counterfactual prices, not historical X Layer liquidity",
+    "file": "nvda-2025-01-gap.json",
+    "sha256": "cd61c45e911dc8563a6fb0ec896b95d79ee48e501aebbc521a2e2658290f35a7"
+  },
+  {
+    "id": "nvda-corporate-action",
+    "kind": "issuer-multiplier",
+    "label": "Issuer multiplier history (current multiplier from the public API); the activation replayed in the sandbox is a scenario",
+    "file": "nvda-corporate-action.json",
+    "sha256": "b99821960a7ee44fcd891d2003e337b1f6cc3162c99bedc85d896e79ed6318c9"
+  },
+  {
+    "id": "synthetic-gap",
+    "kind": "synthetic",
+    "label": "Synthetic gap larger than the reserve (not market data)",
+    "file": "synthetic-gap.json",
+    "sha256": "3cdcf526d82d05d7068e9710370fb2d40e222f89775f9087e4e90a8e47f56ff3"
+  }
+]

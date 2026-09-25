@@ -1,0 +1,17 @@
+{
+  "retrievedAt": "2026-09-25T05:36:15.497129+00:00",
+  "source": "https://api.xstocks.fi/api/v2/public/assets/NVDAx/multiplier?network=XLayer",
+  "headers": {
+    "Date": "Fri, 25 Sep 2026 05:36:15 GMT",
+    "etag": "W/\"5e-di0D0nNKfFcKvUAfQ4ALzkzkslU\"",
+    "x-ratelimit-limit": "1000",
+    "x-ratelimit-remaining": "996",
+    "x-ratelimit-reset": "2026-09-25T05:37:15.072Z"
+  },
+  "response": {
+    "currentMultiplier": 1.001701196801074,
+    "newMultiplier": 0,
+    "activationDateTime": 0,
+    "reason": null
+  }
+}

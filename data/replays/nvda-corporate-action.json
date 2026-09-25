@@ -1,0 +1,27 @@
+{
+  "id": "nvda-corporate-action",
+  "kind": "issuer-multiplier",
+  "label": "Issuer multiplier history (current multiplier from the public API); the activation replayed in the sandbox is a scenario",
+  "sources": [
+    {
+      "url": "https://api.xstocks.fi/api/v2/public/assets/NVDAx/multiplier?network=XLayer",
+      "retrievedAt": "2026-09-25T05:36:15.497129+00:00",
+      "sha256": "dcbeae97cb0d53e05e2aeede080fd458ebd16d06d2d1700fbf6cce4986a326ce",
+      "file": "raw/nvda-multiplier.json"
+    },
+    {
+      "url": "https://api.xstocks.fi/api/v2/public/assets/NVDAx/multiplier?network=XLayer",
+      "retrievedAt": "2026-09-25T09:32:27.000Z",
+      "sha256": "9e0763f9b5234a4889a889e55e1e50754f4f49cd3fd932999ebe35e369d7c6dd",
+      "file": "raw/nvda-multiplier-2026-09-25.json"
+    }
+  ],
+  "currentMultiplier": 1.001701196801074,
+  "scenario": {
+    "splitRatio": 10,
+    "preMultiplier": 1.001701196801074,
+    "postMultiplier": 10.01701196801074,
+    "note": "A 10-for-1 split applied as a multiplier change; NVDA's real 10-for-1 split took effect 10 June 2024."
+  },
+  "contentSha256": "ddc7d7e1a2a790bf3c8d906ba1dcd40c475055e7c62b839b7b98d45b9ac9b3fc"
+}

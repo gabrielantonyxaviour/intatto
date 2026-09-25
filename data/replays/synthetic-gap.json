@@ -1,0 +1,9 @@
+{
+  "id": "synthetic-gap",
+  "kind": "synthetic",
+  "label": "Synthetic gap larger than the reserve (not market data)",
+  "gapBps": 4500,
+  "note": "A 45% overnight gap used only to exhaust the gap reserve and show deficit recognition.",
+  "sources": [],
+  "contentSha256": "0aca28cbc915458b466408be70823c9d6323f05680cc99eee947d852ef56e73d"
+}
