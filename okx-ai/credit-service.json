@@ -1,0 +1,112 @@
+{
+  "status": "draft: not registered or submitted to OKX AI; registering needs Gabriel's confirmation",
+  "service_type": "A2MCP",
+  "name": "Intatto credit and health",
+  "description": "Credit and health of one wallet's Intatto loan on X Layer: USDG borrowed against tokenized NVIDIA (NVDAx) or S&P 500 (SPYx) shares. Returns collateral, debt, loan-to-value, health factor, the USDG it can borrow right now (or the exact contract error that refuses a borrow), and how far the token price can fall before the position becomes liquidatable. Every number is read from the Intatto contracts at one block; nothing is cached or estimated off-chain.",
+  "purpose": "Lets an agent decide whether a wallet can borrow more, should repay, or is close to liquidation, before it acts for a user.",
+  "endpoint": "https://intatto.larinova.com/api/credit",
+  "method": "GET",
+  "price": "0",
+  "price_unit": "USDG per call",
+  "payment": {
+    "mode": "free",
+    "x402_when_paid": {
+      "x402Version": 2,
+      "scheme": "exact",
+      "network": "eip155:196",
+      "asset": "0x4ae46a509f6b1d9056937ba4500cb143933d2dc8",
+      "asset_symbol": "USDG",
+      "amount_minimal_units_default": "10000",
+      "maxTimeoutSeconds": 300,
+      "header": "PAYMENT-REQUIRED",
+      "note": "Paid mode is off. It only builds the challenge; verification and settlement are not wired until a real paid settlement is proven."
+    }
+  },
+  "parameters": {
+    "required": [
+      {
+        "name": "wallet",
+        "in": "query",
+        "type": "string",
+        "pattern": "^0x[0-9a-fA-F]{40}$",
+        "description": "The borrower's address, all lowercase or EIP-55 checksummed.",
+        "example": "0xBc9f5CE82d10813AE411ffFc5315E7907E298755"
+      },
+      {
+        "name": "market",
+        "in": "query",
+        "type": "string",
+        "enum": ["NVDAx", "SPYx"],
+        "description": "The tokenized stock used as collateral.",
+        "example": "NVDAx"
+      }
+    ],
+    "optional": [
+      {
+        "name": "network",
+        "in": "query",
+        "type": "string",
+        "enum": ["mainnet", "sandbox"],
+        "default": "mainnet",
+        "description": "mainnet reads X Layer (chain 196). sandbox reads a fork session from the Intatto sandbox."
+      },
+      {
+        "name": "session",
+        "in": "query",
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_-]{1,64}$",
+        "description": "Sandbox session id. Only with network=sandbox."
+      }
+    ]
+  },
+  "response": {
+    "mimeType": "application/json",
+    "fields": {
+      "service": "string, always \"intatto-credit\"",
+      "version": "string, always \"1\"",
+      "network": "\"mainnet\" | \"sandbox\"",
+      "chainId": "integer, from the RPC",
+      "block": "integer, the block every value was read at",
+      "wallet": "string, EIP-55 checksummed",
+      "market": "\"NVDAx\" | \"SPYx\"",
+      "session.state": "\"UNKNOWN\" | \"OPEN\" | \"EXTENDED\" | \"CLOSED\" | \"HALTED\" | \"CORPORATE_ACTION\"",
+      "session.maxNewBorrowLtvBps": "integer, the highest LTV a new borrow may reach in this session",
+      "session.periodChangedAt": "ISO 8601 | null, when the issuer's current trading period began",
+      "session.postedAt": "ISO 8601 | null, the keeper's last session post",
+      "price.usdPerToken": "decimal string | null, USD per whole token",
+      "price.fetchedAt": "ISO 8601 | null, the keeper's fetch time (keeper liveness, not market freshness)",
+      "price.sourceTimestamp": "always null: the issuer's quote carries no source timestamp",
+      "price.source": "string",
+      "guards.fresh": "boolean, the last price post is within its liveness limit",
+      "guards.inBand": "boolean, the price is inside the band around the pool's 30-minute TWAP",
+      "guards.pegOk": "boolean, USDG/USD is fresh and within 1% of $1",
+      "guards.corporateActionPaused": "boolean, a split or dividend is activating",
+      "guards.issuerPaused": "boolean, the token issuer paused the stock",
+      "position.collateralTokens": "decimal string, underlying tokens held as collateral",
+      "position.collateralWrapperShares": "decimal string, ERC-4626 wrapper shares the market holds",
+      "position.valueUsdg": "decimal string, collateral value in USDG",
+      "position.debtUsdg": "decimal string, debt including accrued interest",
+      "position.ltvBps": "integer | null (null: debt with no collateral value)",
+      "position.healthFactor": "decimal string | null (null: no debt); below 1 is liquidatable",
+      "capacity.borrowableNowUsdg": "decimal string, USDG one borrow can take right now",
+      "capacity.limitBps": "integer, the session's new-borrow LTV limit",
+      "capacity.reason": "optional: UnknownSession | SessionLimit | StalePrice | PriceOutOfBand | CorporateActionPending | TickerCapReached | UsdgOffPeg | IssuerPaused | InsufficientLiquidity, the contract error a borrow would revert with now",
+      "liquidation.thresholdBps": "integer, LTV above which the position is liquidatable (never depends on the session)",
+      "liquidation.liquidationPriceUsd": "decimal string | null, token price at the threshold (null: no debt)",
+      "liquidation.gapToLiquidationBps": "integer | null, the fall in the token price, in bps of today's price, that makes the position liquidatable",
+      "liquidation.liquidatableNow": "boolean",
+      "asOf": "ISO 8601, the block's timestamp"
+    }
+  },
+  "errors": {
+    "shape": "{ \"error\": string, \"code\": string }",
+    "400": ["INVALID_WALLET", "INVALID_MARKET", "INVALID_NETWORK", "INVALID_SESSION", "SESSION_REQUIRED"],
+    "402": ["PAYMENT_REQUIRED", "PAYMENT_NOT_VERIFIED"],
+    "404": ["MARKET_NOT_LISTED", "SESSION_NOT_FOUND"],
+    "503": ["NOT_DEPLOYED", "DEPLOYMENT_INVALID", "CHAIN_UNAVAILABLE", "CHAIN_MISMATCH", "SANDBOX_UNAVAILABLE", "PAYWALL_MISCONFIGURED"]
+  },
+  "health": "https://intatto.larinova.com/api/credit/health",
+  "example": {
+    "curl": "curl -s 'https://intatto.larinova.com/api/credit?wallet=0xBc9f5CE82d10813AE411ffFc5315E7907E298755&market=NVDAx'"
+  }
+}
