@@ -9,16 +9,16 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export function NotDeployed() {
+export function NotDeployed({ symbol = "NVDAx" }: { symbol?: string }) {
   const { mode } = useIntatto()
   return (
     <Card data-testid="borrow-not-deployed" className="max-w-xl">
       <CardHeader>
-        <CardTitle>{mode === "live" ? "Intatto is not deployed on X Layer yet" : "This sandbox has no NVDAx market"}</CardTitle>
+        <CardTitle>{mode === "live" ? "Intatto is not deployed on X Layer yet" : `This sandbox has no ${symbol} market`}</CardTitle>
         <CardDescription>
           {mode === "live"
             ? "There is no market to borrow from on X Layer mainnet yet. The sandbox runs the same contracts on a fork of X Layer with a funded test wallet, so you can try every step there."
-            : "The sandbox session's deployment does not include an NVDAx market. Start a fresh session."}
+            : `The sandbox session's deployment does not include a ${symbol} market. Start a fresh session.`}
         </CardDescription>
       </CardHeader>
       <CardContent>

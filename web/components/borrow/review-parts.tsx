@@ -7,9 +7,10 @@ import type { MarketState, VaultState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ExplorerLink, riskLevel } from "@/components/ui/web3"
-import { health, liqPrice, nvdax, pct, usdg, wnvdax } from "./format"
-import { RISK_LEVELS, bpsToFraction, type Metrics } from "./math"
+import { ExplorerLink, RISK_LEVELS, riskLevel } from "@/components/ui/web3"
+import { health, liqPrice, pct, usdg } from "./format"
+import { bpsToFraction, type Metrics } from "./math"
+import { useNames } from "./names"
 
 export function ReviewHeader({ title, onBack }: { title: string; onBack: () => void }) {
   return (
@@ -39,6 +40,7 @@ function Cell({ label, children, testId }: { label: string; children: ReactNode;
 
 /** The position as it will be once every step below has gone through (Liquity's preview card, neutral). */
 export function PreviewCard({ caption, after, m, v }: { caption: string; after: Metrics; m: MarketState; v: VaultState }) {
+  const names = useNames()
   const level = after.debt > 0n ? riskLevel(bpsToFraction(after.ltvBps), RISK_LEVELS) : null
   return (
     <Card data-testid="review-preview">
@@ -49,8 +51,8 @@ export function PreviewCard({ caption, after, m, v }: { caption: string; after: 
         </div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
           <Cell label="Collateral">
-            {nvdax(after.assets)}
-            <span className="block text-xs text-muted-foreground">{wnvdax(after.shares)}</span>
+            {names.tokens(after.assets)}
+            <span className="block text-xs text-muted-foreground">{names.shares(after.shares)}</span>
           </Cell>
           <Cell label="Liquidation price">{after.debt > 0n ? liqPrice(after.liquidationPriceE18) : "–"}</Cell>
           <Cell label="LTV">

@@ -5,7 +5,8 @@
 import { REFUSALS, type RefusalName } from "@intatto/config/session"
 import type { AccountState, MarketState, VaultState } from "@/lib/chain"
 import { parseAmount } from "@/components/ui/web3/format"
-import { nvdax, usdg } from "./format"
+import { tokensVs, usdgVs } from "./format"
+import type { Names } from "./names"
 import {
   ACK_LTV_BPS,
   CHIP_TARGETS,
@@ -53,6 +54,8 @@ export type BorrowPlan = {
   limits: BorrowLimits
   chips: Chip[]
   balanceError: string | null
+  /** Why no new borrow can go through right now, whatever the amount (chips and Max are disabled with it). */
+  marketRefusal: Refusal | null
   refusal: Refusal | null
   loanError: string | null
   needsAck: boolean
@@ -81,22 +84,40 @@ export function borrowPrecheck(m: MarketState, limits: BorrowLimits, loan: bigin
   return null
 }
 
+/** A refusal that holds for any amount: guards, a session that allows nothing, or no room left under the limits. */
+export function marketRefusal(m: MarketState, limits: BorrowLimits, hasCollateral: boolean): Refusal | null {
+  if (m.issuerPaused) return refused("IssuerPaused")
+  if (m.session === "UNKNOWN") return refused("UnknownSession")
+  if (m.maxLtvBps === 0n) return refused("SessionLimit", `New borrowing is off in the ${m.session} session`)
+  if (!m.fresh) return refused("StalePrice")
+  if (!m.inBand) return refused("PriceOutOfBand")
+  if (m.corporateActionPaused) return refused("CorporateActionPending")
+  if (!m.pegOk) return refused("UsdgOffPeg")
+  if (!hasCollateral || limits.max > 0n) return null
+  if (limits.binding === "session") return refused("SessionLimit", `Maximum borrowable exceeded for the ${m.session} session`)
+  if (limits.binding === "cap") return refused("TickerCapReached", "This stock's debt cap is used up")
+  return refused("InsufficientLiquidity", "The vault has no USDG left to lend")
+}
+
 export function borrowPlan(
   m: MarketState,
   v: VaultState,
   a: AccountState | null,
   draft: { collateral: string; loan: string },
+  names: Names,
 ): BorrowPlan {
   const deposit = parseAmount(draft.collateral, 18) ?? 0n
   const loan = parseAmount(draft.loan, 6) ?? 0n
   const before = currentMetrics(a)
   const depositShares = assetsToShares(deposit, m.assetsPerShare)
-  const valueWithDeposit = deposit === 0n ? before.valueUsdg : valueOf(before.assets + deposit, m.priceE18)
+  // Valued the way the contract will value it: convertToAssets(shares after the deposit) × price.
+  const assetsWithDeposit = deposit === 0n ? before.assets : sharesToAssets(before.shares + depositShares, m.assetsPerShare)
+  const valueWithDeposit = deposit === 0n ? before.valueUsdg : valueOf(assetsWithDeposit, m.priceE18)
   const after =
     deposit === 0n && loan === 0n
       ? before
       : metrics(
-          { shares: before.shares + depositShares, assets: before.assets + deposit, debt: before.debt + loan },
+          { shares: before.shares + depositShares, assets: assetsWithDeposit, debt: before.debt + loan },
           m.priceE18,
           m.liquidationThresholdBps,
         )
@@ -108,12 +129,15 @@ export function borrowPlan(
     totalDebt: m.totalDebt,
     idle: v.idle,
     borrowRateBps: v.borrowRateBps,
+    // With nothing about to change, the lens's own figure, so every screen shows the same capacity.
+    lensCapacity: deposit === 0n && a ? a.borrowCapacity : undefined,
+    pendingCollateral: deposit > 0n,
   })
   const chips = CHIP_TARGETS.map((t) => {
     const amount = chipAmount(valueWithDeposit, before.debt, t.ltvBps)
     return { level: t.level, ltvBps: t.ltvBps, amount, overLimit: amount > limits.max }
   })
-  const balanceError = a && deposit > a.walletToken ? "Insufficient NVDAx balance" : null
+  const balanceError = a && deposit > a.walletToken ? `Insufficient ${names.token} balance` : null
   const refusal = borrowPrecheck(m, limits, loan)
   const amountRefusal = refusal && ["SessionLimit", "TickerCapReached", "InsufficientLiquidity"].includes(refusal.name)
   return {
@@ -125,8 +149,9 @@ export function borrowPlan(
     limits,
     chips,
     balanceError,
+    marketRefusal: marketRefusal(m, limits, valueWithDeposit > 0n),
     refusal,
-    loanError: amountRefusal ? `${refusal.label}. You can borrow up to ${usdg(limits.max)} now.` : null,
+    loanError: amountRefusal ? `${refusal.label}. You can borrow up to ${usdgVs(limits.max, loan)} now.` : null,
     needsAck: loan > 0n && !refusal && after.ltvBps > ACK_LTV_BPS,
     empty: deposit === 0n && loan === 0n,
   }
@@ -158,6 +183,7 @@ export function repayPlan(
   v: VaultState,
   a: AccountState | null,
   draft: { repay: string; withdraw: string; all: boolean },
+  names: Names,
 ): RepayPlan {
   const before = currentMetrics(a)
   const wallet = a?.walletUsdg ?? 0n
@@ -198,7 +224,7 @@ export function repayPlan(
   else if (withdrawShares > 0n && debtAfter > 0n && !m.fresh) refusal = refused("StalePrice")
   else if (withdrawShares > maxShares) {
     refusal = refused("Unhealthy", `Withdrawal exceeds the ${m.session} session limit`)
-    withdrawError = `${refusal.label}. You can withdraw up to ${nvdax(maxAssets)} while this debt is open.`
+    withdrawError = `${refusal.label}. You can withdraw up to ${tokensVs(maxAssets, typed, names.token)} while this debt is open.`
   }
 
   return {

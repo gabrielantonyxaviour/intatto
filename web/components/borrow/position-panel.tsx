@@ -7,7 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ValueChange } from "@/components/ui/web3"
 import { formatTokenAmount } from "@/components/ui/web3/format"
 import { GapTable } from "./gap-table"
-import { health, liqPrice, nvdax, pct, usdg, wnvdax } from "./format"
+import { health, liqPrice, pct, usdg } from "./format"
+import { useNames } from "./names"
 import type { Metrics } from "./math"
 
 type Props = {
@@ -19,12 +20,15 @@ type Props = {
   before: Metrics
   /** The position after the draft on the active tab; null when nothing is typed. */
   after: Metrics | null
+  /** GapReserve balance (MarketLens.vault.reserveBalance), for the lender-loss estimate. */
+  reserveUsdg: bigint
 }
 
 const num = (v: number | bigint) => BigInt(v)
 
 /** Every position number as before → after (Morpho/Aave), then the Monday-gap stress table. */
-export function PositionPanel({ m, a, connected, loading, before, after }: Props) {
+export function PositionPanel({ m, a, connected, loading, before, after, reserveUsdg }: Props) {
+  const names = useNames()
   const multiplier = formatTokenAmount(m.assetsPerShare, 18, { maxFractionDigits: 4, minFractionDigits: 4 })
   const hasPosition = before.shares > 0n || before.debt > 0n
   const shown = after ?? before
@@ -34,7 +38,8 @@ export function PositionPanel({ m, a, connected, loading, before, after }: Props
       <CardHeader>
         <CardTitle>Your position</CardTitle>
         <CardDescription>
-          1 wNVDAx = {multiplier} NVDAx (issuer multiplier). Collateral is held as wNVDAx and valued at the relayed price.
+          1 {names.wrapper} = {multiplier} {names.token} (issuer multiplier). Collateral is held as {names.wrapper} and valued at
+          the relayed price.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -54,14 +59,14 @@ export function PositionPanel({ m, a, connected, loading, before, after }: Props
             <p>No position yet.</p>
             <p className="text-muted-foreground">
               {a && a.walletToken > 0n
-                ? `Your wallet holds ${nvdax(a.walletToken)}. Deposit some to start.`
-                : "Your wallet holds no NVDAx. Get NVDAx on X Layer first, or try the sandbox."}
+                ? `Your wallet holds ${names.tokens(a.walletToken)}. Deposit some to start.`
+                : `Your wallet holds no ${names.token}. Get ${names.token} on X Layer first, or try the sandbox.`}
             </p>
           </div>
         ) : (
           <div className="grid gap-2">
-            <Row id="position-collateral" label="Collateral" before={before.assets} after={after?.assets} format={(v) => nvdax(num(v))} good="up" />
-            <Row id="position-shares" label="Held as" before={before.shares} after={after?.shares} format={(v) => wnvdax(num(v))} />
+            <Row id="position-collateral" label="Collateral" before={before.assets} after={after?.assets} format={(v) => names.tokens(num(v))} good="up" />
+            <Row id="position-shares" label="Held as" before={before.shares} after={after?.shares} format={(v) => names.shares(num(v))} />
             <Row id="position-value" label="Collateral value" before={before.valueUsdg} after={after?.valueUsdg} format={(v) => usdg(num(v))} good="up" />
             <Row id="position-debt" label="Debt" before={before.debt} after={after?.debt} format={(v) => usdg(num(v))} good="down" />
             <Row
@@ -93,9 +98,9 @@ export function PositionPanel({ m, a, connected, loading, before, after }: Props
             <Separator />
             <div className="grid gap-2">
               <h3 className="text-sm font-medium">
-                If NVDA opens lower on Monday{after ? " (after this change)" : ""}
+                If {names.underlying} opens lower on Monday{after ? " (after this change)" : ""}
               </h3>
-              <GapTable position={shown} m={m} />
+              <GapTable position={shown} m={m} reserveUsdg={reserveUsdg} />
             </div>
           </>
         ) : null}

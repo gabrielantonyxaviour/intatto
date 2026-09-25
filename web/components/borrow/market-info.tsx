@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import type { Session } from "@intatto/config/session"
 import { InfoIcon, TriangleAlertIcon } from "lucide-react"
 import type { MarketState } from "@/lib/chain"
@@ -8,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { formatUtc } from "@/components/ui/web3/format"
 import { pct, price, sessionMeaning, shortUtc } from "./format"
+import { useNames } from "./names"
 
 const SESSION_BADGE: Record<Session, "success-light" | "info-light" | "warning-light" | "destructive-light"> = {
   OPEN: "success-light",
@@ -41,11 +43,12 @@ function Hint({ label, children }: { label: string; children: string }) {
 
 /** Consequence line under the collateral field: the relayed price and the session's new-borrow limit. */
 export function CollateralLine({ m, decay }: { m: MarketState; decay: { floorBps: bigint; duration: number } | null }) {
+  const { token } = useNames()
   const floorAt = decay ? m.periodChangedAt + decay.duration : null
   return (
     <div className="grid gap-1 text-xs text-muted-foreground sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4">
       <span className="flex flex-wrap items-center gap-x-1.5">
-        NVDAx price <span className="font-medium text-foreground tabular-nums" data-testid="relayed-price">{price(m.priceE18)}</span>
+        {token} price <span className="font-medium text-foreground tabular-nums" data-testid="relayed-price">{price(m.priceE18)}</span>
         <span>· fetched by the keeper at {formatUtc(m.fetchedAt)}</span>
         <Hint label="About this price">
           The issuer's indicative quote, relayed onchain by Intatto's keeper. The quote carries no source timestamp, so
@@ -63,6 +66,9 @@ export function CollateralLine({ m, decay }: { m: MarketState; decay: { floorBps
           New loans may reach 50% LTV while the US market is open, 40% in extended hours and 30% falling to 20% over a
           closed weekend. Liquidation stays at 65% LTV in every session.
         </Hint>
+        <Link href="/risk" className="underline underline-offset-4 hover:text-foreground" data-testid="risk-link">
+          Sessions, guards and caps on the Risk page
+        </Link>
       </span>
     </div>
   )
@@ -70,11 +76,12 @@ export function CollateralLine({ m, decay }: { m: MarketState; decay: { floorBps
 
 /** Why new borrowing is off right now, and what still works. Null when every guard passes. */
 export function MarketStatusAlert({ m }: { m: MarketState }) {
+  const { token, underlying } = useNames()
   const reasons: string[] = []
-  if (m.issuerPaused) reasons.push("the token issuer has paused NVDAx")
+  if (m.issuerPaused) reasons.push(`the token issuer has paused ${token}`)
   if (m.corporateActionPaused) reasons.push("a split or dividend is being applied")
   if (m.session === "UNKNOWN") reasons.push("the keeper's session post is missing or older than 30 minutes")
-  if (m.session === "HALTED") reasons.push("trading in NVDA is halted")
+  if (m.session === "HALTED") reasons.push(`trading in ${underlying} is halted`)
   if (m.session === "CORPORATE_ACTION" && !m.corporateActionPaused) reasons.push("the keeper reports a corporate action in progress")
   if (!m.fresh) reasons.push("the keeper's last price post is older than 30 minutes")
   if (!m.inBand) reasons.push("the relayed price is outside the band around the pool's 30-minute average")
@@ -86,7 +93,13 @@ export function MarketStatusAlert({ m }: { m: MarketState }) {
       <AlertTitle>New borrowing is paused</AlertTitle>
       <AlertDescription>
         <p>Because {reasons.join("; ")}.</p>
-        <p>Repaying always works. Adding collateral works too, and withdrawing does when you have no debt.</p>
+        <p>
+          Repaying always works. Adding collateral works too, and withdrawing does when you have no debt.{" "}
+          <Link href="/risk" className="underline underline-offset-4">
+            See every guard on the Risk page
+          </Link>
+          .
+        </p>
       </AlertDescription>
     </Alert>
   )

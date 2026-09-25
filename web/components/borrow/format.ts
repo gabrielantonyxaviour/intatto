@@ -11,11 +11,26 @@ export const usd6 = (x: bigint) => `$${formatTokenAmount(x, 6, { maxFractionDigi
 /** $226.19 from an 18-decimal USD price. */
 export const price = (x: bigint) => `$${formatTokenAmount(x, 18, { maxFractionDigits: 2, minFractionDigits: 2 })}`
 
-/** 10.1234 NVDAx */
-export const nvdax = (x: bigint) => `${formatTokenAmount(x, 18, { maxFractionDigits: 4 })} NVDAx`
+/**
+ * Two amounts with just enough decimals that different values never print the same ("0.4012 USDG" vs "0.4031 USDG",
+ * not "0.40" vs "0.40"). Starts at `minDigits`, goes up to the token's decimals.
+ */
+export function distinct(a: bigint, b: bigint, decimals: number, minDigits: number): [string, string] {
+  for (let d = minDigits; d < decimals; d++) {
+    const opts = { maxFractionDigits: d, minFractionDigits: minDigits }
+    const fa = formatTokenAmount(a, decimals, opts)
+    const fb = formatTokenAmount(b, decimals, opts)
+    if (fa !== fb || a === b) return [fa, fb]
+  }
+  const full = { maxFractionDigits: decimals, minFractionDigits: minDigits }
+  return [formatTokenAmount(a, decimals, full), formatTokenAmount(b, decimals, full)]
+}
 
-/** 9.9876 wNVDAx */
-export const wnvdax = (x: bigint) => `${formatTokenAmount(x, 18, { maxFractionDigits: 4 })} wNVDAx`
+/** A USDG amount shown next to `other` with enough decimals to tell them apart. */
+export const usdgVs = (x: bigint, other: bigint) => `${distinct(x, other, 6, 2)[0]} USDG`
+
+/** A token amount (18 decimals) shown next to `other` with enough decimals to tell them apart. */
+export const tokensVs = (x: bigint, other: bigint, symbol: string) => `${distinct(x, other, 18, 4)[0]} ${symbol}`
 
 /** 35.00% from bps; ">999%" for an unbounded LTV (debt with no collateral). */
 export function pct(bps: bigint): string {

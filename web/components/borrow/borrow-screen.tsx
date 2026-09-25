@@ -2,10 +2,15 @@
 
 import { useState } from "react"
 import type { Address } from "viem"
+import { InfoIcon } from "lucide-react"
+import type { MarketSymbol } from "@/lib/chain"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DepositBorrowForm, type BorrowDraft } from "./deposit-borrow-form"
 import { MarketStatusAlert, SessionBadge } from "./market-info"
+import { MarketSelect, useSelectedMarket, type MarketSelection } from "./market-select"
+import { NamesProvider, namesFor, useNames } from "./names"
 import { borrowPlan, repayPlan } from "./plan"
 import { PositionPanel } from "./position-panel"
 import { RepayWithdrawForm, type RepayDraft } from "./repay-withdraw-form"
@@ -18,34 +23,59 @@ type Tab = "borrow" | "repay"
 const EMPTY_BORROW: BorrowDraft = { collateral: "", loan: "", ack: false }
 const EMPTY_REPAY: RepayDraft = { repay: "", withdraw: "", all: false }
 
-function Header({ session }: { session?: Parameters<typeof SessionBadge>[0]["session"] }) {
+function Header({ selection, session }: { selection: MarketSelection; session?: Parameters<typeof SessionBadge>[0]["session"] }) {
+  const { token } = useNames()
   return (
     <header className="grid gap-1">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="text-2xl font-semibold">Borrow USDG with NVDAx</h1>
+        <h1 className="text-2xl font-semibold">Borrow USDG with {token}</h1>
+        <MarketSelect symbol={selection.symbol} available={selection.available} />
         {session ? <SessionBadge session={session} /> : null}
       </div>
       <p className="max-w-2xl text-sm text-muted-foreground">
-        Deposit NVDAx and borrow USDG against it. How much you can borrow follows the US market session; the liquidation
+        Deposit {token} and borrow USDG against it. How much you can borrow follows the US market session; the liquidation
         line stays at 65% LTV around the clock.
       </p>
     </header>
   )
 }
 
-/** The borrow screen: one vertical form per tab, a review step, and the position panel beside it. */
+/** The borrow screen for the market in `?market=` (NVDAx by default); switching markets starts a fresh form. */
 export function BorrowScreen() {
-  const data = useBorrowData()
+  const selection = useSelectedMarket()
+  return (
+    <NamesProvider names={namesFor(selection.symbol)}>
+      <MarketBorrow key={selection.symbol} symbol={selection.symbol} selection={selection} />
+    </NamesProvider>
+  )
+}
+
+function UnknownMarket({ requested, symbol }: { requested: string; symbol: MarketSymbol }) {
+  return (
+    <Alert variant="info" data-testid="market-unknown">
+      <InfoIcon aria-hidden />
+      <AlertDescription>
+        There is no {requested} market in this deployment (SPYx exists only in the sandbox), so this is the {symbol} market.
+      </AlertDescription>
+    </Alert>
+  )
+}
+
+/** One market: one vertical form per tab, a review step, and the position panel beside it. */
+function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: MarketSelection }) {
+  const names = useNames()
+  const data = useBorrowData(symbol)
   const [tab, setTab] = useState<Tab>("borrow")
   const [reviewing, setReviewing] = useState(false)
   const [borrowDraft, setBorrowDraft] = useState<BorrowDraft>(EMPTY_BORROW)
   const [repayDraft, setRepayDraft] = useState<RepayDraft>(EMPTY_REPAY)
+  const unknown = selection.unknown ? <UnknownMarket requested={selection.unknown} symbol={symbol} /> : null
 
   if (!data.deployment || !data.market) {
     return (
       <div className="grid gap-6">
-        <Header />
-        <NotDeployed />
+        <Header selection={selection} />
+        <NotDeployed symbol={symbol} />
       </div>
     )
   }
@@ -53,15 +83,16 @@ export function BorrowScreen() {
   if (!m || !v) {
     return (
       <div className="grid gap-6">
-        <Header />
+        <Header selection={selection} />
+        {unknown}
         {data.failed ? <LoadError error={data.error} retry={data.retry} /> : <BorrowSkeleton />}
       </div>
     )
   }
 
   const market = { market: data.market.market as Address, token: data.market.token as Address }
-  const bPlan = borrowPlan(m, v, a, borrowDraft)
-  const rPlan = repayPlan(m, v, a, repayDraft)
+  const bPlan = borrowPlan(m, v, a, borrowDraft, names)
+  const rPlan = repayPlan(m, v, a, repayDraft, names)
   const active = tab === "borrow" ? bPlan : rPlan
   const refetch = async () => {
     await data.refetchAccount()
@@ -69,7 +100,8 @@ export function BorrowScreen() {
 
   return (
     <div className="grid gap-6" data-testid="borrow-screen">
-      <Header session={m.session} />
+      <Header selection={selection} session={m.session} />
+      {unknown}
       {data.failed ? <LoadError error={data.error} retry={data.retry} /> : null}
       {data.wrongNetwork ? <WrongNetwork /> : null}
       <MarketStatusAlert m={m} />
@@ -158,7 +190,10 @@ export function BorrowScreen() {
           a={a}
           connected={Boolean(data.address)}
           loading={Boolean(data.address) && !a && !data.failed}
-          before={active.before} after={active.empty ? null : active.after} />
+          before={active.before}
+          after={active.empty ? null : active.after}
+          reserveUsdg={v.reserveBalance}
+        />
       </div>
     </div>
   )

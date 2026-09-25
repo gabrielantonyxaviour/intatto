@@ -7,36 +7,44 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { RiskMeter, riskLevel } from "@/components/ui/web3"
+import { RISK_LEVELS, RiskMeter, riskLevel } from "@/components/ui/web3"
 import { formatTokenAmount } from "@/components/ui/web3/format"
 import { liqPrice, pct, usdg } from "./format"
-import { RISK_LEVELS, bpsToFraction, dropToLiquidation, yearlyInterest, type Metrics } from "./math"
-import type { Chip } from "./plan"
+import { bpsToFraction, dropToLiquidation, yearlyInterest, type Metrics } from "./math"
+import { useNames } from "./names"
+import type { Chip, Refusal } from "./plan"
 
 const DOT = { Low: "bg-success", Medium: "bg-warning", High: "bg-destructive" } as const
 
-/** Preset loans at fixed risk levels (Liquity's chips), each coloured by the risk it lands on. */
-export function LoanChips({ chips, session, maxLtvBps, onPick }: {
+/**
+ * Preset loans at fixed risk levels (Liquity's chips), each coloured by the risk it lands on, and Max. All of them
+ * follow the refusal in force now: when no borrow can go through, they are disabled and say why.
+ */
+export function LoanChips({ chips, session, maxLtvBps, fill, refusal, onPick }: {
   chips: Chip[]
   session: string
   maxLtvBps: bigint
+  /** What Max fills (the lens capacity less the accrual margin). */
+  fill: bigint
+  refusal: Refusal | null
   onPick: (amount: bigint) => void
 }) {
   const shown = chips.filter((c) => c.amount >= 1_000_000n)
-  if (shown.length === 0) return null
+  const why = refusal ? `${refusal.label}: ${refusal.reason}` : null
   return (
     <div role="group" aria-label="Preset loans by risk level" className="flex flex-wrap gap-1.5">
       {shown.map((c) => {
         const level = riskLevel(bpsToFraction(c.ltvBps), RISK_LEVELS)
+        const blocked = refusal !== null || c.overLimit
         return (
           <Button
             key={c.level}
             type="button"
             variant="outline"
             size="xs"
-            disabled={c.overLimit}
-            title={c.overLimit ? `Above the ${session} session's ${pct(maxLtvBps)} limit` : `${pct(c.ltvBps)} LTV`}
-            aria-label={`${c.level} risk: borrow ${usdg(c.amount)} (${pct(c.ltvBps)} LTV)${c.overLimit ? ", above the session limit" : ""}`}
+            disabled={blocked}
+            title={why ?? (c.overLimit ? `Above the ${session} session's ${pct(maxLtvBps)} limit` : `${pct(c.ltvBps)} LTV`)}
+            aria-label={`${c.level} risk: borrow ${usdg(c.amount)} (${pct(c.ltvBps)} LTV)${blocked ? `, unavailable: ${refusal?.label ?? "above the session limit"}` : ""}`}
             onClick={() => onPick(c.amount)}
           >
             <span aria-hidden className={cn("size-2 rounded-full", DOT[level])} />
@@ -44,7 +52,27 @@ export function LoanChips({ chips, session, maxLtvBps, onPick }: {
           </Button>
         )
       })}
+      <Button
+        type="button"
+        variant="outline"
+        size="xs"
+        disabled={refusal !== null || fill === 0n}
+        title={why ?? `Borrow ${usdg(fill)}`}
+        aria-label={refusal ? `Max, unavailable: ${refusal.label}` : "Max"}
+        onClick={() => onPick(fill)}
+      >
+        Max
+      </Button>
     </div>
+  )
+}
+
+/** Shown under the loan field while no new borrow can go through, whatever the amount. */
+export function RefusedNow({ refusal }: { refusal: Refusal }) {
+  return (
+    <p className="text-xs text-destructive" data-testid="loan-refused-now">
+      New borrowing is refused right now: {refusal.label}. {refusal.reason}
+    </p>
   )
 }
 
@@ -55,6 +83,7 @@ export function LoanLine({ m, before, after, previewing }: {
   after: Metrics
   previewing: boolean
 }) {
+  const { underlying } = useNames()
   const lt = m.liquidationThresholdBps
   const drop = dropToLiquidation(after, lt)
   const aboveSpot = after.liquidationPriceE18 > 0n && after.liquidationPriceE18 >= m.priceE18
@@ -81,7 +110,7 @@ export function LoanLine({ m, before, after, previewing }: {
             ? "No debt, no liquidation"
             : aboveSpot
               ? "Above today's price: liquidatable at once"
-              : `NVDA can fall ${(drop * 100).toFixed(1)}% before liquidation`}
+              : `${underlying} can fall ${(drop * 100).toFixed(1)}% before liquidation`}
         </span>
       </div>
     </div>
@@ -126,6 +155,7 @@ export function RiskAck({ after, lt, checked, onChange }: {
   checked: boolean
   onChange: (v: boolean) => void
 }) {
+  const { underlying } = useNames()
   const drop = dropToLiquidation(after, lt)
   return (
     <div className="grid gap-3" data-testid="risk-ack">
@@ -134,7 +164,7 @@ export function RiskAck({ after, lt, checked, onChange }: {
         <AlertTitle>High liquidation risk</AlertTitle>
         <AlertDescription>
           After this loan your LTV is {pct(after.ltvBps)}.
-          {drop !== null ? ` If NVDA opens ${(drop * 100).toFixed(1)}% lower after a weekend, this position can be liquidated with a 5% penalty.` : null}
+          {drop !== null ? ` If ${underlying} opens ${(drop * 100).toFixed(1)}% lower after a weekend, this position can be liquidated with a 5% penalty.` : null}
         </AlertDescription>
       </Alert>
       <label className="flex items-center gap-2 text-sm">

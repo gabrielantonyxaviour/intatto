@@ -6,9 +6,10 @@ import type { AccountState, MarketState, VaultState } from "@/lib/chain"
 import { AmountInput } from "@/components/ui/web3"
 import { FormCta, precheckCta, simulatedCta, type Cta } from "./form-cta"
 import { CollateralLine } from "./market-info"
-import { LoanChips, LoanLine, RateRow, RiskAck } from "./loan-details"
+import { LoanChips, LoanLine, RateRow, RefusedNow, RiskAck } from "./loan-details"
+import { useNames } from "./names"
 import { usePreflight } from "./preflight"
-import { usd6, usdg, wnvdax } from "./format"
+import { usd6 } from "./format"
 import { valueOf } from "./math"
 import type { BorrowPlan } from "./plan"
 
@@ -37,13 +38,15 @@ function borrowCta(plan: BorrowPlan, ack: boolean, pure: ReturnType<typeof simul
 
 /** Collateral → loan → rate, each with its consequence line; Liquity V2's single-column borrow form. */
 export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraft, plan, onReview }: Props) {
+  const names = useNames()
   const pureBorrow = plan.deposit === 0n && plan.loan > 0n && !plan.balanceError
   const preflight = usePreflight(
     pureBorrow ? { address: marketAddress, abi: collateralMarketAbi, functionName: "borrow", args: [plan.loan] } : null,
   )
   const cta = borrowCta(plan, draft.ack, simulatedCta(preflight, plan.refusal), precheckCta(plan.refusal))
   const hasCollateral = plan.before.assets > 0n || plan.deposit > 0n
-  const loanError = !a || plan.loan === 0n ? null : !hasCollateral ? "Add NVDAx collateral first." : plan.loanError
+  const loanError = !a || plan.loan === 0n ? null : !hasCollateral ? `Add ${names.token} collateral first.` : plan.loanError
+  const pickLoan = (amount: bigint) => onDraft({ loan: formatUnits(amount, 6), ack: false })
 
   return (
     <div className="grid gap-5" data-testid="deposit-borrow-form">
@@ -51,18 +54,18 @@ export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraf
         <AmountInput
           id="borrow-collateral"
           label="Collateral"
-          token="NVDAx"
+          token={names.token}
           decimals={18}
           value={draft.collateral}
           onChange={(value) => onDraft({ collateral: value, ack: false })}
           balance={a?.walletToken}
           balanceLabel="Wallet"
           max={a ? a.walletToken : undefined}
-          tooLargeMessage="Insufficient NVDAx balance"
+          tooLargeMessage={`Insufficient ${names.token} balance`}
           footer={
             plan.deposit > 0n ? (
               <span className="tabular-nums">
-                ≈ {usd6(valueOf(plan.deposit, m.priceE18))} · held as {wnvdax(plan.depositShares)}
+                ≈ {usd6(valueOf(plan.deposit, m.priceE18))} · held as {names.shares(plan.depositShares)}
               </span>
             ) : (
               "Adds to your collateral"
@@ -80,10 +83,8 @@ export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraf
           decimals={6}
           value={draft.loan}
           onChange={(value) => onDraft({ loan: value, ack: false })}
-          balance={a ? plan.limits.max : undefined}
+          balance={a && hasCollateral ? plan.limits.max : undefined}
           balanceLabel="Can borrow"
-          max={a && hasCollateral ? plan.limits.max : undefined}
-          tooLargeMessage={`More than you can borrow now: up to ${usdg(plan.limits.max)}.`}
           error={loanError}
           footer={
             a && hasCollateral ? (
@@ -91,11 +92,14 @@ export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraf
                 chips={plan.chips}
                 session={m.session}
                 maxLtvBps={m.maxLtvBps}
-                onPick={(amount) => onDraft({ loan: formatUnits(amount, 6), ack: false })}
+                fill={plan.limits.fill}
+                refusal={plan.marketRefusal}
+                onPick={pickLoan}
               />
             ) : undefined
           }
         />
+        {a && hasCollateral && plan.marketRefusal ? <RefusedNow refusal={plan.marketRefusal} /> : null}
         <LoanLine m={m} before={plan.before} after={plan.after} previewing={!plan.empty} />
       </div>
 

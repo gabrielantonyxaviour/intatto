@@ -5,7 +5,8 @@ import type { Address, Hex } from "viem"
 import { collateralMarketAbi } from "@intatto/config/abi"
 import type { MarketState, VaultState } from "@/lib/chain"
 import { ApproveThenAct, TxButton } from "@/components/ui/web3"
-import { nvdax, pct, usd6, usdg, wnvdax } from "./format"
+import { pct, usd6, usdg } from "./format"
+import { useNames } from "./names"
 import { valueOf, yearlyInterest } from "./math"
 import type { BorrowPlan } from "./plan"
 import { DoneRow, FinishedNote, PreviewCard, ReceiptRow, ReviewHeader, UpcomingRow, type DoneStep } from "./review-parts"
@@ -26,6 +27,8 @@ export function DepositBorrowReview({ m, v, market, plan, onBack, onDeposited, o
   // The receipt describes what was reviewed, even after a step clears its field.
   const [snap] = useState(() => ({ deposit: plan.deposit, shares: plan.depositShares, loan: plan.loan }))
   const [done, setDone] = useState<DoneStep[]>([])
+  const names = useNames()
+  const nvdax = names.tokens
   const pendingDeposit = plan.deposit > 0n
   const pendingBorrow = plan.loan > 0n
   const finished = !pendingDeposit && !pendingBorrow && done.length > 0
@@ -41,7 +44,7 @@ export function DepositBorrowReview({ m, v, market, plan, onBack, onDeposited, o
           <ReceiptRow
             label="Collateral deposit"
             value={nvdax(snap.deposit)}
-            sub={`≈ ${usd6(valueOf(snap.deposit, m.priceE18))} · held as ${wnvdax(snap.shares)}`}
+            sub={`≈ ${usd6(valueOf(snap.deposit, m.priceE18))} · held as ${names.shares(snap.shares)}`}
           />
         ) : null}
         {snap.loan > 0n ? <ReceiptRow label="Loan" value={usdg(snap.loan)} sub="Sent to your wallet" /> : null}
@@ -65,7 +68,7 @@ export function DepositBorrowReview({ m, v, market, plan, onBack, onDeposited, o
         {pendingDeposit ? (
           <>
             <ApproveThenAct
-              token={{ address: market.token, symbol: "NVDAx", decimals: 18 }}
+              token={{ address: market.token, symbol: names.token, decimals: 18 }}
               spender={market.market}
               amount={plan.deposit}
               action={{ address: market.market, abi: collateralMarketAbi, functionName: "addCollateral", args: [plan.deposit] }}

@@ -1,3 +1,5 @@
+import { RISK_LEVELS } from "@/components/ui/web3"
+
 /**
  * Position math for the borrow screen, in the contracts' own units and rounding (bigint only):
  * USDG 6 decimals, NVDAx and wNVDAx 18 decimals, prices 18 decimals, ratios in bps.
@@ -7,21 +9,23 @@
 export const E18 = 10n ** 18n
 const E30 = 10n ** 30n
 const BPS = 10_000n
+const PPM = 1_000_000n
 const MAX_UINT = 2n ** 256n - 1n
 const YEAR = 31_536_000n
 
-/** LTV at which the risk label turns Medium / High (fractions). High is also where the acknowledgement starts. */
-export const RISK_LEVELS = { medium: 0.3, high: 0.45 } as const
-/** Loans above this LTV need an explicit acknowledgement before the review. */
-export const ACK_LTV_BPS = 4500n
+/** Loans above this LTV (the shared scale's High line) need an explicit acknowledgement before the review. */
+export const ACK_LTV_BPS = BigInt(Math.round(RISK_LEVELS.high * 10_000))
 /** Preset loan chips: target LTV after the loan, one per risk level. */
 export const CHIP_TARGETS = [
   { level: "Low", ltvBps: 2000n },
   { level: "Medium", ltvBps: 3500n },
   { level: "High", ltvBps: 4800n },
 ] as const
-/** Monday-open gaps the position panel stresses, in percent. */
+/** Monday-open gaps the position panel always stresses, in percent; deeper ones are added around the liquidation line. */
 export const GAP_STEPS = [5, 10, 20, 30] as const
+const DEEPER_STEPS = [40, 50, 60, 70, 80, 90] as const
+/** Liquidation penalty the loss waterfall takes from sale proceeds first (CollateralMarket.settle). */
+const PENALTY_BPS = 500n
 
 export type Position = { shares: bigint; assets: bigint; debt: bigint }
 
@@ -72,19 +76,19 @@ export const noDebt = (m: Pick<Metrics, "debt">) => m.debt === 0n
 export const isMaxUint = (x: bigint) => x === MAX_UINT
 
 export type BorrowLimits = {
-  /** What the session limit leaves for new debt, minus a small accrual margin. */
+  /** What the session limit leaves for new debt: floor(value × maxLtv / 1e4) − debt, as MarketLens computes it. */
   session: bigint
   cap: bigint
   idle: bigint
-  /** min of the three: the Max button's value. */
+  /** min of the three: MarketLens.account.borrowCapacity. */
   max: bigint
   binding: "session" | "cap" | "idle"
+  /** What Max fills: `max` less a few micro-USDG plus five minutes of interest when debt is open or collateral is
+   * still to arrive, so the contract's ceil-rounded check still passes when the transaction lands. */
+  fill: bigint
 }
 
-/**
- * Borrowing room on a position valued `valueUsdg` with `debt` owed. The margin (1 cent plus five minutes of
- * interest) keeps Max below the contract's ceil-rounded check while interest accrues before the tx lands.
- */
+/** Borrowing room on a position valued `valueUsdg` with `debt` owed, exactly as MarketLens.account reports it. */
 export function borrowLimits(args: {
   valueUsdg: bigint
   debt: bigint
@@ -93,14 +97,18 @@ export function borrowLimits(args: {
   totalDebt: bigint
   idle: bigint
   borrowRateBps: bigint
+  /** MarketLens.account.borrowCapacity, when the position is not about to change. */
+  lensCapacity?: bigint
+  pendingCollateral?: boolean
 }): BorrowLimits {
-  const margin = 10_000n + (args.debt * args.borrowRateBps * 300n) / (BPS * YEAR)
-  const session = clampZero((args.valueUsdg * args.maxLtvBps) / BPS - args.debt - margin)
+  const session = clampZero((args.valueUsdg * args.maxLtvBps) / BPS - args.debt)
   const cap = clampZero(args.capUsdg - args.totalDebt)
   const idle = args.idle
-  const max = min(session, cap, idle)
-  const binding = max === session ? "session" : max === cap ? "cap" : "idle"
-  return { session, cap, idle, max, binding }
+  const max = args.lensCapacity ?? min(session, cap, idle)
+  const binding = max >= session ? "session" : max >= cap ? "cap" : "idle"
+  const margin =
+    args.debt > 0n || args.pendingCollateral ? 2n + (args.debt * args.borrowRateBps * 300n) / (BPS * YEAR) : 0n
+  return { session, cap, idle, max, binding, fill: clampZero(max - margin) }
 }
 
 /** Preset loan amount that takes the position to `targetBps` LTV; rounded down to whole USDG above 10 USDG. */
@@ -133,26 +141,67 @@ export function maxWithdrawShares(args: {
 }
 
 export type GapRow = {
-  dropPct: number
+  /** The drop, in hundredths of a percent (4420 = −44.20%). */
+  dropBps: bigint
+  /** True for the row where this position's LTV reaches the liquidation threshold. */
+  line: boolean
   priceE18: bigint
   ltvBps: bigint
   healthE18: bigint
   liquidatable: boolean
+  /** Debt the collateral would not repay after the 5% penalty, at the gapped oracle price (no slippage). */
+  shortfall: bigint
+  /** What lenders would lose: the shortfall the gap reserve cannot cover. */
+  lenderLoss: bigint
 }
 
-/** Health and LTV if the stock reopens `dropPct` lower (same test as CollateralMarketBase.isLiquidatable). */
-export function gapRows(m: Metrics, priceE18: bigint, ltBps: bigint): GapRow[] {
-  return GAP_STEPS.map((dropPct) => {
-    const keep = BigInt(100 - dropPct)
-    const value = (m.valueUsdg * keep) / 100n
-    return {
-      dropPct,
-      priceE18: (priceE18 * keep) / 100n,
-      ltvBps: ltvBpsOf(m.debt, value),
-      healthE18: m.debt === 0n ? MAX_UINT : (value * ltBps * E18) / (m.debt * BPS),
-      liquidatable: m.debt > 0n && m.debt * BPS > value * ltBps,
+/** The drop (bps) at which `m` becomes liquidatable, or null with no debt or when it already is. */
+export function liquidationGapBps(m: Metrics, ltBps: bigint): bigint | null {
+  if (m.debt === 0n || m.valueUsdg === 0n) return null
+  const keepPpm = (m.debt * BPS * PPM) / (m.valueUsdg * ltBps)
+  if (keepPpm >= PPM) return null
+  return ceilDiv((PPM - keepPpm) * BPS, PPM)
+}
+
+function gapRow(m: Metrics, priceE18: bigint, ltBps: bigint, reserve: bigint, dropBps: bigint, line: boolean): GapRow {
+  const keep = BPS - dropBps
+  const value = (m.valueUsdg * keep) / BPS
+  const liquidatable = line || (m.debt > 0n && m.debt * BPS > value * ltBps)
+  const recovered = (value * BPS) / (BPS + PENALTY_BPS)
+  const shortfall = liquidatable && recovered < m.debt ? m.debt - recovered : 0n
+  return {
+    dropBps,
+    line,
+    priceE18: (priceE18 * keep) / BPS,
+    ltvBps: ltvBpsOf(m.debt, value),
+    healthE18: m.debt === 0n ? MAX_UINT : (value * ltBps * E18) / (m.debt * BPS),
+    liquidatable,
+    shortfall,
+    lenderLoss: clampZero(shortfall - reserve),
+  }
+}
+
+/**
+ * Health, LTV and lender loss if the stock reopens lower: the fixed steps, the exact liquidation line for this
+ * position as its own row, and the deeper steps around and past it (same test as CollateralMarketBase.isLiquidatable).
+ */
+export function gapRows(m: Metrics, priceE18: bigint, ltBps: bigint, reserve: bigint): GapRow[] {
+  const line = liquidationGapBps(m, ltBps)
+  const lineAt = line ?? 0n
+  const steps = new Set<number>(GAP_STEPS)
+  let deeper = 0
+  for (const s of DEEPER_STEPS) {
+    const bps = BigInt(s * 100)
+    if (line !== null && bps < line) steps.add(s)
+    else if (bps > lineAt && deeper < 2) {
+      steps.add(s)
+      deeper++
     }
-  })
+  }
+  if (line !== null) steps.delete(Number(line) / 100)
+  const rows = [...steps].map((s) => gapRow(m, priceE18, ltBps, reserve, BigInt(s * 100), false))
+  if (line !== null) rows.push(gapRow(m, priceE18, ltBps, reserve, line, true))
+  return rows.sort((a, b) => (a.dropBps < b.dropBps ? -1 : a.dropBps > b.dropBps ? 1 : 0))
 }
 
 /** How far the price can fall before the position is liquidatable, as a fraction (null with no debt). */

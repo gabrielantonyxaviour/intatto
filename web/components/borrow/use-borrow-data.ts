@@ -4,16 +4,23 @@ import { useQuery } from "@tanstack/react-query"
 import { useAccount } from "wagmi"
 import type { Address } from "viem"
 import { sessionRiskControllerAbi } from "@intatto/config/abi"
-import { useAccountState, useIntatto, useMarketDeployment, useMarketState, useVaultState } from "@/lib/chain"
+import {
+  useAccountState,
+  useIntatto,
+  useMarketDeployment,
+  useMarketState,
+  useVaultState,
+  type MarketSymbol,
+} from "@/lib/chain"
 
-/** Everything the borrow screen reads: the NVDAx market, the vault, the connected account and the wallet state. */
-export function useBorrowData() {
+/** Everything the borrow screen reads for the selected market: the market, the vault, the account and the wallet. */
+export function useBorrowData(symbol: MarketSymbol) {
   const { deployment, chainId, publicClient, mode } = useIntatto()
-  const market = useMarketDeployment("NVDAx")
+  const market = useMarketDeployment(symbol)
   const { address, chainId: walletChainId, isConnected } = useAccount()
-  const m = useMarketState("NVDAx")
-  const v = useVaultState("NVDAx")
-  const a = useAccountState(address, "NVDAx")
+  const m = useMarketState(symbol)
+  const v = useVaultState(symbol)
+  const a = useAccountState(address, symbol)
 
   // CLOSED decays toward a floor; read it so the screen can say where the limit is heading.
   const closed = m.data?.session === "CLOSED"

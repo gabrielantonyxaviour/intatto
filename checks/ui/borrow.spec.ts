@@ -13,7 +13,16 @@ import { expect, expectNoHorizontalScroll, test, viewports } from "./fixtures"
 import { startForkHarness, type ForkHarness } from "../fork/harness.ts"
 import { weekend } from "../fork/lib/scenarios.ts"
 
-type LensAccount = { shares: bigint; assets: bigint; debt: bigint; ltvBps: bigint; walletToken: bigint; walletUsdg: bigint }
+type LensAccount = {
+  shares: bigint
+  assets: bigint
+  valueUsdg: bigint
+  debt: bigint
+  ltvBps: bigint
+  borrowCapacity: bigint
+  walletToken: bigint
+  walletUsdg: bigint
+}
 
 /** Formats like the UI: truncated (never rounded) to `digits` decimals, thousands grouped. */
 function fixed(x: bigint, decimals: number, digits: number) {
@@ -22,6 +31,14 @@ function fixed(x: bigint, decimals: number, digits: number) {
 }
 const usdg = (x: bigint) => `${fixed(x, 6, 2)} USDG`
 const pct = (bps: bigint) => `${(Number(bps) / 100).toFixed(2)}%`
+/** AmountInput's balance format: 4 decimals, truncated, trailing zeros dropped. */
+const short = (x: bigint, decimals: number) => fixed(x, decimals, 4).replace(/0+$/, "").replace(/\.$/, "")
+/** The drop (bps, rounded up) at which the position's LTV reaches the 65% liquidation threshold. */
+function liquidationLine(a: LensAccount): string {
+  const keep = (a.debt * 10_000n * 1_000_000n) / (a.valueUsdg * 6_500n)
+  const bps = ((1_000_000n - keep) * 10_000n + 999_999n) / 1_000_000n
+  return `−${(Number(bps) / 100).toFixed(bps % 100n === 0n ? 0 : 2)}%`
+}
 
 let h: ForkHarness
 test.describe.configure({ mode: "serial" })
@@ -74,6 +91,7 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   expect(["OPEN", "EXTENDED"]).toContain(startSession)
   await expect(page.getByTestId("borrow-screen")).toBeVisible({ timeout: 120_000 })
   await expect(page.getByTestId("session-badge")).toHaveText(startSession)
+  await expect(page.getByTestId("market-select")).toContainText("NVDAx")
   await expect(page.getByTestId("relayed-price")).toHaveText(`$${fixed(lensMarket.priceE18, 18, 2)}`)
   await expect(page.getByTestId("session-max-ltv")).toHaveText(pct(lensMarket.maxLtvBps))
   await expect(page.getByTestId("position-empty")).toBeVisible({ timeout: 60_000 })
@@ -116,16 +134,30 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   await expect.poll(async () => (await page.getByTestId("position-debt").innerText()).includes(usdg((await account()).debt)), { timeout: 30_000 }).toBe(true)
   await expect.poll(async () => (await page.getByTestId("position-ltv").innerText()).includes(pct((await account()).ltvBps)), { timeout: 30_000 }).toBe(true)
   await expect(page.getByTestId("position-shares")).toContainText(`${fixed(borrowed.shares, 18, 4).replace(/0+$/, "").replace(/\.$/, "")} wNVDAx`)
+  // The Monday-gap table has this position's exact liquidation line and lender loss.
   await expect(page.getByTestId("gap-table")).toBeVisible()
+  await expect(page.getByTestId("gap-line").filter({ visible: true })).toContainText(liquidationLine(await account()))
+  await expect(page.getByTestId("gap-line").filter({ visible: true })).toContainText("Liquidation starts")
+  await expect(page.getByTestId("gap-table")).toContainText("Lenders lose (est.)")
+  await expect(page.getByTestId("gap-note")).toContainText("estimate at the oracle price with no slippage")
   await shoot(page, "proof/borrow-borrowed.png")
 
   // ── Saturday: the keeper posts CLOSED; the screen follows without a reload ──
   await review.getByRole("button", { name: "Back to the form" }).click()
+  // "Can borrow" is the lens's own borrowCapacity, the figure every screen shows.
+  const loanField = form.locator('[data-slot="amount-input"]').nth(1)
+  await expect.poll(async () => (await loanField.innerText()).includes(`Can borrow ${short((await account()).borrowCapacity, 6)} USDG`), { timeout: 30_000 }).toBe(true)
   await weekend(h.ctx)
   await expect(page.getByTestId("session-badge")).toHaveText("CLOSED", { timeout: 45_000 })
   const closed = await read<{ maxLtvBps: bigint }>(d.lens, marketLensAbi as never, "market", [market])
   await expect(page.getByTestId("session-max-ltv")).toHaveText(pct(closed.maxLtvBps))
   expect((await account()).ltvBps).toBeGreaterThan(closed.maxLtvBps)
+  // No room under the CLOSED limit: capacity reads 0 and the chips and Max are disabled with the reason.
+  expect((await account()).borrowCapacity).toBe(0n)
+  await expect(page.getByTestId("loan-refused-now")).toContainText("Maximum borrowable exceeded for the CLOSED session", { timeout: 45_000 })
+  await expect(loanField).toContainText("Can borrow 0 USDG")
+  await expect(page.getByRole("button", { name: /^Max, unavailable/ })).toBeDisabled()
+  for (const chip of await page.getByRole("button", { name: /risk: borrow/ }).all()) await expect(chip).toBeDisabled()
 
   // ── A further borrow is refused before signing, by the contract's own simulation ──
   const nonceBefore = await h.fork.client.getTransactionCount({ address: burner })

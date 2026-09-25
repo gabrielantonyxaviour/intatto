@@ -7,7 +7,8 @@ import type { AccountState, MarketState } from "@/lib/chain"
 import { AmountInput } from "@/components/ui/web3"
 import { FormCta, precheckCta, simulatedCta, type Cta } from "./form-cta"
 import { usePreflight } from "./preflight"
-import { nvdax, usdg, wnvdax } from "./format"
+import { distinct, usdg } from "./format"
+import { useNames } from "./names"
 import type { RepayPlan } from "./plan"
 
 export type RepayDraft = { repay: string; withdraw: string; all: boolean }
@@ -40,7 +41,12 @@ export function RepayWithdrawForm({ m, a, marketAddress, draft, onDraft, plan, o
       : null,
   )
   const cta = repayCta(plan, simulatedCta(preflight, plan.refusal), precheckCta(plan.refusal))
+  const names = useNames()
   const debt = plan.before.debt
+  const wallet = a?.walletUsdg ?? 0n
+  // Enough decimals that a wallet just short of the debt never reads "holds 0.40, owes 0.40".
+  const [held, owed] = distinct(wallet, debt, 6, 2)
+  const [left] = distinct(debt - plan.repayMax, 0n, 6, 2)
 
   return (
     <div className="grid gap-5" data-testid="repay-withdraw-form">
@@ -57,12 +63,12 @@ export function RepayWithdrawForm({ m, a, marketAddress, draft, onDraft, plan, o
           max={a && debt > 0n ? plan.repayMax : undefined}
           tooLargeMessage={plan.walletShort ? "Insufficient USDG balance" : "More than you owe"}
           error={plan.repayError === "Nothing to repay" ? "You have no debt to repay." : null}
-          footer={<span className="tabular-nums">Owed {usdg(debt)}</span>}
+          footer={<span className="tabular-nums">Owed {plan.walletShort ? `${owed} USDG` : usdg(debt)}</span>}
         />
         {plan.walletShort ? (
           <p className="text-xs text-warning-foreground" data-testid="repay-wallet-short">
-            Your wallet holds {usdg(a?.walletUsdg ?? 0n)}, less than the {usdg(debt)} you owe. Max repays what you hold;{" "}
-            {usdg(debt - plan.repayMax)} stays owed and keeps accruing interest.
+            Your wallet holds {held} USDG, less than the {owed} USDG you owe. Max repays what you hold; {left} USDG stays
+            owed and keeps accruing interest.
           </p>
         ) : plan.repayAll ? (
           <p className="text-xs text-muted-foreground">Repays the whole loan, including interest that accrues until it lands.</p>
@@ -78,25 +84,25 @@ export function RepayWithdrawForm({ m, a, marketAddress, draft, onDraft, plan, o
         <AmountInput
           id="withdraw-amount"
           label="Withdraw collateral"
-          token="NVDAx"
+          token={names.token}
           decimals={18}
           value={draft.withdraw}
           onChange={(value) => onDraft({ withdraw: value })}
           balance={a ? plan.maxAssets : undefined}
           balanceLabel="Withdrawable"
           max={a && plan.before.shares > 0n ? plan.maxAssets : undefined}
-          tooLargeMessage={plan.withdrawError ?? `More than you can withdraw now: up to ${nvdax(plan.maxAssets)}.`}
+          tooLargeMessage={plan.withdrawError ?? `More than you can withdraw now: up to ${names.tokens(plan.maxAssets)}.`}
           error={plan.withdrawError}
           footer={
             <span className="tabular-nums">
-              Deposited {nvdax(plan.before.assets)} ({wnvdax(plan.before.shares)})
+              Deposited {names.tokens(plan.before.assets)} ({names.shares(plan.before.shares)})
             </span>
           }
         />
         <p className="text-xs text-muted-foreground">
           {debt === 0n
             ? "With no debt you can take everything out, whatever the session."
-            : `With debt open, what stays must keep the position within the ${m.session} session's limit, and the price must be fresh. Collateral comes back as NVDAx.`}
+            : `With debt open, what stays must keep the position within the ${m.session} session's limit, and the price must be fresh. Collateral comes back as ${names.token}.`}
         </p>
       </div>
 

@@ -5,7 +5,8 @@ import type { Address, Hex } from "viem"
 import { collateralMarketAbi } from "@intatto/config/abi"
 import type { MarketState, VaultState } from "@/lib/chain"
 import { ApproveThenAct, TxButton } from "@/components/ui/web3"
-import { nvdax, usdg, wnvdax } from "./format"
+import { usdg } from "./format"
+import { useNames } from "./names"
 import type { RepayPlan } from "./plan"
 import { DoneRow, FinishedNote, PreviewCard, ReceiptRow, ReviewHeader, UpcomingRow, type DoneStep } from "./review-parts"
 
@@ -20,7 +21,7 @@ type Props = {
   onWithdrawn: () => Promise<void>
 }
 
-/** Review & send for the mirrored panel: approve → repay, then withdraw (collateral comes back unwrapped as NVDAx). */
+/** Review & send for the mirrored panel: approve → repay, then withdraw (collateral comes back unwrapped to the stock token). */
 export function RepayWithdrawReview({ m, v, market, usdgAddress, plan, onBack, onRepaid, onWithdrawn }: Props) {
   const [snap] = useState(() => ({
     repay: plan.repayAll ? plan.before.debt : plan.repay,
@@ -31,6 +32,8 @@ export function RepayWithdrawReview({ m, v, market, usdgAddress, plan, onBack, o
     shares: plan.withdrawShares,
   }))
   const [done, setDone] = useState<DoneStep[]>([])
+  const names = useNames()
+  const nvdax = names.tokens
   const pendingRepay = plan.repay > 0n
   const pendingWithdraw = plan.withdrawShares > 0n
   const finished = !pendingRepay && !pendingWithdraw && done.length > 0
@@ -51,7 +54,7 @@ export function RepayWithdrawReview({ m, v, market, usdgAddress, plan, onBack, o
           />
         ) : null}
         {snap.shares > 0n ? (
-          <ReceiptRow label="Withdraw collateral" value={nvdax(snap.assets)} sub={`${wnvdax(snap.shares)} unwrapped to NVDAx`} />
+          <ReceiptRow label="Withdraw collateral" value={nvdax(snap.assets)} sub={`${names.shares(snap.shares)} unwrapped to ${names.token}`} />
         ) : null}
         <ReceiptRow label="Price or session checks on repay" value="None" sub="Repay works in every session, even when borrowing is paused" />
       </div>
