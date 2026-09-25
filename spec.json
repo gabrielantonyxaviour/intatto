@@ -37,10 +37,17 @@
         "web/app/layout.tsx",
         "web/lib/chain/**",
         "checks/addresses.ts",
-        "checks/lib/**"
+        "checks/lib/**",
+        "contracts/test/mocks/**",
+        "playwright.config.ts",
+        "checks/ui/fixtures/**",
+        "web/components.json",
+        "web/components/ui/**",
+        "web/open-next.config.ts",
+        "web/wrangler.jsonc"
       ],
       "technical": {
-        "approach": "pnpm workspace with contracts/ (Foundry, Solidity 0.8.x, forge-std, OpenZeppelin), web/ (Next.js App Router, TypeScript, wagmi + viem, ReUI/shadcn functional components without product look tokens) and services/ (Node + TypeScript run with tsx). config/xlayer.ts holds chain 196 and the verified addresses: NVDAx 0xc845b2894dbddd03858fd2d643b4ef725fe0849d, wNVDAx 0xa8ddb5cd96b5222afe198316e9a57caa642850d5, USDG 0x4ae46a509f6b1d9056937ba4500cb143933d2dc8, wNVDAx/USDG fee-500 pool 0x2a2b11730c2b6d99a58034a869dd810d7300a7b2, QuoterV2 0xd1b797d92d87b688193a2b976efc8d577d204343, Uniswap v3 factory 0x4B2ab38DBF28D31D467aA8993f6c2585981D6804, Chainlink USDG/USD 0x385C6bDDE06b0E438319bF4ddBfFe51C521ABf3D, Data Streams verifier 0xcE73c8ad08CBDEaCa6078BF0627C8fe0a9a536E7. contracts/src/interfaces defines ISessionRisk, IPriceSource, ICorporateActionGuard, IDepthCaps, IGapReserve so contract blocks build in parallel against mocks. Secrets come from the vault via inject; nothing is committed. API errors are {error, code?}; every API input is validated with zod.",
+        "approach": "pnpm workspace with contracts/ (Foundry, Solidity 0.8.x, forge-std, OpenZeppelin), web/ (Next.js App Router, TypeScript, wagmi + viem, ReUI/shadcn functional components without product look tokens, built as a Cloudflare Worker through the OpenNext adapter from the start) and services/ (TypeScript run with tsx). config/xlayer.ts holds chain 196, the RPC (XLAYER_RPC_URL, falling back to https://xlayerrpc.okx.com, then https://xlayer.drpc.org and https://rpc.xlayer.tech, so every check runs headless without a local env file) and the verified addresses: NVDAx 0xc845b2894dbddd03858fd2d643b4ef725fe0849d, wNVDAx 0xa8ddb5cd96b5222afe198316e9a57caa642850d5, USDG 0x4ae46a509f6b1d9056937ba4500cb143933d2dc8, wNVDAx/USDG fee-500 pool 0x2a2b11730c2b6d99a58034a869dd810d7300a7b2, QuoterV2 0xd1b797d92d87b688193a2b976efc8d577d204343, Uniswap v3 factory 0x4B2ab38DBF28D31D467aA8993f6c2585981D6804, Chainlink USDG/USD 0x385C6bDDE06b0E438319bF4ddBfFe51C521ABf3D, Data Streams verifier 0xcE73c8ad08CBDEaCa6078BF0627C8fe0a9a536E7. contracts/src/interfaces defines ISessionRisk, IPriceSource, ICorporateActionGuard, IDepthCaps, IGapReserve and ICollateralMarket (the liquidation seam: position reads, seize and settle), and contracts/test/mocks holds a mock of each plus mocks of the external contracts (xStock token and its ERC-4626 wrapper with multiplier and isPaused, USDG, the Uniswap v3 pool and QuoterV2, the Chainlink feed), so every contract block builds and tests in parallel against the same seams. foundry.toml grants read access to ../data/replays. web/lib/chain holds the wagmi config, the OKX Wallet connector, a burner connector and one chain context that points every screen at X Layer mainnet or at a sandbox session's RPC; the layout renders navigation and the connect control, so no screen depends on another. playwright.config.ts and checks/ui/fixtures give every UI check a headless browser with an injected burner wallet against a local RPC. Secrets come from the vault via inject; nothing is committed. API errors are {error, code?}; every API input is validated with zod.",
         "touches": [
           "contracts/",
           "web/",
@@ -54,13 +61,13 @@
       },
       "requirements": [
         {
-          "text": "Contracts compile and the web app typechecks",
+          "text": "Contracts, the shared interfaces and their mocks compile, and the web app typechecks",
           "accept": {
             "cmd": "forge build --root contracts && pnpm -C web typecheck"
           },
           "challenge": {
             "verdict": "weak",
-            "concern": "Compilation and typecheck of the empty shell with the shared interfaces; proves the toolchain, not behaviour."
+            "concern": "Compilation and typecheck of the shell, the shared interfaces and their mocks; proves the toolchain and that each mock satisfies its interface, not behaviour."
           }
         },
         {
@@ -74,7 +81,7 @@
           }
         }
       ],
-      "proofNote": "No screen of its own; proof is the address check against live X Layer."
+      "proofNote": "Scaffolding and configuration have no screen of their own; proof is the build and the address check against live X Layer."
     },
     {
       "id": "blk_vault_market",
@@ -94,11 +101,10 @@
         "contracts/src/CollateralMarket.sol",
         "contracts/src/GapReserve.sol",
         "contracts/src/InterestRateModel.sol",
-        "contracts/test/VaultMarket.t.sol",
-        "contracts/test/mocks/**"
+        "contracts/test/VaultMarket.t.sol"
       ],
       "technical": {
-        "approach": "ERC-4626 USDG vault; CollateralMarket holds collateral as wNVDAx shares (deposit of NVDAx wraps through the issuer's ERC-4626 wrapper) and values it as convertToAssets(shares) \u00d7 relayed price. borrow() checks, in order, session limit, price guards, corporate-action pause, ticker cap and USDG peg, reverting with named custom errors (SessionLimit, StalePrice, PriceOutOfBand, CorporateActionPending, TickerCapReached, UsdgOffPeg, UnknownSession). repay(), addCollateral() and healthy withdrawCollateral() never depend on the price guards. Kinked utilization rate model; a reserve factor (proposal 20%) funds GapReserve. Liquidation threshold fixed (proposal 65%). A shortfall after liquidation draws GapReserve; any remainder is recognised as a deficit that lowers share value pro rata (DeficitRecognised event). Built against interface mocks; the fork integration block wires the real controllers. If the issuer pauses NVDAx or wNVDAx (isPaused()), borrowing and liquidation stop and repay stays open; collateral exits use redeem() with measured output.",
+        "approach": "ERC-4626 USDG vault; CollateralMarket holds collateral as wNVDAx shares (deposit of NVDAx wraps through the issuer's ERC-4626 wrapper) and values it as convertToAssets(shares) \u00d7 relayed price. borrow() checks, in order, session limit, price guards, corporate-action pause, ticker cap and USDG peg, reverting with named custom errors (SessionLimit, StalePrice, PriceOutOfBand, CorporateActionPending, TickerCapReached, UsdgOffPeg, UnknownSession). repay(), addCollateral() and healthy withdrawCollateral() never depend on the price guards. Kinked utilization rate model; a reserve factor (proposal 20%) funds GapReserve. Liquidation threshold fixed (proposal 65%). CollateralMarket implements the foundation's ICollateralMarket liquidation seam that BoundedLiquidator calls. A shortfall after liquidation draws GapReserve; any remainder is recognised as a deficit that lowers share value pro rata (DeficitRecognised event). Built against interface mocks; the fork integration block wires the real controllers. If the issuer pauses NVDAx or wNVDAx (isPaused()), borrowing and liquidation stop and repay stays open; collateral exits use redeem() with measured output.",
         "touches": [
           "contracts/src/",
           "contracts/test/"
@@ -165,7 +171,7 @@
           }
         }
       ],
-      "proofNote": "Proof is the Foundry suite; live behaviour is proven again in the fork integration block."
+      "proofNote": "Contracts have no screen of their own; proof is the Foundry suite, and live behaviour is proven again in the fork integration block."
     },
     {
       "id": "blk_session_risk",
@@ -205,7 +211,7 @@
           }
         }
       ],
-      "proofNote": "Contract-only; the Risk console shows it."
+      "proofNote": "A contract has no screen of its own; proof is the table-driven Foundry suite. The Risk console displays its state."
     },
     {
       "id": "blk_price_relay",
@@ -253,7 +259,7 @@
         {
           "text": "The TWAP band reads the real wNVDAx/USDG pool on a mainnet fork",
           "accept": {
-            "cmd": "forge test --root contracts --match-contract PriceRelayForkTest --fork-url \"$XLAYER_RPC_URL\""
+            "cmd": "forge test --root contracts --match-contract PriceRelayForkTest --fork-url \"${XLAYER_RPC_URL:-https://xlayerrpc.okx.com}\""
           },
           "challenge": {
             "verdict": "sound",
@@ -271,7 +277,7 @@
           }
         }
       ],
-      "proofNote": "Contract-only; the Risk console displays every guard result."
+      "proofNote": "A contract has no screen of its own; proof is one Foundry case per guard plus a fork read of the real pool. The Risk console displays every guard result."
     },
     {
       "id": "blk_corporate_action",
@@ -315,7 +321,7 @@
         {
           "text": "The guard reads the real NVDAx multiplier on a mainnet fork",
           "accept": {
-            "cmd": "forge test --root contracts --match-contract CorporateActionForkTest --fork-url \"$XLAYER_RPC_URL\""
+            "cmd": "forge test --root contracts --match-contract CorporateActionForkTest --fork-url \"${XLAYER_RPC_URL:-https://xlayerrpc.okx.com}\""
           },
           "challenge": {
             "verdict": "sound",
@@ -323,7 +329,7 @@
           }
         }
       ],
-      "proofNote": "Contract-only; shown on the Risk console."
+      "proofNote": "A contract has no screen of its own; proof is the window test and a fork read of the real NVDAx multiplier. The Risk console shows it."
     },
     {
       "id": "blk_depth_caps",
@@ -365,7 +371,7 @@
           }
         }
       ],
-      "proofNote": "Contract-only; shown on the Risk console."
+      "proofNote": "A contract has no screen of its own; proof is the Foundry suite. The Risk console shows cap usage."
     },
     {
       "id": "blk_liquidation",
@@ -376,8 +382,7 @@
         "ct_liquidator"
       ],
       "dependsOn": [
-        "blk_vault_market",
-        "blk_depth_caps"
+        "blk_foundation"
       ],
       "owns": [
         "contracts/src/BoundedLiquidator.sol",
@@ -385,7 +390,7 @@
         "contracts/test/LiquidationFork.t.sol"
       ],
       "technical": {
-        "approach": "Seizes wNVDAx from an unhealthy position and sells it through the Uniswap v3 wNVDAx/USDG pool with a per-slice size from the depth cap and a minimum output. In CLOSED only floor-bounded slices execute; unfilled slices wait with a timeout. After reopen the rest is liquidated. Proceeds repay debt; the penalty (proposal 5% of repaid debt) is paid from proceeds to keeper and reserve; surplus returns to the borrower; shortfall goes to GapReserve then deficit.",
+        "approach": "Built against the foundation's ICollateralMarket, IDepthCaps, ISessionRisk and IPriceSource seams and their mocks; the fork integration block wires it to the real market. Seizes wNVDAx from an unhealthy position through ICollateralMarket and sells it through the Uniswap v3 wNVDAx/USDG pool with a per-slice size from the depth cap and a minimum output. In CLOSED only floor-bounded slices execute; unfilled slices wait with a timeout. After reopen the rest is liquidated. Proceeds repay debt; the penalty (proposal 5% of repaid debt) is paid from proceeds to keeper and reserve; surplus returns to the borrower; shortfall goes to GapReserve then deficit.",
         "touches": [
           "contracts/src/",
           "contracts/test/"
@@ -400,13 +405,13 @@
       },
       "requirements": [
         {
-          "text": "On a mainnet fork a real wNVDAx position is liquidated in bounded slices through the real pool with minimum output honoured",
+          "text": "On a mainnet fork, real wNVDAx seized from an unhealthy position is sold in depth-bounded slices through the real wNVDAx/USDG pool with minimum output honoured",
           "accept": {
-            "cmd": "forge test --root contracts --match-contract LiquidationForkTest --fork-url \"$XLAYER_RPC_URL\""
+            "cmd": "forge test --root contracts --match-contract LiquidationForkTest --fork-url \"${XLAYER_RPC_URL:-https://xlayerrpc.okx.com}\""
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "Impersonates a real holder, opens a position, forces a price drop through the relay, asserts slice sizes, amounts out against QuoterV2, and waterfall accounting."
+            "concern": "Impersonates a real wNVDAx holder to fund a mock market behind ICollateralMarket, makes the position unhealthy through the mock price source, and sells through the real pool; asserts slice sizes, amounts out against QuoterV2 and proceeds settled back through the seam. Waterfall accounting with the real vault is proven in VaultMarketTest and ForkScenarios."
           }
         },
         {
@@ -420,7 +425,7 @@
           }
         }
       ],
-      "proofNote": "Contract behaviour proven on a fork against the real pool."
+      "proofNote": "A contract has no screen of its own; proof is the Foundry suite and a fork run against the real pool."
     },
     {
       "id": "blk_fork_integration",
@@ -437,18 +442,22 @@
         "blk_price_relay",
         "blk_corporate_action",
         "blk_depth_caps",
-        "blk_liquidation"
+        "blk_liquidation",
+        "blk_replays"
       ],
       "owns": [
         "contracts/script/Deploy.s.sol",
+        "contracts/script/scenarios/**",
         "contracts/test/ForkScenarios.t.sol",
-        "contracts/test/fixtures/**"
+        "contracts/test/fixtures/**",
+        "checks/fork/**"
       ],
       "technical": {
-        "approach": "Deploy.s.sol deploys and wires every contract. ForkScenarios deploys on a fork, funds wallets by impersonating real NVDAx and USDG holders, and runs: normal borrow and repay; weekend (borrow refused with SessionLimit, repay succeeds); corporate action (pause and resume); the 24\u201327 Jan 2025 NVDA gap replayed through the relay (reserve absorbs); a gap larger than the reserve (deficit recognised).",
+        "approach": "Deploy.s.sol deploys and wires every contract. Scenario scripts under contracts/script/scenarios fund wallets by impersonating real NVDAx and USDG holders (never minting) and run: normal borrow and repay; weekend (borrow refused with SessionLimit, repay succeeds); corporate action (pause and resume); the 24\u201327 Jan 2025 NVDA gap replayed through the relay from data/replays (reserve absorbs); a synthetic gap larger than the reserve (deficit recognised). ForkScenarios runs each on a fork. checks/fork is the shared TypeScript fork harness every later check uses: it starts anvil forked from X Layer at a pinned block, runs Deploy.s.sol, funds burners, posts session and price as the keeper, warps time and runs a named scenario script. The hosted sandbox runs the same scripts.",
         "touches": [
           "contracts/script/",
-          "contracts/test/"
+          "contracts/test/",
+          "checks/"
         ],
         "dataEntities": [
           "Position",
@@ -462,16 +471,26 @@
         {
           "text": "Every named scenario passes on a fork of X Layer mainnet",
           "accept": {
-            "cmd": "forge test --root contracts --match-contract ForkScenarios --fork-url \"$XLAYER_RPC_URL\"",
+            "cmd": "forge test --root contracts --match-contract ForkScenarios --fork-url \"${XLAYER_RPC_URL:-https://xlayerrpc.okx.com}\"",
             "timeout": 600000
           },
           "challenge": {
             "verdict": "sound",
             "concern": "One test per scenario with exact expected errors, balances and deficit amounts."
           }
+        },
+        {
+          "text": "The shared fork harness starts a pinned X Layer fork, deploys the system, funds a burner from real holders, posts a session and a price as the keeper, and runs a named scenario",
+          "accept": {
+            "cmd": "npx tsx checks/fork/self-test.ts"
+          },
+          "challenge": {
+            "verdict": "sound",
+            "concern": "Drives the harness end to end and fails on any revert, a zero burner balance, or a session or price that does not read back onchain; the keeper, API, sandbox and UI checks all stand on it."
+          }
         }
       ],
-      "proofNote": "The same scripts power the hosted sandbox."
+      "proofNote": "Deployment scripts and a test harness have no screen of their own; proof is every named scenario passing on a fork. The same scripts power the hosted sandbox."
     },
     {
       "id": "blk_keeper",
@@ -490,7 +509,7 @@
         "checks/fixtures/issuer/**"
       ],
       "technical": {
-        "approach": "A Cloudflare Worker on a one-minute Cron Trigger, holding the operator key as a Worker secret. Polls the issuer centrally (about 1,000 requests per minute shared limit, 30-second cache on asset metadata; backs off on 429): price-data quote, trading.currentPeriod, openNow, nextChangeAt, halt flags, system status and the multiplier endpoint (currentMultiplier, newMultiplier, activationDateTime). Posts session, price (with fetch time and sourceTimestamp null) and pending actions onchain; samples QuoterV2 sell depth at fixed sizes and posts the ticker cap; scans positions and executes bounded liquidation slices. Registered as an OKX AI agent (ERC-8004 identity). Every action is logged with its transaction hash. Retries with backoff; never posts when its own inputs disagree.",
+        "approach": "A Cloudflare Worker on a one-minute Cron Trigger, holding the operator key as a Worker secret. Polls the issuer centrally (about 1,000 requests per minute shared limit, 30-second cache on asset metadata; backs off on 429): price-data quote, trading.currentPeriod, openNow, nextChangeAt, halt flags, system status and the multiplier endpoint (currentMultiplier, newMultiplier, activationDateTime). Posts session, price (with fetch time and sourceTimestamp null) and pending actions onchain; samples QuoterV2 sell depth at fixed sizes and posts the ticker cap; scans positions and executes bounded liquidation slices. Registered as an OKX AI agent (ERC-8004 identity). Every action is logged with its transaction hash. Retries with backoff; never posts when its own inputs disagree. Its checks run one cycle against the shared fork harness; deploying the cron against mainnet belongs to the mainnet deploy block.",
         "touches": [
           "services/keeper/",
           "checks/"
@@ -514,7 +533,7 @@
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "Starts anvil forked from X Layer, deploys, runs one cycle with recorded issuer fixtures and one live issuer read, asserts onchain state and the action log."
+            "concern": "Starts anvil forked from X Layer through the shared fork harness, deploys, runs one cycle with recorded issuer fixtures and one live issuer read, asserts onchain state and the action log."
           }
         },
         {
@@ -528,7 +547,7 @@
           }
         }
       ],
-      "proofNote": "Visible on the Risk console action log."
+      "proofNote": "A cron job has no screen of its own; proof is one keeper cycle on a fork with every post accepted onchain. The Risk console shows its action log."
     },
     {
       "id": "blk_credit_api",
@@ -569,21 +588,21 @@
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "Calls the route against a local fork deployment and compares every numeric field with direct contract reads."
+            "concern": "Calls the route against a local fork deployment from the shared fork harness and compares every numeric field with direct contract reads."
           }
         },
         {
-          "text": "With payment enabled, an unpaid call gets a valid base64 PAYMENT-REQUIRED challenge for the configured price and asset on eip155:196",
+          "text": "With payment switched on in the check's own local process, an unpaid call gets a valid base64 PAYMENT-REQUIRED challenge for the configured price and asset on eip155:196",
           "accept": {
             "cmd": "npx tsx checks/credit-api.ts --mode paid --challenge-only"
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "Decodes the header and asserts network, asset and amount; does not pay. Only meaningful once the paid middleware is enabled."
+            "concern": "Starts the route locally with the paid middleware enabled and the operator address as recipient, decodes the header and asserts network, asset and amount. It pays and settles nothing; production stays free until a real paid settlement succeeds."
           }
         }
       ],
-      "proofNote": "Proof of a real paid call and the listing belongs to the mainnet deploy block, which Gabriel confirms."
+      "proofNote": "An HTTP API has no screen of its own; proof is the route's answers matching direct contract reads. The real paid call and the listing belong to the mainnet deploy block, which Gabriel confirms."
     },
     {
       "id": "blk_replays",
@@ -598,14 +617,13 @@
       ],
       "owns": [
         "data/replays/**",
-        "services/sandbox/replays/**",
         "checks/replays.ts"
       ],
       "technical": {
-        "approach": "Replay files: 780 Dukascopy NVDA CFD bid minute bars covering Fri 24 Jan 2025 and Mon 27 Jan 2025 (retrieved and hashed by okx-codex), labelled as CFD counterfactual prices, not historical X Layer liquidity; a corporate action taken from the issuer's multiplier history; and a synthetic gap larger than the reserve labelled synthetic. Each file records source URL, retrieval time and sha256; the sandbox shows them in the divergence ledger.",
+        "approach": "Replay files: 780 Dukascopy NVDA CFD bid minute bars covering Fri 24 Jan 2025 and Mon 27 Jan 2025 (retrieved and hashed by okx-codex), labelled as CFD counterfactual prices, not historical X Layer liquidity; a corporate action taken from the issuer's multiplier history; and a synthetic gap larger than the reserve labelled synthetic. Each file records source URL, retrieval time and sha256; the sandbox shows them in the divergence ledger. The fork scenarios and the sandbox read these files; the code that replays them lives with those consumers.",
         "touches": [
           "data/",
-          "services/sandbox/"
+          "checks/"
         ],
         "dataEntities": [
           "LedgerEntry"
@@ -626,7 +644,7 @@
           }
         }
       ],
-      "proofNote": "Shown in the sandbox divergence ledger."
+      "proofNote": "Data files have no screen of their own; proof is the check recomputing every sha256 and provenance label. The sandbox divergence ledger displays them."
     },
     {
       "id": "blk_sandbox_server",
@@ -646,7 +664,7 @@
         "checks/sandbox.ts"
       ],
       "technical": {
-        "approach": "Container image with anvil forked from X Layer at a recorded block with a distinct chain id (proposal 1960196), started from a prebuilt state snapshot that already contains the Close Guard deployment (anvil --load-state), plus a small session service. A Worker routes each judge session to its own Cloudflare Container instance through a Durable Object keyed by session id; instances sleep after 30 idle minutes. Burner wallets are funded by impersonating real holders (never minting). warp, scenario and reset call admin methods inside the container and append each call to the D1 ledger. The public RPC route on closeguard-rpc.larinova.com forwards eth_* and refuses admin methods. Upstream https://xlayerrpc.okx.com with fallbacks; daily snapshot rebuild.",
+        "approach": "Container image with anvil forked from X Layer at a recorded block with a distinct chain id (proposal 1960196), started from a prebuilt state snapshot that already contains the Close Guard deployment (anvil --load-state), plus a small session service. A Worker routes each judge session to its own Cloudflare Container instance through a Durable Object keyed by session id; instances sleep after 30 idle minutes. Burner wallets are funded by impersonating real holders (never minting). warp, scenario and reset call admin methods inside the container (scenarios run the fork integration's scenario scripts with the replay data) and append each call to the D1 ledger. The public RPC route on closeguard-rpc.larinova.com forwards eth_* and refuses admin methods. Upstream https://xlayerrpc.okx.com with fallbacks; daily snapshot rebuild. Production custom domains and secrets are applied by the web deploy block.",
         "touches": [
           "services/sandbox/"
         ],
@@ -681,7 +699,7 @@
           }
         }
       ],
-      "proofNote": "Hosted reachability is proven by the web deploy block."
+      "proofNote": "A hosted service has no screen of its own; proof is the local end-to-end session check and the RPC refusal check. Hosted reachability is proven by the web deploy block."
     },
     {
       "id": "blk_ui_market",
@@ -702,7 +720,7 @@
         "proof/market*.png"
       ],
       "technical": {
-        "approach": "Reads contract state through viem; shows session, LTV, price, guards, vault numbers, reserve, deficit, cap usage and the relay disclosure; wallet connect via wagmi on chain 196.",
+        "approach": "Reads contract state through viem using the foundation's chain context and connect control; shows session, LTV, price, guards, vault numbers, reserve, deficit, cap usage and the relay disclosure.",
         "touches": [
           "web/app/",
           "web/components/"
@@ -721,7 +739,7 @@
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "Runs against a local fork deployment in two session states and asserts the displayed values equal contract reads."
+            "concern": "Runs against a local fork deployment from the shared fork harness in two session states and asserts the displayed values equal contract reads."
           }
         }
       ],
@@ -736,7 +754,8 @@
         "pg_borrow"
       ],
       "dependsOn": [
-        "blk_ui_market"
+        "blk_foundation",
+        "blk_fork_integration"
       ],
       "owns": [
         "web/app/borrow/**",
@@ -745,7 +764,7 @@
         "proof/borrow*.png"
       ],
       "technical": {
-        "approach": "Deposit (approve + deposit), borrow, repay, withdraw with simulated calls surfacing the exact custom error before signing; position health, liquidation price and the Monday-gap table.",
+        "approach": "Deposit (approve + deposit), borrow, repay, withdraw with simulated calls surfacing the exact custom error before signing; position health, liquidation price and the Monday-gap table. Works unchanged against mainnet or a sandbox session through the foundation's chain context.",
         "touches": [
           "web/app/borrow/",
           "web/components/borrow/"
@@ -766,7 +785,7 @@
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "Drives the UI with an injected burner against the local sandbox and asserts each state and the refusal text."
+            "concern": "Drives the UI with an injected burner against a local fork from the shared fork harness, which warps and posts the CLOSED session as the keeper, and asserts each state and the refusal text."
           }
         }
       ],
@@ -781,7 +800,8 @@
         "pg_lend"
       ],
       "dependsOn": [
-        "blk_ui_market"
+        "blk_foundation",
+        "blk_fork_integration"
       ],
       "owns": [
         "web/app/lend/**",
@@ -812,7 +832,7 @@
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "Runs the reserve-exhaustion scenario then asserts the displayed deficit equals the event amount."
+            "concern": "Runs the reserve-exhaustion scenario through the shared fork harness, then asserts the displayed deficit equals the DeficitRecognised amount."
           }
         }
       ],
@@ -827,7 +847,8 @@
         "pg_risk"
       ],
       "dependsOn": [
-        "blk_ui_market",
+        "blk_foundation",
+        "blk_fork_integration",
         "blk_keeper"
       ],
       "owns": [
@@ -876,6 +897,7 @@
         "pg_agents"
       ],
       "dependsOn": [
+        "blk_foundation",
         "blk_credit_api"
       ],
       "owns": [
@@ -920,8 +942,8 @@
         "pg_sandbox"
       ],
       "dependsOn": [
-        "blk_sandbox_server",
-        "blk_ui_borrow"
+        "blk_foundation",
+        "blk_sandbox_server"
       ],
       "owns": [
         "web/app/sandbox/page.tsx",
@@ -930,7 +952,7 @@
         "proof/sandbox*.png"
       ],
       "technical": {
-        "approach": "Session start with burner wallet, warp and scenario controls, sandbox banner with fork block and chain time, ledger view; reuses the borrow, lend and risk components against the sandbox RPC.",
+        "approach": "Session start with burner wallet, warp and scenario controls, sandbox banner with fork block and chain time, and the ledger view. Starting a session switches the foundation's chain context to the session's RPC and burner, so Borrow, Lend and Risk work against the sandbox unchanged; this screen links to them rather than embedding them.",
         "touches": [
           "web/app/sandbox/",
           "web/components/sandbox/"
@@ -943,14 +965,14 @@
       },
       "requirements": [
         {
-          "text": "A judge flow starts a session, jumps to Saturday, sees a refused borrow and a successful repay, and the ledger lists the warp",
+          "text": "A judge starts a session and gets a funded burner, jumps to Saturday and sees the banner's chain time and the CLOSED session change, runs a replay scenario, and the ledger lists every admin call",
           "accept": {
             "cmd": "npx playwright test checks/ui/sandbox.spec.ts",
             "artifact": "proof/sandbox.png"
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "End-to-end against the locally running sandbox service."
+            "concern": "End to end against the locally running sandbox service; asserts the banner equals the RPC's latest block and session read, and ledger rows equal the admin calls made. The refused borrow and repay are proven at the API by the sandbox block and across screens by the weekend journey."
           }
         }
       ],
@@ -965,6 +987,7 @@
         "pg_fork_proof"
       ],
       "dependsOn": [
+        "blk_foundation",
         "blk_sandbox_server"
       ],
       "owns": [
@@ -974,7 +997,7 @@
         "proof/fork-proof*.png"
       ],
       "technical": {
-        "approach": "Browser-side viem clients to the public X Layer RPC and the sandbox RPC compare block hashes, bytecode hashes and state at the fork block, and Close Guard bytecode against mainnet; shows ledger, RPC URL, cast commands and the reproduce command.",
+        "approach": "Browser-side viem clients to the public X Layer RPC and the sandbox RPC compare block hashes, bytecode hashes and state at the fork block, and Close Guard bytecode against mainnet; shows ledger, RPC URL, cast commands and the reproduce command. Before the mainnet deployment exists, the Close Guard bytecode check compares the sandbox's runtime code with the build artifacts and says so; after it, with the mainnet addresses.",
         "touches": [
           "web/app/sandbox/proof/",
           "web/components/fork-proof/"
@@ -1006,16 +1029,12 @@
       "title": "Mainnet deployment, seeding and the live position",
       "userValue": "Close Guard is live on X Layer mainnet with verified contracts, a funded vault and reserve, a real position, the keeper running and the OKX AI service listed.",
       "lane": "logic",
-      "surfaceIds": [
-        "ct_vault",
-        "ct_market",
-        "job_keeper",
-        "ep_credit_api"
-      ],
+      "surfaceIds": [],
       "dependsOn": [
         "blk_fork_integration",
         "blk_keeper",
-        "blk_credit_api"
+        "blk_credit_api",
+        "blk_web_deploy"
       ],
       "owns": [
         "contracts/script/DeployMainnet.s.sol",
@@ -1023,7 +1042,7 @@
         "checks/mainnet.ts"
       ],
       "technical": {
-        "approach": "Operator key CLOSE_GUARD_OPERATOR from the vault deploys and verifies sources on the X Layer explorer, seeds GapReserve with 0.5 USDG and starts the keeper against mainnet. The demo wallet CLOSE_GUARD_DEMO deposits 1.5 USDG into the vault, deposits 0.004878 NVDAx and borrows about 0.40 USDG. The credit API goes live at the public URL; after a real call succeeds and Gabriel confirms, the ASP is registered and the listing submitted through onchainos with every parameter documented. Wallets touch only Close Guard contracts and the issuer wrapper.",
+        "approach": "Operator key CLOSE_GUARD_OPERATOR from the vault deploys and verifies sources on the X Layer explorer and seeds GapReserve with 0.5 USDG. The demo wallet CLOSE_GUARD_DEMO deposits 1.5 USDG into the vault, deposits 0.004878 NVDAx and borrows about 0.40 USDG. It then points the hosted app and credit API (already public through the web deploy block) at deployments/xlayer-mainnet.json and deploys the keeper Worker cron against mainnet with the operator key as a Worker secret. After a real call to the public credit API succeeds and Gabriel confirms, the ASP is registered and the listing submitted through onchainos with every parameter documented. Wallets touch only Close Guard contracts and the issuer wrapper.",
         "touches": [
           "contracts/script/",
           "deployments/"
@@ -1034,7 +1053,8 @@
         ],
         "integrations": [
           "X Layer mainnet",
-          "OKX AI"
+          "OKX AI",
+          "Cloudflare Cron Triggers"
         ]
       },
       "requirements": [
@@ -1049,17 +1069,17 @@
           }
         },
         {
-          "text": "The demo wallet has an open position with NVDAx collateral and USDG debt, the keeper posted a price within its liveness limit, and a real OKX AI call to the credit service returned a correct answer",
+          "text": "The demo wallet has an open position with NVDAx collateral and USDG debt, the keeper's last mainnet price post is within its liveness limit, the public credit API's answer for the demo wallet equals direct mainnet reads, and a real OKX AI call to the credit service returned a correct answer",
           "accept": {
             "cmd": "npx tsx checks/mainnet.ts --live"
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "Reads the position for CLOSE_GUARD_DEMO_ADDRESS, the last PricePost age, and the receipt store; fails if the listing was never called."
+            "concern": "Reads the position for CLOSE_GUARD_DEMO_ADDRESS and the last PricePost age, calls the public credit URL and compares every field with contract reads, and checks the receipt store; fails if the listing was never called."
           }
         }
       ],
-      "proofNote": "Mainnet facts only; the demo video shows them.",
+      "proofNote": "Its own system node on the Circuit: mainnet facts only (verified contracts, seeded vault and reserve, the demo position, keeper liveness, a real OKX AI call). It has no screen and nothing depends on it, so Gabriel's funding and the OKX AI listing review hold up nothing else.",
       "approval": "required"
     },
     {
@@ -1073,39 +1093,38 @@
         "ep_sandbox_rpc"
       ],
       "dependsOn": [
-        "blk_mainnet_deploy",
-        "blk_sandbox_server",
-        "blk_ui_sandbox",
-        "blk_ui_fork_proof"
+        "blk_foundation",
+        "blk_sandbox_server"
       ],
       "owns": [
         "deploy/**",
+        "web/app/api/health/**",
         "checks/public.ts"
       ],
       "technical": {
-        "approach": "Cloudflare deployment under larinova.com: the Next.js app and credit API as a Worker via the OpenNext Cloudflare adapter on closeguard.larinova.com; the keeper Worker cron; the sandbox Worker, Durable Objects and Containers on closeguard-rpc.larinova.com; D1 bindings; secrets from the vault through wrangler secret. Health endpoints, Cloudflare observability, and a check from outside the network.",
+        "approach": "Cloudflare deployment under larinova.com: the Next.js app, with the credit API, as a Worker through the OpenNext Cloudflare adapter on closeguard.larinova.com; the sandbox Worker, Durable Objects and Containers on closeguard-rpc.larinova.com; D1 databases; secrets from the vault through wrangler secret. Custom domains, production bindings and secrets are applied from deploy/**, so this block never edits a service's own directory. A health endpoint, Cloudflare observability, and a check from outside the network. It deploys the screens that exist and is rerun as screens land; the mainnet deploy block later points the hosted app at mainnet addresses and starts the keeper cron.",
         "touches": [
           "deploy/"
         ],
         "dataEntities": [],
         "integrations": [
-          "Cloudflare Workers, Cron Triggers, Containers, Durable Objects, D1",
+          "Cloudflare Workers, Containers, Durable Objects, D1",
           "larinova.com DNS"
         ]
       },
       "requirements": [
         {
-          "text": "From outside, the public URL serves the market screen with live mainnet values, a sandbox session can be created, and the fork proof passes",
+          "text": "From outside the network, the public app answers its health endpoint over HTTPS, a sandbox session can be created with a funded burner, and the public sandbox RPC reports chain id 1960196, refuses admin methods and matches X Layer mainnet's block hash at the fork block",
           "accept": {
             "cmd": "npx tsx checks/public.ts"
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "Hits PUBLIC_URL over the internet, creates a session, runs the four proof checks through the public RPCs."
+            "concern": "Hits https://closeguard.larinova.com (or PUBLIC_URL) and the public RPC over the internet, creates and ends a session, and compares the fork block hash with https://xlayerrpc.okx.com. The stranger flow across screens is the public sandbox done condition."
           }
         }
       ],
-      "proofNote": "Reachability proof, separate from local passes.",
+      "proofNote": "Deployment has no screen of its own; proof is reachability from outside the network, separate from local passes.",
       "approval": "required"
     }
   ],
@@ -1512,7 +1531,150 @@
       ]
     }
   ],
-  "scenarios": [],
+  "scenarios": [
+    {
+      "id": "sc_borrow",
+      "featureId": "blk_ui_borrow",
+      "name": "Borrow against NVDAx and repay",
+      "roles": [
+        "borrower"
+      ],
+      "startingState": "Close Guard is deployed on X Layer (chain 196) or a fork of it, with USDG in the vault and the keeper posting. The market session is OPEN, the relayed price is fresh and inside the pool TWAP band, and the ticker cap has headroom. The borrower's wallet holds NVDAx and gas, is not connected yet, and has no Close Guard position.",
+      "actions": [
+        "Open Market and connect the wallet (OKX Wallet or another injected EVM wallet) on chain 196.",
+        "Open Borrow and deposit NVDAx: approve, then deposit. The contract wraps it to wNVDAx.",
+        "Read the collateral in NVDAx and wNVDAx units with the current multiplier, its value, and the borrowing capacity for the current session.",
+        "Borrow USDG within that capacity and sign.",
+        "Read debt, LTV, health, the liquidation price and the Monday-gap table.",
+        "Repay the debt in full.",
+        "Withdraw all the collateral."
+      ],
+      "expectedVisible": "Market shows the session, the max new-borrow LTV, the relayed NVDAx price with the keeper's fetch time and guard status, and the relay disclosure. Borrow shows collateral in both units with the multiplier, capacity for the current session, then debt, LTV, health, liquidation price and the Monday-gap table. Every transaction links to the X Layer explorer. A borrow the contract would refuse shows its named error before signing and sends nothing: SessionLimit above the session limit, StalePrice or PriceOutOfBand on a bad price, TickerCapReached at the cap. A withdraw that would make the position unhealthy is refused. Repay stays available throughout.",
+      "expectedData": "CollateralMarket holds the wallet's collateral as wNVDAx shares valued at convertToAssets(shares) times the relayed price. The USDG debt equals the amount borrowed plus accrued interest, and total ticker debt rises by the borrow. After repay the debt is zero; after withdraw the market holds no collateral for the wallet. A refused borrow changes no balance."
+    },
+    {
+      "id": "sc_lend",
+      "featureId": "blk_ui_lend",
+      "name": "Lend USDG and see the risk",
+      "roles": [
+        "lender"
+      ],
+      "startingState": "Close Guard is deployed on X Layer (chain 196) or a fork of it, the vault holds USDG and some of it is borrowed. The lender's wallet holds USDG and gas, is not connected yet, and has no vault shares.",
+      "actions": [
+        "Open Market and connect the wallet on chain 196.",
+        "Open Lend and deposit USDG.",
+        "Read the shares and their USDG value, supply rate, utilization, the gap reserve and its funding rule, the deficit history and the loss waterfall with live numbers.",
+        "Withdraw USDG."
+      ],
+      "expectedVisible": "Lend shows the vault shares and their USDG value, supply rate, utilization, the gap reserve balance and its funding rule, the recognised deficits history, and the waterfall explained with live numbers: recovered collateral, then the reserve, then lenders pro rata. It states plainly that lenders can lose money in a gap larger than the reserve. A withdrawal above available liquidity is limited, with the reason. A recognised deficit shows in the history with the reduced share value.",
+      "expectedData": "LendingVault mints shares for the deposit at the current share price and burns them on withdraw; USDG returned equals the shares' value, up to available liquidity. Supply rate and utilization on screen equal contract reads. A recognised deficit lowers share value pro rata."
+    },
+    {
+      "id": "sc_weekend",
+      "featureId": "blk_ui_sandbox",
+      "name": "Weekend: borrowing tightens, repay stays open (sandbox)",
+      "roles": [
+        "judge"
+      ],
+      "startingState": "The hosted sandbox is healthy: a fork of X Layer mainnet at a recorded block, with Close Guard deployed and a distinct chain id. Sandbox chain time is a weekday with the session OPEN. The judge has no sandbox session and no wallet of their own.",
+      "actions": [
+        "Open Sandbox and start a session.",
+        "Receive a burner wallet funded with NVDAx and USDG moved from real holders.",
+        "On Borrow in the sandbox, deposit NVDAx and borrow USDG within the weekday limit.",
+        "Jump to the next market close (Saturday).",
+        "See capacity drop and try to borrow more.",
+        "Repay.",
+        "Check the Risk console, then read the divergence ledger for the warp."
+      ],
+      "expectedVisible": "A sandbox banner with the fork block and sandbox chain time. After the jump the session reads CLOSED and capacity drops to the closed-market limit. A new borrow is refused with SessionLimit; repay succeeds and links to its transaction. The Risk console shows the CLOSED session. The divergence ledger lists the funding transfers and the warp. If the sandbox is unhealthy the page shows its unavailable state; a session idle for 30 minutes expires and a new one can be started.",
+      "expectedData": "The burner is funded by impersonation transfers from real holders, never minted. After the warp, borrow reverts with SessionLimit and repay lowers the debt. The sandbox ledger holds one entry for each admin call in this session, including the warp."
+    },
+    {
+      "id": "sc_corporate_action",
+      "featureId": "blk_corporate_action",
+      "name": "Corporate action pauses and resumes a stock (sandbox)",
+      "roles": [
+        "judge"
+      ],
+      "startingState": "An active sandbox session whose burner has NVDAx deposited as collateral. The session is OPEN and no corporate action is pending.",
+      "actions": [
+        "Replay a corporate-action activation from the Sandbox controls.",
+        "On the Risk console, read the pending action, the multiplier before and after, and the pause window.",
+        "Try to borrow on Borrow inside the window.",
+        "Jump past the activation time; the replay posts the post-activation price.",
+        "Borrow again."
+      ],
+      "expectedVisible": "The Risk console shows the corporate action with the multiplier before and after and the pause window. Inside the window Borrow refuses with CorporateActionPending, and liquidation is paused for NVDAx. After a consistent post-activation price, borrowing works again. An inconsistent post-activation price keeps the pause. The ledger lists the replay with its source.",
+      "expectedData": "CorporateActionGuard holds the pending action with its activation time and expected multiplier. Borrow reverts with CorporateActionPending inside the window. The pause clears only after a price posted after activation passes the consistency check against the new multiplier."
+    },
+    {
+      "id": "sc_gap_waterfall",
+      "featureId": "blk_liquidation",
+      "name": "Monday gap: liquidation, reserve, then deficit (sandbox)",
+      "roles": [
+        "judge"
+      ],
+      "startingState": "An active sandbox session whose burner holds vault shares and an open NVDAx-backed USDG position. The gap reserve holds USDG and no deficit is recorded.",
+      "actions": [
+        "Replay the 24\u201327 Jan 2025 NVDA weekend gap from the Sandbox controls.",
+        "On the Risk console, follow the liquidation slices after the Monday reopen and the reserve covering the shortfall.",
+        "Replay the gap larger than the reserve.",
+        "On Lend, read the recognised deficit and the reduced share value."
+      ],
+      "expectedVisible": "The Jan 2025 replay is labelled as CFD counterfactual prices, not historical X Layer liquidity; the larger gap is labelled synthetic. While CLOSED no slice sells below the floor. After reopen the Risk console lists depth-bounded liquidation slices with size, price and proceeds, and the reserve balance falls by the shortfall. After the synthetic gap the reserve is exhausted and Lend shows the deficit in its history with the reduced share value.",
+      "expectedData": "Each slice is no larger than the depth-bounded slice size and honours its minimum output. GapReserve pays the shortfall first; the remainder is recorded as a deficit and lowers share value pro rata. The ledger records each replay file's source, retrieval time and sha256."
+    },
+    {
+      "id": "sc_fork_proof",
+      "featureId": "blk_ui_fork_proof",
+      "name": "Prove the sandbox is a real fork",
+      "roles": [
+        "judge"
+      ],
+      "startingState": "The hosted sandbox runs a fork of X Layer mainnet at a recorded block with Close Guard deployed. The public X Layer RPC and the public sandbox RPC are reachable from the judge's browser. No session is needed.",
+      "actions": [
+        "From Sandbox, open the fork proof page.",
+        "Let the four checks run in the browser against both RPCs.",
+        "Read each check's raw values.",
+        "Read the divergence ledger, the sandbox RPC URL, the cast commands and the reproduce command."
+      ],
+      "expectedVisible": "Four checks, each green with its raw values: block hashes at the fork block and earlier blocks; bytecode hashes of NVDAx, wNVDAx, the wNVDAx/USDG pool, USDG, the Chainlink USDG/USD feed and the Aave pool; state at the fork block; and Close Guard bytecode against the mainnet deployment. The ledger, the public sandbox RPC URL, copyable cast commands and the reproduce command are shown, with the note that simulated future time is a simulation. An altered slot turns the state check red. An unreachable RPC shows that state.",
+      "expectedData": "The browser sends the reads directly to the public X Layer RPC and the sandbox RPC; our server computes none of them. Every compared value is equal on both RPCs."
+    },
+    {
+      "id": "sc_agent_credit",
+      "featureId": "blk_credit_api",
+      "name": "An agent asks how much it can borrow (OKX AI)",
+      "roles": [
+        "agent"
+      ],
+      "startingState": "The credit and health service is running over a Close Guard deployment: X Layer mainnet, or a fork deployment in sandbox mode. It is offered as an OKX AI A2MCP service, listed or with its listing under review. A wallet with an NVDAx-backed position exists.",
+      "actions": [
+        "The agent calls the credit and health service for a wallet and the NVDAx market.",
+        "The agent reads the answer: session, capacity, price with the keeper's fetch time, guards, liquidation price and the gap that would liquidate the position.",
+        "Open Agents to see the call and the listing status."
+      ],
+      "expectedVisible": "Agents shows the call with its response, and the payment receipt when the call was paid, plus the listing status: listed, or under review stated plainly.",
+      "expectedData": "The response carries the session, borrowing capacity, price with the keeper's fetch time, guard results, liquidation price and the gap that would liquidate the wallet, each equal to direct onchain reads. An invalid wallet or market returns {error, code} with no stack trace."
+    },
+    {
+      "id": "sc_keeper_live",
+      "featureId": "blk_keeper",
+      "name": "Keeper keeps mainnet state current",
+      "roles": [
+        "keeper"
+      ],
+      "startingState": "Close Guard is deployed and verified on X Layer mainnet (chain 196). The keeper Worker holds the operator key and runs on its one-minute cron. The xStocks issuer API is reachable.",
+      "actions": [
+        "A cron cycle reads the issuer: price quote, trading period, halt flags and multiplier data.",
+        "The keeper posts session, price with its fetch time, pending actions, and the ticker cap from sampled QuoterV2 depth.",
+        "Each post passes the onchain guards and is logged with its transaction.",
+        "The Risk console and Market show the posts with transaction links."
+      ],
+      "expectedVisible": "The Risk console lists the latest price posts with fetch time, value and each guard result (TWAP band, max move, USDG peg), the session, the sampled depth behind the cap, and the keeper action log with X Layer explorer links. Market shows the same session, price with the keeper's fetch time and cap usage. An out-of-band post shows as rejected in the log. Issuer API errors show as a backoff with no post.",
+      "expectedData": "Session, price and cap posts land on mainnet from the keeper address, within the liveness limit. Every keeper action is logged with its transaction hash. A rejected post leaves the onchain price unchanged."
+    }
+  ],
   "decisions": [
     {
       "id": "track_route",
@@ -2105,7 +2267,8 @@
       "condition": "On X Layer mainnet the verified Close Guard contracts hold a seeded vault and reserve, Gabriel's wallet has an NVDAx-backed USDG loan, and the keeper's last price post is within its liveness limit.",
       "why": "Local and fork passes do not prove anything exists on mainnet for judges to inspect.",
       "blocks": [
-        "blk_mainnet_deploy"
+        "blk_mainnet_deploy",
+        "blk_keeper"
       ]
     },
     {
@@ -2114,7 +2277,9 @@
       "why": "The harness proves code locally; this proves reachability and the judge flow from outside.",
       "blocks": [
         "blk_web_deploy",
+        "blk_sandbox_server",
         "blk_ui_sandbox",
+        "blk_ui_borrow",
         "blk_ui_fork_proof"
       ]
     },
@@ -2124,6 +2289,7 @@
       "why": "OKX AI integration is judged separately from whether the endpoint works in isolation.",
       "blocks": [
         "blk_credit_api",
+        "blk_ui_agents",
         "blk_mainnet_deploy"
       ]
     }
