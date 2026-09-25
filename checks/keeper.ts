@@ -99,6 +99,30 @@ try {
   if (!known.includes(borrower) || c1.actions.some((a) => a.kind === "liquidation")) fail(`liquidation scan: borrowers ${known.join(",")}`)
   pass(`liquidation scan found borrower ${borrower} in Borrowed logs up to block ${await store.get("cursor:NVDAx")}; healthy, nothing liquidated`)
 
+  const readingRaw = await store.get("reading:NVDAx")
+  const reading = readingRaw ? (JSON.parse(readingRaw) as Record<string, unknown>) : null
+  const wantQuote = formatUnits(quote, 18)
+  const listed = store.readings().NVDAx as Record<string, unknown> | undefined
+  if (
+    !reading ||
+    JSON.stringify(listed) !== JSON.stringify(reading) ||
+    reading.at !== new Date(T * 1000).toISOString() ||
+    reading.period !== "extended" ||
+    reading.openNow !== true ||
+    reading.nextChangeAt !== "2026-09-25T13:30:00.000Z" ||
+    reading.halted !== false ||
+    reading.atomicHalted !== false ||
+    reading.quote !== wantQuote ||
+    reading.currentMultiplier !== "1.001701196801074" ||
+    reading.newMultiplier !== null ||
+    reading.activationDateTime !== null ||
+    reading.mappedSession !== "EXTENDED" ||
+    reading.disagreement !== null
+  ) {
+    fail(`reading:NVDAx after cycle 1: ${readingRaw ?? "missing"}`)
+  }
+  pass(`issuer reading stored for NVDAx: period ${reading.period}, open, quote $${reading.quote}, multiplier ${reading.currentMultiplier}, session ${reading.mappedSession}, neither halt set`)
+
   const pendingFx = loadFixture("nvdax-pending-multiplier.synthetic.json")
   await fork.warpTo(T + 60, "keeper check: one minute on, with the synthetic pending-multiplier fixture")
   const c2 = await cycleAt(withQuote(pendingFx), T + 60)

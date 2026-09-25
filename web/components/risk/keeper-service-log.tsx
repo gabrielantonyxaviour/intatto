@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "./data-table"
+import { KeeperReading } from "./keeper-reading"
 import { Empty, LoadError, Panel, RowsSkeleton, TxRef } from "./states"
 
 // Must stay a literal `process.env.NEXT_PUBLIC_…` read so Next inlines it at build time.
@@ -47,25 +48,28 @@ export function KeeperServiceLog() {
   })
   if (!LOG_URL) return null
   return (
-    <Panel title="Keeper service log" description="The keeper's own record of its last 50 steps, including backoffs and skipped cycles that send no transaction.">
-      {query.isPending ? <RowsSkeleton rows={3} /> : null}
-      {query.isError ? <LoadError what="the keeper service log" error={query.error} onRetry={() => query.refetch()} /> : null}
-      {query.data && query.data.length === 0 ? <Empty>The keeper has not logged anything yet.</Empty> : null}
-      {query.data?.length ? (
-        <DataTable<Entry>
-          label="Keeper service log"
-          rows={query.data}
-          rowKey={(e) => `${e.at}:${e.kind}:${e.detail.slice(0, 40)}`}
-          rowAttrs={() => ({ "data-row": "keeper-service" })}
-          columns={[
-            { id: "kind", header: "Step", cardTitle: true, cell: (e) => <Badge variant={e.kind === "backoff" || e.kind === "price-rejected" ? "warning-light" : "secondary"}>{e.kind}</Badge> },
-            { id: "at", header: "At", cell: (e) => e.at.replace("T", " ").slice(0, 19) },
-            { id: "market", header: "Market", cell: (e) => e.market },
-            { id: "detail", header: "Detail", className: "whitespace-normal", cell: (e) => e.detail },
-            { id: "tx", header: "Transaction", cell: (e) => (e.txHash ? <TxRef hash={e.txHash} /> : <span className="text-xs text-muted-foreground">none</span>) },
-          ]}
-        />
-      ) : null}
-    </Panel>
+    <>
+      <KeeperReading url={LOG_URL} />
+      <Panel title="Keeper service log" description="The keeper's own record of its last 50 steps, including backoffs and skipped cycles that send no transaction.">
+        {query.isPending ? <RowsSkeleton rows={3} /> : null}
+        {query.isError ? <LoadError what="the keeper service log" error={query.error} onRetry={() => query.refetch()} /> : null}
+        {query.data && query.data.length === 0 ? <Empty>The keeper has not logged anything yet.</Empty> : null}
+        {query.data?.length ? (
+          <DataTable<Entry>
+            label="Keeper service log"
+            rows={query.data}
+            rowKey={(e) => `${e.at}:${e.kind}:${e.detail.slice(0, 40)}`}
+            rowAttrs={() => ({ "data-row": "keeper-service" })}
+            columns={[
+              { id: "kind", header: "Step", cardTitle: true, cell: (e) => <Badge variant={e.kind === "backoff" || e.kind === "price-rejected" ? "warning-light" : "secondary"}>{e.kind}</Badge> },
+              { id: "at", header: "At", cell: (e) => e.at.replace("T", " ").slice(0, 19) },
+              { id: "market", header: "Market", cell: (e) => e.market },
+              { id: "detail", header: "Detail", className: "whitespace-normal", cell: (e) => e.detail },
+              { id: "tx", header: "Transaction", cell: (e) => (e.txHash ? <TxRef hash={e.txHash} /> : <span className="text-xs text-muted-foreground">none</span>) },
+            ]}
+          />
+        ) : null}
+      </Panel>
+    </>
   )
 }

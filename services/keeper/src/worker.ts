@@ -1,8 +1,8 @@
 /**
  * intatto-keeper: a Cloudflare Worker on a one-minute Cron Trigger. `scheduled` runs one keeper cycle with the
  * operator key (secret OPERATOR_PK, never logged) against LIVE_DEPLOYMENT; cursors and the action log live in
- * the KeeperState Durable Object. `fetch` serves GET /log, GET /health, POST /receipt and GET /receipts
- * (JSON, CORS open; POST /receipt checks the RECEIPT_TOKEN secret and stores no header values).
+ * the KeeperState Durable Object. `fetch` serves GET /log, GET /health, GET /status, POST /receipt and
+ * GET /receipts (JSON, CORS open, no secrets; POST /receipt checks the RECEIPT_TOKEN secret and stores no header values).
  */
 import { createPublicClient, createWalletClient, fallback, http, type Chain, type PublicClient, type WalletClient } from "viem"
 import { privateKeyToAccount } from "viem/accounts"
@@ -127,6 +127,7 @@ export async function handleFetch(request: Request, env: Env): Promise<Response>
       const ok = age !== null && age <= STALE_AFTER_SEC
       return json({ ok, service: "intatto-keeper", lastCycle, lastCycleAgeSec: age, loggedActions: actions }, ok ? 200 : 503)
     }
+    if (url.pathname === "/status") return json(await stateOf(env).status())
     return json({ error: "not found", code: "not_found" }, 404)
   } catch {
     return json({ error: "the keeper state is unavailable", code: "state_unavailable" }, 503)

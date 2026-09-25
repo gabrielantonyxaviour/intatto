@@ -51,6 +51,10 @@ export class KeeperState extends DurableObject<unknown> {
     return { lastCycle: this.store.lastCycle(), actions: this.store.count() }
   }
 
+  async status() {
+    return { lastCycle: this.store.lastCycle(), readings: this.store.readings() }
+  }
+
   async addReceipt(input: ReceiptInput) {
     this.store.addReceipt(input)
   }

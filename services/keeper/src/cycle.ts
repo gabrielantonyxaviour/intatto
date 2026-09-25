@@ -9,8 +9,9 @@
  *   5. a pending corporate action, once, while it is still in the future
  *   6. the depth cap when it changed >5% or is older than an hour
  *   7. one liquidation slice per liquidatable borrower found in Borrowed events
+ *   8. store each market's issuer reading (or the read error) at reading:<SYM>
  */
-import type { Address } from "viem"
+import { formatUnits, type Address } from "viem"
 import { sessionFromIndex, type Session } from "@intatto/config/session"
 import type { MarketDeployment } from "@intatto/config/deployments"
 import { sessionRiskControllerAbi } from "./abi.ts"
@@ -66,15 +67,18 @@ export async function runCycle(deps: CycleDeps): Promise<CycleResult> {
 
   // 1. issuer inputs
   const readings = new Map<MarketDeployment["symbol"], IssuerReading>()
+  const issues = new Map<MarketDeployment["symbol"], { error?: string; disagreement?: string }>()
   for (const m of deps.deployment.markets) {
     try {
       readings.set(m.symbol, await deps.issuer.read(m.symbol, deps.now))
     } catch (e) {
       const ie = e instanceof IssuerError ? e : null
+      const error = (ie?.message ?? shortError(e)).slice(0, 180)
+      issues.set(m.symbol, { error })
       await ctx.log({
         market: m.symbol,
         kind: "backoff",
-        detail: `issuer read failed (${ie?.message ?? shortError(e)}); posting nothing for ${m.symbol} this cycle`,
+        detail: `issuer read failed (${error}); posting nothing for ${m.symbol} this cycle`,
         data: { code: ie?.code ?? "unknown", status: ie?.status ?? null, retryAt: ie?.retryAt ?? null },
       })
     }
@@ -92,6 +96,7 @@ export async function runCycle(deps: CycleDeps): Promise<CycleResult> {
     await step(m.symbol, "input check", async () => {
       const why = r.disagreement ?? (await bandCheck(ctx, m, r, m === primary ? r.session : (bandSession ?? (await onchainSession()))))
       if (why) {
+        issues.set(m.symbol, { disagreement: why })
         await ctx.log({ market: m.symbol, kind: "skipped", detail: `issuer inputs disagree, nothing posted from them: ${why}`, data: { period: r.period, halted: r.halted } })
         return
       }
@@ -115,5 +120,32 @@ export async function runCycle(deps: CycleDeps): Promise<CycleResult> {
     }
     await step(m.symbol, "liquidation", () => liquidateUnhealthy(ctx, m))
   }
+
+  for (const m of deps.deployment.markets) {
+    const issue = issues.get(m.symbol)
+    const r = readings.get(m.symbol)
+    const value = r ? readingRecord(r, issue?.disagreement ?? r.disagreement) : { at, error: issue?.error ?? "the issuer did not answer" }
+    await ctx.state.set(`reading:${m.symbol}`, JSON.stringify(value))
+  }
   return { at, chainTime: ctx.chainTime, actions, failures }
+}
+
+/** The reading the Risk console shows. Quote and multipliers are decimal strings; times are ISO. */
+function readingRecord(r: IssuerReading, disagreement: string | null) {
+  const iso = (unix: number | null) => (unix === null ? null : new Date(unix * 1000).toISOString())
+  const dec = (v: bigint | null) => (v === null ? null : formatUnits(v, 18))
+  return {
+    at: new Date(r.fetchedAt * 1000).toISOString(),
+    period: r.period,
+    openNow: r.openNow,
+    nextChangeAt: iso(r.nextChangeAt),
+    halted: r.halted,
+    atomicHalted: r.haltFlags.atomic,
+    quote: dec(r.quoteE18),
+    currentMultiplier: dec(r.currentMultiplierE18),
+    newMultiplier: r.pendingAction ? formatUnits(r.pendingAction.expectedMultiplierE18, 18) : null,
+    activationDateTime: r.pendingAction ? iso(r.pendingAction.activationAt) : null,
+    mappedSession: r.session,
+    disagreement,
+  }
 }

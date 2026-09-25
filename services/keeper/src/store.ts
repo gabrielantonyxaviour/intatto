@@ -122,6 +122,22 @@ export class SqlKeeperStore implements KeeperState {
     return raw ? (JSON.parse(raw) as CycleSummary) : null
   }
 
+  /** Latest issuer readings, keyed by symbol. Rows that are not JSON are left out. */
+  readings(): Record<string, unknown> {
+    const rows = this.sql.exec("SELECT key, value FROM keeper_state WHERE key LIKE 'reading:%' ORDER BY key").toArray()
+    const out: Record<string, unknown> = {}
+    for (const r of rows) {
+      const symbol = String(r.key).slice("reading:".length)
+      if (!symbol) continue
+      try {
+        out[symbol] = JSON.parse(String(r.value))
+      } catch {
+        // The cycle writes JSON; a torn value is omitted rather than thrown to the public route.
+      }
+    }
+    return out
+  }
+
   /** One credit-API call. Drops rows older than the newest `keep` (default 5,000). */
   addReceipt(input: ReceiptInput, keep = RECEIPT_KEEP) {
     const row = receiptInputSchema.parse(input)
