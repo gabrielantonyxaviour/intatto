@@ -1,18 +1,20 @@
 "use client"
 
-import type { VaultState } from "@/lib/chain"
+import { useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { useProtocolParams, type VaultState } from "@/lib/chain"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { bpsText } from "./lend-format"
 import { Section } from "./overview-section"
-import { borrowRateAt, supplyRateAt, useRateModel, type RateModel } from "./use-lend-reads"
+import { borrowRateAt, supplyRateAt, type RateModel } from "./use-lend-reads"
 
 const W = 400
 const H = 200
 const PAD = { l: 36, r: 12, t: 12, b: 28 }
 
-function RateCurve({ model, utilizationBps }: { model: RateModel; utilizationBps: bigint }) {
+function RateCurve({ model, utilizationBps, reserveFactorBps }: { model: RateModel; utilizationBps: bigint; reserveFactorBps: bigint }) {
   const top = Number(borrowRateAt(model, 10_000n)) || 1
   const x = (u: number) => PAD.l + (u / 10_000) * (W - PAD.l - PAD.r)
   const y = (r: number) => H - PAD.b - (r / top) * (H - PAD.t - PAD.b)
@@ -50,7 +52,7 @@ function RateCurve({ model, utilizationBps }: { model: RateModel; utilizationBps
             {t / 100}%
           </text>
         ))}
-        <path d={path((v) => supplyRateAt(model, v), supplyPts)} fill="none" className="stroke-muted-foreground" strokeWidth={1.5} strokeDasharray="4 3" />
+        <path d={path((v) => supplyRateAt(model, v, reserveFactorBps), supplyPts)} fill="none" className="stroke-muted-foreground" strokeWidth={1.5} strokeDasharray="4 3" />
         <path d={path((v) => borrowRateAt(model, v), us)} fill="none" className="stroke-foreground" strokeWidth={2} />
         <line x1={x(u)} x2={x(u)} y1={PAD.t} y2={H - PAD.b} className="stroke-foreground" strokeWidth={1} strokeDasharray="2 2" />
         <circle cx={x(u)} cy={y(borrowNow)} r={3.5} className="fill-foreground" />
@@ -81,7 +83,12 @@ function RateCurve({ model, utilizationBps }: { model: RateModel; utilizationBps
 
 /** Supply rate, borrow rate and utilisation, with the kinked curve marking where the vault is now. */
 export function RatesSection({ vault }: { vault: VaultState }) {
-  const model = useRateModel()
+  const params = useProtocolParams("NVDAx")
+  const qc = useQueryClient()
+  const [curve, setCurve] = useState(false)
+  const model: RateModel | undefined = params.data?.rateModel
+  const reserve = params.data?.market.reserveFactorBps
+  const failed = params.status === "error" || params.status === "unavailable"
   return (
     <Section id="rates" title="Interest rates">
       <dl className="grid grid-cols-3 gap-4">
@@ -98,29 +105,33 @@ export function RatesSection({ vault }: { vault: VaultState }) {
           </div>
         ))}
       </dl>
-      {model.data ? (
+      <Button type="button" variant="outline" aria-expanded={curve} data-testid="rate-curve-toggle" onClick={() => setCurve((v) => !v)}>
+        {curve ? "Hide rate curve" : "Rate curve"}
+      </Button>
+      {curve && model && reserve !== undefined ? (
         <>
-          <RateCurve model={model.data} utilizationBps={vault.utilizationBps} />
+          <RateCurve model={model} utilizationBps={vault.utilizationBps} reserveFactorBps={reserve} />
           <p className="text-sm text-muted-foreground" data-testid="rate-model">
-            Borrowers pay {bpsText(model.data.baseBps)} a year at zero utilisation, rising by{" "}
-            {bpsText(model.data.slope1Bps)} up to the {bpsText(model.data.kinkBps, 0)} kink, then by a further{" "}
-            {bpsText(model.data.slope2Bps)} between the kink and full utilisation, so idle USDG comes back quickly.
-            Lenders receive the borrow rate × utilisation, less the 20% that funds the gap reserve.
+            Borrowers pay {bpsText(model.baseBps)} a year at zero utilisation, rising by{" "}
+            {bpsText(model.slope1Bps)} up to the {bpsText(model.kinkBps, 0)} kink, then by a further{" "}
+            {bpsText(model.slope2Bps)} between the kink and full utilisation, so idle USDG comes back quickly.
+            Lenders receive the borrow rate × utilisation, less the {bpsText(reserve, 0)} reserve factor read at block{" "}
+            {params.data?.blockNumber.toString()}.
           </p>
         </>
-      ) : model.isError ? (
+      ) : curve && failed ? (
         <Alert variant="destructive">
           <AlertTitle>The rate model could not be read</AlertTitle>
           <AlertDescription className="flex flex-wrap items-center gap-2">
-            The RPC did not answer.
-            <Button size="sm" variant="outline" onClick={() => void model.refetch()}>
+            The RPC did not answer. No stand-in reserve factor is shown.
+            <Button size="sm" variant="outline" onClick={() => void qc.invalidateQueries({ queryKey: ["protocol-params"] })}>
               Try again
             </Button>
           </AlertDescription>
         </Alert>
-      ) : (
+      ) : curve ? (
         <Skeleton className="aspect-[2/1] w-full" />
-      )}
+      ) : null}
     </Section>
   )
 }

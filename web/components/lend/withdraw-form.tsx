@@ -1,12 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import type { Address } from "viem"
 import { useAccount } from "wagmi"
 import { lendingVaultAbi } from "@intatto/config/abi"
 import { useIntatto, type AccountState, type VaultState } from "@/lib/chain"
+import { Button } from "@/components/ui/button"
+import { ReviewDialog } from "@/components/ui/ix"
 import { AmountInput, TokenAmount, TxButton, ValueChange } from "@/components/ui/web3"
-import { SHARE_SYMBOL, USDG_DECIMALS, usdg } from "./lend-format"
+import { SHARE_SYMBOL, USDG_DECIMALS, amount6, usdg } from "./lend-format"
 import { SummaryRow } from "./summary-row"
 
 const VAULT_REFUSALS = {
@@ -23,12 +25,14 @@ function sharesFor(assets: bigint, vault: VaultState): bigint {
 
 const money = (v: number | bigint) => usdg(BigInt(v))
 
-/** Withdraw USDG, limited to idle liquidity with the reason stated; the whole deposit redeems every share. */
+/** Withdraw USDG. Idle refusals stay on the form. A valid amount opens the review dialog first. */
 export function WithdrawForm({ vault, account }: { vault: VaultState; account: AccountState | undefined }) {
-  const { deployment } = useIntatto()
+  const { deployment, chain } = useIntatto()
   const { address } = useAccount()
+  const reviewRef = useRef<HTMLButtonElement>(null)
   const [value, setValue] = useState("")
   const [amount, setAmount] = useState<bigint | null>(null)
+  const [review, setReview] = useState(false)
   if (!deployment) return null
 
   const deposit = account?.vaultAssets ?? 0n
@@ -39,6 +43,7 @@ export function WithdrawForm({ vault, account }: { vault: VaultState; account: A
   const overIdle = typed !== null && !overDeposit && typed > vault.idle
   const idleText = usdg(vault.idle)
   const all = typed !== null && typed === deposit && !overIdle
+  const actionLabel = all ? "Withdraw the whole deposit" : "Withdraw USDG"
 
   const disabledReason =
     account && deposit === 0n
@@ -104,19 +109,39 @@ export function WithdrawForm({ vault, account }: { vault: VaultState; account: A
         </SummaryRow>
       </dl>
       <p className="text-xs text-muted-foreground">
-        You can withdraw up to the vault&apos;s idle USDG. What is lent out comes back as borrowers repay or are
-        liquidated.
+        You can withdraw up to the vault&apos;s idle USDG. What is lent out comes back as borrowers repay or are liquidated.
       </p>
-      <TxButton
-        label="Withdraw USDG"
-        request={request}
-        disabledReason={disabledReason}
-        reasons={VAULT_REFUSALS}
-        successMessage="Withdrawal confirmed"
-        onSuccess={() => {
-          setValue("")
-          setAmount(null)
-        }}
+      <Button ref={reviewRef} type="button" disabled={disabledReason !== null} onClick={() => setReview(true)}>
+        {disabledReason ?? "Review"}
+      </Button>
+      <ReviewDialog
+        open={review}
+        onOpenChange={setReview}
+        title="Review withdrawal"
+        amount={typed !== null ? amount6(typed) : "0"}
+        asset="USDG"
+        chain={chain.name}
+        returnFocusRef={reviewRef}
+        testId="lend-withdraw-review"
+        actionLabel={actionLabel}
+        beforeAfter={
+          <ValueChange
+            label="Your deposit"
+            before={deposit}
+            after={typed !== null && !overDeposit ? deposit - typed : null}
+            format={money}
+          />
+        }
+        limit={<p>Only {idleText} is idle. This withdrawal does not undo a loss already written off.</p>}
+        action={
+          <TxButton
+            label={actionLabel}
+            request={request}
+            disabledReason={disabledReason}
+            reasons={VAULT_REFUSALS}
+            successMessage="Withdrawal confirmed"
+          />
+        }
       />
     </div>
   )

@@ -3,7 +3,7 @@
 /** Reads the lend screen needs beyond MarketLens: every deployed market, the rate model and the deficit history. */
 import { useQuery } from "@tanstack/react-query"
 import type { Address } from "viem"
-import { interestRateModelAbi, lendingVaultAbi } from "@intatto/config/abi"
+import { lendingVaultAbi, priceRelayAdapterAbi } from "@intatto/config/abi"
 import { useIntatto, useMarketState, type MarketState, type MarketSymbol } from "@/lib/chain"
 
 export type LendMarket = { symbol: MarketSymbol; state: MarketState }
@@ -37,28 +37,6 @@ export type DeficitRow = {
   amount: bigint
   sharePriceBefore: bigint
   sharePriceAfter: bigint
-}
-
-/** The kinked model's parameters, read from the deployed InterestRateModel. */
-export function useRateModel() {
-  const { deployment, publicClient, chainId } = useIntatto()
-  const address = deployment?.interestRateModel as Address | undefined
-  return useQuery({
-    queryKey: ["lend:rate-model", chainId, address],
-    enabled: Boolean(address),
-    staleTime: 60_000,
-    queryFn: async (): Promise<RateModel> => {
-      const read = (functionName: "baseBps" | "slope1Bps" | "slope2Bps" | "kinkBps") =>
-        publicClient.readContract({ address: address!, abi: interestRateModelAbi, functionName }) as Promise<bigint>
-      const [baseBps, slope1Bps, slope2Bps, kinkBps] = await Promise.all([
-        read("baseBps"),
-        read("slope1Bps"),
-        read("slope2Bps"),
-        read("kinkBps"),
-      ])
-      return { baseBps, slope1Bps, slope2Bps, kinkBps }
-    },
-  })
 }
 
 /** Newest first. Reads at most the latest `limit` records (LendingVault.deficitAt). */
@@ -101,8 +79,27 @@ export function borrowRateAt(m: RateModel, u: bigint): bigint {
   return m.baseBps + m.slope1Bps + (m.slope2Bps * (x - m.kinkBps)) / (10_000n - m.kinkBps)
 }
 
-/** Supply rate (bps) after the reserve factor, the way InterestRateModel.supplyRateBps computes it. */
-export function supplyRateAt(m: RateModel, u: bigint, reserveFactorBps = 2_000n): bigint {
+/** Supply rate (bps) after the reserve factor read from the market, the way InterestRateModel.supplyRateBps computes it. */
+export function supplyRateAt(m: RateModel, u: bigint, reserveFactorBps: bigint): bigint {
   const x = u > 10_000n ? 10_000n : u
   return (((borrowRateAt(m, x) * x) / 10_000n) * (10_000n - reserveFactorBps)) / 10_000n
+}
+
+/** Vault owner() and the first market relay's keeper(), not the deployment JSON. */
+export function useRoleAddresses() {
+  const { deployment, publicClient, chainId } = useIntatto()
+  const vault = deployment?.vault
+  const relay = deployment?.markets[0]?.priceRelay
+  return useQuery({
+    queryKey: ["lend:roles", chainId, vault, relay],
+    enabled: Boolean(vault && relay),
+    staleTime: 60_000,
+    queryFn: async () => {
+      const [owner, keeper] = await Promise.all([
+        publicClient.readContract({ address: vault as Address, abi: lendingVaultAbi, functionName: "owner" }),
+        publicClient.readContract({ address: relay as Address, abi: priceRelayAdapterAbi, functionName: "keeper" }),
+      ])
+      return { owner: owner as Address, keeper: keeper as Address }
+    },
+  })
 }

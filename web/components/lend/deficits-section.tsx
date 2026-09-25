@@ -1,9 +1,8 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import type { VaultState } from "@/lib/chain"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import { EvidenceSheet, type EvidenceState } from "@/components/ui/ix"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { AddressDisplay, formatUtc } from "@/components/ui/web3"
 import { changeText, sharePriceNumber, usdg } from "./lend-format"
@@ -26,9 +25,7 @@ function Row({ d }: { d: DeficitRow }) {
       <TableCell data-testid="deficit-price" className="text-right tabular-nums">
         {sharePriceNumber(d.sharePriceBefore)} → {sharePriceNumber(d.sharePriceAfter)}
       </TableCell>
-      <TableCell className="text-right tabular-nums text-destructive">
-        {changeText(d.sharePriceBefore, d.sharePriceAfter)}
-      </TableCell>
+      <TableCell className="text-right tabular-nums text-destructive">{changeText(d.sharePriceBefore, d.sharePriceAfter)}</TableCell>
     </TableRow>
   )
 }
@@ -55,10 +52,20 @@ function RowCard({ d }: { d: DeficitRow }) {
   )
 }
 
-/** Every deficit LendingVault has recognised: when, how much, and the share price before → after. */
+/** The deficit total stays inline. History opens in one sheet. */
 export function DeficitsSection({ vault }: { vault: VaultState }) {
   const deficits = useDeficits(vault.deficitCount)
   const count = Number(vault.deficitCount)
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    const sync = () => {
+      if (window.location.hash === "#deficits") setOpen(true)
+    }
+    sync()
+    window.addEventListener("hashchange", sync)
+    return () => window.removeEventListener("hashchange", sync)
+  }, [])
+  const state: EvidenceState = count === 0 ? "ready" : deficits.isError ? "unavailable" : deficits.data ? "ready" : "fetching"
   return (
     <Section id="deficits" title="Recognised deficits">
       <dl className="grid gap-2 sm:grid-cols-2 sm:gap-x-8">
@@ -69,49 +76,50 @@ export function DeficitsSection({ vault }: { vault: VaultState }) {
           {usdg(vault.totalDeficit, 6)}
         </SummaryRow>
       </dl>
-      {count === 0 ? (
-        <p data-testid="deficits-empty" className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-          No deficits recognised. Every liquidation so far was covered by its collateral or the gap reserve.
-        </p>
-      ) : deficits.data ? (
-        <>
-          <div className="hidden xl:block" data-testid="deficits-table">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Borrower</TableHead>
-                  <TableHead className="text-right">Written off</TableHead>
-                  <TableHead className="text-right">Share price (USDG)</TableHead>
-                  <TableHead className="text-right">Change</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {deficits.data.map((d) => (
-                  <Row key={d.index} d={d} />
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <ul className="grid gap-3 md:grid-cols-2 xl:hidden">
-            {deficits.data.map((d) => (
-              <RowCard key={d.index} d={d} />
-            ))}
-          </ul>
-        </>
-      ) : deficits.isError ? (
-        <Alert variant="destructive">
-          <AlertTitle>The deficit history could not be read</AlertTitle>
-          <AlertDescription className="flex flex-wrap items-center gap-2">
-            The RPC did not answer.
-            <Button size="sm" variant="outline" onClick={() => void deficits.refetch()}>
-              Try again
-            </Button>
-          </AlertDescription>
-        </Alert>
-      ) : (
-        <Skeleton className="h-20 w-full" />
-      )}
+      <EvidenceSheet
+        title="Deficits"
+        triggerLabel="Deficits"
+        summary="LendingVault deficit history"
+        state={state}
+        open={open}
+        onOpenChange={setOpen}
+        testId="lend-deficits-sheet"
+        evidenceFor="deficits"
+        statusMessage="The deficit history could not be read from the vault."
+        onRetry={() => void deficits.refetch()}
+      >
+        {count === 0 ? (
+          <p data-testid="deficits-empty" className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+            No deficits recognised. Every liquidation so far was covered by its collateral or the gap reserve.
+          </p>
+        ) : deficits.data ? (
+          <>
+            <div className="hidden xl:block" data-testid="deficits-table">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Time</TableHead>
+                    <TableHead>Borrower</TableHead>
+                    <TableHead className="text-right">Written off</TableHead>
+                    <TableHead className="text-right">Share price (USDG)</TableHead>
+                    <TableHead className="text-right">Change</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {deficits.data.map((d) => (
+                    <Row key={d.index} d={d} />
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <ul className="grid gap-3 xl:hidden">
+              {deficits.data.map((d) => (
+                <RowCard key={d.index} d={d} />
+              ))}
+            </ul>
+          </>
+        ) : null}
+      </EvidenceSheet>
     </Section>
   )
 }

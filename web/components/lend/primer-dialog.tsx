@@ -1,11 +1,11 @@
 "use client"
 
 import { useId, useState, type ReactNode } from "react"
-import { useIntatto } from "@/lib/chain"
+import { useIntatto, usePriceProvenance, useProtocolParams } from "@/lib/chain"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { marketList } from "./lend-format"
+import { bpsText, marketList } from "./lend-format"
 
 const FLOW = [
   { label: "You", note: "the lender" },
@@ -20,12 +20,12 @@ const STEPS: { title: string; body: ReactNode }[] = [
     body: "You receive iUSDG shares. A share is worth more USDG as borrowers pay interest, and less if a loss is ever written off.",
   },
   {
-    title: "The vault lends to one market: NVDAx",
-    body: "Borrowers post NVDAx (held as the issuer's wNVDAx wrapper shares) and borrow USDG up to a limit that follows the US market session. As a depositor you carry this market's risks: the stock itself, the keeper-relayed price and the 65% liquidation threshold.",
+    title: "Borrowers post collateral",
+    body: "Borrowers post collateral and borrow USDG up to the session limit read from the contract. As a depositor you carry that market's price and its liquidation threshold.",
   },
   {
     title: "Earn interest from over-collateralised borrowers",
-    body: "Lenders receive 80% of the interest borrowers pay. The other 20% funds the gap reserve, which pays for a liquidation shortfall before lenders do.",
+    body: "Part of the interest borrowers pay is yours. The reserve factor, read from the market, funds the gap reserve before any shortfall reaches lenders.",
   },
 ]
 
@@ -44,9 +44,13 @@ export function PrimerDialog({
   const [ticked, setTicked] = useState(false)
   const checkId = useId()
   const { deployment } = useIntatto()
+  const provenance = usePriceProvenance()
+  const params = useProtocolParams("NVDAx")
+  const spy = useProtocolParams("SPYx")
   const symbols = deployment?.markets.map((m) => m.symbol) ?? ["NVDAx"]
   const several = symbols.length > 1
   const names = marketList(symbols)
+  const p = params.data
   const flow = several
     ? [
         FLOW[0],
@@ -55,18 +59,30 @@ export function PrimerDialog({
         { label: names, note: "borrowers post collateral and borrow USDG" },
       ]
     : FLOW
+  const priced = `${provenance.short}. ${provenance.detail}${
+    symbols.includes("SPYx") ? " SPYx is a separate sandbox market; that sentence names the wNVDAx/USDG pool." : ""
+  }`
+  const limits = p
+    ? ` New-borrow limits at block ${p.blockNumber}: ${bpsText(p.session.openBps, 0)} open, ${bpsText(p.session.extendedBps, 0)} extended, ${bpsText(p.session.closedStartBps, 0)} falling to ${bpsText(p.session.closedFloorBps, 0)} over ${Math.round(Number(p.session.closedDecayDuration) / 3600)} hours closed. Liquidation threshold ${bpsText(p.market.liquidationThresholdBps, 0)}. Penalty ${bpsText(p.market.penaltyBps, 0)}.${
+        several && spy.data ? ` SPYx threshold ${bpsText(spy.data.market.liquidationThresholdBps, 0)}, reserve factor ${bpsText(spy.data.market.reserveFactorBps, 0)}.` : ""
+      }`
+    : " Session limits, the liquidation threshold and the penalty appear once the contract read succeeds."
+  const interest = p
+    ? `Lenders receive ${bpsText(10_000n - p.market.reserveFactorBps, 0)} of the interest borrowers pay. The other ${bpsText(p.market.reserveFactorBps, 0)}, read from the market at block ${p.blockNumber}, funds the gap reserve before a shortfall reaches lenders.`
+    : STEPS[2]!.body
+  const base = STEPS.map((step, i) => (i === 2 ? { ...step, body: interest } : step))
   const steps = several
-    ? STEPS.map((step, i) =>
+    ? base.map((step, i) =>
         i === 1
           ? {
               title: `The vault lends into ${names}`,
-              body: `Borrowers post ${names.replace(" and ", " or ")} (held as the issuer's wrapper shares) and borrow USDG up to a limit that follows the US market session. ${
+              body: `Borrowers post ${names.replace(" and ", " or ")} and borrow USDG up to the session limit. ${
                 symbols.includes("SPYx") ? "SPYx is sandbox-only. " : ""
-              }As a depositor you carry each market's risks: the stock itself, the keeper-relayed price and the liquidation threshold.`,
+              }${provenance.short}.${limits}`,
             }
           : step,
       )
-    : STEPS
+    : base.map((step, i) => (i === 1 ? { ...step, body: `${step.body} ${provenance.short}.${limits}` } : step))
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -107,10 +123,7 @@ export function PrimerDialog({
                 the collateral and the gap reserve can cover, the rest is written off and every lender&apos;s shares lose
                 value pro rata. There is no insurance fund beyond the gap reserve.
               </p>
-              <p>
-                The NVDAx price is the issuer&apos;s indicative quote, relayed on chain by a keeper. It carries no source
-                timestamp; the relay only accepts it inside a band around the pool&apos;s 30-minute average.
-              </p>
+              <p>{priced}</p>
               <p>Intatto is experimental software. Check that you may use it where you live.</p>
             </div>
             {accepted ? (
