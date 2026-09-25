@@ -127,12 +127,7 @@ export type DecodedLog = {
 
 const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase()
 
-/** Every contract whose events the console reads, across all markets of the deployment. */
-export function watchedAddresses(d: Deployment): Address[] {
-  const list = [d.sessionRisk, d.depthCaps, d.liquidator]
-  for (const m of d.markets) list.push(m.priceRelay, m.corporateActionGuard, m.market)
-  return [...new Set(list.map((a) => a.toLowerCase()))] as Address[]
-}
+export { watchedAddresses } from "@/lib/risk-logs/addresses"
 
 export type MarketRows = {
   prices: PricePost[]

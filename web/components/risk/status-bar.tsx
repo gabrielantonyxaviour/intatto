@@ -2,7 +2,7 @@
 
 /** What the console has read (block range, when), the load-older control, and guard / wallet warnings. */
 import { useAccount } from "wagmi"
-import { HistoryIcon, Loader2Icon, RotateCwIcon, TriangleAlertIcon } from "lucide-react"
+import { Loader2Icon, RotateCwIcon, TriangleAlertIcon } from "lucide-react"
 import { REFUSALS } from "@intatto/config/session"
 import { useIntatto } from "@/lib/chain"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -11,16 +11,18 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRisk } from "./risk-data"
 import { LoadError } from "./states"
 import { blockNo, utc } from "./format"
-import { SCAN_WINDOW } from "./use-risk-logs"
 
 export function ScanStatus() {
   const { logs, now, latestBlock } = useRisk()
   const { mode } = useIntatto()
   if (logs.status === "error" && !logs.range) return <LoadError what="the market's events" error={logs.error} onRetry={logs.refresh} />
   return (
-    <div data-testid="risk-scan" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+    <div
+      data-testid="risk-scan"
+      className="flex flex-col gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4"
+    >
       {logs.range ? (
-        <p className="min-w-0 flex-1">
+        <p className="min-w-0 break-words sm:min-w-72 sm:flex-1">
           Events from blocks <span className="font-mono tabular-nums">{blockNo(logs.range.from)}</span>–
           <span className="font-mono tabular-nums">{blockNo(logs.range.to)}</span>
           {logs.range.from <= logs.floor ? (mode === "sandbox" ? " (from the sandbox deployment)" : " (from the deployment block)") : null}
@@ -29,22 +31,20 @@ export function ScanStatus() {
           {latestBlock !== null ? <> · latest {blockNo(latestBlock)}</> : null}
         </p>
       ) : (
-        <Skeleton className="h-4 w-72" aria-label="Scanning events" />
+        <Skeleton className="h-4 w-full max-w-72" aria-label="Reading events" />
       )}
-      <div className="flex flex-wrap items-center gap-2">
-        {logs.canLoadOlder ? (
-          <Button variant="outline" size="sm" onClick={logs.loadOlder} disabled={logs.loadingOlder}>
-            {logs.loadingOlder ? <Loader2Icon aria-hidden className="animate-spin" /> : <HistoryIcon aria-hidden />}
-            Load older {Number(SCAN_WINDOW).toLocaleString("en-US")} blocks
-          </Button>
-        ) : null}
-        <Button variant="outline" size="sm" onClick={logs.refresh} disabled={logs.refreshing || logs.status === "pending"}>
-          {logs.refreshing ? <Loader2Icon aria-hidden className="animate-spin" /> : <RotateCwIcon aria-hidden />}
-          Refresh
-        </Button>
-      </div>
-      {logs.status === "error" && logs.range ? (
-        <p className="w-full text-destructive">The last refresh failed; showing the blocks read before it.</p>
+      <Button variant="outline" size="sm" className="self-start sm:self-auto" onClick={logs.refresh} disabled={logs.refreshing || logs.status === "pending"}>
+        {logs.refreshing ? <Loader2Icon aria-hidden className="animate-spin" /> : <RotateCwIcon aria-hidden />}
+        Refresh
+      </Button>
+      {logs.range && logs.backfilling ? (
+        <p className="flex w-full items-center gap-1.5" data-testid="risk-backfill">
+          <Loader2Icon aria-hidden className="size-3 shrink-0 animate-spin" />
+          Still loading older blocks back to the deployment ({Math.round(logs.progress * 100)}% read); rows appear as they arrive.
+        </p>
+      ) : null}
+      {logs.error && logs.range ? (
+        <p className="w-full text-warning-foreground">X Layer is limiting reads; retrying with backoff. Rows read so far stay on screen.</p>
       ) : null}
     </div>
   )

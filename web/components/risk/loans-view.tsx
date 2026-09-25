@@ -157,7 +157,7 @@ export function LoansView() {
       {loans.isPending || logs.status === "pending" ? <RowsSkeleton rows={4} label="Loading loans" /> : null}
       {loans.isError ? <LoadError what="the loans" error={loans.error} onRetry={() => loans.refetch()} /> : null}
       {loans.data && ranked.length === 0 ? (
-        <Empty>{loans.data.loans.length ? "Every borrower read has repaid in full." : "No borrows in the scanned blocks. Load older blocks to look further back."}</Empty>
+        <Empty>{loans.data.loans.length ? "Every borrower read has repaid in full." : logs.backfilling ? "No borrows in the blocks read so far; older blocks are still loading." : "No borrows since the deployment."}</Empty>
       ) : null}
       {ranked.length && loans.data ? (
         <div data-loans-block={loans.data.block.toString()} className="min-w-0">

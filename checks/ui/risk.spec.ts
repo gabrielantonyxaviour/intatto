@@ -240,6 +240,11 @@ for (const [name, size] of [["390", viewports.narrow], ["768", viewports.medium]
     await expect(cards.first()).toBeVisible({ timeout: 60_000 })
     await expect(page.locator('[data-section="prices"] [data-form="table"]')).toBeHidden()
     await expectNoHorizontalScroll(page)
+    // The block-range box stacks: its text keeps the box's width instead of being squeezed beside the button.
+    const scan = (await page.getByTestId("risk-scan").boundingBox())!
+    const text = (await page.getByTestId("risk-scan").locator("p").first().boundingBox())!
+    expect(scan.x + scan.width).toBeLessThanOrEqual(size.width)
+    expect(text.width).toBeGreaterThan(scan.width * 0.8)
     await page.screenshot({ path: `proof/risk-${name}.png`, fullPage: true })
     for (const view of ["Summary", "Price shock", "Loans near liquidation", "Caps and LTV spread", "Market overview", "Sessions", "Corporate actions", "Liquidations", "Keeper log", "Trust and bounds"]) {
       await openView(page, view)

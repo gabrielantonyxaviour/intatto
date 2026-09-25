@@ -179,7 +179,7 @@ export function PricePostsView() {
       {logs.status === "pending" ? <RowsSkeleton rows={5} label="Loading price posts" /> : null}
       {logs.status === "error" && !logs.range ? <LoadError what="price posts" error={logs.error} onRetry={logs.refresh} /> : null}
       {logs.range && shown.length === 0 ? (
-        <Empty>{filter === "all" ? "No price posts in the scanned blocks. Load older blocks to look further back." : `No ${filter} posts in the scanned blocks.`}</Empty>
+        <Empty>{filter === "all" ? logs.backfilling ? "No price posts in the blocks read so far; older blocks are still loading." : "No price posts since the deployment." : `No ${filter} posts in the scanned blocks.`}</Empty>
       ) : null}
       {shown.length ? (
         <>
