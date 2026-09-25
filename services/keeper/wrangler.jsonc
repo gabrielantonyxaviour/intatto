@@ -1,0 +1,22 @@
+// intatto-keeper: cron Worker + SQLite-backed Durable Object for its log and cursors. Not deployed by this block.
+// Secrets/vars set at deploy: `wrangler secret put OPERATOR_PK`; LIVE_DEPLOYMENT = deployments/xlayer-mainnet.json
+// as one JSON string (var or secret).
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "intatto-keeper",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "triggers": { "crons": ["* * * * *"] },
+  "durable_objects": {
+    "bindings": [{ "name": "KEEPER_STATE", "class_name": "KeeperState" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["KeeperState"] }],
+  // The DO applies migrations/0001_init.sql, imported as text.
+  "rules": [{ "type": "Text", "globs": ["**/*.sql"], "fallthrough": true }],
+  "vars": {
+    "XLAYER_RPC_URL": "https://xlayerrpc.okx.com",
+    "SEND_REJECTED": "false"
+  },
+  "observability": { "enabled": true }
+}

@@ -8,7 +8,7 @@ rm -rf "$WORK"; git -C "$REPO" worktree prune
 git -C "$REPO" worktree add --detach "$WORK" HEAD >/dev/null
 trap 'git -C "$REPO" worktree remove --force "$WORK" >/dev/null 2>&1 || true' EXIT
 cd "$WORK"
-pnpm install --frozen-lockfile --prefer-offline >/dev/null
+pnpm install --prefer-offline --no-frozen-lockfile >/dev/null
 LIVE=""
 if [ -f "$REPO/deployments/xlayer-mainnet.json" ]; then LIVE="$(tr -d '\n' < "$REPO/deployments/xlayer-mainnet.json")"; fi
 export NEXT_PUBLIC_LIVE_DEPLOYMENT="$LIVE"
