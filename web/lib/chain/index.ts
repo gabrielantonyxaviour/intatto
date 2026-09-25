@@ -23,3 +23,5 @@ export {
   type AccountState,
   type VaultState,
 } from "./reads"
+export { useProtocolParams, readProtocolParams, protocolParamsResult, type ProtocolParams, type ProtocolParamsStatus, type ProtocolParamsResult, type ProtocolParamsClient } from "./params"
+export { priceProvenance, usePriceProvenance, type PriceProvenance } from "./provenance"
