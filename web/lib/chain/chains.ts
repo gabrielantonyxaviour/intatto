@@ -5,9 +5,9 @@ import { SANDBOX_CHAIN_ID, XLAYER_CHAIN_ID, XLAYER_RPC_FALLBACKS } from "@intatt
 /** RPC endpoints for X Layer mainnet: an optional build-time override first, then the public fallbacks. */
 export const LIVE_RPC_URLS: readonly string[] = (() => {
   const configured = process.env.NEXT_PUBLIC_XLAYER_RPC_URL?.trim()
-  return configured
-    ? [configured, ...XLAYER_RPC_FALLBACKS.filter((u) => u !== configured)]
-    : [...XLAYER_RPC_FALLBACKS]
+  // drpc answers browser JSON-RPC with 500s, so the browser skips it (servers still use every fallback).
+  const browser = XLAYER_RPC_FALLBACKS.filter((u) => !u.includes("drpc.org"))
+  return configured ? [configured, ...browser.filter((u) => u !== configured)] : browser
 })()
 
 /** X Layer mainnet (chain 196) with Intatto's RPC list. */
@@ -32,7 +32,8 @@ export function sandboxChain(rpcUrl: string, chainId: number = SANDBOX_CHAIN_ID)
 
 /** Transport for X Layer mainnet: every RPC in order, falling through on failure. */
 export function liveTransport(): Transport {
-  return fallback(LIVE_RPC_URLS.map((url) => http(url, { batch: true })))
+  // No JSON-RPC batching on public endpoints: some reject batches; reads are few (one MarketLens call per concern).
+  return fallback(LIVE_RPC_URLS.map((url) => http(url)))
 }
 
 export function sandboxTransport(rpcUrl: string): Transport {

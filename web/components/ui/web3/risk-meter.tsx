@@ -19,6 +19,12 @@ export type RiskMeterProps = {
   className?: string
 }
 
+/**
+ * The one risk scale every Intatto screen uses, on the position's LTV (fractions): Medium from the weekend limit
+ * (30%), High from 45%, well before the fixed 65% liquidation threshold. Session limits never change the label.
+ */
+export const RISK_LEVELS = { medium: 0.3, high: 0.45 } as const
+
 export function riskLevel(ltv: number, levels: RiskMeterProps["levels"]): RiskLevel {
   if (ltv >= levels.high) return "High"
   if (ltv >= levels.medium) return "Medium"
