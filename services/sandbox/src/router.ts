@@ -85,7 +85,7 @@ export function createRouter({ host, meta, newId = newSessionId }: RouterDeps) {
     if (method === "OPTIONS") return new Response(null, { status: 204, headers: CORS })
 
     if (parts.length === 1 && parts[0] === "health" && method === "GET") {
-      return json({ ok: true, service: "intatto-sandbox", ...common, snapshotCreatedAt: meta.createdAt, markets: meta.deployment.markets.map((m) => m.symbol) })
+      return json({ ok: true, service: "intatto-sandbox", ...common, snapshotCreatedAt: meta.createdAt, base: meta.base, markets: meta.deployment.markets.map((m) => m.symbol) })
     }
 
     if (parts[0] === "rpc" && parts.length === 2) {

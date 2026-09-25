@@ -1,39 +1,48 @@
 {
-  "forkBlock": 71559900,
+  "forkBlock": 71563431,
   "chainId": 1960196,
-  "createdAt": "2026-09-25T09:48:27.382Z",
-  "snapshotBlock": 71559934,
-  "snapshotChainTime": 1790328956,
-  "stateSha256": "fc6d14cb42253014ce74fa67f78317d959f511a6b434df153af2b393b488f456",
+  "createdAt": "2026-09-25T10:35:08.373Z",
+  "snapshotBlock": 71563452,
+  "snapshotChainTime": 1790332487,
+  "stateSha256": "7a4df53bc0c74a44e4ed3e1f84e9bb13c04953c0b4717a76143c57171d2978e6",
+  "base": {
+    "kind": "mainnet",
+    "deploymentFile": "deployments/xlayer-mainnet.json",
+    "deploymentBlock": 71562056,
+    "deployedAt": "2026-09-25T10:11:32.000Z",
+    "sandboxOnlyMarkets": [
+      "SPYx"
+    ]
+  },
   "deployment": {
     "chainId": 1960196,
-    "block": 71559900,
-    "deployedAt": "2026-09-25T09:35:36.000Z",
-    "operator": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "keeper": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "block": 71562056,
+    "deployedAt": "2026-09-25T10:11:32.000Z",
+    "operator": "0xaBa1F7e4FB0500696855BF38012676c10e3ef808",
+    "keeper": "0xaBa1F7e4FB0500696855BF38012676c10e3ef808",
     "usdg": "0x4ae46a509F6b1D9056937BA4500cb143933D2dc8",
-    "vault": "0xc5a5C42992dECbae36851359345FE25997F5C42d",
-    "gapReserve": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
-    "sessionRisk": "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
-    "depthCaps": "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
-    "liquidator": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
-    "interestRateModel": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
-    "lens": "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
+    "vault": "0x89fC3a0637768fA0c7e779375786bc129B6c308C",
+    "gapReserve": "0x4CB09f7b032cb5F6575faE46176e9697DB07CB52",
+    "sessionRisk": "0x2d7F438AB59767fD48b4E560B16B72bD8Fb055c8",
+    "depthCaps": "0x30279C37B299b51f03F4b2b5898902670e13F986",
+    "liquidator": "0xc0289c36e72a2E6a799D01EdF11FC460D07bEAc0",
+    "interestRateModel": "0xa3677c6aAC24C366C5A75083738ba568cEf8AD16",
+    "lens": "0xb7c45ca15038Ab9b0eDDC9607cdB6e2bfA89dD66",
     "markets": [
       {
         "symbol": "NVDAx",
-        "market": "0xf5059a5D33d5853360D16C683c16e67980206f36",
-        "priceRelay": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
-        "corporateActionGuard": "0x851356ae760d987E095750cCeb3bC6014560891C",
+        "market": "0xE6708CC6598F17611f9A468f9907052688459D0D",
+        "priceRelay": "0xf69c0EA60a6f6b94fF3C0F40af8bA3B97A4567a4",
+        "corporateActionGuard": "0x4b4B28da545064837CFbd66C16F94f21a0750BDE",
         "token": "0xc845b2894dBddd03858fd2D643B4eF725fE0849d",
         "wrapper": "0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5",
         "pool": "0x2a2B11730C2b6d99a58034A869dd810D7300a7b2"
       },
       {
         "symbol": "SPYx",
-        "market": "0x9d4454B023096f34B160D6B654540c56A1F81688",
-        "priceRelay": "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
-        "corporateActionGuard": "0x8f86403A4DE0BB5791fa46B8e795C547942fE4Cf",
+        "market": "0x16A2f3Aff010f494BDDdBecF4256a956Fe6D9E4d",
+        "priceRelay": "0xBFE7Be40ebB271Fb0c220BF176377157f9CBD0c2",
+        "corporateActionGuard": "0x0E2FbE2361eF17b437b6280e8bf3BFbCd936f0Ae",
         "token": "0x90A2a4c76b5D8c0bc892A69EA28Aa775a8f2dD48",
         "wrapper": "0xE7E553Cd128F0011777323A0b44a7b96EA1CB540",
         "pool": "0x07c40850D14064D20eB0AfDEf9574675392f2c11"
@@ -42,24 +51,72 @@
   },
   "ledger": [
     {
+      "kind": "note",
+      "summary": "fork of X Layer mainnet at block 71563431, after Intatto's mainnet deployment at block 71562056: the core contracts and the NVDAx market are the live mainnet contracts at their mainnet addresses",
+      "detail": {
+        "deploymentBlock": 71562056,
+        "deployedAt": "2026-09-25T10:11:32.000Z",
+        "vault": "0x89fC3a0637768fA0c7e779375786bc129B6c308C",
+        "nvdaxMarket": "0xE6708CC6598F17611f9A468f9907052688459D0D"
+      },
+      "chainTime": 1790332467,
+      "at": "2026-09-25T10:34:51.077Z"
+    },
+    {
+      "kind": "note",
+      "summary": "sandbox only: the mainnet keeper/owner 0xaBa1F7e4FB0500696855BF38012676c10e3ef808 is impersonated on the fork (owner changes below, and every sandbox keeper post)",
+      "detail": {
+        "operator": "0xaBa1F7e4FB0500696855BF38012676c10e3ef808",
+        "keeper": "0xaBa1F7e4FB0500696855BF38012676c10e3ef808"
+      },
+      "chainTime": 1790332467,
+      "at": "2026-09-25T10:34:51.078Z"
+    },
+    {
+      "kind": "fund",
+      "summary": "1 OKB from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E",
+      "detail": {
+        "to": "0xaBa1F7e4FB0500696855BF38012676c10e3ef808"
+      },
+      "txHash": "0x2f1dd18abccfedd3c035464a1747c6d553c3820f6a96b5b99b7c838028213549",
+      "chainTime": 1790332467,
+      "at": "2026-09-25T10:34:51.465Z"
+    },
+    {
       "kind": "deploy",
-      "summary": "Intatto deployed on the fork at block 71559900",
-      "chainTime": 1790328948,
-      "at": "2026-09-25T09:48:19.137Z"
+      "summary": "sandbox only: SPYx market deployed on the fork on top of the mainnet core (DeploySecondMarket.s.sol) and wired: vault.addMarket, reserve.setMarket, market.setLiquidator, liquidator.setMarket, caps.setInitialCap 50000 USDG",
+      "detail": {
+        "market": "0x16A2f3Aff010f494BDDdBecF4256a956Fe6D9E4d",
+        "priceRelay": "0xBFE7Be40ebB271Fb0c220BF176377157f9CBD0c2",
+        "corporateActionGuard": "0x0E2FbE2361eF17b437b6280e8bf3BFbCd936f0Ae",
+        "deployer": "0xaBa1F7e4FB0500696855BF38012676c10e3ef808"
+      },
+      "chainTime": 1790332476,
+      "at": "2026-09-25T10:34:57.387Z"
     },
     {
       "kind": "note",
       "summary": "sandbox only: NVDAx relay USDG/USD staleness limit widened to 30 days (the forked feed cannot update in simulated time); peg band still 1%",
-      "txHash": "0xc4e4d55d6b50882015a9731514db8e575e84068bba74dc5cc24714818b224552",
-      "chainTime": 1790328948,
-      "at": "2026-09-25T09:48:19.246Z"
+      "txHash": "0xc7dc2301b82961e4c67e7971756191b9c86c1f7bd7a42fe6232ee8bb6631957c",
+      "chainTime": 1790332476,
+      "at": "2026-09-25T10:34:57.946Z"
     },
     {
       "kind": "note",
       "summary": "sandbox only: SPYx relay USDG/USD staleness limit widened to 30 days (the forked feed cannot update in simulated time); peg band still 1%",
-      "txHash": "0x8952dbe592d12b1d73f0edcf7e41bcf2e42f8723b839cef2bb8f306c07ffb178",
-      "chainTime": 1790328948,
-      "at": "2026-09-25T09:48:19.343Z"
+      "txHash": "0x6c0c6d78da9f9ff11d7202a86ff874b68c27d1ffc19603d51516b72d6180a9db",
+      "chainTime": 1790332477,
+      "at": "2026-09-25T10:34:58.034Z"
+    },
+    {
+      "kind": "note",
+      "summary": "sandbox only: NVDAx ticker cap set from mainnet's 1000 USDG to 50000 USDG, sized to the sandbox lender, so scenario borrowers fit under it",
+      "detail": {
+        "mainnetCapUsdg": "1000"
+      },
+      "txHash": "0x3013f0ede64b9c25fb711903ed8ed76d1180a4a5d2de58db4e98fe993d9fb422",
+      "chainTime": 1790332477,
+      "at": "2026-09-25T10:34:58.411Z"
     },
     {
       "kind": "fund",
@@ -67,9 +124,9 @@
       "detail": {
         "to": "0x0000000000000000000000000000000000001e00"
       },
-      "txHash": "0x57702149d03ee11bdb21a644d25316f126278585f6ab92cd353016e97cb8caa8",
-      "chainTime": 1790328948,
-      "at": "2026-09-25T09:48:19.867Z"
+      "txHash": "0x45af5ab2544207f026315d06d9bf6f375ddc7e2e34d592bb7934d4f922b140a6",
+      "chainTime": 1790332477,
+      "at": "2026-09-25T10:34:58.600Z"
     },
     {
       "kind": "fund",
@@ -78,16 +135,16 @@
         "to": "0x0000000000000000000000000000000000001e00",
         "token": "0x4ae46a509f6b1d9056937ba4500cb143933d2dc8"
       },
-      "txHash": "0x9e748f8800f4298def611ee07c5d1f8f3fa5eddcd7f86347eede254d3f3d6150",
-      "chainTime": 1790328948,
-      "at": "2026-09-25T09:48:20.612Z"
+      "txHash": "0x60be25821a76983f40d7ce3d5256919baba6e77a00e6771a8d93e4f8f15b4769",
+      "chainTime": 1790332477,
+      "at": "2026-09-25T10:34:59.333Z"
     },
     {
       "kind": "fund",
-      "summary": "gap reserve seeded with 100 USDG from real holder",
-      "txHash": "0xeef71ed8f4ef7ddccbc767e248af260e59b715c9067f9199f0457fc848f39188",
-      "chainTime": 1790328950,
-      "at": "2026-09-25T09:48:21.559Z"
+      "summary": "gap reserve topped up with 100 USDG from real holder (now 100.5 USDG with mainnet's seed)",
+      "txHash": "0x88050a89a34e55df9c1cd9f961364b762fba30a17324e60be7f5b7c6639719d5",
+      "chainTime": 1790332480,
+      "at": "2026-09-25T10:35:01.523Z"
     },
     {
       "kind": "keeper",
@@ -95,23 +152,23 @@
       "detail": {
         "periodChangedAt": 1790323200
       },
-      "txHash": "0x1a420f47bdbb361a8b9c9896d3c4d2ae84112b135f2740820038fc0f9ea1119e",
-      "chainTime": 1790328950,
-      "at": "2026-09-25T09:48:21.655Z"
+      "txHash": "0x906bba7f1ca14ce7784328fa44caf48e7afd06f12b8bd33231d7462603883aab",
+      "chainTime": 1790332480,
+      "at": "2026-09-25T10:35:01.906Z"
     },
     {
       "kind": "keeper",
-      "summary": "keeper posted NVDAx quote $226.187976 (accepted)",
-      "txHash": "0xfc58444b196e57afc56a5d78882ef02342d6268cfbfbdf64808c9232f6b023f7",
-      "chainTime": 1790328950,
-      "at": "2026-09-25T09:48:24.726Z"
+      "summary": "keeper posted NVDAx quote $225.945713 (accepted)",
+      "txHash": "0xfbe7c7a8a2ec8b92d66fe4b61c74b6954cfc1345c3f60f5a3d79373ff6f76d49",
+      "chainTime": 1790332480,
+      "at": "2026-09-25T10:35:06.745Z"
     },
     {
       "kind": "keeper",
-      "summary": "keeper posted SPYx quote $768.93879 (accepted)",
-      "txHash": "0xff6f64ee85947c897e09653b1af5f000a9ace4453e728fd2723abd18eb9af7bd",
-      "chainTime": 1790328953,
-      "at": "2026-09-25T09:48:27.364Z"
+      "summary": "keeper posted SPYx quote $769.016994 (accepted)",
+      "txHash": "0x959ddccdfc0fed3380380d86e596437ee6d73debcbc19372a0d1a2be18520d9d",
+      "chainTime": 1790332485,
+      "at": "2026-09-25T10:35:08.359Z"
     }
   ]
 }

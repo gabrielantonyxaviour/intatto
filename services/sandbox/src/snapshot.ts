@@ -15,6 +15,19 @@ export const snapshotLedgerEntrySchema = z.object({
   at: z.string(),
 })
 
+/** What the snapshot's Intatto contracts are: a fresh fork deployment, or the live mainnet contracts plus sandbox-only markets. */
+export const snapshotBaseSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("fresh-deploy") }),
+  z.object({
+    kind: z.literal("mainnet"),
+    deploymentFile: z.string(),
+    deploymentBlock: z.number().int().positive(),
+    deployedAt: z.string(),
+    /** Markets that exist only on the fork (no mainnet bytecode to compare). */
+    sandboxOnlyMarkets: z.array(z.enum(["NVDAx", "SPYx"])),
+  }),
+])
+
 export const snapshotMetaSchema = z.object({
   /** X Layer mainnet block the snapshot forks from; the container passes it to anvil --fork-block-number. */
   forkBlock: z.number().int().positive(),
@@ -25,6 +38,7 @@ export const snapshotMetaSchema = z.object({
   snapshotChainTime: z.number().int().positive(),
   /** sha256 of state.json, so a container can prove which state it loaded. */
   stateSha256: z.string().regex(/^[0-9a-f]{64}$/),
+  base: snapshotBaseSchema.default({ kind: "fresh-deploy" }),
   deployment: deploymentSchema,
   /** The snapshot's own divergence from mainnet: deploy, funding, seeding and the USDG staleness note. */
   ledger: z.array(snapshotLedgerEntrySchema),
