@@ -102,6 +102,9 @@ export function CreditService() {
             <dt className="text-muted-foreground">Addresses</dt>
             <dd className="grid gap-1">
               {deployment?.keeper ? <AddressDisplay address={deployment.keeper} chars={6} /> : <span>No keeper yet</span>}
+              <Link href="/risk" className="underline underline-offset-4">
+                see every keeper post on the Risk console
+              </Link>
               <span className="text-muted-foreground">Pay-to: none while the call is free.</span>
             </dd>
           </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, type FormEvent } from "react"
+import Link from "next/link"
 import { useAccount } from "wagmi"
 import { REFUSALS } from "@intatto/config/session"
 import type { CreditReport } from "@/lib/credit/compute"
@@ -198,6 +199,11 @@ function ReportView({ report }: { report: CreditReport }) {
           )
         })}
       </div>
+      <p className="text-sm">
+        <Link href="/risk" className="underline underline-offset-4">
+          see every keeper post on the Risk console
+        </Link>
+      </p>
       <pre className="max-w-full overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs" data-testid="credit-json">
         {JSON.stringify(report, null, 2)}
       </pre>
