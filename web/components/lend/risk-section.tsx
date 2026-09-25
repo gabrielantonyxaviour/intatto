@@ -10,16 +10,22 @@ import { AddressDisplay, ExplorerLink } from "@/components/ui/web3"
 import { bpsText, lossExample, marketList, ratioText, usdg } from "./lend-format"
 import { Section } from "./overview-section"
 import { SummaryRow } from "./summary-row"
-import { useRoleAddresses, type LendMarket } from "./use-lend-reads"
+import { usePinnedRiskFigures, useRoleAddresses, type LendMarket } from "./use-lend-reads"
 
 /** Loss warning and reserve balance stay inline. The waterfall, funding and roles open in one sheet. */
 export function RiskSection({ vault, markets }: { vault: VaultState; markets: LendMarket[] }) {
   const { deployment } = useIntatto()
   const provenance = usePriceProvenance()
-  const params = useProtocolParams("NVDAx")
-  const spy = useProtocolParams("SPYx")
-  const roles = useRoleAddresses()
   const qc = useQueryClient()
+  const params = useProtocolParams("NVDAx")
+  const blockNumber = params.data?.blockNumber
+  const roles = useRoleAddresses(blockNumber)
+  const figures = usePinnedRiskFigures(blockNumber)
+  // Reserve moves only on a real transfer. totalAssets accrues interest on every read,
+  // so it must not refetch the shared protocol-params query.
+  useEffect(() => {
+    void qc.invalidateQueries({ queryKey: ["protocol-params"] })
+  }, [qc, vault.reserveBalance])
   const [open, setOpen] = useState(false)
   useEffect(() => {
     const sync = () => {
@@ -32,41 +38,48 @@ export function RiskSection({ vault, markets }: { vault: VaultState; markets: Le
 
   const several = markets.length > 1
   const names = marketList(markets.map((m) => m.symbol))
-  const debt = markets.reduce((sum, m) => sum + m.state.totalDebt, 0n)
-  const collateral = markets.reduce((sum, m) => sum + m.state.totalCollateralValue, 0n)
+  const pinned = blockNumber !== undefined ? figures.data : undefined
+  const debt = pinned?.debt
+  const collateral = pinned?.collateral
   const penalty = params.data ? bpsText(params.data.market.penaltyBps, 0) : null
   const reserveShare = params.data ? bpsText(params.data.market.reserveFactorBps, 0) : null
   const hours = params.data ? Math.round(Number(params.data.session.closedDecayDuration) / 3600) : null
-  const failed = params.status === "error" || params.status === "unavailable" || roles.isError
+  const failed = params.status === "error" || params.status === "unavailable" || roles.isError || figures.isError
   const state: EvidenceState = failed ? "partial" : "ready"
-  const thresholds = markets
-    .map((m) => `${m.symbol} ${bpsText(m.state.liquidationThresholdBps, 0)}`)
-    .join(" · ")
+  const atBlock = (value: bigint | undefined, format: (v: bigint) => string) =>
+    figures.isError ? "Could not read this block." : value === undefined ? "Reading this block." : format(value)
+  const thresholds = pinned
+    ? `${pinned.thresholds.map((m) => `${m.symbol} ${bpsText(m.bps, 0)}`).join(" · ")} in every session`
+    : figures.isError
+      ? "Could not read liquidation thresholds at this block."
+      : "Reading liquidation thresholds at this block."
   const steps = [
     {
       title: "Recovered collateral",
-      value: usdg(collateral),
+      value: atBlock(collateral, (v) => usdg(v)),
       testId: "waterfall-collateral",
       body: `An unhealthy position's ${several ? "collateral" : names} is sold into the pool in bounded slices. The proceeds repay its debt${
         penalty ? ` and the ${penalty} penalty` : ""
       } first. ${
-        debt === 0n
-          ? "No loans are open right now."
-          : `Right now ${usdg(collateral, 0)} of collateral backs ${usdg(debt, 0)} of debt (${ratioText(debt, collateral, 1)} loan-to-value across all borrowers).`
+        debt === undefined || collateral === undefined
+          ? "Collateral and debt for this block are still loading."
+          : debt === 0n
+            ? "No loans are open right now."
+            : `Right now ${usdg(collateral, 0)} of collateral backs ${usdg(debt, 0)} of debt (${ratioText(debt, collateral, 1)} loan-to-value across all borrowers).`
       }`,
     },
     {
       title: "Gap reserve",
-      value: usdg(vault.reserveBalance),
+      value: atBlock(pinned?.reserveBalance, (v) => usdg(v)),
       testId: "waterfall-reserve",
       body: "If the collateral is gone and debt is left, the gap reserve pays the rest straight into the vault, up to its balance.",
     },
     {
       title: "Lenders, pro rata",
-      value: usdg(vault.totalAssets),
+      value: atBlock(pinned?.totalAssets, (v) => usdg(v)),
       testId: "waterfall-lenders",
       body: "Whatever the reserve cannot pay is written off. Every share loses the same fraction.",
-      note: lossExample(vault.totalAssets),
+      note: pinned ? lossExample(pinned.totalAssets) : undefined,
     },
   ]
 
@@ -89,7 +102,7 @@ export function RiskSection({ vault, markets }: { vault: VaultState; markets: Le
         title="Risk and reserve"
         triggerLabel="Risk and reserve"
         summary="CollateralMarket, SessionRiskController, LendingVault.owner and PriceRelayAdapter.keeper"
-        asOf={params.data ? `Block ${params.data.blockNumber}` : undefined}
+        asOf={blockNumber !== undefined ? `Block ${blockNumber}` : undefined}
         state={state}
         open={open}
         onOpenChange={setOpen}
@@ -99,6 +112,7 @@ export function RiskSection({ vault, markets }: { vault: VaultState; markets: Le
         onRetry={() => {
           void qc.invalidateQueries({ queryKey: ["protocol-params"] })
           void roles.refetch()
+          void figures.refetch()
         }}
       >
         <div className="grid gap-2">
@@ -143,7 +157,7 @@ export function RiskSection({ vault, markets }: { vault: VaultState; markets: Le
         <div className="mt-4 grid gap-2">
           <h3 className="font-medium">Market risk parameters</h3>
           <dl className="grid gap-2">
-            <SummaryRow label="Liquidation threshold">{thresholds} in every session</SummaryRow>
+            <SummaryRow label="Liquidation threshold">{thresholds}</SummaryRow>
             <SummaryRow label="New-borrow limit">
               {params.data
                 ? `${bpsText(params.data.session.openBps, 0)} open · ${bpsText(params.data.session.extendedBps, 0)} extended · ${bpsText(params.data.session.closedStartBps, 0)} falling to ${bpsText(params.data.session.closedFloorBps, 0)} over ${hours} h closed · 0% halted`
@@ -154,9 +168,11 @@ export function RiskSection({ vault, markets }: { vault: VaultState; markets: Le
             </SummaryRow>
             <SummaryRow label="Reserve factor">
               {reserveShare
-                ? several && spy.data
-                  ? `NVDAx ${reserveShare} · SPYx ${bpsText(spy.data.market.reserveFactorBps, 0)} of interest`
-                  : `${reserveShare} of interest`
+                ? several && pinned?.spyReserveFactorBps != null
+                  ? `NVDAx ${reserveShare} · SPYx ${bpsText(pinned.spyReserveFactorBps, 0)} of interest`
+                  : several && !pinned
+                    ? "Reading the reserve factor from the market."
+                    : `${reserveShare} of interest`
                 : "Reading the reserve factor from the market."}
             </SummaryRow>
           </dl>
@@ -175,8 +191,8 @@ export function RiskSection({ vault, markets }: { vault: VaultState; markets: Le
             <p className="text-sm text-muted-foreground">
               The operator can change the interest-rate model, the session limits, the price guards and the liquidation
               floors, and add markets to the vault, with no timelock. The keeper posts the market session, {provenance.short}, and
-              the debt cap, and runs liquidations. {provenance.detail} Contracts: vault <AddressDisplay address={deployment.vault} />, gap
-              reserve <AddressDisplay address={deployment.gapReserve} />.
+              the debt cap, and runs liquidations. {provenance.detail} Vault <AddressDisplay address={deployment.vault} /> and gap
+              reserve <AddressDisplay address={deployment.gapReserve} /> are deployment addresses, not balances read at this block.
             </p>
           </div>
         ) : null}
