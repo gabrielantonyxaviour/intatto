@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatUtc } from "@/components/ui/web3/format"
+import { EvidenceSheet } from "@/components/ui/ix"
 import { requestKey, type ActionResult, type AdminRequest } from "./api"
 import { RESET, requestLabel, WARPS } from "./copy"
 
@@ -29,7 +30,7 @@ export function ActionButton({ admin, request, label, busy, variant = "default" 
 export function LookAt({ href, label }: { href: string; label: string }) {
   return (
     <Link href={href} className="inline-flex items-center gap-1 text-sm font-medium underline-offset-4 hover:underline">
-      Look at {label}
+      {label}
       <ArrowRightIcon aria-hidden className="size-3.5" />
     </Link>
   )
@@ -86,15 +87,19 @@ export function TimeTravel({ admin }: { admin: Admin }) {
             Time travel
           </h2>
         </CardTitle>
-        <CardDescription>Move the fork&apos;s clock. The keeper then posts the session the calendar says, as it would on mainnet.</CardDescription>
+        <CardDescription>Move this fork&apos;s clock. The keeper then posts the calendar session and a simulated pool-derived price.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3 xl:grid-cols-3">
         {WARPS.map((w) => (
           <div key={w.id} className="grid content-start gap-2 rounded-lg border p-3">
             <ActionButton admin={admin} request={{ kind: "warp", target: w.id }} label={w.label} busy={w.busy} />
-            <p className="font-mono text-xs break-words text-muted-foreground">{w.method}</p>
             <p className="text-sm">{w.next}</p>
-            <LookAt {...w.look} />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <EvidenceSheet title={`${w.label} method`} summary="Fork method for this clock change. It affects this session only." state="ready" triggerLabel={w.id === "saturday" ? "Saturday clock method" : w.id === "monday" ? "Monday clock method" : "One-hour clock method"}>
+                <p className="font-mono text-xs break-words">{w.method}</p>
+              </EvidenceSheet>
+              <LookAt {...w.look} />
+            </div>
           </div>
         ))}
       </CardContent>
@@ -121,7 +126,7 @@ export function ResetControl({ admin }: { admin: Admin }) {
         <p className="font-mono text-xs break-words text-muted-foreground">{RESET.method}</p>
         {confirming && !running ? (
           <div role="group" aria-label="Confirm reset" className="flex flex-wrap items-center gap-2">
-            <span className="text-sm">Discard everything since the session started?</span>
+            <span className="text-sm">Revert this fork to the moment the burner was funded? The ledger keeps every call.</span>
             <Button
               variant="destructive"
               size="sm"

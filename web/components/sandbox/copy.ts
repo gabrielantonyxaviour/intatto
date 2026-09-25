@@ -117,7 +117,20 @@ export const RESET = {
 } as const
 
 export const START_METHOD =
-  "Loads the snapshot into a fresh fork, sets the chain clock to now (evm_setNextBlockTimestamp), has the keeper post the session and prices, and funds a new burner from a real X Layer holder (anvil_impersonateAccount + transfer)."
+  "Loads the snapshot into a fresh fork, sets the chain clock to now (evm_setNextBlockTimestamp), has the keeper post the session and a simulated pool-derived price, and funds a new burner from a real X Layer holder (anvil_impersonateAccount + transfer)."
+
+/** F4: chosen fork inputs, kept next to the fork block and the burner balances. */
+export const SEED_LABEL =
+  "Seeded snapshot: lender funds, the reserve top-up, the borrow cap and the burner balances are chosen amounts on this fork, not organic mainnet activity."
+
+/** F6 on the sandbox page before a session exists (live mode must not be described as the issuer quote). */
+export const SANDBOX_PRICE_LABEL =
+  "Keeper prices in a session are simulated from the forked pool, and replays can override them. They are not the live issuer quote."
+
+export const SCENARIO_GROUPS: { id: string; title: string; names: ScenarioName[] }[] = [
+  { id: "weekend-gap", title: "Weekend gap", names: ["gap-2025-01", "synthetic-gap"] },
+  { id: "corporate-action", title: "Corporate action", names: ["corporate-action", "corporate-action-activate"] },
+]
 
 /** Method prefixes the public sandbox RPC refuses (services/sandbox/src/rpc-filter.ts). */
 export const REFUSED_METHODS = ["anvil_*", "evm_*", "hardhat_*", "debug_*", "trace_*", "eth_sendTransaction", "eth_sign*"]

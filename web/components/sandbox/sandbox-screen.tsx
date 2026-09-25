@@ -3,22 +3,24 @@
 import { useMemo } from "react"
 import { privateKeyToAccount } from "viem/accounts"
 import { InfoIcon, TriangleAlertIcon } from "lucide-react"
-import { liveDeployment, useIntatto, type SandboxSession } from "@/lib/chain"
+import { liveDeployment, useIntatto, usePriceProvenance, type SandboxSession } from "@/lib/chain"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { formatUtc } from "@/components/ui/web3/format"
 import { isSessionGone, SandboxApiError } from "./api"
 import { ActionOutcome, ResetControl, TimeTravel } from "./admin-controls"
-import { ForkIdentity } from "./fork-identity"
-import { LedgerTable } from "./ledger-table"
+import { CompactFacts, ProveForkLink, SessionDetailsSheet } from "./fork-identity"
+import { LedgerPanel } from "./ledger-table"
 import { Scenarios } from "./scenarios"
 import { SessionStatus } from "./session-status"
 import { StartSession } from "./start-session"
+import { SANDBOX_PRICE_LABEL, START_METHOD } from "./copy"
 import { ApiUnavailable, ControlsSkeleton, NoApi, RpcProblem, SessionGone } from "./states"
 import { useAdminAction, useApiBase, useHealth, useLatestBlock, useLedger, useRpcChainId, useSessionInfo, type ApiBase } from "./use-sandbox"
 
 const message = (e: unknown) => (e instanceof Error ? e.message.split("\n")[0]! : String(e))
 
 /** No session yet: the fork's identity (from the service's health) and the creation form. */
-function NoSessionView({ api }: { api: ApiBase }) {
+function NoSessionView({ api, priceNote }: { api: ApiBase; priceNote: string }) {
   const health = useHealth(api.base)
   return (
     <>
@@ -29,16 +31,8 @@ function NoSessionView({ api }: { api: ApiBase }) {
           <AlertDescription>The sandbox is where to try it: the same contracts on a fork of X Layer, with a funded throwaway wallet.</AlertDescription>
         </Alert>
       ) : null}
-      <ForkIdentity
-        chainId={health.data?.chainId}
-        forkBlock={health.data?.forkBlock}
-        snapshotCreatedAt={health.data?.snapshotCreatedAt}
-        markets={health.data?.markets}
-        apiUrl={api.base}
-        loading={health.isPending && !health.isError}
-      />
       {health.isError ? <ApiUnavailable base={api.base} message={message(health.error)} onRetry={() => health.refetch()} /> : null}
-      <StartSession base={api.base} health={health.data} />
+      <StartSession base={api.base} health={health.data} priceNote={priceNote} />
     </>
   )
 }
@@ -54,7 +48,7 @@ function goneReason(status: string | undefined, error: unknown): "expired" | "fa
 }
 
 /** A stored session: its identity, the burner and chain state, the admin controls and the ledger. */
-function SessionView({ api, sandbox }: { api: ApiBase; sandbox: SandboxSession }) {
+function SessionView({ api, sandbox, priceNote }: { api: ApiBase; sandbox: SandboxSession; priceNote: string }) {
   const base = api.base
   const info = useSessionInfo(base, sandbox.sessionId)
   const gone = goneReason(info.data?.status, info.error)
@@ -70,12 +64,20 @@ function SessionView({ api, sandbox }: { api: ApiBase; sandbox: SandboxSession }
 
   return (
     <>
-      <ForkIdentity
-        chainId={sandbox.chainId}
-        forkBlock={sandbox.forkBlock}
-        session={{ sessionId: sandbox.sessionId, rpcUrl: sandbox.rpcUrl }}
-        apiUrl={base}
-      />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <CompactFacts chainId={sandbox.chainId} forkBlock={sandbox.forkBlock} priceNote={priceNote} />
+        <div className="flex flex-wrap gap-2">
+          <SessionDetailsSheet
+            chainId={sandbox.chainId}
+            forkBlock={sandbox.forkBlock}
+            session={{ sessionId: sandbox.sessionId, rpcUrl: sandbox.rpcUrl }}
+            apiUrl={base}
+            priceNote={priceNote}
+            startMethod={START_METHOD}
+          />
+          <ProveForkLink />
+        </div>
+      </div>
       {apiDown ? <ApiUnavailable base={base} message={message(info.error)} onRetry={() => info.refetch()} /> : null}
       {wrongNetwork ? (
         <RpcProblem
@@ -114,23 +116,22 @@ function SessionView({ api, sandbox }: { api: ApiBase; sandbox: SandboxSession }
           )}
         </div>
       </div>
-      {base ? <LedgerTable ledger={ledger} /> : null}
+      {base ? <LedgerPanel ledger={ledger} asOf={block.data ? `chain time ${formatUtc(block.data.timestamp)}` : undefined} /> : null}
     </>
   )
 }
 
 /** The sandbox screen (pg_sandbox): identity → start → burner → time travel → scenarios → reset → ledger. */
 export function SandboxScreen() {
-  const { sandbox } = useIntatto()
+  const { sandbox, mode } = useIntatto()
+  const provenance = usePriceProvenance()
+  const priceNote = mode === "sandbox" ? `${provenance.short}. ${provenance.detail}` : SANDBOX_PRICE_LABEL
   const api = useApiBase()
   return (
     <div className="grid gap-6" data-testid="sandbox-screen" data-mode={sandbox ? "session" : "none"}>
       <header className="grid gap-1">
         <h1 className="text-2xl font-semibold">Sandbox</h1>
-        <p className="max-w-3xl text-muted-foreground">
-          Prove the weekend and corporate-action behaviour yourself on a fork of X Layer mainnet: move the clock, replay a gap, and watch
-          every screen follow. No real money moves.
-        </p>
+        <p className="text-muted-foreground">No real money moves.</p>
       </header>
       {api.overrideInvalid ? (
         <Alert variant="warning" data-testid="sandbox-bad-override">
@@ -143,7 +144,7 @@ export function SandboxScreen() {
           </AlertDescription>
         </Alert>
       ) : null}
-      {sandbox ? <SessionView key={sandbox.sessionId} api={api} sandbox={sandbox} /> : <NoSessionView api={api} />}
+      {sandbox ? <SessionView key={sandbox.sessionId} api={api} sandbox={sandbox} priceNote={priceNote} /> : <NoSessionView api={api} priceNote={priceNote} />}
     </div>
   )
 }

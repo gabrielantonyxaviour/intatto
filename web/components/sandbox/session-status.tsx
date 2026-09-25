@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AddressDisplay, TokenAmount } from "@/components/ui/web3"
 import { formatNumber, formatUtc } from "@/components/ui/web3/format"
-import { SCREENS, SESSION_LIMIT, SESSION_TONE } from "./copy"
+import { SCREENS, SEED_LABEL, SESSION_LIMIT, SESSION_TONE } from "./copy"
 import { useBurnerBalances, useLatestBlock, useSandboxCardRefresh } from "./use-sandbox"
 
 const BADGE = { success: "success-light", info: "info-light", warning: "warning-light", destructive: "destructive-light" } as const
@@ -155,19 +155,17 @@ export function SessionStatus({ burner, lastActiveAt, idleMinutes, stopped = fal
             )}
           </p>
           {stopped ? null : <Balances address={burner} />}
-          <p className="text-xs text-muted-foreground">
-            Funded by transfers from a real X Layer holder (
+          <p className="text-xs text-muted-foreground" data-testid="seed-balances">
+            {SEED_LABEL} Funded by transfer from{" "}
             <span className="font-mono" title={FORK_FUNDING_HOLDER}>
               {FORK_FUNDING_HOLDER.slice(0, 6)}…{FORK_FUNDING_HOLDER.slice(-4)}
             </span>
-            ), never minted. Each transfer is in the activity ledger.
+            , never minted. Each transfer is in the ledger.
           </p>
         </div>
         {stopped ? null : <Separator />}
         {stopped ? null : (
-          <nav aria-label="Screens on this fork" className="grid gap-1.5">
-            <span className="text-sm font-medium">Look at it on</span>
-            <div className="flex flex-wrap gap-2">
+          <nav aria-label="Screens on this fork" className="flex flex-wrap gap-2">
               {[SCREENS.borrow, SCREENS.lend, SCREENS.risk, SCREENS.market].map((s) => (
                 <Button key={s.href} asChild variant="outline" size="sm">
                   <Link href={s.href}>
@@ -176,7 +174,6 @@ export function SessionStatus({ burner, lastActiveAt, idleMinutes, stopped = fal
                   </Link>
                 </Button>
               ))}
-            </div>
           </nav>
         )}
       </CardContent>

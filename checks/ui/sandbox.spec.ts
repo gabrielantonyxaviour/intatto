@@ -52,8 +52,24 @@ async function expectChainTimeMatchesRpc(page: Page, client: PublicClient) {
   }).toPass({ timeout: 60_000 })
 }
 
+/** The full ledger lives in the View ledger sheet. Open it once; a second click would close it. */
+async function openLedger(page: Page) {
+  const ledger = page.getByTestId("ledger")
+  if (!(await ledger.isVisible())) await page.getByRole("button", { name: "View ledger" }).click()
+  await expect(ledger).toBeVisible()
+}
+
+async function closeDialog(page: Page) {
+  const dialog = page.getByRole("dialog")
+  if (await dialog.isVisible()) {
+    await page.keyboard.press("Escape")
+    await expect(dialog).toBeHidden()
+  }
+}
+
 /** The ledger shown equals GET /session/:id/ledger: same count, kinds and summaries (newest first on screen). */
 async function expectLedgerMatchesApi(page: Page, id: string) {
+  await openLedger(page)
   let shown: string[] = []
   await expect(async () => {
     const entries = await ledgerOf(id)
@@ -129,8 +145,16 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   // 1. The fork's identity first, from the service: parent network, chain id, fork block.
   await expect(page.getByTestId("identity-fork-block")).toContainText(sb.meta.forkBlock.toLocaleString("en-US"), { timeout: 120_000 })
   await expect(page.getByTestId("identity-chain-id")).toHaveText(String(sb.meta.chainId))
-  await expect(page.getByLabel("Custom chain id")).toHaveValue(String(sb.meta.chainId))
+  await expect(page.getByTestId("seed-snapshot")).toContainText("not organic mainnet activity")
+  await expect(page.getByTestId("sandbox-price-source")).toContainText("not the live issuer quote")
   await expect(page.getByRole("button", { name: "Start a session" })).toBeEnabled()
+  const details = page.getByRole("button", { name: "Session details" })
+  await details.focus()
+  await page.keyboard.press("Enter")
+  await expect(page.getByRole("dialog", { name: "Session details" })).toBeVisible()
+  await page.keyboard.press("Escape")
+  await expect(page.getByRole("dialog", { name: "Session details" })).toBeHidden()
+  await expect(details).toBeFocused()
   await page.screenshot({ path: "proof/sandbox-start.png", fullPage: true })
   await screenshotsAtWidths(page, "sandbox-start")
 
@@ -145,6 +169,7 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   expect(s.chainId).toBe(1960196)
   const client = createPublicClient({ transport: http(s.rpcUrl) }) as PublicClient
   const burner = privateKeyToAccount(s.burnerKey).address
+  await page.getByRole("button", { name: "Session details" }).click()
   await expect(page.getByTestId("identity-rpc")).toContainText(s.rpcUrl)
   await expect(page.getByTestId("sandbox-session").locator(`[title="${burner}"]`).first()).toBeVisible()
   await expect(page.getByTestId("burner-connection")).toContainText("Connected", { timeout: 60_000 })
@@ -165,10 +190,31 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   // 4. The public RPC refuses fork control.
   await page.getByRole("button", { name: "Try evm_mine on it" }).click()
   await expect(page.getByTestId("admin-probe")).toContainText("Refused (-32601)")
+  await closeDialog(page)
+  const howSaturday = page.getByRole("button", { name: "Saturday clock method" })
+  await howSaturday.focus()
+  await page.keyboard.press("Enter")
+  await expect(page.getByRole("dialog", { name: "Jump to Saturday method" })).toBeVisible()
+  await page.keyboard.press("Escape")
+  await expect(howSaturday).toBeFocused()
+  const januarySources = page.getByRole("button", { name: "Sources and method: January 2025 NVDA weekend gap" })
+  await januarySources.focus()
+  await page.keyboard.press("Enter")
+  await expect(page.getByRole("dialog", { name: "January 2025 NVDA weekend gap" })).toBeVisible()
+  await page.keyboard.press("Escape")
+  await expect(januarySources).toBeFocused()
+  await expect(page.getByTestId("scenario-gap-2025-01")).toContainText("Dukascopy")
+  await expect(page.getByTestId("scenario-synthetic-gap")).toContainText("45%")
+  const viewLedger = page.getByRole("button", { name: "View ledger" })
+  await viewLedger.focus()
+  await page.keyboard.press("Enter")
+  await expect(page.getByRole("dialog", { name: "Activity ledger" })).toBeVisible()
+  await page.keyboard.press("Escape")
+  await expect(viewLedger).toBeFocused()
 
   // 5. Jump to Saturday → chain time equals the latest block; the session reads CLOSED like the contract.
   const warpResponse = page.waitForResponse((r) => r.url().endsWith(`/session/${s.sessionId}/warp`), { timeout: 180_000 })
-  await page.getByRole("button", { name: "Jump to Saturday" }).click()
+  await page.getByRole("button", { name: "Jump to Saturday", exact: true }).click()
   const warp = (await (await warpResponse).json()) as { entries: Entry[] }
   await expect(page.getByTestId("action-result")).toContainText("Jump to Saturday: done", { timeout: 120_000 })
   await expectChainTimeMatchesRpc(page, client)
@@ -187,6 +233,7 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   const kinds = new Set(await page.getByTestId("ledger-row").evaluateAll((rows) => rows.map((r) => r.getAttribute("data-kind"))))
   for (const k of ["deploy", "fund", "keeper", "warp", "scenario", "actor"]) expect(kinds.has(k), `ledger has a ${k} entry`).toBe(true)
   await expect(page.getByTestId("market-session")).toHaveText(await currentSession(client, s), { timeout: 60_000 })
+  await closeDialog(page)
   await expectNoHorizontalScroll(page)
   await settle(page)
   await page.screenshot({ path: "proof/sandbox.png", fullPage: true })
@@ -208,6 +255,7 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   await page.getByRole("button", { name: "Reset…" }).click()
   await page.getByRole("button", { name: "Yes, reset" }).click()
   await expect(page.getByTestId("action-result")).toContainText("Reset to the session start: done", { timeout: 120_000 })
+  await openLedger(page)
   await expect(page.getByTestId("ledger-row").first()).toHaveAttribute("data-kind", "reset", { timeout: 60_000 })
   await expectChainTimeMatchesRpc(page, client)
   expect(Number((await client.getBlock({ blockTag: "latest" })).timestamp)).toBeLessThan(saturdayTime)
