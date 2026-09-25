@@ -1,7 +1,8 @@
 import { mkdir } from "node:fs/promises"
 import type { Address } from "viem"
 import { formatUnits } from "viem"
-import { marketLensAbi } from "@intatto/config/abi"
+import { marketLensAbi, priceRelayAdapterAbi } from "@intatto/config/abi"
+import { bpsShort, duration } from "../../web/components/market/format.ts"
 import { sessionFromIndex } from "@intatto/config/session"
 import { handleCredit } from "../../web/lib/credit/handler.ts"
 import { openPosition } from "../fork/lib/scenarios.ts"
@@ -25,7 +26,7 @@ test.afterAll(async () => {
 })
 
 test("agents credit call matches the fork", async ({ page, useFork }) => {
-  test.setTimeout(180_000)
+  test.setTimeout(240_000)
   await useFork(page, h.env)
   await installCreditBridge(page)
 
@@ -33,26 +34,57 @@ test("agents credit call matches the fork", async ({ page, useFork }) => {
   await page.goto("/agents")
   await expect(page.getByRole("heading", { name: "Agents" })).toBeVisible()
   await expect(page.getByRole("link", { name: "Intatto credit and health" })).toBeVisible()
-  await page.getByLabel("Search services").fill("no-such-service")
-  await expect(page.getByText("No service matches that.")).toBeVisible()
-  await page.getByLabel("Search services").fill("")
-  await page.getByRole("button", { name: "Add your API" }).click()
-  await expect(page.getByText("Outside APIs are not added here.")).toBeVisible()
+  await expect(page.getByLabel("Search services")).toHaveCount(0)
+  await expect(page.getByRole("button", { name: "Add your API" })).toHaveCount(0)
+  await expect(page.getByText("OKX AI listing: under review (agent #13907)")).toBeVisible()
+  await expect(page.getByText("Verified 25 Sep 2026")).toBeVisible()
+  await expect(page.getByText("Free", { exact: true }).first()).toBeVisible()
   await expectNoHorizontalScroll(page)
+  await page.screenshot({ path: "proof/agents-catalog.png", fullPage: true })
+  await page.setViewportSize(viewports.narrow)
+  await expectNoHorizontalScroll(page)
+  await page.screenshot({ path: "proof/agents-catalog-390.png", fullPage: true })
+  await page.setViewportSize(viewports.wide)
 
   await page.getByRole("link", { name: "Try it" }).click()
   await expect(page).toHaveURL(/\/agents\/credit$/)
   await expect(page.getByRole("heading", { name: "Intatto credit and health" })).toBeVisible()
   await expect(page.getByText("OKX AI listing: under review (agent #13907)")).toBeVisible()
-  await expect(page.getByText("x402 on X Layer (eip155:196) after a real paid settlement is proven")).toBeVisible()
+  await expect(page.getByText("Verified 25 Sep 2026")).toBeVisible()
+  await expect(page.getByText("No paid receipt.")).toBeVisible()
+  await expect(page.getByText("Registration is not listing approval.")).toBeVisible()
+  await expect(page.getByText("x402 on X Layer (eip155:196) after a real paid settlement is proven")).toBeHidden()
+  await expect(page.getByRole("link", { name: "see every keeper post on the Risk console" })).toBeVisible()
   await expect(page.getByTestId("credit-call-count")).toHaveText("0")
+  expect(await page.locator("body").innerText()).not.toMatch(/listing: listed|listing approved/i)
 
-  await page.getByRole("button", { name: "Try with" }).click()
-  await page.getByRole("menuitem", { name: "OKX AI agents via A2MCP" }).click()
+  const api = page.locator("summary", { hasText: "API reference" })
+  await expect(api).toBeVisible()
+  await api.focus()
+  await page.keyboard.press("Enter")
+  await expect(page.getByRole("heading", { name: "Endpoints" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Parameters" })).toBeVisible()
   await expect(page.getByText("No client is wired up here.")).toBeVisible()
-  await page.getByRole("button", { name: "Try with" }).click()
-  await page.getByRole("menuitem", { name: "curl" }).click()
   await expect(page.getByText(/^curl -sS /)).toBeVisible()
+  await api.focus()
+  await page.keyboard.press("Enter")
+  await expect(page.getByRole("heading", { name: "Endpoints" })).toBeHidden()
+
+  const agent = page.getByRole("button", { name: "Agent details", exact: true })
+  await agent.focus()
+  await page.keyboard.press("Enter")
+  await expect(page.getByTestId("agent-details")).toBeVisible()
+  await expect(page.getByText("Pay-to: none while the call is free.")).toBeVisible()
+  await expect(page.getByRole("link", { name: "0xe1d2770368121cdc5457fcb6adaabdaedf57f7ecd804ca73916bfb0c1dc2b3c7" })).toBeVisible()
+  await page.keyboard.press("Escape")
+  await expect(page.getByTestId("agent-details")).toBeHidden()
+
+  const payment = page.getByRole("button", { name: "About Payment details" })
+  await payment.focus()
+  await page.keyboard.press("Enter")
+  await expect(page.getByText("x402 on X Layer (eip155:196) after a real paid settlement is proven")).toBeVisible()
+  await page.keyboard.press("Escape")
+  await expect(page.getByText("x402 on X Layer (eip155:196) after a real paid settlement is proven")).toBeHidden()
 
   await expect(page.getByLabel("Wallet")).toHaveValue(/^0x[0-9a-fA-F]{40}$/, { timeout: 60_000 })
   const responsePromise = page.waitForResponse(
@@ -84,15 +116,44 @@ test("agents credit call matches the fork", async ({ page, useFork }) => {
   await expect(page.getByTestId("credit-session")).toHaveText(json.session.state)
   await expect(page.getByTestId("credit-debt")).toHaveText(json.position.debtUsdg)
   await expect(page.getByTestId("credit-capacity")).toHaveText(json.capacity.borrowableNowUsdg)
+  await expect(page.getByTestId("credit-price")).toHaveCount(0)
+  await expect(page.getByTestId("credit-call-count")).toHaveText("1")
+  await expect(page.getByText("Stored in this browser only.")).toBeVisible()
+
+  const relay = market.priceRelay as Address
+  const [liveness, twap, peg] = await Promise.all([
+    h.fork.read<bigint>(relay, priceRelayAdapterAbi, "priceLiveness"),
+    h.fork.read<bigint>(relay, priceRelayAdapterAbi, "twapWindow"),
+    h.fork.read<bigint>(relay, priceRelayAdapterAbi, "pegBps"),
+  ])
+  const responseDetails = page.getByRole("button", { name: "Response details", exact: true })
+  await responseDetails.focus()
+  await page.keyboard.press("Enter")
+  await expect(page.getByTestId("response-details")).toBeVisible()
   await expect(page.getByTestId("credit-price")).toHaveText(json.price.usdPerToken ?? "none")
   await expect(page.getByTestId("credit-fetched")).toHaveText(json.price.fetchedAt ?? "none")
   await expect(page.getByTestId("credit-liq-price")).toHaveText(json.liquidation.liquidationPriceUsd ?? "none")
   await expect(page.getByTestId("credit-gap")).toHaveText(
     json.liquidation.gapToLiquidationBps === null ? "none" : String(json.liquidation.gapToLiquidationBps),
   )
-  await expect(page.getByTestId("credit-call-count")).toHaveText("1")
-  await expect(page.getByText("Stored in this browser only.")).toBeVisible()
+  await expect(page.getByTestId("credit-ltv")).toHaveText(String(json.session.maxNewBorrowLtvBps))
+  await expect(page.getByTestId("credit-source")).toHaveText(json.price.source)
+  expect(json.price.source).not.toContain("issuer's indicative quote")
+  await expect(page.getByText(`Keeper post under ${duration(liveness)}`)).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByText(`Inside the ${duration(twap)} pool band`)).toBeVisible()
+  await expect(page.getByText(`USDG within ${bpsShort(peg)} of peg`)).toBeVisible()
+  await expect(page.getByText("Corporate action pause")).toBeVisible()
+  await expect(page.getByText("Issuer pause")).toBeVisible()
+  await expect(page.getByTestId("credit-json")).toContainText(json.service)
+  await expectNoHorizontalScroll(page)
+  await page.screenshot({ path: "proof/agents-response.png" })
+  await page.setViewportSize(viewports.narrow)
+  await expectNoHorizontalScroll(page)
+  await page.screenshot({ path: "proof/agents-response-390.png" })
+  await page.keyboard.press("Escape")
+  await expect(page.getByTestId("credit-price")).toBeHidden()
 
+  await page.setViewportSize(viewports.wide)
   await expectNoHorizontalScroll(page)
   await page.screenshot({ path: "proof/agents.png", fullPage: true })
   await page.setViewportSize(viewports.medium)

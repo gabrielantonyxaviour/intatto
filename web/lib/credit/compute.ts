@@ -11,6 +11,13 @@ import { CreditError } from "./http"
 import type { CreditMarket, CreditNetwork } from "./query"
 
 export const PRICE_SOURCE = "keeper relay of the xStocks issuer's indicative quote (trusted relayer, bounded onchain)"
+/** Sandbox keeper posts are the fork's pool-implied quote and calendar, not the issuer's live quote. */
+export const SANDBOX_PRICE_SOURCE =
+  "simulated pool-derived keeper post on this fork (not the issuer's live quote); a replay can override it"
+
+export function priceSourceFor(network: CreditNetwork): string {
+  return network === "sandbox" ? SANDBOX_PRICE_SOURCE : PRICE_SOURCE
+}
 const TOKEN_DECIMALS = 18 // xStock tokens and their ERC-4626 wrappers (the relay refuses anything else)
 const USDG_DECIMALS = XLAYER.usdgDecimals
 const MAX_UINT = 2n ** 256n - 1n
@@ -148,7 +155,7 @@ export async function computeCredit(
       usdPerToken: k.priceE18 === 0n ? null : formatUnits(k.priceE18, 18),
       fetchedAt: iso(k.fetchedAt),
       sourceTimestamp: null,
-      source: PRICE_SOURCE,
+      source: priceSourceFor(opts.network),
     },
     guards: {
       fresh: k.fresh,

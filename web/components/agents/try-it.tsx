@@ -1,11 +1,10 @@
 "use client"
 
 import { useEffect, useState, type FormEvent } from "react"
-import Link from "next/link"
 import { useAccount } from "wagmi"
 import { REFUSALS } from "@intatto/config/session"
 import type { CreditReport } from "@/lib/credit/compute"
-import { useIntatto } from "@/lib/chain"
+import { useIntatto, useProtocolParams } from "@/lib/chain"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,18 +12,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
-import { creditQuery, curlFor, PRICE_SOURCE, type CallLog } from "./content"
+import { EvidenceSheet } from "@/components/ui/ix"
+import { creditQuery, curlFor, type CallLog } from "./content"
 import { CopyButton } from "./copy-button"
+import { GUARD_ORDER, guardIsGood, guardLabel, guardOn } from "./guard-labels"
 
 type Market = "NVDAx" | "SPYx"
-
-const GUARDS: { key: keyof CreditReport["guards"]; label: string; goodWhen: boolean }[] = [
-  { key: "fresh", label: "Keeper post under 30 min", goodWhen: true },
-  { key: "inBand", label: "Inside the 30-min pool band", goodWhen: true },
-  { key: "pegOk", label: "USDG within 1% of peg", goodWhen: true },
-  { key: "corporateActionPaused", label: "Corporate action pause", goodWhen: false },
-  { key: "issuerPaused", label: "Issuer pause", goodWhen: false },
-]
 
 function isReport(value: unknown): value is CreditReport {
   return Boolean(value && typeof value === "object" && (value as { service?: string }).service === "intatto-credit")
@@ -162,24 +155,17 @@ function Field({ label, testId, value }: { label: string; testId: string; value:
 }
 
 function ReportView({ report }: { report: CreditReport }) {
+  const params = useProtocolParams(report.market)
+  const bounds = params.status === "success" ? params.data : undefined
   const reason = report.capacity.reason
+  const json = JSON.stringify(report, null, 2)
   return (
     <div className="grid min-w-0 gap-3">
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Field label="Session" testId="credit-session" value={report.session.state} />
-        <Field label="Max new-borrow LTV (bps)" testId="credit-ltv" value={String(report.session.maxNewBorrowLtvBps)} />
         <Field label="Debt (USDG)" testId="credit-debt" value={report.position.debtUsdg} />
         <Field label="Capacity now (USDG)" testId="credit-capacity" value={report.capacity.borrowableNowUsdg} />
-        <Field label="Price (USD per token)" testId="credit-price" value={report.price.usdPerToken ?? "none"} />
-        <Field label="Fetched by the keeper at" testId="credit-fetched" value={report.price.fetchedAt ?? "none"} />
-        <Field label="Liquidation price (USD per token)" testId="credit-liq-price" value={report.liquidation.liquidationPriceUsd ?? "none"} />
-        <Field
-          label="Gap to liquidation (bps)"
-          testId="credit-gap"
-          value={report.liquidation.gapToLiquidationBps === null ? "none" : String(report.liquidation.gapToLiquidationBps)}
-        />
       </div>
-      <p className="text-sm text-muted-foreground">{PRICE_SOURCE}</p>
       {reason ? (
         <Alert variant="warning">
           <AlertTitle>New borrowing is refused</AlertTitle>
@@ -188,25 +174,54 @@ function ReportView({ report }: { report: CreditReport }) {
           </AlertDescription>
         </Alert>
       ) : null}
-      <div className="flex flex-wrap gap-2">
-        {GUARDS.map((guard) => {
-          const on = report.guards[guard.key]
-          const good = on === guard.goodWhen
-          return (
-            <Badge key={guard.key} variant={good ? "success-light" : "warning-light"}>
-              {guard.label}: {on ? "yes" : "no"}
-            </Badge>
-          )
-        })}
-      </div>
-      <p className="text-sm">
-        <Link href="/risk" className="underline underline-offset-4">
-          see every keeper post on the Risk console
-        </Link>
-      </p>
-      <pre className="max-w-full overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs" data-testid="credit-json">
-        {JSON.stringify(report, null, 2)}
-      </pre>
+      <EvidenceSheet
+        title="Response details"
+        triggerLabel="Response details"
+        summary={`${report.market} credit report on ${report.network}`}
+        asOf={`Block ${report.block} · ${report.asOf}`}
+        state="ready"
+        evidenceFor="credit-response"
+        testId="response-details"
+      >
+        <div className="grid min-w-0 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Max new-borrow LTV (bps)" testId="credit-ltv" value={String(report.session.maxNewBorrowLtvBps)} />
+            <Field label="Price (USD per token)" testId="credit-price" value={report.price.usdPerToken ?? "none"} />
+            <Field label="Fetched by the keeper at" testId="credit-fetched" value={report.price.fetchedAt ?? "none"} />
+            <Field label="Liquidation price (USD per token)" testId="credit-liq-price" value={report.liquidation.liquidationPriceUsd ?? "none"} />
+            <Field
+              label="Gap to liquidation (bps)"
+              testId="credit-gap"
+              value={report.liquidation.gapToLiquidationBps === null ? "none" : String(report.liquidation.gapToLiquidationBps)}
+            />
+          </div>
+          <div className="grid gap-1">
+            <span className="text-xs text-muted-foreground">Price source</span>
+            <p data-testid="credit-source" className="text-sm">
+              {report.price.source}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {GUARD_ORDER.map((key) => {
+              const on = guardOn(report.guards, key)
+              return (
+                <Badge key={key} variant={guardIsGood(key, on) ? "success-light" : "warning-light"}>
+                  {guardLabel(key, bounds)}: {on ? "yes" : "no"}
+                </Badge>
+              )
+            })}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {bounds
+              ? `Freshness, pool band and peg limits read from the price relay at block ${bounds.blockNumber}.`
+              : "Freshness, pool band and peg limits are omitted until the price relay read succeeds."}
+          </p>
+          <pre className="max-w-full overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs whitespace-pre-wrap break-all" data-testid="credit-json">
+            {json}
+          </pre>
+          <CopyButton value={json} label="Copy response JSON" />
+        </div>
+      </EvidenceSheet>
     </div>
   )
 }

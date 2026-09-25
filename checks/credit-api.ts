@@ -19,6 +19,7 @@ import { sessionFromIndex } from "@intatto/config/session"
 import { XLAYER } from "@intatto/config/xlayer"
 import { GET } from "../web/app/api/credit/route.ts"
 import { GET as HEALTH } from "../web/app/api/credit/health/route.ts"
+import { PRICE_SOURCE, SANDBOX_PRICE_SOURCE } from "../web/lib/credit/compute.ts"
 import { startForkHarness } from "./fork/harness.ts"
 import type { ForkChain } from "./fork/lib/chain.ts"
 import { fail, pass } from "./lib/rpc.ts"
@@ -26,7 +27,6 @@ import { fail, pass } from "./lib/rpc.ts"
 const API = "https://intatto.larinova.com/api/credit"
 const MAX = 2n ** 256n - 1n
 const wrapperAbi = parseAbi(["function convertToAssets(uint256) view returns (uint256)"])
-const PRICE_SOURCE = "keeper relay of the xStocks issuer's indicative quote (trusted relayer, bounded onchain)"
 const iso = (s: bigint) => (s === 0n ? null : new Date(Number(s) * 1000).toISOString())
 const min = (...xs: bigint[]) => xs.reduce((a, b) => (a < b ? a : b))
 const pos = (x: bigint) => (x > 0n ? x : 0n)
@@ -100,7 +100,7 @@ async function expected(fork: ForkChain, d: Deployment, who: Address, block: big
   return {
     service: "intatto-credit", version: "1", network, chainId, block: Number(block), wallet: getAddress(who), market: "NVDAx",
     session: { state: session, maxNewBorrowLtvBps: Number(maxLtv), periodChangedAt: iso(post[1]), postedAt: iso(post[2]) },
-    price: { usdPerToken: priceE18 === 0n ? null : formatUnits(priceE18, 18), fetchedAt: iso(fetchedAt), sourceTimestamp: null, source: PRICE_SOURCE },
+    price: { usdPerToken: priceE18 === 0n ? null : formatUnits(priceE18, 18), fetchedAt: iso(fetchedAt), sourceTimestamp: null, source: network === "sandbox" ? SANDBOX_PRICE_SOURCE : PRICE_SOURCE },
     guards: { fresh: guard.fresh, inBand: guard.inBand, pegOk: guard.pegOk, corporateActionPaused: caPaused, issuerPaused },
     position: {
       collateralTokens: formatUnits(assets, 18), collateralWrapperShares: formatUnits(shares, 18),

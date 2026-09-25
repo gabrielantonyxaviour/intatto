@@ -8,14 +8,13 @@ export const PUBLIC_ORIGIN = "https://intatto.larinova.com"
 export const PRICE_LABEL = "Free"
 export const PAYMENT_NOTE = "x402 on X Layer (eip155:196) after a real paid settlement is proven"
 export const LISTING_STATUS = "OKX AI listing: under review (agent #13907)"
+/** No listing API. These claims were checked on this date and are not a live registry read. */
+export const VERIFIED_ON = "Verified 25 Sep 2026"
 export const AGENT_LABEL = "agent #13907"
 export const REGISTRATION_TX = "0xe1d2770368121cdc5457fcb6adaabdaedf57f7ecd804ca73916bfb0c1dc2b3c7"
 export const DEMO_WALLET = "0x7F23b131F7312bd0f63EF79974E215Dc3E12a415"
 export const KEEPER_ROLE = "Posts the market session, the relayed price and the ticker caps, and runs bounded liquidations."
 export const KEEPER_IDENTITY = "OKX AI agent #13907"
-
-export const PRICE_SOURCE =
-  "Keeper relay of the xStocks issuer's indicative quote (a trusted relayer, bounded onchain). The issuer quote has no source timestamp."
 
 /** Short form of okx-ai/README.md. The listing is under review; no client is wired into this page. */
 export const A2MCP_SUMMARY = [
