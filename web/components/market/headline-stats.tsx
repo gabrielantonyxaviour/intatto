@@ -13,9 +13,11 @@ function Stat({ id, label, value, sub, hint }: { id: string; label: string; valu
   const unit = splitAt > 0 ? text.slice(splitAt + 1) : ""
   return (
     <div data-testid={`stat-${id}`} className="grid min-w-0 content-start gap-1">
-      <dt className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
-        <span className="min-w-0">{label}</span>
-        <DefinitionPopover term={label}>{hint}</DefinitionPopover>
+      <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <span>{label}</span>
+        <span className="shrink-0">
+          <DefinitionPopover term={label}>{hint}</DefinitionPopover>
+        </span>
       </dt>
       <dd data-slot="value" className="min-w-0 text-base leading-tight font-semibold tabular-nums sm:text-lg lg:text-xl">
         {typeof value === "string" ? (
@@ -40,14 +42,14 @@ export function HeadlineStats({ vault, markets }: { vault: VaultState; markets: 
   const loans = markets.reduce((sum, m) => sum + m.totalDebt, 0n)
   const collateral = markets.reduce((sum, m) => sum + m.totalCollateralValue, 0n)
   return (
-    <div data-testid="headline-stats" className="grid gap-4">
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-4 lg:grid-cols-4">
+    <div data-testid="headline-stats" className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
+      <dl className="grid w-full grid-cols-2 gap-x-4 gap-y-4 lg:grid-cols-4">
         <Stat id="deposits" label="Total deposits" value={usdg(vault.totalAssets)} hint="USDG lenders have in the vault, including what is lent out." />
         <Stat id="loans" label="Loans" value={usdg(loans)} hint="USDG borrowers owe across every market, with interest to date." />
         <Stat id="available" label="Available" value={usdg(vault.idle)} hint="Idle USDG in the vault: what can be borrowed or withdrawn now." />
         <Stat id="utilisation" label="Utilisation" value={bps(vault.utilizationBps)} hint="Share of deposits currently lent out." />
       </dl>
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-4 border-t pt-3 lg:grid-cols-3">
+      <dl className="grid w-full grid-cols-2 gap-x-4 gap-y-4 border-t pt-3 lg:grid-cols-3">
         <Stat
           id="reserve"
           label="Gap reserve"
@@ -67,7 +69,7 @@ export function HeadlineStats({ vault, markets }: { vault: VaultState; markets: 
         />
         <Stat id="collateral" label="Collateral value" value={usdg(collateral)} hint="Tokenized stock held as collateral, valued at the relayed price." />
       </dl>
-      <p data-testid="waterfall-line" className="col-span-2 self-center text-sm text-muted-foreground sm:col-span-2 lg:col-span-3">
+      <p data-testid="waterfall-line" className="text-sm text-muted-foreground sm:col-span-2">
         If a liquidation cannot repay a loan, the gap reserve pays the rest; anything beyond it becomes a recognised deficit
         that lenders share pro rata.{" "}
         <Link href="/lend#risk" className="font-medium text-foreground underline underline-offset-4">
