@@ -2,7 +2,7 @@
  * Simulated actors on a fork: the funding holder, the keeper and an arbitrageur. Every action is a real
  * transaction against real X Layer contract code, recorded in the ledger. Nothing is ever minted.
  */
-import { formatUnits, maxUint256, type Address } from "viem"
+import { formatUnits, maxUint256, parseEventLogs, type Address } from "viem"
 import { FORK_FUNDING_HOLDER, TICKERS, XLAYER } from "@intatto/config/xlayer"
 import { sessionIndex, type Session } from "@intatto/config/session"
 import type { Deployment, MarketDeployment } from "@intatto/config/deployments"
@@ -66,8 +66,10 @@ export class ForkKeeper {
     const now = await this.fork.chainTime()
     const relay = this.m(symbol).priceRelay as Address
     const hash = await this.fork.write(this.d.keeper as Address, relay, abi.priceRelay, "post", [quoteE18, BigInt(fetchedAt ?? now)])
-    const [stored] = await this.fork.read<[bigint, bigint]>(relay, abi.priceRelay, "latestPrice")
-    const accepted = stored === quoteE18
+    // The relay's own event says what happened (a re-post equal to the stored price can still be rejected).
+    const receipt = await this.fork.client.getTransactionReceipt({ hash })
+    const events = parseEventLogs({ abi: abi.priceRelay, logs: receipt.logs })
+    const accepted = events.some((e) => e.eventName === "PricePosted")
     await this.fork.ledger.add({
       kind: "keeper",
       summary: `keeper posted ${symbol} quote $${formatUnits(quoteE18, 18)} (${accepted ? "accepted" : "rejected by the relay guards"})`,
