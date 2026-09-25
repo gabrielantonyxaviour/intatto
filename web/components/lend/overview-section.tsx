@@ -41,8 +41,8 @@ export function OverviewSection({ vault }: { vault: VaultState }) {
         <SummaryRow label="Withdrawals" className="border-b pb-3">
           Any time, up to the idle USDG
         </SummaryRow>
-        <SummaryRow label="Markets" className="border-b pb-3">
-          1 (NVDAx)
+        <SummaryRow label="Markets" className="border-b pb-3" testId="overview-markets">
+          {deployment.markets.length} ({deployment.markets.map((m) => m.symbol).join(", ")})
         </SummaryRow>
       </dl>
     </Section>

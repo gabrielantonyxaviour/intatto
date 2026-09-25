@@ -1,6 +1,13 @@
 // Relative import (not "@/…") so the Playwright spec can import these same formatters from Node.
 import { formatTokenAmount } from "../ui/web3/format.ts"
 
+/** "NVDAx" or "NVDAx and SPYx". */
+export function marketList(symbols: readonly string[]): string {
+  if (symbols.length <= 1) return symbols[0] ?? "NVDAx"
+  if (symbols.length === 2) return `${symbols[0]} and ${symbols[1]}`
+  return `${symbols.slice(0, -1).join(", ")} and ${symbols[symbols.length - 1]}`
+}
+
 /** USDG and the vault's iUSDG shares both use 6 decimals. */
 export const USDG_DECIMALS = 6
 export const SHARE_SYMBOL = "iUSDG"

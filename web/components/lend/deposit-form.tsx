@@ -7,7 +7,7 @@ import { lendingVaultAbi } from "@intatto/config/abi"
 import { useIntatto, type AccountState, type VaultState } from "@/lib/chain"
 import { Button } from "@/components/ui/button"
 import { AmountInput, ApproveThenAct, TokenAmount, ValueChange, shortAddress } from "@/components/ui/web3"
-import { SHARE_SYMBOL, USDG_DECIMALS, bpsText, projectedEarnings, usdg } from "./lend-format"
+import { SHARE_SYMBOL, USDG_DECIMALS, bpsText, marketList, projectedEarnings, usdg } from "./lend-format"
 import { SummaryRow } from "./summary-row"
 
 /** ERC-4626 previewDeposit with OpenZeppelin's virtual share and asset (decimals offset 0), rounded down. */
@@ -89,7 +89,11 @@ export function DepositForm({
         <dl className="grid gap-2 rounded-lg border p-3" aria-label="Deposit receipt" data-testid="deposit-receipt">
           <SummaryRow label="From">{address ? `Your wallet (${shortAddress(address)})` : "Your wallet"}</SummaryRow>
           <SummaryRow label="To">Intatto USDG vault</SummaryRow>
-          <SummaryRow label="Lent to">NVDAx market · 65% liquidation threshold</SummaryRow>
+          <SummaryRow label="Lent to">
+            {deployment.markets.length === 1
+              ? `${deployment.markets[0]!.symbol} market · 65% liquidation threshold`
+              : `${marketList(deployment.markets.map((m) => m.symbol))} markets`}
+          </SummaryRow>
           <SummaryRow label="Supply rate">
             <span className="text-success-foreground">{bpsText(rate)}</span>
           </SummaryRow>

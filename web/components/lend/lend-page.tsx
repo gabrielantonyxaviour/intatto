@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useAccount } from "wagmi"
 import { RotateCwIcon, TriangleAlertIcon } from "lucide-react"
-import { useAccountState, useIntatto, useMarketState, useVaultState } from "@/lib/chain"
+import { useAccountState, useIntatto, useVaultState } from "@/lib/chain"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -16,6 +16,7 @@ import { OverviewSection, PositionSection } from "./overview-section"
 import { PrimerDialog } from "./primer-dialog"
 import { RatesSection } from "./rates-section"
 import { RiskSection } from "./risk-section"
+import { useLendMarkets } from "./use-lend-reads"
 import { useLendTerms } from "./use-lend-terms"
 import { SectionNav, VaultHero } from "./vault-hero"
 
@@ -84,7 +85,7 @@ function LendScreen() {
   const terms = useLendTerms()
   const [primer, setPrimer] = useState<"auto" | "open" | "closed">("auto")
   const vault = useVaultState()
-  const market = useMarketState()
+  const markets = useLendMarkets()
   const account = useAccountState(address)
   const primerOpen = primer === "open" || (primer === "auto" && !terms.accepted)
 
@@ -100,8 +101,8 @@ function LendScreen() {
     />
   )
 
-  if (!vault.data || !market.data) {
-    const failed = vault.error ?? market.error
+  if (!vault.data || !markets.data) {
+    const failed = vault.error ?? markets.error
     // The primer waits while the vault cannot be read, so it never covers the error and its retry.
     if (failed) {
       return (
@@ -109,7 +110,7 @@ function LendScreen() {
           message={failed instanceof Error ? failed.message.split("\n")[0]! : "The RPC did not answer."}
           onRetry={() => {
             void vault.refetch()
-            void market.refetch()
+            markets.refetch()
           }}
         />
       )
@@ -123,7 +124,7 @@ function LendScreen() {
   }
 
   const v = vault.data
-  const m = market.data
+  const list = markets.data
   return (
     <div data-testid="lend-page" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
       {dialog}
@@ -148,9 +149,9 @@ function LendScreen() {
       <div className="grid min-w-0 grid-cols-1 content-start gap-10 lg:col-start-1">
         <SectionNav />
         <OverviewSection vault={v} />
-        <AllocationSection vault={v} market={m} />
+        <AllocationSection vault={v} markets={list} />
         <RatesSection vault={v} />
-        <RiskSection vault={v} market={m} />
+        <RiskSection vault={v} markets={list} />
         <DeficitsSection vault={v} />
         <PositionSection vault={v} account={account.data} loading={account.isPending && Boolean(address)} />
       </div>

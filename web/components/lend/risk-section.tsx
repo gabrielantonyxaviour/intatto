@@ -1,28 +1,34 @@
 "use client"
 
 import Link from "next/link"
-import { useIntatto, type MarketState, type VaultState } from "@/lib/chain"
+import { useIntatto, type VaultState } from "@/lib/chain"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AddressDisplay, ExplorerLink } from "@/components/ui/web3"
-import { bpsText, lossExample, ratioText, usdg } from "./lend-format"
+import { bpsText, lossExample, marketList, ratioText, usdg } from "./lend-format"
 import { Section } from "./overview-section"
 import { SummaryRow } from "./summary-row"
+import type { LendMarket } from "./use-lend-reads"
 
 /** The loss waterfall with live numbers, the gap reserve's funding rule and who controls what. */
-export function RiskSection({ vault, market }: { vault: VaultState; market: MarketState }) {
+export function RiskSection({ vault, markets }: { vault: VaultState; markets: LendMarket[] }) {
   const { deployment } = useIntatto()
+  const market = markets[0]!.state
+  const several = markets.length > 1
+  const debt = markets.reduce((sum, m) => sum + m.state.totalDebt, 0n)
+  const collateral = markets.reduce((sum, m) => sum + m.state.totalCollateralValue, 0n)
+  const names = marketList(markets.map((m) => m.symbol))
   const steps = [
     {
       title: "Recovered collateral",
-      value: usdg(market.totalCollateralValue),
+      value: usdg(collateral),
       testId: "waterfall-collateral",
       note: undefined,
-      body: `An unhealthy position's NVDAx is sold into the pool in bounded slices. The proceeds repay its debt and the 5% penalty first. ${
-        market.totalDebt === 0n
+      body: `An unhealthy position's ${several ? "collateral" : "NVDAx"} is sold into the pool in bounded slices. The proceeds repay its debt and the 5% penalty first. ${
+        debt === 0n
           ? "No loans are open right now."
-          : `Right now ${usdg(market.totalCollateralValue, 0)} of collateral backs ${usdg(market.totalDebt, 0)} of debt (${ratioText(
-              market.totalDebt,
-              market.totalCollateralValue,
+          : `Right now ${usdg(collateral, 0)} of collateral backs ${usdg(debt, 0)} of debt (${ratioText(
+              debt,
+              collateral,
               1,
             )} loan-to-value across all borrowers).`
       }`,
@@ -47,9 +53,11 @@ export function RiskSection({ vault, market }: { vault: VaultState; market: Mark
       <Alert variant="warning" data-testid="loss-disclosure">
         <AlertTitle>Loss risk</AlertTitle>
         <AlertDescription>
-          Lenders can lose money in a gap larger than the reserve. There is no insurance fund beyond the gap reserve. If NVDAx opens far below where it closed and a liquidation
+          Lenders can lose money in a gap larger than the reserve. There is no insurance fund beyond the gap reserve. If{" "}
+          {several ? names.replace(" and ", " or ") : "NVDAx"} opens far below where it closed and a liquidation
           cannot recover the debt, the gap reserve pays first; any remainder lowers the value of every lender&apos;s
           shares, in proportion to what they hold.
+          {several && markets.some((m) => m.symbol === "SPYx") ? " SPYx is sandbox-only." : ""}
         </AlertDescription>
       </Alert>
 
@@ -103,7 +111,11 @@ export function RiskSection({ vault, market }: { vault: VaultState; market: Mark
       <div className="grid gap-2">
         <h3 className="font-medium">Market risk parameters</h3>
         <dl className="grid gap-2">
-          <SummaryRow label="Liquidation threshold">{bpsText(market.liquidationThresholdBps, 0)} in every session</SummaryRow>
+          <SummaryRow label="Liquidation threshold">
+            {several
+              ? `${markets.map((m) => `${m.symbol} ${bpsText(m.state.liquidationThresholdBps, 0)}`).join(" · ")} in every session`
+              : `${bpsText(market.liquidationThresholdBps, 0)} in every session`}
+          </SummaryRow>
           <SummaryRow label="New-borrow limit">
             50% open · 40% extended · 30% falling to 20% over 64 h closed · 0% halted
           </SummaryRow>
@@ -126,7 +138,7 @@ export function RiskSection({ vault, market }: { vault: VaultState; market: Mark
           <p className="text-sm text-muted-foreground">
             The operator can change the interest-rate model, the session limits, the price guards and the liquidation
             floors, and add markets to the vault, with no timelock. The keeper
-            posts the market session, the NVDAx price and the debt cap, and runs liquidations; the contracts refuse a
+            posts the market session, the {several ? "price of each market" : "NVDAx price"} and the debt cap, and runs liquidations; the contracts refuse a
             price outside their guards. Contracts: vault <AddressDisplay address={deployment.vault} />, gap reserve{" "}
             <AddressDisplay address={deployment.gapReserve} />.
           </p>

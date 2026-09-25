@@ -1,10 +1,31 @@
 "use client"
 
-/** Reads the lend screen needs beyond MarketLens: the rate model's parameters and the deficit history. */
+/** Reads the lend screen needs beyond MarketLens: every deployed market, the rate model and the deficit history. */
 import { useQuery } from "@tanstack/react-query"
 import type { Address } from "viem"
 import { interestRateModelAbi, lendingVaultAbi } from "@intatto/config/abi"
-import { useIntatto } from "@/lib/chain"
+import { useIntatto, useMarketState, type MarketState, type MarketSymbol } from "@/lib/chain"
+
+export type LendMarket = { symbol: MarketSymbol; state: MarketState }
+
+/** MarketLens.market for every market in the active deployment. SPYx is skipped when it is not deployed. */
+export function useLendMarkets() {
+  const { deployment } = useIntatto()
+  const nvda = useMarketState("NVDAx")
+  const spy = useMarketState("SPYx")
+  const bySymbol = { NVDAx: nvda, SPYx: spy }
+  const rows = (deployment?.markets ?? []).map((market) => ({ market, query: bySymbol[market.symbol] }))
+  const data: LendMarket[] | null = rows.every((r) => r.query.data)
+    ? rows.map((r) => ({ symbol: r.market.symbol, state: r.query.data! }))
+    : null
+  return {
+    data,
+    error: rows.find((r) => r.query.isError)?.query.error ?? null,
+    refetch: () => {
+      for (const r of rows) void r.query.refetch()
+    },
+  }
+}
 
 export type RateModel = { baseBps: bigint; slope1Bps: bigint; slope2Bps: bigint; kinkBps: bigint }
 

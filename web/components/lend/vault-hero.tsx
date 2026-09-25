@@ -5,7 +5,7 @@ import { useIntatto, type VaultState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { ExplorerLink } from "@/components/ui/web3"
-import { bpsText, usdg } from "./lend-format"
+import { bpsText, marketList, usdg } from "./lend-format"
 
 export const SECTIONS = [
   { id: "overview", label: "Overview" },
@@ -32,6 +32,9 @@ function Stat({ label, value, sub, testId }: { label: string; value: string; sub
 export function VaultHero({ vault }: { vault: VaultState }) {
   const { deployment, chain, mode } = useIntatto()
   const lent = vault.totalAssets > vault.idle ? vault.totalAssets - vault.idle : 0n
+  const symbols = deployment?.markets.map((m) => m.symbol) ?? []
+  const several = symbols.length > 1
+  const names = marketList(symbols)
   return (
     <section aria-labelledby="lend-title" className="grid gap-5">
       <div className="grid gap-3">
@@ -49,11 +52,12 @@ export function VaultHero({ vault }: { vault: VaultState }) {
           ) : null}
           <span>{mode === "sandbox" ? `${chain.name} (fork of X Layer)` : chain.name}</span>
           <span>Asset USDG</span>
-          <span>Lends to the NVDAx market</span>
+          <span data-testid="lend-markets">{several ? `Lends to ${names}` : `Lends to the ${names} market`}</span>
         </div>
-        <p className="max-w-2xl text-muted-foreground">
-          Deposit USDG and earn the interest people pay to borrow against NVDAx. The vault lends to one market, whose
-          borrowing limits follow the US stock market session.
+        <p className="max-w-2xl text-muted-foreground" data-testid="lend-intro">
+          {several
+            ? `Deposit USDG and earn the interest people pay to borrow against ${names}. The vault lends to each of these markets, and borrowing limits follow the US stock market session.`
+            : `Deposit USDG and earn the interest people pay to borrow against ${names}. The vault lends to one market, whose borrowing limits follow the US stock market session.`}
         </p>
       </div>
       <dl className="grid grid-cols-2 gap-x-6 gap-y-4 md:grid-cols-4">

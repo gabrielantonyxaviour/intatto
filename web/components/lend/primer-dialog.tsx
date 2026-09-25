@@ -1,9 +1,11 @@
 "use client"
 
 import { useId, useState, type ReactNode } from "react"
+import { useIntatto } from "@/lib/chain"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { marketList } from "./lend-format"
 
 const FLOW = [
   { label: "You", note: "the lender" },
@@ -41,6 +43,30 @@ export function PrimerDialog({
 }) {
   const [ticked, setTicked] = useState(false)
   const checkId = useId()
+  const { deployment } = useIntatto()
+  const symbols = deployment?.markets.map((m) => m.symbol) ?? ["NVDAx"]
+  const several = symbols.length > 1
+  const names = marketList(symbols)
+  const flow = several
+    ? [
+        FLOW[0],
+        FLOW[1],
+        FLOW[2],
+        { label: names, note: "borrowers post collateral and borrow USDG" },
+      ]
+    : FLOW
+  const steps = several
+    ? STEPS.map((step, i) =>
+        i === 1
+          ? {
+              title: `The vault lends into ${names}`,
+              body: `Borrowers post ${names.replace(" and ", " or ")} (held as the issuer's wrapper shares) and borrow USDG up to a limit that follows the US market session. ${
+                symbols.includes("SPYx") ? "SPYx is sandbox-only. " : ""
+              }As a depositor you carry each market's risks: the stock itself, the keeper-relayed price and the liquidation threshold.`,
+            }
+          : step,
+      )
+    : STEPS
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -53,19 +79,19 @@ export function PrimerDialog({
         </DialogHeader>
         <div className="grid gap-6 md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]">
           <ol aria-label="Where your USDG goes" className="grid content-start gap-0">
-            {FLOW.map((node, i) => (
+            {flow.map((node, i) => (
               <li key={node.label} className="grid gap-0">
                 <div className="rounded-lg border px-3 py-2">
                   <p className="text-sm font-medium">{node.label}</p>
                   <p className="text-xs text-muted-foreground">{node.note}</p>
                 </div>
-                {i < FLOW.length - 1 ? <span aria-hidden className="ml-5 h-4 border-l border-dashed" /> : null}
+                {i < flow.length - 1 ? <span aria-hidden className="ml-5 h-4 border-l border-dashed" /> : null}
               </li>
             ))}
           </ol>
           <div className="grid gap-4">
             <ol className="grid gap-4">
-              {STEPS.map((step, i) => (
+              {steps.map((step, i) => (
                 <li key={step.title} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-2">
                   <span className="text-sm text-muted-foreground tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                   <div className="grid gap-1">

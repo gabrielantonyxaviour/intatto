@@ -1,8 +1,4 @@
-/**
- * Lend screen (pg_lend) on a fork of X Layer: the burner reads the primer, deposits and withdraws USDG through the
- * UI; a withdrawal above idle liquidity is limited with its reason; then a scenario borrower is liquidated through a
- * gap larger than the reserve and the screen shows the DeficitRecognised amount and the lower share price.
- */
+/** Lend screen on a fork: primer, deposit, withdraw, idle limit, then a recognised deficit and a lower share price. */
 import { mkdirSync, readFileSync } from "node:fs"
 import type { Page } from "@playwright/test"
 import { decodeEventLog, type Address, type Hex } from "viem"
@@ -11,11 +7,10 @@ import { test, expect, viewports, expectNoHorizontalScroll } from "./fixtures"
 import { startForkHarness, SANDBOX_LENDER, type ForkHarness } from "../fork/harness.ts"
 import * as scenarios from "../fork/lib/scenarios.ts"
 import { formatTokenAmount } from "../../web/components/ui/web3/format.ts"
-import { lossExample, usdg } from "../../web/components/lend/lend-format.ts"
+import { bpsText, lossExample, usdg } from "../../web/components/lend/lend-format.ts"
 
 test.describe.configure({ mode: "serial" })
-// Several specs share checks/ui/.results and each run clears it; a trace file removed mid-run fails the test,
-// so this spec keeps no trace. Its evidence is the proof/lend*.png screenshots and the assertions.
+// No trace: other specs clear checks/ui/.results and would delete an in-flight trace. Evidence is proof/lend*.png.
 test.use({ trace: "off" })
 
 const bps = (v: bigint) => `${(Number(v) / 100).toFixed(2)}%`
@@ -246,6 +241,34 @@ test("reserve exhaustion: the idle limit, then the recognised deficit and the lo
   await page.screenshot({ path: "proof/lend.png", fullPage: true })
 })
 
+test("sandbox with SPYx lists every deployed market", async ({ page, useFork }) => {
+  test.setTimeout(300_000)
+  const spyH = await startForkHarness({ spyx: true })
+  try {
+    expect(spyH.deployment.markets.map((m) => m.symbol)).toEqual(["NVDAx", "SPYx"])
+    await scenarios.openAtWeekdayLimit(spyH.ctx, BORROWER, 2n * 10n ** 18n)
+    await page.setViewportSize(viewports.wide)
+    await useFork(page, spyH.env)
+    await acceptTerms(page)
+    await page.goto("/lend")
+    await expect(page.getByTestId("lend-page")).toBeVisible({ timeout: 120_000 })
+    await expect(page.locator("#allocation")).not.toContainText("one market")
+    await expect(page.getByTestId("lend-markets")).toHaveText("Lends to NVDAx and SPYx")
+    await expect(page.getByTestId("overview-markets")).toHaveText("2 (NVDAx, SPYx)")
+    for (const m of spyH.deployment.markets) {
+      const lens = await spyH.fork.read<{ totalDebt: bigint; totalCollateralValue: bigint; liquidationThresholdBps: bigint; capUsdg: bigint }>(spyH.deployment.lens as Address, marketLensAbi, "market", [m.market])
+      const cell = (key: string) => page.getByTestId(`allocation-${m.symbol}-${key}`).filter({ visible: true })
+      await expect(cell("debt")).toHaveText(usdg(lens.totalDebt), { timeout: 30_000 })
+      await expect(cell("collateral")).toHaveText(usdg(lens.totalCollateralValue))
+      await expect(cell("threshold")).toHaveText(bpsText(lens.liquidationThresholdBps, 0))
+      await expect(cell("cap")).toHaveText(usdg(lens.capUsdg, 0))
+    }
+    await expect(page.getByTestId("allocation-SPYx").filter({ visible: true })).toContainText("Sandbox only")
+  } finally {
+    await spyH.stop()
+  }
+})
+
 test("fits 390, 768 and 1440 px without sideways scrolling", async ({ page, useFork }) => {
   test.setTimeout(240_000)
   await useFork(page, h.env)
@@ -266,7 +289,6 @@ test("fits 390, 768 and 1440 px without sideways scrolling", async ({ page, useF
     await expect(page.getByTestId("lend-primer")).toBeHidden()
     await expect(page.getByTestId("deficit-count")).not.toHaveText("0")
     await expectNoHorizontalScroll(page)
-    // Tables from 1280 px; below that the allocation and the deficits stack as cards.
     const tables = size.width >= 1280
     await expect(page.getByTestId("allocation-card")).toBeVisible({ visible: !tables })
     await expect(page.getByTestId("allocation-table")).toBeVisible({ visible: tables })
