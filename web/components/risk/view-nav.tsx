@@ -1,0 +1,101 @@
+"use client"
+
+/**
+ * The list of analyses, one view at a time: a side list on wide screens, a picker on phones. The URL hash (#prices)
+ * mirrors the view, so each analysis can be linked and the back button returns to the previous one.
+ */
+import { useCallback, useEffect, useState, type MouseEvent } from "react"
+import { cn } from "@/lib/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+export const VIEWS = [
+  { id: "summary", label: "Summary" },
+  { id: "prices", label: "Price posts" },
+  { id: "shock", label: "Price shock" },
+  { id: "loans", label: "Loans near liquidation" },
+  { id: "caps", label: "Caps and LTV spread" },
+  { id: "overview", label: "Market overview" },
+  { id: "sessions", label: "Sessions" },
+  { id: "actions", label: "Corporate actions" },
+  { id: "liquidations", label: "Liquidations" },
+  { id: "keeper", label: "Keeper log" },
+  { id: "trust", label: "Trust and bounds" },
+] as const
+
+export type ViewId = (typeof VIEWS)[number]["id"]
+
+const isView = (v: string): v is ViewId => VIEWS.some((x) => x.id === v)
+
+function viewFromHash(): ViewId {
+  const hash = typeof window === "undefined" ? "" : window.location.hash.slice(1)
+  return isView(hash) ? hash : "summary"
+}
+
+/**
+ * The open analysis. React state is the source of truth; the hash mirrors it through history.pushState, which
+ * Next's router records (a bare fragment change would be overwritten by its next URL sync).
+ */
+export function useView(): [ViewId, (v: ViewId) => void] {
+  const [view, setViewState] = useState<ViewId>(viewFromHash)
+  useEffect(() => {
+    const sync = () => setViewState(viewFromHash())
+    window.addEventListener("popstate", sync)
+    window.addEventListener("hashchange", sync)
+    return () => {
+      window.removeEventListener("popstate", sync)
+      window.removeEventListener("hashchange", sync)
+    }
+  }, [])
+  const setView = useCallback((v: ViewId) => {
+    setViewState(v)
+    if (window.location.hash.slice(1) !== v) window.history.pushState(null, "", `#${v}`)
+  }, [])
+  return [view, setView]
+}
+
+export function ViewNav({ view, onChange }: { view: ViewId; onChange: (v: ViewId) => void }) {
+  return (
+    <>
+      <nav aria-label="Risk analyses" className="hidden lg:block">
+        <ul className="sticky top-20 grid gap-0.5">
+          {VIEWS.map((v) => (
+            <li key={v.id}>
+              <a
+                href={`#${v.id}`}
+                onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
+                  e.preventDefault()
+                  onChange(v.id)
+                }}
+                aria-current={view === v.id ? "page" : undefined}
+                className={cn(
+                  "block rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-muted hover:text-foreground",
+                  view === v.id ? "bg-muted font-medium text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {v.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <div className="grid gap-1.5 lg:hidden">
+        <span id="risk-view-label" className="text-xs text-muted-foreground">
+          Analysis
+        </span>
+        <Select value={view} onValueChange={(v) => isView(v) && onChange(v)}>
+          <SelectTrigger aria-labelledby="risk-view-label" className="w-full sm:w-72" data-testid="risk-view-picker">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent position="popper">
+            {VIEWS.map((v) => (
+              <SelectItem key={v.id} value={v.id}>
+                {v.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </>
+  )
+}
