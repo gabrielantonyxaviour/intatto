@@ -1,12 +1,11 @@
 "use client"
 
 /**
- * The list of analyses, one view at a time: a side list on wide screens, a picker on phones. The URL hash (#prices)
- * mirrors the view, so each analysis can be linked and the back button returns to the previous one.
+ * The list of analyses, one view at a time: wrapping links at every width, a side list on wide screens.
+ * The URL hash (#prices) mirrors the view, so each analysis can be linked and the back button returns to the previous one.
  */
 import { useCallback, useEffect, useState, type MouseEvent } from "react"
 import { cn } from "@/lib/utils"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export const VIEWS = [
   { id: "summary", label: "Summary" },
@@ -55,47 +54,28 @@ export function useView(): [ViewId, (v: ViewId) => void] {
 
 export function ViewNav({ view, onChange }: { view: ViewId; onChange: (v: ViewId) => void }) {
   return (
-    <>
-      <nav aria-label="Risk analyses" className="hidden lg:block">
-        <ul className="sticky top-20 grid gap-0.5">
-          {VIEWS.map((v) => (
-            <li key={v.id}>
-              <a
-                href={`#${v.id}`}
-                onClick={(e: MouseEvent<HTMLAnchorElement>) => {
-                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
-                  e.preventDefault()
-                  onChange(v.id)
-                }}
-                aria-current={view === v.id ? "page" : undefined}
-                className={cn(
-                  "block rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-muted hover:text-foreground",
-                  view === v.id ? "bg-muted font-medium text-foreground" : "text-muted-foreground",
-                )}
-              >
-                {v.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      <div className="grid gap-1.5 lg:hidden">
-        <span id="risk-view-label" className="text-xs text-muted-foreground">
-          Analysis
-        </span>
-        <Select value={view} onValueChange={(v) => isView(v) && onChange(v)}>
-          <SelectTrigger aria-labelledby="risk-view-label" className="w-full sm:w-72" data-testid="risk-view-picker">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent position="popper">
-            {VIEWS.map((v) => (
-              <SelectItem key={v.id} value={v.id}>
-                {v.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    </>
+    <nav aria-label="Risk analyses" className="min-w-0 lg:sticky lg:top-20">
+      <ul className="flex flex-wrap gap-1 lg:grid">
+        {VIEWS.map((v) => (
+          <li key={v.id} className="max-w-full">
+            <a
+              href={`#${v.id}`}
+              onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
+                e.preventDefault()
+                onChange(v.id)
+              }}
+              aria-current={view === v.id ? "page" : undefined}
+              className={cn(
+                "block max-w-full rounded-md px-3 py-1.5 text-sm break-words transition-colors hover:bg-muted hover:text-foreground",
+                view === v.id ? "bg-muted font-medium text-foreground" : "text-muted-foreground",
+              )}
+            >
+              {v.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   )
 }

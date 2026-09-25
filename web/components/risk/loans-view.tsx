@@ -37,14 +37,14 @@ export function LoansView() {
   const [sort, setSort] = useState<Sort>("distance")
   const [top, setTop] = useState<(typeof TOP)[number]>("30")
   const [hideRepaid, setHideRepaid] = useState(true)
-  const lt = marketState.data?.liquidationThresholdBps ?? params.data?.market.liquidationThresholdBps ?? 6_500n
+  const lt = marketState.data?.liquidationThresholdBps ?? params.data?.market.liquidationThresholdBps
   const price = marketState.data?.priceE18 ?? 0n
   const me = account?.toLowerCase()
 
   const ranked = useMemo(() => {
     const list = (loans.data?.loans ?? []).filter((l) => !hideRepaid || l.debt > 0n)
     const cmp: Record<Sort, (a: Loan, b: Loan) => number> = {
-      distance: (a, b) => (a.debt === 0n ? 1 : 0) - (b.debt === 0n ? 1 : 0) || Number(distanceBps(a, lt) - distanceBps(b, lt)),
+      distance: (a, b) => (lt === undefined ? 0 : (a.debt === 0n ? 1 : 0) - (b.debt === 0n ? 1 : 0) || Number(distanceBps(a, lt) - distanceBps(b, lt))),
       debt: (a, b) => (b.debt > a.debt ? 1 : b.debt < a.debt ? -1 : 0),
       collateral: (a, b) => (b.valueUsdg > a.valueUsdg ? 1 : b.valueUsdg < a.valueUsdg ? -1 : 0),
     }
@@ -73,7 +73,7 @@ export function LoansView() {
         <span className="grid">
           <span data-value="ltv">{l.debt === 0n ? "–" : pctBps(l.ltvBps)}</span>
           <span className="text-xs text-muted-foreground">
-            {pctBps(l.maxLtvBps, 0)} · {pctBps(lt, 0)}
+            {pctBps(l.maxLtvBps, 0)} · {lt === undefined ? "unknown" : pctBps(lt, 0)}
           </span>
         </span>
       ),
@@ -83,7 +83,7 @@ export function LoansView() {
       header: "Distance to liquidation",
       align: "right",
       cell: (l) => {
-        if (l.debt === 0n) return "–"
+        if (l.debt === 0n || lt === undefined || price === undefined) return "unknown"
         const gap = distanceBps(l, lt)
         const drop = dropToLiquidation(l, price)
         const past = l.liquidatable || gap < 0n
@@ -123,7 +123,7 @@ export function LoansView() {
       description={
         <>
           Every borrower found in the scanned blocks. Positions are read directly from {place} through the market lens
-          {loans.data ? <> at block {blockNo(loans.data.block)}</> : null}. <EventSourceNote /> Distance is the LTV points left before {pctBps(lt, 0)}, and how far the price can fall before it gets there. A position already past that line says how far past it is, and that it is liquidatable now.
+          {loans.data ? <> at block {blockNo(loans.data.block)}</> : null}. <EventSourceNote /> Distance is the LTV points left before {lt === undefined ? "unknown" : pctBps(lt, 0)}, and how far the price can fall before it gets there. A position already past that line says how far past it is, and that it is liquidatable now.
         </>
       }
     >

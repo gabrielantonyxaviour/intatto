@@ -9,7 +9,6 @@ import { startForkHarness, type ForkHarness } from "../fork/harness.ts"
 import { HOLDER, poolWrapperPrice } from "../fork/lib/actors.ts"
 import { ensureOpen, keeperTick, openPosition } from "../fork/lib/scenarios.ts"
 import * as abi from "../fork/lib/abis.ts"
-
 const REASONS = ["FutureFetch", "StaleFetch", "NotNewer", "UsdgStale", "UsdgOffPeg", "TwapUnavailable", "OutOfBand", "MaxMove"]
 const PRICE_POSTED = parseAbiItem(
   "event PricePosted(uint256 quoteE18, uint256 wrapperPriceE18, uint256 twapWrapperPriceE18, uint256 deviationBps, uint256 moveBps, int256 usdgAnswer, uint64 fetchedAt, uint64 sourceTimestamp)",
@@ -20,25 +19,20 @@ const PRICE_REJECTED = parseAbiItem(
 const SESSION_POSTED = parseAbiItem("event SessionPosted(uint8 session, uint64 periodChangedAt, uint64 postedAt)")
 const CAP_POSTED = parseAbiItem("event CapPosted(address indexed market, uint256 targetCapUsdg, uint256 sliceUsdg, uint256 effectiveCapUsdg)")
 const ACTION_POSTED = parseAbiItem("event ActionPosted(uint64 activationAt, uint256 expectedMultiplier, uint256 preActionMultiplier, uint256 preActionPrice)")
-
 /** Two scenario borrowers with keyless addresses, driven by impersonation on the fork only. */
 const LOW = "0x000000000000000000000000000000000000b0b1" as Address
 const HIGH = "0x000000000000000000000000000000000000b0b2" as Address
 const CAP_TARGET = 40_000n * 10n ** 6n
 const CAP_SLICE = 2_000n * 10n ** 6n
-
 let h: ForkHarness
-
 const dollars = (v: bigint) => { const c = v / 10n ** 16n; return `$${(c / 100n).toLocaleString("en-US")}.${(c % 100n).toString().padStart(2, "0")}` }
 const usdgText = (v: bigint) => `${(v / 10n ** 6n).toLocaleString("en-US")}.${((v % 10n ** 6n) / 10n ** 4n).toString().padStart(2, "0")} USDG`
 const pct = (bps: bigint) => `${(Number(bps) / 100).toFixed(2)}%`
 const newestFirst = <T extends { blockNumber: bigint | null; logIndex: number | null }>(logs: T[]) =>
   [...logs].sort((a, b) => (a.blockNumber === b.blockNumber ? b.logIndex! - a.logIndex! : a.blockNumber! > b.blockNumber! ? -1 : 1))
-
 function nvda() {
   return h.deployment.markets.find((m) => m.symbol === "NVDAx")!
 }
-
 const VIEW_IDS: Record<string, string> = {
   Summary: "summary",
   "Price posts": "prices",
@@ -52,27 +46,18 @@ const VIEW_IDS: Record<string, string> = {
   "Keeper log": "keeper",
   "Trust and bounds": "trust",
 }
-
 async function openView(page: Page, label: string) {
-  const wide = (page.viewportSize()?.width ?? 0) >= 1024
-  if (wide) {
-    await page.getByRole("navigation", { name: "Risk analyses" }).getByRole("link", { name: label, exact: true }).click()
-  } else {
-    await page.getByTestId("risk-view-picker").click()
-    await page.getByRole("option", { name: label, exact: true }).click()
-    await expect(page.getByRole("listbox")).toBeHidden()
-  }
+  if (await page.getByTestId("keeper-sheet").isVisible()) await page.keyboard.press("Escape")
+  await page.getByRole("navigation", { name: "Risk analyses" }).getByRole("link", { name: label, exact: true }).click()
   await expect(page.getByTestId("risk-console")).toHaveAttribute("data-view", VIEW_IDS[label]!)
   await expect(page).toHaveURL(new RegExp(`#${VIEW_IDS[label]}$`))
 }
-
 async function start(page: Page, useFork: (p: Page, e: ForkHarness["env"]) => Promise<void>, hash = "") {
   await useFork(page, h.env)
   await page.goto(`/risk${hash}`)
   await expect(page.getByTestId("risk-console")).toBeVisible({ timeout: 120_000 })
   await expect(page.getByTestId("risk-scan")).toContainText("Events from blocks", { timeout: 60_000 })
 }
-
 async function expectReceipts(page: Page, scope: string) {
   const hashes = await page.locator(`${scope} [data-tx]:visible`).evaluateAll((els) => els.map((e) => e.getAttribute("data-tx")!))
   expect(hashes.length).toBeGreaterThan(0)
@@ -83,7 +68,6 @@ async function expectReceipts(page: Page, scope: string) {
   return hashes
 }
 test.describe.configure({ mode: "serial" })
-
 test.beforeAll(async () => {
   test.setTimeout(300_000)
   h = await startForkHarness()
@@ -106,7 +90,6 @@ test("price posts equal the relay's events, rejection included, and every tx has
   await page.setViewportSize(viewports.wide)
   await start(page, useFork)
   await openView(page, "Price posts")
-
   const events = newestFirst(
     await h.fork.client.getLogs({ address: nvda().priceRelay as Address, events: [PRICE_POSTED, PRICE_REJECTED], fromBlock: BigInt(h.deployment.block) }),
   )
@@ -134,7 +117,6 @@ test("price posts equal the relay's events, rejection included, and every tx has
   }
   const hashes = await expectReceipts(page, '[data-section="prices"]')
   expect(new Set(hashes)).toEqual(new Set(events.map((e) => e.transactionHash)))
-
   await page.getByRole("tab", { name: /^Rejected/ }).click()
   await expect(rows).toHaveCount(1)
   await page.getByRole("tab", { name: /^All/ }).click()
@@ -164,6 +146,11 @@ test("keeper log merges every keeper-sent event and links each to its transactio
     expect(tx.from.toLowerCase()).toBe(d.keeper.toLowerCase())
   }
   await expect(page.getByTestId("keeper-count")).toContainText(String(expected.length))
+  await page.keyboard.press("Escape")
+  await expect(page.getByTestId("keeper-sheet")).toBeHidden()
+  await page.getByRole("button", { name: "Keeper service log" }).click()
+  await expect(page.getByTestId("keeper-sheet")).toBeVisible()
+  await expect(page.locator('[data-section="keeper"]')).toBeVisible()
   await expectNoHorizontalScroll(page)
   await page.screenshot({ path: "proof/risk-keeper.png", fullPage: true })
 })
@@ -211,8 +198,18 @@ test("summary, caps and loans equal the contracts", async ({ page, useFork }) =>
   const sessionLogs = await h.fork.client.getLogs({ address: h.deployment.sessionRisk as Address, event: SESSION_POSTED, fromBlock: BigInt(h.deployment.block) })
   await expect(page.locator('[data-row="session-post"]:visible')).toHaveCount(sessionLogs.length)
   await expect(page.locator(`[data-session-row="${SESSIONS[k.session]}"]`)).toHaveClass(/bg-muted/)
+  const about = page.getByRole("button", { name: "About Liquidation threshold" })
+  await about.click()
+  await expect(page.getByText("one fixed threshold")).toBeVisible()
+  await page.keyboard.press("Escape")
+  await expect(about).toBeFocused()
+  for (const [name, id] of [["Data sources", "risk-sources"], ["Contracts", "risk-contracts"]] as const) {
+    await page.getByRole("button", { name }).click()
+    await expect(page.getByTestId(id)).toBeVisible()
+    await page.keyboard.press("Escape")
+    await expect(page.getByTestId(id)).toBeHidden()
+  }
 })
-
 for (const [name, size] of [["390", viewports.narrow], ["768", viewports.medium]] as const) {
   test(`views fit a ${name}px screen with cards instead of tables`, async ({ page, useFork }) => {
     test.setTimeout(180_000)
@@ -235,7 +232,6 @@ for (const [name, size] of [["390", viewports.narrow], ["768", viewports.medium]
     }
   })
 }
-
 test("a failing guard is named with what it refuses once the keeper goes quiet", async ({ page, useFork }) => {
   test.setTimeout(180_000)
   await h.fork.warpBy(31 * 60, "risk check: keeper silent for 31 minutes")
@@ -271,7 +267,6 @@ async function dropSpot() {
     amount = impact < 0.01 ? amount * 3n : impact > 0.06 ? amount / 2n || 1n : amount
   }
 }
-
 test("a loan past the liquidation line says how far past, with no double sign", async ({ page, useFork }) => {
   test.setTimeout(300_000)
   const relay = nvda().priceRelay as Address

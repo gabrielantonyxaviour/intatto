@@ -8,6 +8,7 @@ import { useMemo, useState } from "react"
 import type { Session } from "@intatto/config/session"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useIntatto } from "@/lib/chain"
 import { useRisk } from "./risk-data"
 import { Check } from "./badges"
 import { DataTable, type Column } from "./data-table"
@@ -150,6 +151,7 @@ export function PricePostsView() {
   const shown = all.filter((r) => filter === "all" || (filter === "accepted" ? r.accepted : !r.accepted))
   const rejected = all.filter((r) => !r.accepted).length
   const p = params.data?.relay
+  const { mode } = useIntatto()
 
   return (
     <Section
@@ -172,13 +174,18 @@ export function PricePostsView() {
     >
       <Panel title="How the price is built" description="Layered and checked onchain on every post.">
         <ol className="grid list-decimal gap-1 pl-5 text-sm text-muted-foreground">
-          <li>The issuer&apos;s indicative {market.symbol} quote, fetched by Intatto&apos;s keeper. It has no source timestamp, so the relay records when the keeper fetched it{p?.maxFetchAge !== undefined ? ` and refuses fetches older than ${duration(p.maxFetchAge)}` : ""}.</li>
+          <li>
+            {mode === "sandbox"
+              ? "In the sandbox the keeper posts a price derived from the forked pool, not the live issuer quote"
+              : `The issuer's indicative ${market.symbol} quote, fetched by the keeper. It has no source timestamp, so the relay records when the keeper fetched it`}
+            {mode !== "sandbox" && p?.maxFetchAge !== undefined ? ` and refuses fetches older than ${duration(p.maxFetchAge)}` : ""}.
+          </li>
           <li>Converted to a wrapper-share price with the wrapper&apos;s own share-to-token rate (the issuer multiplier is inside it, never applied twice).</li>
           <li>
-            Checked against the wrapper/USDG pool&apos;s {p?.twapWindow ? duration(p.twapWindow) : "30-minute"} TWAP: within ±{p?.bandOpenBps !== undefined ? pctBps(p.bandOpenBps, 0) : "3%"} while the market is OPEN, ±
-            {p?.bandOtherBps !== undefined ? pctBps(p.bandOtherBps, 0) : "8%"} otherwise.
+            Checked against the wrapper/USDG pool&apos;s {p?.twapWindow !== undefined ? duration(p.twapWindow) : "unknown"} TWAP: within ±{p?.bandOpenBps !== undefined ? pctBps(p.bandOpenBps, 0) : "unknown"} while the market is OPEN, ±
+            {p?.bandOtherBps !== undefined ? pctBps(p.bandOtherBps, 0) : "unknown"} otherwise.
           </li>
-          <li>Capped at {p?.maxMoveBps !== undefined ? pctBps(p.maxMoveBps, 0) : "15%"} of movement from the last accepted post, and refused while Chainlink USDG/USD is stale or more than {p?.pegBps !== undefined ? pctBps(p.pegBps, 0) : "1%"} off $1.</li>
+          <li>Capped at {p?.maxMoveBps !== undefined ? pctBps(p.maxMoveBps, 0) : "unknown"} of movement from the last accepted post, and refused while Chainlink USDG/USD is stale or more than {p?.pegBps !== undefined ? pctBps(p.pegBps, 0) : "unknown"} off $1.</li>
         </ol>
       </Panel>
       {logs.status === "pending" ? <RowsSkeleton rows={5} label="Loading price posts" /> : null}

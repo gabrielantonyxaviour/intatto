@@ -2,6 +2,7 @@
 
 /** Summary: the market's headline numbers, then totals across its loans. */
 import { Progress } from "@/components/ui/progress"
+import { useIntatto } from "@/lib/chain"
 import { useRisk } from "./risk-data"
 import { SessionBadge } from "./badges"
 import { EventSourceNote, useDirectPlace } from "./status-bar"
@@ -16,6 +17,7 @@ function ratioBps(part: bigint, whole: bigint): bigint | null {
 export function SummaryView() {
   const { market, marketState, vaultState, rows, now, loans, latestBlock } = useRisk()
   const place = useDirectPlace()
+  const { mode } = useIntatto()
   const s = marketState.data
   const v = vaultState.data
   const accepted = rows.prices.filter((p) => p.accepted)
@@ -31,8 +33,10 @@ export function SummaryView() {
       description={
         <>
           Market lens and vault figures are read directly from {place}
-          {latestBlock !== null ? <> at block {blockNo(latestBlock)}</> : null} (chain time {utc(now)}). The price is the issuer&apos;s
-          indicative quote relayed by Intatto&apos;s keeper; it carries no source timestamp, so only the keeper&apos;s fetch time is shown.
+          {latestBlock !== null ? <> at block {blockNo(latestBlock)}</> : null} (chain time {utc(now)}).{" "}
+          {mode === "sandbox"
+            ? "The price is a simulated keeper post from the forked pool, not the live issuer quote."
+            : "The price is the issuer's indicative quote relayed by the keeper. It has no source timestamp; the time shown is when the keeper fetched it."}
         </>
       }
     >

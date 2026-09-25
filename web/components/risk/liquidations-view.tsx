@@ -93,7 +93,7 @@ export function LiquidationsView() {
       title="Liquidations"
       description={
         <>
-          Past {pctBps(params.data?.market.liquidationThresholdBps ?? 6_500n, 0)} LTV a position is sold into the pool in slices, never below a floor under the relayed price
+          Past {params.data?.market.liquidationThresholdBps !== undefined ? pctBps(params.data.market.liquidationThresholdBps, 0) : "unknown"} LTV a position is sold into the pool in slices, never below a floor under the relayed price
           {lp?.openFloorBps !== undefined && lp.closedFloorBps !== undefined ? ` (${pctBps(lp.openFloorBps, 0)} below while trading, ${pctBps(lp.closedFloorBps, 0)} while CLOSED)` : ""}. A slice that cannot fill at its floor waits. Reserve and deficit figures are read directly from {place}. <EventSourceNote />
         </>
       }

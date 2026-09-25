@@ -4,8 +4,10 @@
  * The keeper service's own log, for what leaves no transaction (backoffs, skipped cycles). Shown only when
  * NEXT_PUBLIC_KEEPER_LOG_URL is set; the response is validated before anything from it is displayed.
  */
+import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
 import { z } from "zod"
+import { useIntatto } from "@/lib/chain"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "./data-table"
 import { KeeperReading } from "./keeper-reading"
@@ -34,9 +36,10 @@ function entries(p: z.infer<typeof payload>): Entry[] {
 }
 
 export function KeeperServiceLog() {
+  const { mode } = useIntatto()
   const query = useQuery({
     queryKey: ["keeper-service-log", LOG_URL],
-    enabled: Boolean(LOG_URL),
+    enabled: Boolean(LOG_URL) && mode !== "sandbox",
     refetchInterval: 60_000,
     queryFn: async () => {
       const res = await fetch(`${LOG_URL!.replace(/\/$/, "")}/log?limit=50`, { headers: { accept: "application/json" } })
@@ -46,6 +49,19 @@ export function KeeperServiceLog() {
       return entries(parsed.data).slice(0, 50)
     },
   })
+  if (mode === "sandbox") {
+    return (
+      <Panel title="Keeper service log" description="Mainnet keeper only. It did not post this sandbox's prices.">
+        <p className="text-sm text-muted-foreground">
+          The live keeper service is a different chain of record. What this session did is on the{" "}
+          <Link href="/sandbox" className="underline underline-offset-4">
+            sandbox ledger
+          </Link>
+          .
+        </p>
+      </Panel>
+    )
+  }
   if (!LOG_URL) return null
   return (
     <>
@@ -56,6 +72,7 @@ export function KeeperServiceLog() {
         {query.data && query.data.length === 0 ? <Empty>The keeper has not logged anything yet.</Empty> : null}
         {query.data?.length ? (
           <DataTable<Entry>
+            breakpoint="sheet"
             label="Keeper service log"
             rows={query.data}
             rowKey={(e) => `${e.at}:${e.kind}:${e.detail.slice(0, 40)}`}

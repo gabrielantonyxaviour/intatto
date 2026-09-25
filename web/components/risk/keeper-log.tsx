@@ -11,8 +11,10 @@ import { useRisk, type RiskData } from "./risk-data"
 import { DataTable } from "./data-table"
 import { Empty, LoadError, Panel, RowsSkeleton, Section, TxRef } from "./states"
 import { EventSourceNote } from "./status-bar"
+import { EvidenceSheet, type EvidenceState } from "@/components/ui/ix"
+import { useIntatto } from "@/lib/chain"
 import { KeeperServiceLog } from "./keeper-service-log"
-import { clock, day, multiplier, usd18, usdg, utc } from "./format"
+import { blockNo, clock, day, multiplier, usd18, usdg, utc } from "./format"
 
 const KINDS = ["price", "session", "cap", "action", "liquidation"] as const
 type Kind = (typeof KINDS)[number]
@@ -46,6 +48,7 @@ export function keeperEntries({ rows, senders }: Pick<RiskData, "rows" | "sender
 
 export function KeeperLogView() {
   const data = useRisk()
+  const { mode } = useIntatto()
   const { params, logs, deployment } = data
   const [kind, setKind] = useState<"all" | Kind>("all")
   const keeper = params.data?.keeper ?? (deployment.keeper as `0x${string}`)
@@ -58,7 +61,8 @@ export function KeeperLogView() {
       title="Keeper log"
       description={
         <>
-          The keeper is Intatto&apos;s agent: an off-chain service that relays the issuer&apos;s quote and the market session, samples pool depth and runs liquidations. The onchain actions below are event history. <EventSourceNote /> The keeper service log and last issuer read, when shown, come from the keeper service.
+          The keeper is Intatto&apos;s agent. It posts the session, samples pool depth and runs liquidations.
+          {mode === "sandbox" ? " In the sandbox its price posts are simulated from the forked pool, not the live issuer quote." : " It relays the issuer's indicative quote, which has no source timestamp."} The onchain actions below are event history. <EventSourceNote /> The keeper service log and last issuer read, when shown, come from the keeper service.
         </>
       }
     >
@@ -95,6 +99,7 @@ export function KeeperLogView() {
       {logs.range && shown.length === 0 ? <Empty>No keeper actions of this kind in the scanned blocks.</Empty> : null}
       {shown.length ? (
         <DataTable<KeeperEntry>
+          breakpoint="sheet"
           label="Keeper actions"
           rows={shown}
           rowKey={(e) => e.key}
@@ -109,5 +114,30 @@ export function KeeperLogView() {
       ) : null}
       <KeeperServiceLog />
     </Section>
+  )
+}
+
+/** `#keeper` opens this sheet directly. Scan bounds stay on the page and are repeated in the sheet header. */
+export function KeeperEvidence({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const { logs, latestBlock } = useRisk()
+  const { mode } = useIntatto()
+  const state: EvidenceState = !logs.range ? (logs.status === "error" ? "unavailable" : "fetching") : logs.backfilling ? "partial" : "ready"
+  const asOf = logs.range ? `Events ${blockNo(logs.range.from)}–${blockNo(logs.range.to)}${latestBlock !== null ? `, snapshot ${blockNo(latestBlock)}` : ""}` : undefined
+  return (
+    <EvidenceSheet
+      title="Keeper log"
+      triggerLabel="Keeper service log"
+      summary={mode === "sandbox" ? "Sandbox keeper actions from this session's chain. The live mainnet keeper service is not this session." : "Keeper actions read from X Layer, plus the keeper service log."}
+      asOf={asOf}
+      state={state}
+      open={open}
+      onOpenChange={onOpenChange}
+      onRetry={logs.refresh}
+      statusMessage={logs.backfilling ? "Older blocks are still loading. Rows already read stay visible." : undefined}
+      testId="keeper-sheet"
+      evidenceFor="keeper"
+    >
+      <KeeperLogView />
+    </EvidenceSheet>
   )
 }

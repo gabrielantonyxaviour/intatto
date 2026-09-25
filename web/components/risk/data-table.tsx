@@ -22,6 +22,8 @@ const SPLIT = {
   md: { table: "hidden md:block", cards: "md:hidden" },
   lg: { table: "hidden lg:block", cards: "lg:hidden" },
   xl: { table: "hidden xl:block", cards: "xl:hidden" },
+  /** Cards at every width. The keeper sheet is narrower than the page, so a table overflows it. */
+  sheet: { table: "hidden", cards: "" },
 } as const
 
 type RowAttrs = HTMLAttributes<HTMLElement> & Record<`data-${string}`, string | number | undefined>

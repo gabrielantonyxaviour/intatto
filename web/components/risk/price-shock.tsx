@@ -70,8 +70,8 @@ export function PriceShockView() {
   const place = useDirectPlace()
   const [s1, setS1] = useState<number>(0.2)
   const [s3, setS3] = useState<number>(0.5)
-  const lt = marketState.data?.liquidationThresholdBps ?? params.data?.market.liquidationThresholdBps ?? 6_500n
-  const penalty = params.data?.market.penaltyBps ?? 500n
+  const lt = marketState.data?.liquidationThresholdBps ?? params.data?.market.liquidationThresholdBps
+  const penalty = params.data?.market.penaltyBps
   const reserve = vaultState.data?.reserveBalance
   const open = (loans.data?.loans ?? []).filter((l) => l.debt > 0n)
 
@@ -83,8 +83,9 @@ export function PriceShockView() {
     >
       {loans.isPending ? <RowsSkeleton rows={3} label="Loading loans" /> : null}
       {loans.isError ? <LoadError what="the loans" error={loans.error} onRetry={() => loans.refetch()} /> : null}
+      {lt === undefined || penalty === undefined ? <Empty>Liquidation threshold and penalty are unknown until those contract reads succeed.</Empty> : null}
       {loans.data && open.length === 0 ? <Empty>No open loans in the scanned blocks, so no shock reaches any position.</Empty> : null}
-      {open.length ? (
+      {lt !== undefined && penalty !== undefined && open.length ? (
         <div className="grid gap-3">
           <Scenario code="S1" title={`${market.symbol} falls by a set amount`} open>
             <ShockPicker value={s1} onChange={setS1} />

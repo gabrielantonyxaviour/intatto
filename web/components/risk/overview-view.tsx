@@ -47,7 +47,7 @@ export function OverviewView() {
     <Section
       id="overview"
       title={`Market overview: ${market.symbol}`}
-      description={<>Contract parameters read directly from {place} at block {latestBlock !== null ? blockNo(latestBlock) : "–"}, chain time {utc(now)}. Refreshes every few seconds.</>}
+      description={<>Contract parameters read directly from {place} at block {latestBlock !== null ? blockNo(latestBlock) : "–"}, chain time {utc(now)}.</>}
     >
       {failed ? (
         <LoadError

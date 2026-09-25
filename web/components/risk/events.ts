@@ -54,7 +54,7 @@ export const REJECT_TEXT: Record<RejectReason, string> = {
   NotNewer: "The fetch is not newer than the last accepted post.",
   UsdgStale: "Chainlink USDG/USD is stale.",
   UsdgOffPeg: "USDG/USD is more than the peg limit away from $1.",
-  TwapUnavailable: "The pool's 30-minute TWAP could not be read.",
+  TwapUnavailable: "The pool TWAP could not be read.",
   OutOfBand: "The implied wrapper price is outside the band around the pool TWAP.",
   MaxMove: "The move from the last accepted post is larger than the per-update limit.",
 }

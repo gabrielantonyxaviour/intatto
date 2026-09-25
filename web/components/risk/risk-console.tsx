@@ -5,7 +5,6 @@
  * time, one analysis at a time (after a risk dashboard's list of analyses), every row linked to its transaction.
  */
 import { useState, type ReactNode } from "react"
-import Link from "next/link"
 import { useAccount } from "wagmi"
 import type { MarketDeployment } from "@intatto/config/deployments"
 import { ChainReady, useIntatto } from "@/lib/chain"
@@ -24,7 +23,7 @@ import { OverviewView } from "./overview-view"
 import { SessionsView } from "./sessions-view"
 import { ActionsView } from "./actions-view"
 import { LiquidationsView } from "./liquidations-view"
-import { KeeperLogView } from "./keeper-log"
+import { SourceSheets } from "./sources"
 import { TrustView } from "./trust-view"
 
 const RENDER: Record<ViewId, () => ReactNode> = {
@@ -37,7 +36,7 @@ const RENDER: Record<ViewId, () => ReactNode> = {
   sessions: () => <SessionsView />,
   actions: () => <ActionsView />,
   liquidations: () => <LiquidationsView />,
-  keeper: () => <KeeperLogView />,
+  keeper: () => null,
   trust: () => <TrustView />,
 }
 
@@ -55,40 +54,12 @@ function ConsoleSkeleton() {
   )
 }
 
-// Must stay a literal `process.env.NEXT_PUBLIC_…` read so Next inlines it at build time.
-const KEEPER_URL = process.env.NEXT_PUBLIC_KEEPER_LOG_URL?.trim() || null
-
-function keeperHost(): string | null {
-  if (!KEEPER_URL) return null
-  try {
-    return new URL(KEEPER_URL).host
-  } catch {
-    return null
-  }
-}
-
 function Header({ markets, symbol, onSymbol }: { markets: MarketDeployment[]; symbol: string | null; onSymbol: (s: MarketDeployment["symbol"]) => void }) {
-  const { mode } = useIntatto()
-  const host = keeperHost()
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="grid min-w-0 gap-1">
         <h1 className="text-2xl font-semibold">Risk console</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          {mode === "sandbox" ? (
-            <>Contract state (market lens, guards and positions) and event history are read directly from this sandbox session.</>
-          ) : (
-            <>
-              Contract state (market lens, guards and positions) is read by your browser directly from X Layer. Event history comes through
-              Intatto&apos;s log cache (/api/risk/logs: raw eth_getLogs results, cached, not modified), and falls back to a direct X Layer read
-              when that route fails.
-            </>
-          )}
-          {host ? <> The keeper&apos;s own log and last issuer read come from the keeper service at {host} (/log and /status).</> : null}{" "}
-          <Link href="/" className="underline underline-offset-4">
-            Back to the market
-          </Link>
-        </p>
+        <p className="max-w-2xl text-sm text-muted-foreground">Session, price, cap and losses for the selected market, each tied to the block they were read at.</p>
       </div>
       {markets.length > 1 && symbol ? (
         <div className="grid gap-1.5">
@@ -138,6 +109,7 @@ function Inner() {
     <RiskDataProvider key={market.market} deployment={deployment} market={market} account={address}>
       <div className="grid grid-cols-1 gap-5" data-testid="risk-console" data-view={view}>
         <Header markets={markets} symbol={market.symbol} onSymbol={setSymbol} />
+        <SourceSheets market={market} keeperOpen={view === "keeper"} onKeeperOpenChange={(open) => setView(open ? "keeper" : "summary")} />
         <ScanStatus />
         <GuardAlerts />
         <WalletNote />

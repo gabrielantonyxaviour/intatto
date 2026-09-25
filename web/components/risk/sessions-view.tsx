@@ -5,6 +5,7 @@ import type { Session } from "@intatto/config/session"
 import { cn } from "@/lib/utils"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useRisk } from "./risk-data"
+import { DefinitionPopover } from "@/components/ui/ix"
 import { SessionBadge } from "./badges"
 import { DataTable } from "./data-table"
 import { EventSourceNote, useDirectPlace } from "./status-bar"
@@ -32,14 +33,14 @@ export function SessionsView() {
   const s = marketState.data
   const p = params.data?.session
   const table: { session: Session; ltv: string; note: string }[] = [
-    { session: "OPEN", ltv: p?.openBps !== undefined ? pctBps(p.openBps, 0) : "–", note: "US regular hours" },
-    { session: "EXTENDED", ltv: p?.extendedBps !== undefined ? pctBps(p.extendedBps, 0) : "–", note: "Pre-market, after-hours and overnight" },
+    { session: "OPEN", ltv: p?.openBps !== undefined ? pctBps(p.openBps, 0) : "unknown", note: "US regular hours" },
+    { session: "EXTENDED", ltv: p?.extendedBps !== undefined ? pctBps(p.extendedBps, 0) : "unknown", note: "Pre-market, after-hours and overnight" },
     {
       session: "CLOSED",
       ltv:
         p?.closedStartBps !== undefined && p.closedFloorBps !== undefined
           ? `${pctBps(p.closedStartBps, 0)} → ${pctBps(p.closedFloorBps, 0)}`
-          : "–",
+          : "unknown",
       note: `Weekends and holidays; falls in a straight line${p?.closedDecayDuration !== undefined ? ` over ${duration(p.closedDecayDuration)}` : ""} from the issuer's period change`,
     },
     { session: "HALTED", ltv: "0%", note: "The issuer halted trading" },
@@ -83,7 +84,17 @@ export function SessionsView() {
             <RowsSkeleton rows={3} />
           )}
         </Panel>
-        <Panel title="New-borrow LTV by session" description={`The session controller, read directly from ${place}. Liquidation stays at 65% in every row.`}>
+        <Panel
+          title={
+            <span className="inline-flex items-center gap-1">
+              New-borrow LTV by session
+              <DefinitionPopover term="Liquidation threshold" source="CollateralMarket">
+                The session changes how much new debt is allowed. Liquidation uses one fixed threshold in every session. The number in this table is that read, not a typed default.
+              </DefinitionPopover>
+            </span>
+          }
+          description={`The session controller, read directly from ${place}. Liquidation stays at ${s ? pctBps(s.liquidationThresholdBps, 0) : "unknown"} in every row.`}
+        >
           <Table aria-label="New-borrow LTV by session">
             <TableHeader>
               <TableRow>
