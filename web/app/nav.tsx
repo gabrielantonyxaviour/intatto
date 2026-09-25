@@ -6,6 +6,7 @@ import { MenuIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { ChainBadge } from "@/components/shell/chain-badge"
 import { ConnectControl } from "./connect-control"
 
 export const NAV_LINKS = [
@@ -67,6 +68,7 @@ export function Nav() {
         <Link href="/" className="shrink-0 font-semibold">
           Intatto
         </Link>
+        <ChainBadge />
         <nav aria-label="Main" className="hidden items-center gap-0.5 lg:flex">
           <NavLinks />
         </nav>
