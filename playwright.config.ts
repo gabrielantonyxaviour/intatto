@@ -6,7 +6,7 @@ const external = process.env.UI_BASE_URL
 export default defineConfig({
   testDir: "checks/ui",
   // Test artifacts; checks/ui/.results should be listed in the root .gitignore.
-  outputDir: "checks/ui/.results",
+  outputDir: `checks/ui/.results/${process.pid}`,
   retries: 0,
   reporter: "list",
   use: {
