@@ -5,6 +5,8 @@ import { CircleAlertIcon, CircleXIcon, UnplugIcon } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { EvidenceSheet } from "@/components/ui/ix"
+import { formatUtc } from "@/components/ui/web3/format"
 import { SIDE_NAME } from "./rpc"
 import { CommandBlock, StatusMark } from "./primitives"
 import type { CheckId, Outcome } from "./types"
@@ -14,6 +16,7 @@ export type CheckSectionProps<E> = {
   number: number
   title: string
   proves: ReactNode
+  summary: (e: E) => string
   outcome: Outcome<E>
   /** Evidence and cast commands, rendered once the check has a result. */
   evidence: (e: E) => ReactNode
@@ -22,8 +25,8 @@ export type CheckSectionProps<E> = {
   differences?: (e: E) => string[]
 }
 
-/** One named check: its heading carries the verdict, and its raw evidence sits directly under it. */
-export function CheckSection<E>({ id, number, title, proves, outcome, evidence, commands, differences }: CheckSectionProps<E>) {
+/** Keep verdicts and failures inline; one direct sheet holds all raw evidence and commands. */
+export function CheckSection<E>({ id, number, title, proves, summary, outcome, evidence, commands, differences }: CheckSectionProps<E>) {
   const headingId = `check-${id}-title`
   return (
     <Card aria-labelledby={headingId} data-check={id} data-status={outcome.status} className="gap-3">
@@ -75,15 +78,24 @@ export function CheckSection<E>({ id, number, title, proves, outcome, evidence, 
         {outcome.status === "pass" || outcome.status === "fail" ? (
           <>
             {outcome.status === "fail" && differences ? <Differences items={differences(outcome.evidence)} /> : null}
-            {evidence(outcome.evidence)}
-            {commands ? (
-              <details className="group grid gap-2">
-                <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">Reproduce with cast</summary>
-                <div className="mt-2">
-                  <CommandBlock lines={commands(outcome.evidence)} label={`cast commands for check ${number}`} />
-                </div>
-              </details>
-            ) : null}
+            <p className="text-sm" data-slot="coverage">{summary(outcome.evidence)}</p>
+            <EvidenceSheet
+              title={`Check ${number}: ${title}`}
+              triggerLabel={`Raw values: ${{ blocks: "block hashes", bytecode: "contract code", state: "state reads", intatto: "Intatto code" }[id]}`}
+              summary={typeof proves === "string" ? proves : "Direct sandbox and X Layer RPC comparison."}
+              asOf={`Completed ${formatUtc(Math.floor(outcome.finishedAt / 1000))}`}
+              state="ready"
+              evidenceFor={id}
+            >
+              <div className="grid min-w-0 gap-4">
+                {evidence(outcome.evidence)}
+                <section className="grid min-w-0 gap-2" aria-label={`Reproduce check ${number} with cast`}>
+                  <h3 className="text-sm font-medium">Reproduce with cast</h3>
+                  {commands ? <CommandBlock lines={commands(outcome.evidence)} label={`cast commands for check ${number}`} />
+                    : <p className="text-sm text-muted-foreground">Commands are unavailable until the reference RPC and fork block are known.</p>}
+                </section>
+              </div>
+            </EvidenceSheet>
           </>
         ) : null}
       </CardContent>
@@ -97,7 +109,7 @@ function Differences({ items }: { items: string[] }) {
     <Alert variant="destructive" data-slot="differences">
       <CircleXIcon aria-hidden />
       <AlertTitle className="line-clamp-none">
-        {items.length} {items.length === 1 ? "difference" : "differences"} from X Layer
+        {items.length} {items.length === 1 ? "difference" : "differences"} from the reference
       </AlertTitle>
       <AlertDescription>
         <ul className="list-disc pl-4">

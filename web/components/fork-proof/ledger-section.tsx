@@ -1,73 +1,52 @@
 "use client"
 
-import { CircleAlertIcon } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { EvidenceSheet, type EvidenceState } from "@/components/ui/ix"
 import { ExplorerLink, formatUtc } from "@/components/ui/web3"
 import type { LedgerState } from "./ledger"
 import { Mono } from "./primitives"
 
-/** Every change the sandbox made on top of X Layer, as the session recorded it. */
-export function LedgerSection({ ledger }: { ledger: LedgerState }) {
+function ledgerSummary(ledger: LedgerState): { state: EvidenceState; message: string } {
+  switch (ledger.status) {
+    case "loading": return { state: "fetching", message: "Loading the divergence ledger…" }
+    case "none": return { state: "unavailable", message: ledger.reason }
+    case "error": return { state: "unavailable", message: `The ledger could not be loaded: ${ledger.url}: ${ledger.message}` }
+    case "ok": return ledger.entries.length
+      ? { state: "ready", message: `${ledger.entries.length} recorded changes` }
+      : { state: "empty", message: "The ledger is empty: no recorded changes in this session." }
+  }
+}
+
+/** The full API ledger, including provenance, is one click away; unavailable evidence stays visible. */
+export function LedgerSection({ ledger, asOf }: { ledger: LedgerState; asOf: string }) {
+  const { state, message } = ledgerSummary(ledger)
+  const source = "url" in ledger ? `Session API: ${ledger.url}` : "The divergence ledger comes from the sandbox session API."
   return (
-    <Card aria-labelledby="ledger-title" data-slot="ledger" data-ledger={ledger.status} className="gap-3">
-      <CardHeader className="gap-1.5">
-        <h2 id="ledger-title" className="text-base font-medium">
-          Divergence ledger
-        </h2>
-        <CardDescription>
-          Every departure from X Layer a session makes: funding moved from real holders by impersonation, time warps, keeper
-          posts, and replayed scenarios with their data sources and hashes.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid min-w-0 gap-3">
-        {ledger.status === "loading" ? (
-          <div aria-busy="true" aria-label="Loading the ledger" className="grid gap-2">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        ) : null}
-        {ledger.status === "none" ? <p className="text-sm text-muted-foreground">{ledger.reason}</p> : null}
-        {ledger.status === "error" ? (
-          <Alert variant="destructive">
-            <CircleAlertIcon aria-hidden />
-            <AlertTitle className="line-clamp-none">The ledger could not be loaded</AlertTitle>
-            <AlertDescription>
-              <p className="wrap-anywhere">
-                {ledger.url}: {ledger.message}
-              </p>
-            </AlertDescription>
-          </Alert>
-        ) : null}
-        {ledger.status === "ok" && ledger.entries.length === 0 ? (
-          <p className="text-sm text-muted-foreground">The ledger is empty: this session has not changed anything yet.</p>
-        ) : null}
-        {ledger.status === "ok" && ledger.entries.length > 0 ? (
-          <>
-            <p className="min-w-0 text-xs text-muted-foreground wrap-anywhere">
-              {ledger.entries.length} entries from <Mono>{ledger.url}</Mono>
-            </p>
+    <div className="grid min-w-0 content-start gap-2" data-ledger-status={ledger.status}>
+      <EvidenceSheet title="Divergence ledger" triggerLabel="View ledger" summary={source}
+        state={state} statusMessage={message} asOf={asOf} evidenceFor="ledger">
+        {ledger.status === "ok" ? (
+          <div className="grid min-w-0 gap-3" data-slot="ledger" data-ledger={ledger.status}>
+            <p className="text-sm">Funding, time travel, keeper posts and scenarios recorded by this session. These are sandbox changes, not X Layer history.</p>
+            <p className="text-xs text-muted-foreground wrap-anywhere">{ledger.entries.length} entries from <Mono>{ledger.url}</Mono></p>
             <ol className="grid min-w-0 gap-2">
               {ledger.entries.map((e, i) => (
-                <li key={i} className="grid min-w-0 gap-1 rounded-lg border p-3 text-sm">
+                <li key={i} data-ledger-row={i} className="grid min-w-0 gap-1 rounded-lg border p-3 text-sm">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline">{e.kind}</Badge>
-                    {e.chainTime ? <span className="text-xs text-muted-foreground tabular-nums">chain time {formatUtc(e.chainTime)}</span> : null}
+                    {e.chainTime !== null ? <span className="text-xs text-muted-foreground tabular-nums">chain time {formatUtc(e.chainTime)}</span> : null}
                   </div>
-                  <p className="min-w-0 wrap-anywhere">{e.summary}</p>
-                  {e.txHash ? (
-                    <p className="min-w-0 text-xs text-muted-foreground wrap-anywhere">
-                      tx <ExplorerLink hash={e.txHash} className="font-mono break-all" />
-                    </p>
-                  ) : null}
+                  <p className="wrap-anywhere">{e.summary}</p>
+                  {e.at ? <p className="text-xs text-muted-foreground">Recorded at {e.at}</p> : null}
+                  {e.detail ? <pre className="min-w-0 whitespace-pre-wrap break-all rounded-md bg-muted/50 p-2 text-xs" aria-label="Ledger source details">{JSON.stringify(e.detail, null, 2)}</pre> : null}
+                  {e.txHash ? <p className="text-xs text-muted-foreground wrap-anywhere">tx <ExplorerLink hash={e.txHash} className="font-mono break-all" /></p> : null}
                 </li>
               ))}
             </ol>
-          </>
+          </div>
         ) : null}
-      </CardContent>
-    </Card>
+      </EvidenceSheet>
+      <p className={`text-sm wrap-anywhere ${state === "unavailable" ? "text-warning-foreground" : "text-muted-foreground"}`} role={state === "unavailable" ? "status" : undefined}>{message}</p>
+    </div>
   )
 }

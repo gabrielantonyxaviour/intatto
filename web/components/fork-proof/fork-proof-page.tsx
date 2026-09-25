@@ -3,7 +3,9 @@
 import { useMemo } from "react"
 import { useSearchParams } from "next/navigation"
 import { useIntatto } from "@/lib/chain"
-import { formatNumber } from "@/components/ui/web3/format"
+import { EvidenceSheet } from "@/components/ui/ix"
+import { ReproductionDetails } from "./reproduction-details"
+import { formatNumber, formatUtc } from "@/components/ui/web3/format"
 import { CheckSection } from "./check-section"
 import { blockCommands, bytecodeCommands, intattoCommands, stateCommands, type Rpcs } from "./commands"
 import { BlocksEvidenceView, BytecodeEvidenceView } from "./evidence-chain"
@@ -64,7 +66,8 @@ function ProofReport({ inputs }: { inputs: ProofInputs }) {
         id="blocks"
         number={1}
         title="Block hashes match X Layer"
-        proves={`The fork block and the blocks 1, 10 and 100 before it have the same hash on both RPCs, so the sandbox shares X Layer's history up to ${at}.`}
+        proves={`Block hashes on both RPCs, ending at ${at}.`}
+        summary={(e) => `${e.rows.filter((r) => r.equal).length} of ${e.rows.length} block hashes match`}
         outcome={run.checks.blocks}
         evidence={(e) => <BlocksEvidenceView e={e} />}
         commands={rpcs ? (e) => blockCommands(rpcs, e) : undefined}
@@ -74,7 +77,8 @@ function ProofReport({ inputs }: { inputs: ProofInputs }) {
         id="bytecode"
         number={2}
         title="Contract code matches X Layer"
-        proves={`The sandbox's current code for every external contract Intatto relies on equals X Layer's at ${at}. (The sandbox is read now: one started from a snapshot cannot serve state at the fork block itself.)`}
+        proves={`External contract code: sandbox now versus X Layer at ${at}.`}
+        summary={(e) => `${e.rows.filter((r) => r.equal).length} of ${e.rows.length} addresses match${e.omitted.length ? ` · ${e.omitted.length} not covered` : ""}`}
         outcome={run.checks.bytecode}
         evidence={(e) => <BytecodeEvidenceView e={e} forkBlock={block ?? 0n} />}
         commands={rpcs ? (e) => bytecodeCommands(rpcs, e) : undefined}
@@ -84,7 +88,8 @@ function ProofReport({ inputs }: { inputs: ProofInputs }) {
         id="state"
         number={3}
         title="State matches X Layer"
-        proves={`The sandbox's current state equals X Layer's at ${at}, apart from changes its use explains: storage and reads no sandbox action writes must be identical; balances, the pool price and the multiplier are listed apart with the ledger entries behind them.`}
+        proves={`Unchanged state: sandbox now versus X Layer at ${at}. Moving values are listed separately and do not affect this verdict.`}
+        summary={(e) => `${e.unchanged.filter((r) => r.equal).length} of ${e.unchanged.length} unchanged reads match · ${e.moving.length} moving values listed separately`}
         outcome={run.checks.state}
         evidence={(e) => <StateEvidenceView e={e} forkBlock={block ?? 0n} />}
         commands={rpcs ? (e) => stateCommands(rpcs, e) : undefined}
@@ -96,13 +101,21 @@ function ProofReport({ inputs }: { inputs: ProofInputs }) {
         id="intatto"
         number={4}
         title="Intatto's code is the published code"
-        proves="Each Intatto contract on the sandbox runs the same code as the X Layer mainnet deployment when this app has one configured, otherwise as this repo's build; sandbox-only markets are always compared with the build."
+        proves="Sandbox code versus the configured mainnet deployment or labelled build artifacts."
+        summary={(e) => `${e.rows.filter((r) => r.equal).length} of ${e.rows.length} contracts match · ${e.comparison === "mainnet" ? "mainnet and sandbox-only build references" : "build artifacts"}`}
         outcome={run.checks.intatto}
         evidence={(e) => <IntattoEvidenceView e={e} />}
         commands={rpcs ? (e) => intattoCommands(rpcs, e) : undefined}
         differences={(e) => e.rows.filter((r) => !r.equal).map((r) => `${r.label} (${r.contract}) at ${r.address}`)}
       />
-      <LedgerSection ledger={run.ledger} />
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2" aria-label="Proof sources and reproduction">
+        <EvidenceSheet title="Reproduce locally" triggerLabel="Reproduce locally" state="ready"
+          summary="RPC inputs and read heights for this browser run."
+          asOf={`Started ${formatUtc(Math.floor(run.startedAt / 1000))}`} evidenceFor="reproduction">
+          <ReproductionDetails inputs={inputs} run={run} />
+        </EvidenceSheet>
+        <LedgerSection ledger={run.ledger} asOf={`Run started ${formatUtc(Math.floor(run.startedAt / 1000))}`} />
+      </div>
     </div>
   )
 }

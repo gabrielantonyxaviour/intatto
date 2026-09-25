@@ -42,32 +42,30 @@ export function NoSandbox({ invalid }: { invalid?: string | null }) {
       <CardHeader className="gap-1.5">
         <h1 className="text-xl font-semibold">Fork proof</h1>
         <CardDescription>
-          There is no sandbox to check yet. Start a sandbox session, or give any RPC that claims to be a fork of X Layer: this page
-          compares it with a public X Layer RPC, from your browser.
+          Start a sandbox session to compare its block history, code and state with X Layer.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         <Button asChild className="w-fit">
           <Link href="/sandbox">Start a sandbox session</Link>
         </Button>
-        <form onSubmit={submit} className="grid max-w-xl gap-3" noValidate>
-          <div className="grid gap-1.5">
-            <Label htmlFor="proof-rpc">RPC URL</Label>
-            <Input id="proof-rpc" value={rpc} onChange={(e) => setRpc(e.target.value)} placeholder="http://127.0.0.1:8545" inputMode="url" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="proof-block">Fork block (optional for a local anvil, which reports its own)</Label>
-            <Input id="proof-block" value={block} onChange={(e) => setBlock(e.target.value)} placeholder="71559900" inputMode="numeric" />
-          </div>
-          {error ? (
-            <p role="alert" className="text-sm text-destructive">
-              {error}
-            </p>
-          ) : null}
-          <Button type="submit" variant="outline" className="w-fit">
-            Check this RPC
-          </Button>
-        </form>
+        {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
+        <details className="min-w-0">
+          <summary className="cursor-pointer text-sm font-medium">Check a custom RPC</summary>
+          <form onSubmit={submit} className="mt-3 grid max-w-xl gap-3" noValidate>
+            <div className="grid gap-1.5">
+              <Label htmlFor="proof-rpc">RPC URL</Label>
+              <Input id="proof-rpc" value={rpc} onChange={(e) => setRpc(e.target.value)} placeholder="http://127.0.0.1:8545" inputMode="url" />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="proof-block">Fork block (optional for a local anvil, which reports its own)</Label>
+              <Input id="proof-block" value={block} onChange={(e) => setBlock(e.target.value)} placeholder="71559900" inputMode="numeric" />
+            </div>
+            <Button type="submit" variant="outline" className="w-fit">
+              Check this RPC
+            </Button>
+          </form>
+        </details>
       </CardContent>
     </Card>
   )

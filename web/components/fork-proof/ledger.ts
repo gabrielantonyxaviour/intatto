@@ -10,6 +10,7 @@ const entrySchema = z
     txHash: z.string().nullish(),
     tx_hash: z.string().nullish(),
     at: z.string().optional(),
+    detail: z.record(z.unknown()).optional(),
   })
   .passthrough()
 
@@ -19,7 +20,7 @@ const responseSchema = z.union([
   z.object({ ledger: z.array(entrySchema) }).transform((r) => r.ledger),
 ])
 
-export type LedgerRow = { kind: string; summary: string; chainTime: number | null; txHash: string | null; at: string | null }
+export type LedgerRow = { kind: string; summary: string; chainTime: number | null; txHash: string | null; at: string | null; detail?: Record<string, unknown> }
 
 export type LedgerState =
   | { status: "loading" }
@@ -58,6 +59,7 @@ export async function fetchLedger(apiUrl: string | null, sessionId: string | nul
       chainTime: e.chainTime ?? e.chain_time ?? null,
       txHash: e.txHash ?? e.tx_hash ?? null,
       at: e.at ?? null,
+      detail: e.detail,
     }))
     return { status: "ok", url, entries }
   } catch (e) {
