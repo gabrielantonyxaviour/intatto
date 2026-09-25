@@ -1,0 +1,25 @@
+{
+  "name": "@intatto/sandbox",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "snapshot": "tsx scripts/build-snapshot.ts",
+    "local": "tsx src/local.ts",
+    "dry-run": "wrangler deploy --dry-run --outdir .wrangler/dry-run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "^0.3.7",
+    "@intatto/config": "workspace:*",
+    "viem": "^2.56.9",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260925.1",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "wrangler": "^4.140.0"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Hosted fork sandbox: sessions, time travel, scenarios, ledger and a public JSON-RPC per session.
+  // Served at intatto-rpc.larinova.com (the deploy block maps the custom domain; nothing here deploys).
+  "name": "intatto-sandbox",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "vars": {
+    "UPSTREAM_RPC": "https://xlayerrpc.okx.com"
+  },
+  "containers": [
+    {
+      // One container per session: anvil forked from X Layer with container/snapshot loaded.
+      "class_name": "SandboxContainer",
+      "image": "./container/Dockerfile",
+      "image_build_context": "./container",
+      "max_instances": 20,
+      // 1/2 vCPU, 4 GiB, 8 GB disk (the current name for the former "standard").
+      "instance_type": "standard-1"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "SANDBOX_CONTAINER", "class_name": "SandboxContainer" },
+      { "name": "SANDBOX_SESSION", "class_name": "SandboxSessionDO" }
+    ]
+  },
+  "migrations": [
+    // SQLite-backed: the container class needs it, and each session keeps its row and ledger in its own SQL.
+    { "tag": "v1", "new_sqlite_classes": ["SandboxContainer", "SandboxSessionDO"] }
+  ]
+}

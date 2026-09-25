@@ -1,0 +1,117 @@
+{
+  "forkBlock": 71559900,
+  "chainId": 1960196,
+  "createdAt": "2026-09-25T09:48:27.382Z",
+  "snapshotBlock": 71559934,
+  "snapshotChainTime": 1790328956,
+  "stateSha256": "fc6d14cb42253014ce74fa67f78317d959f511a6b434df153af2b393b488f456",
+  "deployment": {
+    "chainId": 1960196,
+    "block": 71559900,
+    "deployedAt": "2026-09-25T09:35:36.000Z",
+    "operator": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "keeper": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "usdg": "0x4ae46a509F6b1D9056937BA4500cb143933D2dc8",
+    "vault": "0xc5a5C42992dECbae36851359345FE25997F5C42d",
+    "gapReserve": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+    "sessionRisk": "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
+    "depthCaps": "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
+    "liquidator": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
+    "interestRateModel": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
+    "lens": "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
+    "markets": [
+      {
+        "symbol": "NVDAx",
+        "market": "0xf5059a5D33d5853360D16C683c16e67980206f36",
+        "priceRelay": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
+        "corporateActionGuard": "0x851356ae760d987E095750cCeb3bC6014560891C",
+        "token": "0xc845b2894dBddd03858fd2D643B4eF725fE0849d",
+        "wrapper": "0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5",
+        "pool": "0x2a2B11730C2b6d99a58034A869dd810D7300a7b2"
+      },
+      {
+        "symbol": "SPYx",
+        "market": "0x9d4454B023096f34B160D6B654540c56A1F81688",
+        "priceRelay": "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
+        "corporateActionGuard": "0x8f86403A4DE0BB5791fa46B8e795C547942fE4Cf",
+        "token": "0x90A2a4c76b5D8c0bc892A69EA28Aa775a8f2dD48",
+        "wrapper": "0xE7E553Cd128F0011777323A0b44a7b96EA1CB540",
+        "pool": "0x07c40850D14064D20eB0AfDEf9574675392f2c11"
+      }
+    ]
+  },
+  "ledger": [
+    {
+      "kind": "deploy",
+      "summary": "Intatto deployed on the fork at block 71559900",
+      "chainTime": 1790328948,
+      "at": "2026-09-25T09:48:19.137Z"
+    },
+    {
+      "kind": "note",
+      "summary": "sandbox only: NVDAx relay USDG/USD staleness limit widened to 30 days (the forked feed cannot update in simulated time); peg band still 1%",
+      "txHash": "0xc4e4d55d6b50882015a9731514db8e575e84068bba74dc5cc24714818b224552",
+      "chainTime": 1790328948,
+      "at": "2026-09-25T09:48:19.246Z"
+    },
+    {
+      "kind": "note",
+      "summary": "sandbox only: SPYx relay USDG/USD staleness limit widened to 30 days (the forked feed cannot update in simulated time); peg band still 1%",
+      "txHash": "0x8952dbe592d12b1d73f0edcf7e41bcf2e42f8723b839cef2bb8f306c07ffb178",
+      "chainTime": 1790328948,
+      "at": "2026-09-25T09:48:19.343Z"
+    },
+    {
+      "kind": "fund",
+      "summary": "0.01 OKB from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E",
+      "detail": {
+        "to": "0x0000000000000000000000000000000000001e00"
+      },
+      "txHash": "0x57702149d03ee11bdb21a644d25316f126278585f6ab92cd353016e97cb8caa8",
+      "chainTime": 1790328948,
+      "at": "2026-09-25T09:48:19.867Z"
+    },
+    {
+      "kind": "fund",
+      "summary": "50000 USDG transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E",
+      "detail": {
+        "to": "0x0000000000000000000000000000000000001e00",
+        "token": "0x4ae46a509f6b1d9056937ba4500cb143933d2dc8"
+      },
+      "txHash": "0x9e748f8800f4298def611ee07c5d1f8f3fa5eddcd7f86347eede254d3f3d6150",
+      "chainTime": 1790328948,
+      "at": "2026-09-25T09:48:20.612Z"
+    },
+    {
+      "kind": "fund",
+      "summary": "gap reserve seeded with 100 USDG from real holder",
+      "txHash": "0xeef71ed8f4ef7ddccbc767e248af260e59b715c9067f9199f0457fc848f39188",
+      "chainTime": 1790328950,
+      "at": "2026-09-25T09:48:21.559Z"
+    },
+    {
+      "kind": "keeper",
+      "summary": "keeper posted session EXTENDED",
+      "detail": {
+        "periodChangedAt": 1790323200
+      },
+      "txHash": "0x1a420f47bdbb361a8b9c9896d3c4d2ae84112b135f2740820038fc0f9ea1119e",
+      "chainTime": 1790328950,
+      "at": "2026-09-25T09:48:21.655Z"
+    },
+    {
+      "kind": "keeper",
+      "summary": "keeper posted NVDAx quote $226.187976 (accepted)",
+      "txHash": "0xfc58444b196e57afc56a5d78882ef02342d6268cfbfbdf64808c9232f6b023f7",
+      "chainTime": 1790328950,
+      "at": "2026-09-25T09:48:24.726Z"
+    },
+    {
+      "kind": "keeper",
+      "summary": "keeper posted SPYx quote $768.93879 (accepted)",
+      "txHash": "0xff6f64ee85947c897e09653b1af5f000a9ace4453e728fd2723abd18eb9af7bd",
+      "chainTime": 1790328953,
+      "at": "2026-09-25T09:48:27.364Z"
+    }
+  ]
+}
