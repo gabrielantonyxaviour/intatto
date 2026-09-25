@@ -3,6 +3,7 @@
  * per session from the snapshot):
  *   npx tsx checks/sandbox.ts        session → funded burner → position through the PUBLIC rpc → Saturday refuses
  *                                    a further borrow (SessionLimit) → repay → the ledger holds every admin call
+ *                                    → the synthetic gap also liquidates the forked demo borrower
  *   npx tsx checks/sandbox.ts --rpc  the public RPC refuses every fork-control and node-signing method (-32601)
  */
 import { existsSync } from "node:fs"
@@ -26,6 +27,7 @@ import { SANDBOX_CHAIN_ID, TICKERS, XLAYER, FORK_FUNDING_HOLDER } from "@intatto
 import { sandboxSessionSchema } from "../web/lib/chain/sandbox-session.ts"
 import { buildSnapshot, DEFAULT_SNAPSHOT_DIR } from "../services/sandbox/scripts/build-snapshot.ts"
 import { startLocalSandbox } from "../services/sandbox/src/local.ts"
+import { SCENARIO_BORROWER } from "../services/sandbox/src/session.ts"
 import type { LedgerEntry } from "../services/sandbox/src/types.ts"
 import { fail, pass } from "./lib/rpc.ts"
 
@@ -158,6 +160,25 @@ async function journey(session: { sessionId: string; rpcUrl: string; deployment:
   const info = await call("GET", `/session/${session.sessionId}`)
   if (info.status !== 200 || info.body.status !== "active" || (info.body.chain as { session?: string })?.session !== "CLOSED") fail(`GET /session/:id: ${JSON.stringify(info.body).slice(0, 300)}`)
   pass(`GET /session/:id → active, chain session CLOSED, expires after ${info.body.expiresAfterIdleMinutes} idle minutes`)
+
+  // A mainnet borrower who is neither the session burner nor the scenario borrower. 36% LTV at the fork;
+  // the 45% synthetic gap pushes that over the 65% liquidation threshold.
+  const demo = "0x7F23b131F7312bd0f63EF79974E215Dc3E12a415" as Address
+  if (demo.toLowerCase() === burner.address.toLowerCase() || demo.toLowerCase() === SCENARIO_BORROWER.toLowerCase()) fail("the forked demo borrower is not a third address")
+  const debtOf = (who: Address) => client.readContract({ address: market, abi: collateralMarketAbi, functionName: "debtOf", args: [who] })
+  const before = await debtOf(demo)
+  if (before === 0n) fail(`forked demo borrower ${demo} has no NVDAx debt on this snapshot`)
+  const gap = await call<Admin>("POST", `/session/${session.sessionId}/scenario`, { name: "synthetic-gap" })
+  if (gap.status !== 200) fail(`synthetic gap: ${gap.status} ${JSON.stringify(gap.body).slice(0, 400)}`)
+  const after = await debtOf(demo)
+  const watch = gap.body.entries.find((e) => e.summary.startsWith("liquidation watch:"))
+  const liquidated = ((watch?.detail as { liquidated?: string[]; checked?: number } | undefined)?.liquidated ?? []).map((a) => a.toLowerCase())
+  const checked = (watch?.detail as { checked?: number } | undefined)?.checked
+  if (!(after < before) || !liquidated.includes(demo.toLowerCase())) {
+    fail(`forked borrower ${demo} was not liquidated (debt ${before} → ${after}; watch: ${watch?.summary ?? "missing"})`)
+  }
+  if (typeof checked !== "number" || checked < 2) fail(`liquidation watch checked ${checked}, expected the demo borrower and the scenario borrower`)
+  pass(`synthetic gap liquidated forked borrower ${demo} (debt ${Number(before) / 1e6} → ${Number(after) / 1e6} USDG); watch checked ${checked}`)
 }
 
 async function rpcPolicy(rpcUrl: string, burner: Address, forkBlock: number) {

@@ -13,6 +13,7 @@ import { ForkChain, Ledger, type LedgerEntry } from "../../../checks/fork/lib/ch
 import { fund, poolImpliedQuote } from "../../../checks/fork/lib/actors.ts"
 import * as sc from "../../../checks/fork/lib/scenarios.ts"
 import { human, iso, MAX_CLOCK_LEAD, nextMondayOpen } from "./clock.ts"
+import { liquidatedSince, syncBorrowers, unionWatch, withDebt } from "./borrowers.ts"
 import { corporateActionData, gapReplay, PROVENANCE, syntheticGap } from "./replays.ts"
 import { SandboxError, type ChainStatus, type SandboxSessionState, type ScenarioName, type WarpTarget } from "./types.ts"
 
@@ -139,33 +140,31 @@ export class SandboxSession {
         })
         return
       }
-      case "gap-2025-01": {
+      case "gap-2025-01":
         await this.fork.ledger.add({ kind: "scenario", summary: `scenario gap-2025-01 started: ${gapReplay.label}`, detail: { ...PROVENANCE.gap }, chainTime: await t() })
-        await this.ensureScenarioBorrower()
-        const r = await sc.gapReplay(this.ctx, gapReplay)
-        await this.afterPriceScenario()
-        await this.fork.ledger.add({
-          kind: "scenario",
-          summary: `gap replay finished: Monday open gap ${r.openGapBps / 100}%, then ${r.closeMoveBps / 100}% into the close; ${r.slices.length} bounded liquidation slice(s)`,
-          detail: { replay: PROVENANCE.gap.replay, openGapBps: r.openGapBps, closeMoveBps: r.closeMoveBps, slices: r.slices },
-          chainTime: await t(),
+        return this.watched(async () => {
+          const r = await sc.gapReplay(this.ctx, gapReplay)
+          await this.afterPriceScenario()
+          await this.fork.ledger.add({
+            kind: "scenario",
+            summary: `gap replay finished: Monday open gap ${r.openGapBps / 100}%, then ${r.closeMoveBps / 100}% into the close; ${r.slices.length} bounded liquidation slice(s)`,
+            detail: { replay: PROVENANCE.gap.replay, openGapBps: r.openGapBps, closeMoveBps: r.closeMoveBps, slices: r.slices },
+            chainTime: await t(),
+          })
         })
-        return
-      }
-      case "synthetic-gap": {
+      case "synthetic-gap":
         await this.fork.ledger.add({ kind: "scenario", summary: `scenario synthetic-gap started: ${syntheticGap.label}`, detail: { ...PROVENANCE.synthetic }, chainTime: await t() })
-        await this.ensureScenarioBorrower()
-        const r = await sc.syntheticGap(this.ctx, syntheticGap)
-        await this.afterPriceScenario()
-        const deficit = await this.fork.read<bigint>(this.opts.deployment.vault as Address, abi.vault, "totalDeficit")
-        await this.fork.ledger.add({
-          kind: "scenario",
-          summary: `synthetic gap finished: ${syntheticGap.gapBps / 100}% drop, ${r.slices.length} liquidation slice(s), lender deficit ${Number(deficit) / 1e6} USDG`,
-          detail: { replay: PROVENANCE.synthetic.replay, slices: r.slices, totalDeficit: deficit.toString() },
-          chainTime: await t(),
+        return this.watched(async () => {
+          const r = await sc.syntheticGap(this.ctx, syntheticGap)
+          await this.afterPriceScenario()
+          const deficit = await this.fork.read<bigint>(this.opts.deployment.vault as Address, abi.vault, "totalDeficit")
+          await this.fork.ledger.add({
+            kind: "scenario",
+            summary: `synthetic gap finished: ${syntheticGap.gapBps / 100}% drop, ${r.slices.length} liquidation slice(s), lender deficit ${Number(deficit) / 1e6} USDG`,
+            detail: { replay: PROVENANCE.synthetic.replay, slices: r.slices, totalDeficit: deficit.toString() },
+            chainTime: await t(),
+          })
         })
-        return
-      }
     }
   }
 
@@ -192,6 +191,27 @@ export class SandboxSession {
     this.state.keeperAt = this.now()
   }
 
+  /**
+   * Before a gap replay, a synthetic gap, or the keeper ticks those run after moving the price:
+   * watch every borrower who still owes debt, then record who the keeper actually liquidated.
+   */
+  private async watched(run: () => Promise<void>) {
+    const index = (this.state.borrowers ??= { scannedTo: this.opts.deployment.block - 1, addresses: [] })
+    await syncBorrowers(this.fork, this.opts.deployment, index)
+    unionWatch(this.state.watch, await withDebt(this.fork, this.opts.deployment, index.addresses))
+    await this.ensureScenarioBorrower()
+    const checked = this.state.watch.length
+    const from = (await this.fork.client.getBlockNumber()) + 1n
+    await run()
+    const liquidated = await liquidatedSince(this.fork, this.opts.deployment.liquidator as Address, from)
+    await this.fork.ledger.add({
+      kind: "keeper",
+      summary: `liquidation watch: checked ${checked} borrower(s); liquidated ${liquidated.length ? liquidated.join(", ") : "none"}`,
+      detail: { checked, liquidated },
+      chainTime: await this.fork.chainTime(),
+    })
+  }
+
   /** Gap scenarios need a borrower going into the weekend at the weekday (OPEN) limit. */
   private async ensureScenarioBorrower() {
     const nvda = this.opts.deployment.markets.find((m) => m.symbol === "NVDAx")!
@@ -213,6 +233,7 @@ export class SandboxSession {
     if (!reverted) throw new SandboxError(409, "snapshot_missing", "the session's start snapshot is no longer available; start a new session")
     this.state.snapshotId = await this.fork.snapshot()
     this.state.watch.splice(0, this.state.watch.length, this.state.burnerAddress)
+    this.state.borrowers = undefined
     this.state.pendingAction = undefined
     this.state.keeperAt = this.now()
     await this.fork.ledger.add({

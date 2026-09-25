@@ -25,6 +25,9 @@ export type ChainStatus = {
   burnerAddress: Address | null
 }
 
+/** Incremental scan of CollateralMarket Borrowed logs. `scannedTo` is the last block included. */
+export type BorrowerScan = { scannedTo: number; addresses: Address[] }
+
 /** Serializable runtime state of one session, persisted between admin calls. */
 export type SandboxSessionState = {
   burnerAddress?: Address
@@ -32,6 +35,8 @@ export type SandboxSessionState = {
   snapshotId?: Hex
   /** Accounts the sandbox keeper checks for liquidation after a price move. */
   watch: Address[]
+  /** Every address that has ever borrowed, cached so later scans only read new blocks. */
+  borrowers?: BorrowerScan
   pendingAction?: { activationAt: number; ratio: number }
   /** Wall-clock ms of the last keeper refresh (session + prices). */
   keeperAt?: number
