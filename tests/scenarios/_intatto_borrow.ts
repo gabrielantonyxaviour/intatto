@@ -160,6 +160,7 @@ async function chainGapRows() {
 }
 
 export async function gapRowsMatch(page: Page) {
+  if (!(await page.getByTestId("gap-table").isVisible())) await page.getByText("Monday gap scenarios", { exact: true }).click()
   await expect(page.getByRole("columnheader", { name: "Lenders lose (est.)" })).toBeVisible()
   await expect(page.getByTestId("gap-table").locator("table").getByText("Liquidation starts", {exact:true})).toBeVisible()
   await shows("Monday-gap rows", async () => (await shownGapRows(page)).join(" / "), async () => (await chainGapRows()).join(" / "))
@@ -197,6 +198,7 @@ export async function repayAll(page: Page, checks = { tx: "chk_borrow_repay_tx",
   const r = await receiptFromBurner(hash)
   const a = await L.account()
   expect(a.debt).toBe(0n)
+  await review.getByRole("button", { name: "Back to the form", exact: true }).click()
   const shown = await shows("debt", async () => (await page.getByTestId("position-debt").innerText()).split("\n").pop() ?? null, async () => usdg((await L.account()).debt))
   observe(checks.tx, `Repay confirmed: ${hash} (block ${r.blockNumber}) from the burner to the market, listed as "Repaid the whole loan · Confirmed · ${hash.slice(0, 8)}…" (hash as text on the fork, OKLink on X Layer); "fully repaid"`)
   observe(checks.zero, `debtOf(burner) = 0 (was ${formatUnits(owed, 6)} USDG before repaying); position panel debt "${shown}"`)
@@ -259,6 +261,7 @@ export async function depositAndBorrow(page: Page, collateral: string, chip: "Lo
   await expect(review.getByTestId("review-finished")).toBeVisible({ timeout: 60_000 })
   const [dr, br] = [await receiptFromBurner(depositHash), await receiptFromBurner(borrowHash)]
   const a = await L.account()
+  await review.getByRole("button", { name: "Back to the form", exact: true }).click()
   return { loan, depositHash, borrowHash, depositBlock: dr.blockNumber, borrowBlock: br.blockNumber, account: a }
 }
 

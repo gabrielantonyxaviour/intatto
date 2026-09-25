@@ -49,8 +49,12 @@ export async function call(page:Page) {
   })
 }
 async function uiMatches(page:Page,j:Report) {
-  for(const [id,value] of [['session',j.session.state],['debt',j.position.debtUsdg],['capacity',j.capacity.borrowableNowUsdg],['price',j.price.usdPerToken??'none'],['fetched',j.price.fetchedAt??'none'],['liq-price',j.liquidation.liquidationPriceUsd??'none'],['gap',j.liquidation.gapToLiquidationBps===null?'none':String(j.liquidation.gapToLiquidationBps)]] as const)
+  for(const [id,value] of [['session',j.session.state],['debt',j.position.debtUsdg],['capacity',j.capacity.borrowableNowUsdg]] as const)
     await expect(page.getByTestId(`credit-${id}`)).toHaveText(value)
+  await page.getByRole('button',{name:'Response details',exact:true}).click()
+  for(const [id,value] of [['price',j.price.usdPerToken??'none'],['fetched',j.price.fetchedAt??'none'],['liq-price',j.liquidation.liquidationPriceUsd??'none'],['gap',j.liquidation.gapToLiquidationBps===null?'none':String(j.liquidation.gapToLiquidationBps)]] as const)
+    await expect(page.getByTestId(`credit-${id}`)).toHaveText(value)
+  await page.keyboard.press('Escape')
 }
 export async function chain(page:Page) {
   const j=journey.credit as Report, {d,nvda,client}=mainnet(), blockNumber=BigInt(j.block)
@@ -80,7 +84,9 @@ export async function screen(page:Page) {
   await uiMatches(page,j); await expect(page.getByTestId('credit-call-count')).toHaveText('1')
   await expect(page.getByText('Stored in this browser only.')).toBeVisible()
   await expect(page.getByText('OKX AI listing: under review (agent #13907)')).toBeVisible()
+  await page.getByRole('button',{name:'About Payment details',exact:true}).click()
   await expect(page.getByText('x402 on X Layer (eip155:196) after a real paid settlement is proven')).toBeVisible()
+  await page.keyboard.press('Escape')
   observe('chk_agent_screen_call','Agents shows one local browser call and its actual live response; endpoint is free, so payment receipt is not applicable and no paid settlement is claimed')
   observe('chk_agent_listing_status','Agents explicitly shows OKX AI listing: under review (agent #13907)')
   await edge('ec_agent_listing_pending',async()=>{

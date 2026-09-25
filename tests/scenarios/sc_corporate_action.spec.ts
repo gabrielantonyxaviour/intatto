@@ -25,6 +25,7 @@ scenario("sc_corporate_action", "judge", () => {
     const { client, nvda } = await SB.sessionChain()
     const { status, body } = await SB.adminAction(page, "Schedule a 10-for-1 split", "scenario")
     expect(status).toBe(200)
+    await page.getByRole("button", { name: "View ledger", exact: true }).click()
     const entries = await SB.ledgerMatchesApi(page)
     const started = entries.find((e) => e.kind === "scenario" && e.summary.startsWith("scenario corporate-action started"))!
     const pending = entries.find((e) => e.summary.startsWith("corporate action pending"))!
@@ -32,9 +33,10 @@ scenario("sc_corporate_action", "judge", () => {
     const sources = started.detail!.sources as { url: string; retrievedAt: string; sha256: string }[]
     expect(sources.length).toBeGreaterThan(0)
     const row = page.getByTestId("ledger-row").filter({ hasText: started.summary })
-    await row.locator("summary").click()
     for (const s of sources) await expect(row).toContainText(s.url)
     await expect(row).toContainText(`retrieved ${sources[0]!.retrievedAt}`)
+    await page.keyboard.press("Escape")
+    await expect(page.getByTestId("ledger")).not.toBeVisible()
     const read = <T,>(functionName: string) => client.readContract({ address: nvda.corporateActionGuard as `0x${string}`, abi: corporateActionGuardAbi, functionName } as never) as Promise<T>
     expect(await read<boolean>("isPaused")).toBe(true)
     const action = await read<{ activationAt: bigint; expectedMultiplier: bigint; preActionMultiplier: bigint; preActionPrice: bigint; active: boolean }>("pendingAction")
@@ -117,11 +119,14 @@ scenario("sc_corporate_action", "judge", () => {
     const drift = price * 10n > action.preActionPrice ? price * 10n - action.preActionPrice : action.preActionPrice - price * 10n
     expect(drift * 100n <= action.preActionPrice * 2n).toBe(true)
     expect(await client.readContract({ address: nvda.corporateActionGuard as `0x${string}`, abi: corporateActionGuardAbi, functionName: "isPaused" } as never)).toBe(false)
+    await page.getByRole("button", { name: "View ledger", exact: true }).click()
     const entries = await SB.ledgerMatchesApi(page)
     const warp = entries.filter((e) => e.kind === "warp").at(-1)!
     const done = entries.find((e) => e.summary.startsWith("corporate action activated"))!
     expect(warp.summary).toContain("past the multiplier activation")
     expect(done.summary).toContain("accepted")
+    await page.keyboard.press("Escape")
+    await expect(page.getByTestId("ledger")).not.toBeVisible()
     const iso = (x: number | bigint) => new Date(Number(x) * 1000).toISOString()
     I.observe("chk_ca_post_price", `"Activate the split: done"; banner chain time ${iso(t)} (= latest block) is past activation ${iso(action.activationAt)}; ledger rows "${warp.summary}" and "${done.summary}"; relay latestPrice ${I.usd(price)} fetched ${iso(fetchedAt)} (after activation) = the pre-action ${I.usd(action.preActionPrice)} ÷ 10 within 2%; CorporateActionGuard.isPaused() = false`)
     I.observeCall("int_ca_warp", `POST /session/${s.sessionId}/scenario {"name":"corporate-action-activate"} → ${status}; chain time ${body.chain ? iso(body.chain.chainTime) : "–"}, ${body.entries.length} ledger entries`)
@@ -169,12 +174,15 @@ scenario("sc_corporate_action", "judge", () => {
       await SB.go(page, "Sandbox")
       await expect(page.getByTestId("scenarios")).toBeVisible({ timeout: 120_000 })
       await SB.adminAction(page, "Schedule a 10-for-1 split", "scenario")
+      const read = <T,>(functionName: string) => client.readContract({ address: nvda.corporateActionGuard as `0x${string}`, abi: corporateActionGuardAbi, functionName } as never) as Promise<T>
+      const pendingBefore = await read<{ activationAt: bigint; expectedMultiplier: bigint }>("pendingAction")
       const res = await SB.control("inconsistent-activation", s.sessionId)
       const post = (res.entries ?? []).filter((e) => e.summary.startsWith("keeper posted NVDAx quote")).at(-1)!
       const logs = parseEventLogs({ abi: priceRelayAdapterAbi, logs: (await client.getTransactionReceipt({ hash: post.txHash as `0x${string}` })).logs })
       const relayVerdict = logs.map((l) => (l.eventName === "PriceRejected" ? `PriceRejected(${REASONS[Number((l.args as { reason: number }).reason)]})` : l.eventName)).filter((x) => /^Price/.test(x)).join(", ") || "no relay event"
-      const read = <T,>(functionName: string) => client.readContract({ address: nvda.corporateActionGuard as `0x${string}`, abi: corporateActionGuardAbi, functionName } as never) as Promise<T>
-      const pendingAfter = await read<{ activationAt: bigint }>("pendingAction")
+      const pendingAfter = await read<{ activationAt: bigint; expectedMultiplier: bigint }>("pendingAction")
+      expect(pendingAfter.activationAt).toBe(pendingBefore.activationAt)
+      expect(pendingAfter.expectedMultiplier).toBe(pendingBefore.expectedMultiplier)
       const paused = await read<boolean>("isPaused")
       expect(paused).toBe(true)
       expect(Number((await client.getBlock({ blockTag: "latest" })).timestamp)).toBeGreaterThan(Number(pendingAfter.activationAt))
@@ -184,6 +192,7 @@ scenario("sc_corporate_action", "judge", () => {
       await page.locator("#borrow-loan").fill("1")
       // The label settles on the contract's own verdict once the simulation returns.
       await expect(B.borrowCta(page)).toHaveText(`Refused: ${name}`, { timeout: 60_000 })
+      await expect(B.borrowCta(page)).toBeDisabled()
       await page.locator("#borrow-loan").fill("")
       await SB.go(page, "Risk")
       const failing = async () => {

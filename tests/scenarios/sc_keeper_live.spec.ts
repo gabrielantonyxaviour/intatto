@@ -20,9 +20,9 @@ scenario("sc_keeper_live", "keeper", () => {
     // One cron cycle: the keeper's /health moves to a new lastCycle.
     let h = h0
     await expect.poll(async () => { h = await LV.keeperHealth(); return h.lastCycle?.at ?? "" }, { timeout: 180_000, intervals: [5_000] }).not.toBe(h0.lastCycle?.at ?? "")
-    const table = page.getByRole("table", { name: "Keeper service log" })
+    const table = page.getByRole("list", { name: "Keeper service log", exact: true })
     await expect(table).toBeVisible({ timeout: 60_000 })
-    const first = await I.shows("newest keeper log step", async () => (await table.locator('[data-row="keeper-service"]').first().innerText()).replace(/\s+/g, " "), async () => {
+    const first = await I.shows("newest keeper log step", async () => (await table.locator('[data-row="keeper-service"]').first().locator('[data-col]').allTextContents()).join(" ").replace(/\s+/g, " "), async () => {
       const e = (await LV.keeperLog(1))[0]!
       return `${e.kind} ${e.at.replace("T", " ").slice(0, 19)} ${e.market} ${e.detail} ${e.txHash ? `${e.txHash.slice(0, 8)}…${e.txHash.slice(-6)}` : "none"}`.replace(/\s+/g, " ")
     }, 90_000).catch(() => null)

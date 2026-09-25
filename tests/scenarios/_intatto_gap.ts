@@ -12,6 +12,7 @@ type Page=StepArgs['page']
 const borrower='0x0000000000000000000000000000000000005Ce7' as Address
 const logs=async()=>{const {client,d,s}=await SB.sessionChain();return client.getContractEvents({address:d.liquidator as Address,abi:boundedLiquidatorAbi,eventName:'SliceExecuted',fromBlock:BigInt(s.forkBlock),toBlock:'latest'})}
 async function provenance(page:Page,name:'gap-2025-01'|'synthetic-gap',file:string) {
+  await page.getByRole('button',{name:'View ledger',exact:true}).click()
   const entries=await SB.ledgerMatchesApi(page), e=entries.find(e=>e.summary.startsWith(`scenario ${name} started:`))!
   expect(e).toBeDefined()
   const detail=e.detail as {fileSha256:string;sources:{url:string;retrievedAt:string;sha256:string}[];kind:string}
@@ -20,11 +21,12 @@ async function provenance(page:Page,name:'gap-2025-01'|'synthetic-gap',file:stri
   expect(detail.sources).toEqual(replay.sources.map(({url,retrievedAt,sha256}: {url:string;retrievedAt:string;sha256:string})=>({url,retrievedAt,sha256})))
   if(name==='gap-2025-01') expect(detail.sources.length).toBeGreaterThan(0)
   const row=page.getByTestId('ledger-row').filter({hasText:e.summary})
-  await row.getByText('Details',{exact:true}).click()
   for(const src of detail.sources) {
     expect(src.sha256).toMatch(/^[a-f0-9]{64}$/);expect(Number.isNaN(Date.parse(src.retrievedAt))).toBe(false)
     await expect(row).toContainText(src.url);await expect(row).toContainText(`${src.sha256.slice(0,10)}…${src.sha256.slice(-6)}`)
   }
+  await page.keyboard.press('Escape')
+  await expect(page.getByTestId('ledger')).not.toBeVisible()
   return {entries,detail}
 }
 export async function january(page:Page) {

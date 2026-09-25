@@ -39,35 +39,51 @@ export async function checks(page:Page){
 export async function raw(page:Page){
   const {s,client,d}=await SB.sessionChain(),blockNumber=BigInt(s.forkBlock)
   const ref=createPublicClient({transport:fallback(xlayerRpcUrls().map(u=>http(u)))})
+  await page.getByRole('button',{name:'Raw values: block hashes',exact:true}).click()
   for(const n of [blockNumber,blockNumber-1n]){
     const [a,b]=await Promise.all([ref.getBlock({blockNumber:n}),client.getBlock({blockNumber:n})]);expect(a.hash).toBe(b.hash)
-    await expect(page.locator(`[data-check="blocks"] [data-row="block-${n}"]`)).toContainText(a.hash!)
+    await expect(page.locator(`[data-evidence-for="blocks"] [data-row="block-${n}"]`)).toContainText(a.hash!)
   }
+  await page.keyboard.press('Escape')
+  await page.getByRole('button',{name:'Raw values: contract code',exact:true}).click()
   const token=TICKERS.NVDAx.token,usdg=XLAYER.usdg
   const [a,b]=await Promise.all([ref.getCode({address:token,blockNumber}),client.getCode({address:token})])
   expect(a).toBe(b)
-  const codeRow=page.locator(`[data-check="bytecode"] [data-row="${token}"]`)
+  const codeRow=page.locator(`[data-evidence-for="bytecode"] [data-row="${token}"]`)
   await expect(codeRow).toContainText(keccak256(a!));await expect(codeRow).toHaveAttribute('data-equal','true')
+  await page.keyboard.press('Escape')
+  await page.getByRole('button',{name:'Raw values: state reads',exact:true}).click()
   const [supply,word,wordRef]=await Promise.all([client.readContract({address:usdg,abi:erc20Abi,functionName:'totalSupply'}),client.getStorageAt({address:usdg,slot:'0x2'}),ref.getStorageAt({address:usdg,slot:'0x2',blockNumber})])
   expect(word).toBe(wordRef);expect(word).toBe(pad(toHex(supply)))
-  const sr=page.locator('[data-check="state"] [data-row="u.usdg.supply"]')
+  const sr=page.locator('[data-evidence-for="state"] [data-row="u.usdg.supply"]')
   await expect(sr.locator('[data-diff="equal"]')).toContainText('= on both')
   await expect(sr.locator('[data-diff="equal"]')).toContainText(word!)
+  await page.keyboard.press('Escape')
+  await page.getByRole('button',{name:'Raw values: Intatto code',exact:true}).click()
   const live=JSON.parse(readFileSync(new URL('../../deployments/xlayer-mainnet.json',import.meta.url),'utf8'))
   const [lensCode,liveCode]=await Promise.all([client.getCode({address:d.lens as Address}),ref.getCode({address:live.lens})])
   expect(keccak256(lensCode!)).toBe(keccak256(liveCode!))
-  await expect(page.locator('[data-check="intatto"] [data-row="lens"]')).toContainText(keccak256(lensCode!))
+  await expect(page.locator('[data-evidence-for="intatto"] [data-row="lens"]')).toContainText(keccak256(lensCode!))
+  await page.keyboard.press('Escape')
   I.observe('chk_proof_raw_values',`Independent RPC reads verify block hashes at ${blockNumber}/${blockNumber-1n}, NVDAx code ${keccak256(a!)}, USDG supply ${supply} and storage ${word}, MarketLens code ${keccak256(lensCode!)}; both sides shown in raw rows`)
 }
 export async function commands(page:Page){
   const {s}=await SB.sessionChain(),entries=await SB.ledgerOf(s.sessionId),ledger=page.locator('[data-slot="ledger"]')
+  await page.getByRole('button',{name:'View ledger',exact:true}).click()
   await expect(ledger).toHaveAttribute('data-ledger','ok')
   for(const e of entries)await expect(ledger).toContainText(e.summary)
+  await page.keyboard.press('Escape')
+  await page.getByRole('button',{name:'Reproduce locally',exact:true}).click()
   await expect(page.getByRole('button',{name:'Copy sandbox RPC URL'})).toBeVisible()
   await expect(page.getByText(s.rpcUrl,{exact:true})).toBeVisible()
   await expect(page.getByText(`anvil --fork-url https://xlayerrpc.okx.com --fork-block-number ${s.forkBlock} --chain-id 1960196`,{exact:true})).toBeVisible()
+  await page.keyboard.press('Escape')
   await expect(page.getByText('Time after the fork block is a simulation',{exact:true})).toBeVisible()
-  for(const id of ids){const check=page.locator(`[data-check="${id}"]`);await check.getByText('Reproduce with cast',{exact:true}).click();await expect(check.locator('[data-slot="command-block"]')).toContainText('cast ')}
+  for(const [id,label] of [['blocks','block hashes'],['bytecode','contract code'],['state','state reads'],['intatto','Intatto code']]){
+    await page.getByRole('button',{name:`Raw values: ${label}`,exact:true}).click()
+    await expect(page.locator(`[data-evidence-for="${id}"] [data-slot="command-block"]`)).toContainText('cast ')
+    await page.keyboard.press('Escape')
+  }
   I.observe('chk_proof_ledger',`Divergence ledger equals all ${entries.length} entries from session API`)
   I.observe('chk_proof_commands',`RPC ${s.rpcUrl}, fork-block anvil reproduction, copy buttons, four cast command sections and simulation note visible`)
   await I.edge('ec_proof_altered_slot',async()=>{
@@ -80,7 +96,8 @@ export async function commands(page:Page){
       const old=(await h.fork.client.getStorageAt({address:XLAYER.usdg,slot:'0x2'}))!,next=pad(toHex(BigInt(old)+1n))
       await h.fork.request('anvil_setStorageAt',[XLAYER.usdg,'0x2',next])
       expect((await rerun(page)).state).toBe('fail')
-      const row=page.locator('[data-check="state"] [data-row="u.usdg.supply"]')
+      await page.getByRole('button',{name:'Raw values: state reads',exact:true}).click()
+      const row=page.locator('[data-evidence-for="state"] [data-row="u.usdg.supply"]')
       await expect(row.locator('[data-side="old"]')).toContainText(old);await expect(row.locator('[data-side="new"]')).toContainText(next)
       return `Owned isolated fork: USDG supply slot ${old} → ${next}; state check red, both values shown; no public admin bypass`
     } finally {await h.stop();await page.evaluate(v=>localStorage.setItem('intatto:sandbox',v),JSON.stringify(s));await page.reload()}

@@ -175,6 +175,7 @@ scenario("sc_weekend", "judge", () => {
     const I = await import("./_intatto"), { expect } = I, SB = await import("./_intatto_sandbox")
     const { erc20Abi } = await import("viem"), { TICKERS } = await import("@intatto/config/xlayer")
     await SB.go(page, "Sandbox")
+    await page.getByRole("button", { name: "View ledger", exact: true }).click()
     await expect(page.getByTestId("ledger")).toBeVisible({ timeout: 120_000 })
     const { burner, s } = await SB.sessionChain()
     const entries = await SB.ledgerMatchesApi(page)

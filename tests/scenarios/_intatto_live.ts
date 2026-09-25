@@ -54,6 +54,7 @@ export async function keeperTx(hash: Hex, to: string) {
 
 /** Risk console at `view` (desktop nav), once its event scan is in. Returns the scanned block range. */
 export async function openRisk(page: Page, view: string, label: string) {
+  if (await page.locator('[data-section="keeper"]').isVisible()) await page.keyboard.press("Escape")
   if (!/\/risk/.test(page.url())) await page.goto(`/risk#${view}`)
   else await page.getByRole("navigation", { name: "Risk analyses" }).getByRole("link", { name: label, exact: true }).click()
   await expect(page.getByTestId("risk-console")).toHaveAttribute("data-view", view, { timeout: 120_000 })
