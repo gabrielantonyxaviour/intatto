@@ -108,7 +108,7 @@ scenario("sc_weekend", "judge", () => {
     expect(a.ltvBps).toBeGreaterThan(m.maxLtvBps)
     expect(a.borrowCapacity).toBe(0n)
     const cap = await B.canBorrowShown(page)
-    expect(cap).toBe("0 USDG")
+    expect((await import("viem")).parseUnits(cap.replace(/,/g, "").replace(/ USDG$/, ""), 6)).toBe(a.borrowCapacity)
     const n0 = await nonce()
     await page.locator("#borrow-loan").fill("10")
     await expect(B.borrowCta(page)).toHaveText("Refused: SessionLimit", { timeout: 60_000 })
