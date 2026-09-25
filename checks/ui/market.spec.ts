@@ -126,6 +126,21 @@ async function openChip(page: Page, id: string): Promise<Locator> {
   return tip
 }
 
+/** Escape only after the sheet owns focus. An earlier keypress hits the trigger and leaves the dialog open. */
+async function escapeOpenDialog(page: Page) {
+  const dialog = page.getByRole("dialog")
+  await expect(dialog).toBeVisible()
+  await expect.poll(() =>
+    page.evaluate(() => {
+      const active = document.activeElement
+      const open = document.querySelector("[role=dialog]")
+      return Boolean(active && open && (open === active || open.contains(active)))
+    }),
+  ).toBe(true)
+  await page.keyboard.press("Escape")
+  await expect(dialog).toBeHidden()
+}
+
 /** Full-page proof from the top once nothing is still loading (a scrolled page paints the sticky nav mid-image). */
 async function proof(page: Page, path: string) {
   await expect(page.locator("main [data-slot=skeleton]")).toHaveCount(0, { timeout: 60_000 })
@@ -236,13 +251,13 @@ test("three keeper sessions: session, max LTV, price, fetch time and guards equa
   await keeperRecords.focus()
   await page.keyboard.press("Enter")
   await expect(page.getByTestId("keeper-records-sheet")).toBeVisible()
-  await page.keyboard.press("Escape")
+  await escapeOpenDialog(page)
   await expect(keeperRecords).toBeFocused()
   const contracts = page.getByRole("button", { name: "Contracts" })
   await contracts.focus()
   await page.keyboard.press("Enter")
   await expect(page.getByTestId("contracts-sheet")).toBeVisible()
-  await page.keyboard.press("Escape")
+  await escapeOpenDialog(page)
   await expect(contracts).toBeFocused()
   await expectNoHorizontalScroll(page)
   await proof(page, "proof/market.png")
