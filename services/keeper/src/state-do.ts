@@ -5,6 +5,8 @@
  */
 import { DurableObject } from "cloudflare:workers"
 import schema from "../migrations/0001_init.sql"
+import receipts from "../migrations/0002_receipts.sql"
+import type { ReceiptInput, ReceiptSource, ReceiptSummary } from "./receipts.ts"
 import { SqlKeeperStore, type CycleSummary } from "./store.ts"
 
 export class KeeperState extends DurableObject<unknown> {
@@ -14,6 +16,7 @@ export class KeeperState extends DurableObject<unknown> {
     super(ctx, env)
     this.store = new SqlKeeperStore(ctx.storage.sql)
     this.store.migrate(schema)
+    this.store.migrate(receipts)
   }
 
   async getValue(key: string) {
@@ -46,5 +49,13 @@ export class KeeperState extends DurableObject<unknown> {
 
   async health() {
     return { lastCycle: this.store.lastCycle(), actions: this.store.count() }
+  }
+
+  async addReceipt(input: ReceiptInput) {
+    this.store.addReceipt(input)
+  }
+
+  async receiptSummary(source: ReceiptSource, limit: number): Promise<ReceiptSummary> {
+    return this.store.receiptSummary(source, limit)
   }
 }

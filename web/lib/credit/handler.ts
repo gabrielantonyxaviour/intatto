@@ -7,6 +7,7 @@ import { liveDeployment, mainnetClient, resolveChain } from "./deployment"
 import { CreditError, errorResponse, fromError, json, processEnv, type Env } from "./http"
 import { paywall } from "./paywall"
 import { parseCreditQuery, parseHealthQuery } from "./query"
+import { recordReceipt } from "./receipts"
 
 function searchParams(req: Request): URLSearchParams {
   try {
@@ -48,13 +49,19 @@ export async function handleCredit(req: Request, env: Env = processEnv()): Promi
   const parsed = parseCreditQuery(params)
   if (!parsed.ok) return errorResponse(400, parsed.error, parsed.code)
   const gate = paywall(req, env)
-  if (gate) return gate
+  if (gate) {
+    await recordReceipt(req, gate.status, env)
+    return gate
+  }
   try {
     const { client, deployment, network } = await resolveChain(parsed.query, env)
     const report = await computeCredit(client, deployment, parsed.query.wallet, parsed.query.market, { network })
+    await recordReceipt(req, report, env)
     return json(report)
   } catch (e) {
-    return fromError(e)
+    const res = fromError(e)
+    await recordReceipt(req, res.status, env)
+    return res
   }
 }
 

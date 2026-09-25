@@ -4,6 +4,7 @@
  * services/keeper/migrations/0001_init.sql.
  */
 import { z } from "zod"
+import { RECEIPT_KEEP, UA_PUBLIC_MAX, receiptInputSchema, type PublicReceipt, type ReceiptInput, type ReceiptSummary } from "./receipts.ts"
 import { ACTION_KINDS, type KeeperAction, type KeeperState } from "./types.ts"
 
 /** The subset of Durable Object SqlStorage (ctx.storage.sql) the store uses. */
@@ -119,5 +120,55 @@ export class SqlKeeperStore implements KeeperState {
   lastCycle(): CycleSummary | null {
     const raw = this.getSync("last_cycle")
     return raw ? (JSON.parse(raw) as CycleSummary) : null
+  }
+
+  /** One credit-API call. Drops rows older than the newest `keep` (default 5,000). */
+  addReceipt(input: ReceiptInput, keep = RECEIPT_KEEP) {
+    const row = receiptInputSchema.parse(input)
+    this.sql.exec(
+      "INSERT INTO credit_receipts (at, source, wallet, market, network, status, header_names, ua) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      row.at,
+      row.source,
+      row.wallet,
+      row.market,
+      row.network,
+      row.status,
+      JSON.stringify(row.headerNames),
+      row.ua,
+    )
+    this.sql.exec("DELETE FROM credit_receipts WHERE id <= (SELECT MAX(id) FROM credit_receipts) - ?", keep)
+  }
+
+  /** `calls` counts `source`; `total` counts every source; `latest` is newest first with ua clipped to 80 characters. */
+  receiptSummary(source: ReceiptInput["source"], limit: number): ReceiptSummary {
+    const calls = Number(this.sql.exec("SELECT COUNT(*) AS n FROM credit_receipts WHERE source = ?", source).toArray()[0]?.n ?? 0)
+    const total = Number(this.sql.exec("SELECT COUNT(*) AS n FROM credit_receipts").toArray()[0]?.n ?? 0)
+    const rows = this.sql.exec(
+      "SELECT id, at, source, wallet, market, network, status, header_names, ua FROM credit_receipts WHERE source = ? ORDER BY id DESC LIMIT ?",
+      source,
+      limit,
+    ).toArray()
+    return { calls, total, latest: rows.map(publicReceipt) }
+  }
+}
+
+function publicReceipt(r: Record<string, unknown>): PublicReceipt {
+  let headerNames: string[] = []
+  try {
+    const parsed = JSON.parse(String(r.header_names))
+    if (Array.isArray(parsed)) headerNames = parsed.map(String)
+  } catch {
+    headerNames = []
+  }
+  return {
+    id: Number(r.id),
+    at: String(r.at),
+    source: String(r.source) as PublicReceipt["source"],
+    wallet: String(r.wallet),
+    market: String(r.market) as PublicReceipt["market"],
+    network: String(r.network) as PublicReceipt["network"],
+    status: Number(r.status),
+    headerNames,
+    ua: String(r.ua).slice(0, UA_PUBLIC_MAX),
   }
 }

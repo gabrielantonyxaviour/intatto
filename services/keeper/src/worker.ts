@@ -1,7 +1,8 @@
 /**
  * intatto-keeper: a Cloudflare Worker on a one-minute Cron Trigger. `scheduled` runs one keeper cycle with the
  * operator key (secret OPERATOR_PK, never logged) against LIVE_DEPLOYMENT; cursors and the action log live in
- * the KeeperState Durable Object. `fetch` serves GET /log?limit=50 and GET /health (JSON, CORS open, no secrets).
+ * the KeeperState Durable Object. `fetch` serves GET /log, GET /health, POST /receipt and GET /receipts
+ * (JSON, CORS open; POST /receipt checks the RECEIPT_TOKEN secret and stores no header values).
  */
 import { createPublicClient, createWalletClient, fallback, http, type Chain, type PublicClient, type WalletClient } from "viem"
 import { privateKeyToAccount } from "viem/accounts"
@@ -12,6 +13,7 @@ import { xlayerRpcUrls } from "@intatto/config/xlayer"
 import { shortError } from "./chain.ts"
 import { runCycle } from "./cycle.ts"
 import { XStocksIssuer } from "./issuer.ts"
+import { handleReceiptHttp } from "./receipts.ts"
 import type { KeeperState } from "./state-do.ts"
 
 export { KeeperState } from "./state-do.ts"
@@ -22,6 +24,8 @@ export type Env = {
   LIVE_DEPLOYMENT?: string
   XLAYER_RPC_URL?: string
   SEND_REJECTED?: string
+  /** Shared with the credit API. Absent means POST /receipt answers 401. */
+  RECEIPT_TOKEN?: string
 }
 
 /** Module scope: one issuer poller per isolate, so its cache and backoff survive between invocations. */
@@ -94,7 +98,11 @@ export async function scheduledCycle(env: Env): Promise<void> {
   }
 }
 
-const CORS = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, OPTIONS", "access-control-allow-headers": "content-type" }
+const CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, OPTIONS",
+  "access-control-allow-headers": "content-type, x-receipt-token",
+}
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...CORS } })
@@ -103,9 +111,11 @@ const logQuery = z.object({ limit: z.coerce.number().int().min(1).max(500).defau
 
 export async function handleFetch(request: Request, env: Env): Promise<Response> {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS })
-  if (request.method !== "GET") return json({ error: "method not allowed", code: "method_not_allowed" }, 405)
   const url = new URL(request.url)
   try {
+    const receipt = await handleReceiptHttp(request, env, stateOf(env))
+    if (receipt) return receipt
+    if (request.method !== "GET") return json({ error: "method not allowed", code: "method_not_allowed" }, 405)
     if (url.pathname === "/log") {
       const q = logQuery.safeParse({ limit: url.searchParams.get("limit") ?? undefined })
       if (!q.success) return json({ error: "limit must be an integer from 1 to 500", code: "bad_limit" }, 400)
