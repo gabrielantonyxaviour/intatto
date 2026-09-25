@@ -17,6 +17,10 @@ export NEXT_PUBLIC_KEEPER_LOG_URL="${NEXT_PUBLIC_KEEPER_LOG_URL:-https://intatto
 export LIVE_DEPLOYMENT="$LIVE"
 export SANDBOX_API_URL="$NEXT_PUBLIC_SANDBOX_API_URL"
 pnpm -C web exec opennextjs-cloudflare build
+# OpenNext inlines .env files it finds (including the monorepo root) into next-env.mjs: refuse to ship any vault name.
+if grep -qE "_PK|API_TOKEN|API_KEY|PRIVATE" web/.open-next/cloudflare/next-env.mjs 2>/dev/null; then
+  echo "refusing to deploy: secrets were inlined into web/.open-next/cloudflare/next-env.mjs"; exit 1
+fi
 cp "$REPO/deploy/wrangler.web.jsonc" web/wrangler.deploy.jsonc
 cd web && npx wrangler deploy --config wrangler.deploy.jsonc \
   --var "LIVE_DEPLOYMENT:${LIVE:-}" --var "SANDBOX_API_URL:$SANDBOX_API_URL"

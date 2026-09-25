@@ -117,3 +117,7 @@ npx tsx checks/public.ts                          # the public app and sandbox f
 ```
 
 Built for OKX Dev Day 2026 (Build a Market, with OKX AI).
+
+## License
+
+MIT (see [LICENSE](LICENSE)); files with their own SPDX header keep that license.
