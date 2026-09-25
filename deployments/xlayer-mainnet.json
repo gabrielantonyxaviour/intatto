@@ -1,0 +1,26 @@
+{
+  "chainId": 196,
+  "block": 71562056,
+  "deployedAt": "2026-09-25T10:11:32.000Z",
+  "operator": "0xaBa1F7e4FB0500696855BF38012676c10e3ef808",
+  "keeper": "0xaBa1F7e4FB0500696855BF38012676c10e3ef808",
+  "usdg": "0x4ae46a509F6b1D9056937BA4500cb143933D2dc8",
+  "vault": "0x89fC3a0637768fA0c7e779375786bc129B6c308C",
+  "gapReserve": "0x4CB09f7b032cb5F6575faE46176e9697DB07CB52",
+  "sessionRisk": "0x2d7F438AB59767fD48b4E560B16B72bD8Fb055c8",
+  "depthCaps": "0x30279C37B299b51f03F4b2b5898902670e13F986",
+  "liquidator": "0xc0289c36e72a2E6a799D01EdF11FC460D07bEAc0",
+  "interestRateModel": "0xa3677c6aAC24C366C5A75083738ba568cEf8AD16",
+  "lens": "0xb7c45ca15038Ab9b0eDDC9607cdB6e2bfA89dD66",
+  "markets": [
+    {
+      "symbol": "NVDAx",
+      "market": "0xE6708CC6598F17611f9A468f9907052688459D0D",
+      "priceRelay": "0xf69c0EA60a6f6b94fF3C0F40af8bA3B97A4567a4",
+      "corporateActionGuard": "0x4b4B28da545064837CFbd66C16F94f21a0750BDE",
+      "token": "0xc845b2894dBddd03858fd2D643B4eF725fE0849d",
+      "wrapper": "0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5",
+      "pool": "0x2a2B11730C2b6d99a58034A869dd810D7300a7b2"
+    }
+  ]
+}
