@@ -254,7 +254,9 @@ contract PriceRelayAdapter is IPriceSource, Ownable {
         if (e.deviation > _band()) return (false, RejectReason.OutOfBand, e);
         uint256 last = lastWrapperPrice; // zero before the first accepted post: MaxMove is skipped
         if (last != 0) e.move = _diffBps(e.wrapperPrice, last);
-        if (e.move > maxMoveBps) return (false, RejectReason.MaxMove, e);
+        // A move beyond maxMove passes only when the pool's own 30-minute TWAP has moved that far too: the keeper
+        // cannot move the price alone, and a real gap the market confirms can still be followed (liveness).
+        if (e.move > maxMoveBps && _diffBps(twap, last) <= maxMoveBps) return (false, RejectReason.MaxMove, e);
         ok = true;
     }
 

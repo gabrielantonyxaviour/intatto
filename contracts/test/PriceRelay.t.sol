@@ -191,13 +191,22 @@ contract PriceRelayTest is Test {
     }
 
     function test_reject_maxMove() public {
-        uint256 quote = QUOTE * 120 / 100; // in band vs a TWAP that moved with it, but 20% from the last post
-        _setTwap(pool, _wrap(quote));
+        // The keeper alone cannot move the price more than maxMove: the TWAP moved only 14%, the quote 20%.
+        session.setSession(ISessionRisk.Session.CLOSED); // 8% band, so the 20% quote is in band vs the +14% TWAP
+        _setTwap(pool, _wrap(QUOTE * 114 / 100));
+        uint256 quote = QUOTE * 120 / 100;
         uint256 twap = _twap(relay);
         _rejects(PriceRelayAdapter.RejectReason.MaxMove, quote, NOW, twap, _bps(_wrap(quote), twap));
         uint256 ok = QUOTE * 114 / 100;
-        _setTwap(pool, _wrap(ok));
         assertTrue(_post(ok, NOW));
+    }
+
+    function test_gapConfirmedByTwap_isFollowed() public {
+        // A 45% gap the pool's own TWAP confirms is accepted in one post, so liquidation never stalls.
+        uint256 quote = QUOTE * 55 / 100;
+        _setTwap(pool, _wrap(quote));
+        assertTrue(_post(quote, NOW));
+        assertEq(relay.lastWrapperPrice(), _wrap(quote));
     }
 
     function test_multiplierChange_isNotAMove() public {
