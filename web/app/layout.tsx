@@ -5,6 +5,7 @@ import { Providers } from "./providers"
 import { Nav } from "./nav"
 import { SandboxBanner } from "./sandbox-banner"
 import { ShellSkeleton } from "./shell-skeleton"
+import { SandboxDock } from "@/components/sandbox/dock"
 
 export const metadata: Metadata = {
   title: "Intatto",
@@ -27,6 +28,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
             <ChainReady fallback={<ShellSkeleton />}>{children}</ChainReady>
           </main>
+          <ChainReady>
+            <SandboxDock />
+          </ChainReady>
         </Providers>
       </body>
     </html>
