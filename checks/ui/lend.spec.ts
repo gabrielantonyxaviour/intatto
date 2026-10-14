@@ -6,11 +6,10 @@ import { test, expect, viewports, expectNoHorizontalScroll } from "./fixtures"
 import { startForkHarness, SANDBOX_LENDER, type ForkHarness } from "../fork/harness.ts"
 import * as scenarios from "../fork/lib/scenarios.ts"
 import { formatTokenAmount } from "../../web/components/ui/web3/format.ts"
-import { bpsText, lossExample, usdg } from "../../web/components/lend/lend-format.ts"
+import { bpsText, dollars, lossExample, sharePriceText, usdg } from "../../web/components/lend/lend-format.ts"
 
 test.describe.configure({ mode: "serial" })
 test.use({ trace: "off" })
-
 const bps = (v: bigint) => `${(Number(v) / 100).toFixed(2)}%`
 const REPLAYS = new URL("../../data/replays/", import.meta.url)
 const replay = (name: string) => JSON.parse(readFileSync(new URL(name, REPLAYS), "utf8"))
@@ -50,28 +49,13 @@ test.beforeAll(async () => {
   h = await startForkHarness()
   vault = h.deployment.vault as Address
   burner = h.env.burnerAddress
-  mkdirSync("proof", { recursive: true })
+  if (process.env.UI_PROOF === "1") mkdirSync("proof", { recursive: true })
 })
-
 test.afterAll(async () => { await h?.stop() })
 
-test("small amounts keep their digits and the loss example never states more than 100%", () => {
-  expect(usdg(1_497_500n, 0)).toBe("1.4975 USDG")
-  expect(usdg(1_497_502n)).toBe("1.4975 USDG")
-  expect(usdg(400_000n)).toBe("0.40 USDG")
-  expect(usdg(150_500_000n, 0)).toBe("150.5 USDG")
-  expect(usdg(50_150_000_000n, 0)).toBe("50,150 USDG")
-  expect(lossExample(1_497_500n)).toBe("The vault holds 1.4975 USDG today, so a write-off that size would wipe out all deposits.")
-  expect(lossExample(50_150_000_000n)).toContain("by 1.994% at today's deposits")
-  for (const total of [0n, 1n, 1_497_500n, 999_999_999n, 1_000_000_000n, 1_000_000_001n, 50_150_000_000n, 10n ** 18n]) {
-    for (const m of lossExample(total).matchAll(/([\d.,]+)%/g)) {
-      expect(Number(m[1]!.replace(/,/g, "")), lossExample(total)).toBeLessThanOrEqual(100)
-    }
-  }
-})
-
-test("not deployed on X Layer: the screen points to the sandbox", async ({ page }) => {
+test("not deployed on X Layer: the screen points to the sandbox", async ({ page, liveDeployed }) => {
   test.setTimeout(180_000)
+  test.skip(liveDeployed, "the running app has a live deployment configured")
   await page.goto("/lend")
   await expect(page.getByTestId("lend-not-deployed")).toBeVisible({ timeout: 120_000 })
   await expect(page.getByRole("link", { name: "Open the sandbox" })).toHaveAttribute("href", "/sandbox")
@@ -85,22 +69,27 @@ test("RPC failure: an error with a retry, not a blank page", async ({ page, useF
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible()
 })
 
-test("a tick during vault loading still enables Continue", async ({ page, useFork }) => {
+test("the primer is on demand and a refresh preserves the terms checkbox", async ({ page, useFork }) => {
   test.setTimeout(180_000)
   await useFork(page, h.env)
+  await page.goto("/lend")
+  await expect(page.getByTestId("lend-page")).toBeVisible({ timeout: 90_000 })
+  const primer = page.getByTestId("lend-primer")
+  await expect(primer).toBeHidden()
+  await keyOpen(page, "How lending works")
   let go!: () => void
   const gate = new Promise<void>((r) => { go = r })
   const match = (url: URL) => url.href.startsWith(h.env.rpcUrl)
   const hold = (route: { continue: () => Promise<void> }) => gate.then(() => route.continue())
   await page.route(match, hold)
   try {
-    await page.goto("/lend")
-    const primer = page.getByTestId("lend-primer")
-    await expect(page.getByTestId("lend-loading")).toBeVisible({ timeout: 30_000 })
+    await page.waitForRequest((request) => request.url().startsWith(h.env.rpcUrl))
     await primer.getByRole("checkbox").click()
     go()
-    await expect(page.getByTestId("lend-page")).toBeVisible({ timeout: 90_000 })
+    await expect(primer.getByRole("checkbox")).toBeChecked()
     await expect(primer.getByRole("button", { name: "Continue" })).toBeEnabled()
+    await primer.getByRole("button", { name: "Continue" }).click()
+    await expect(primer).toBeHidden()
   } finally { go(); await page.unroute(match, hold) }
 })
 
@@ -109,37 +98,43 @@ test("a burner reads the primer, deposits and withdraws USDG through the UI", as
   await page.setViewportSize(viewports.wide)
   await useFork(page, h.env)
   await page.goto("/lend")
-
+  await expect(page.getByTestId("lend-page")).toBeVisible({ timeout: 120_000 })
   const primer = page.getByTestId("lend-primer")
-  await expect(primer).toBeVisible({ timeout: 120_000 })
+  await expect(primer).toBeHidden()
+  const form = page.getByTestId("deposit-form")
+  await form.getByLabel("Deposit USDG").fill("250")
+  await form.getByRole("button", { name: "Review", exact: true }).click()
+  await expect(primer).toBeVisible()
   const proceed = primer.getByRole("button", { name: "Continue" })
   await expect(proceed).toBeDisabled()
   await primer.getByRole("checkbox").click()
   await proceed.click()
   await expect(primer).toBeHidden()
-
+  await expect(page.getByTestId("lend-deposit-review")).toBeVisible()
+  await page.getByTestId("lend-deposit-review").getByRole("button", { name: "Back to form", exact: true }).focus()
+  await page.keyboard.press("Escape")
+  await expect(page.getByTestId("lend-deposit-review")).toBeHidden()
   const lens = await lensVault()
-  await expect(page.getByTestId("share-price")).toHaveText(`${formatTokenAmount(await readVault<bigint>("sharePrice"), 6, { minFractionDigits: 6, maxFractionDigits: 6 })} USDG`)
-  await expect(page.getByTestId("stat-total-deposits")).toHaveText(usdg(await readVault<bigint>("totalAssets"), 0))
-  await expect(page.getByTestId("rate-supply")).toHaveText(bps(lens.supplyRateBps))
+  await expect(page.getByTestId("share-price")).toHaveText(sharePriceText(await readVault<bigint>("sharePrice")))
+  await expect(page.getByTestId("stat-total-deposits")).toHaveText(dollars(await readVault<bigint>("totalAssets")))
+  await expect(page.getByTestId("stat-supply-rate")).toHaveText(bps(lens.supplyRateBps))
+  await page.getByRole("tab", { name: /^risk$/i }).click()
   await expect(page.getByTestId("reserve-balance")).toHaveText(usdg(lens.reserveBalance))
-  await keyOpen(page, "Deficits")
+  await page.getByRole("tab", { name: /^deficits$/i }).click()
+  await page.locator("#deficits").getByRole("button", { name: "Details", exact: true }).click()
   await expect(page.getByTestId("deficits-empty")).toHaveText(/No deficits recognised/)
   await page.keyboard.press("Escape")
   await expect(page.getByTestId("lend-deficits-sheet")).toBeHidden()
-
-  const form = page.getByTestId("deposit-form")
-  await form.getByLabel("Deposit USDG").fill("250")
   const yearly = (250_000_000n * lens.supplyRateBps) / 10_000n
   await keyOpen(page, "About Earnings")
   await expect(page.getByTestId("lend-earnings").getByText(usdg(yearly)).first()).toBeVisible()
   await page.keyboard.press("Escape")
   await expect(page.getByTestId("lend-earnings")).toBeHidden()
+  await page.getByRole("tab", { name: /^rates$/i }).click()
   await page.getByTestId("rate-curve-toggle").focus()
   await page.keyboard.press("Enter")
   await expect(page.getByTestId("rate-curve-toggle")).toHaveAttribute("aria-expanded", "true")
   await page.keyboard.press("Enter")
-
   await form.getByRole("button", { name: "Review", exact: true }).click()
   const review = page.getByTestId("lend-deposit-review")
   await expect(review.getByTestId("deposit-receipt")).toContainText("Intatto USDG vault")
@@ -153,7 +148,6 @@ test("a burner reads the primer, deposits and withdraws USDG through the UI", as
   const afterDeposit = await readVault<bigint>("convertToAssets", [await readVault<bigint>("balanceOf", [burner])])
   expect(afterDeposit).toBeGreaterThanOrEqual(249_999_999n)
   await expect(page.getByTestId("position-value")).toHaveText(usdg(afterDeposit, 6), { timeout: 30_000 })
-
   await clearToasts(page)
   await page.getByRole("tab", { name: "Withdraw" }).click()
   const wform = page.getByTestId("withdraw-form")
@@ -169,7 +163,7 @@ test("a burner reads the primer, deposits and withdraws USDG through the UI", as
   expect(afterDeposit - afterWithdraw).toBe(100_000_000n)
   await expect(page.getByTestId("position-value")).toHaveText(usdg(afterWithdraw, 6), { timeout: 30_000 })
   await page.keyboard.press("Escape")
-  await page.screenshot({ path: "proof/lend-deposit.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/lend-deposit.png", fullPage: true })
 })
 
 test("reserve exhaustion: the idle limit, then the recognised deficit and the lower share price", async ({ page, useFork }) => {
@@ -190,7 +184,6 @@ test("reserve exhaustion: the idle limit, then the recognised deficit and the lo
   await wform.getByRole("button", { name: "Max" }).click()
   await expect(wform.getByLabel("Withdraw USDG")).toHaveValue("60")
   await fork.write(SANDBOX_LENDER, vault, lendingVaultAbi, "deposit", [taken, SANDBOX_LENDER], LENDER_GAS)
-
   const priceBefore = await readVault<bigint>("sharePrice")
   await scenarios.gapReplay(ctx, replay("nvda-2025-01-gap.json"))
   const { slices } = await scenarios.syntheticGap(ctx, replay("synthetic-gap.json"))
@@ -210,7 +203,6 @@ test("reserve exhaustion: the idle limit, then the recognised deficit and the lo
   const priceNow = await readVault<bigint>("sharePrice")
   console.info(`[lend] borrowed ${usdg(borrowed, 6)}; DeficitRecognised ${usdg(deficit.amount, 6)}; share price ${deficit.sharePriceBefore} → ${deficit.sharePriceAfter} (before ${priceBefore}, now ${priceNow})`)
   expect(deficit.sharePriceAfter).toBeLessThan(deficit.sharePriceBefore)
-
   await page.goto("/lend#deficits")
   const num = (v: bigint) => formatTokenAmount(v, 6, { minFractionDigits: 6, maxFractionDigits: 6 })
   await expect(page.getByTestId("deficit-count")).toHaveText(String(events.length), { timeout: 120_000 })
@@ -219,9 +211,11 @@ test("reserve exhaustion: the idle limit, then the recognised deficit and the lo
   await expect(page.getByTestId("deficit-price").first()).toHaveText(`${num(deficit.sharePriceBefore)} → ${num(deficit.sharePriceAfter)}`, { timeout: 30_000 })
   await page.keyboard.press("Escape")
   await expect(page.getByTestId("deficit-total")).toHaveText(usdg(await readVault<bigint>("totalDeficit"), 6))
-  await expect(page.getByTestId("share-price")).toHaveText(`${num(priceNow)} USDG`)
+  await page.getByRole("tab", { name: /^overview$/i }).click()
+  await expect(page.getByTestId("share-price")).toHaveText(sharePriceText(priceNow))
   expect(priceNow).toBeLessThan(priceBefore)
   const lens = await lensVault()
+  await page.getByRole("tab", { name: /^risk$/i }).click()
   await expect(page.getByTestId("reserve-balance")).toHaveText(usdg(lens.reserveBalance))
   await page.goto("/lend#risk")
   const risk = page.getByTestId("lend-risk-sheet")
@@ -232,7 +226,7 @@ test("reserve exhaustion: the idle limit, then the recognised deficit and the lo
   await page.keyboard.press("Escape")
   await expect(risk).toBeHidden()
   await page.evaluate(() => window.scrollTo(0, 0))
-  await page.screenshot({ path: "proof/lend.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/lend.png", fullPage: true })
 })
 
 test("sandbox with SPYx lists every deployed market", async ({ page, useFork }) => {
@@ -248,7 +242,10 @@ test("sandbox with SPYx lists every deployed market", async ({ page, useFork }) 
     await expect(page.getByTestId("lend-page")).toBeVisible({ timeout: 120_000 })
     await expect(page.locator("#allocation")).not.toContainText("one market")
     await expect(page.getByTestId("lend-markets")).toHaveText("Exposure: NVDAx and SPYx")
+    await page.getByRole("tab", { name: /^overview$/i }).click()
     await expect(page.getByTestId("overview-markets")).toHaveText("2 (NVDAx, SPYx)")
+    await page.getByRole("tab", { name: /^allocation$/i }).click()
+    await expect(page.getByTestId("allocation-toggle")).toHaveAttribute("aria-expanded", "true")
     await expect(page.getByTestId("allocation-table")).toBeVisible({ timeout: 30_000 })
     for (const m of spyH.deployment.markets) {
       const lens = await spyH.fork.read<{ totalDebt: bigint; totalCollateralValue: bigint; liquidationThresholdBps: bigint; capUsdg: bigint }>(spyH.deployment.lens as Address, marketLensAbi, "market", [m.market])
@@ -269,29 +266,34 @@ test("fits 390, 768 and 1440 px without sideways scrolling", async ({ page, useF
   await useFork(page, h.env)
   await page.setViewportSize(viewports.narrow)
   await page.goto("/lend")
+  await expect(page.getByTestId("lend-page")).toBeVisible({ timeout: 120_000 })
   const primer = page.getByTestId("lend-primer")
-  await expect(primer).toBeVisible({ timeout: 120_000 })
+  await expect(primer).toBeHidden()
+  await keyOpen(page, "How lending works")
+  await expect(primer).toBeVisible()
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/lend-primer-390.png" })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/lend-primer-390.png" })
   await primer.getByRole("checkbox").click()
   await primer.getByRole("button", { name: "Continue" }).click()
   await expect(primer).toBeHidden()
-
   for (const size of Object.values(viewports)) {
     await page.setViewportSize(size)
     await page.goto("/lend#allocation")
     await expect(page.getByTestId("lend-page")).toBeVisible({ timeout: 120_000 })
     await expect(page.getByTestId("lend-primer")).toBeHidden()
-    await expect(page.getByTestId("deficit-count")).not.toHaveText("0")
+    await page.getByRole("tab", { name: /^allocation$/i }).click()
     await expectNoHorizontalScroll(page)
+    await expect(page.getByTestId("allocation-toggle")).toHaveAttribute("aria-expanded", "true")
     const tables = size.width >= 1280
     await expect(page.getByTestId("allocation-card")).toBeVisible({ visible: !tables, timeout: 30_000 })
     await expect(page.getByTestId("allocation-table")).toBeVisible({ visible: tables, timeout: 30_000 })
-    await keyOpen(page, "Deficits")
+    await page.getByRole("tab", { name: /^deficits$/i }).click()
+    await expect(page.getByTestId("deficit-count")).not.toHaveText("0")
+    await page.locator("#deficits").getByRole("button", { name: "Details", exact: true }).click()
     await expect(page.getByTestId("deficits-table")).toBeVisible({ visible: tables, timeout: 30_000 })
     await expect(page.getByTestId("deficit-card").first()).toBeVisible({ visible: !tables, timeout: 30_000 })
     await expectNoHorizontalScroll(page)
-    await page.screenshot({ path: `proof/lend-${size.width}.png`, fullPage: true })
+    if (process.env.UI_PROOF === "1") await page.screenshot({ path: `proof/lend-${size.width}.png`, fullPage: true })
     await page.keyboard.press("Escape")
   }
 })

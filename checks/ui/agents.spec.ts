@@ -1,7 +1,8 @@
 import { mkdir } from "node:fs/promises"
 import type { Address } from "viem"
-import { formatUnits } from "viem"
+import { formatUnits, parseUnits } from "viem"
 import { marketLensAbi, priceRelayAdapterAbi } from "@intatto/config/abi"
+import { formatTokenAmount } from "../../web/components/ui/web3/format.ts"
 import { bpsShort, duration } from "../../web/components/market/format.ts"
 import { sessionFromIndex } from "@intatto/config/session"
 import { handleCredit } from "../../web/lib/credit/handler.ts"
@@ -10,7 +11,7 @@ import { startForkHarness, type ForkHarness } from "../fork/harness.ts"
 import { expect, expectNoHorizontalScroll, test, viewports } from "./fixtures"
 
 // Several specs share checks/ui/.results and each run clears it. A trace file removed mid-run
-// fails the test, so this spec keeps no trace. Evidence is proof/agents*.png and the assertions.
+// fails the test, so this spec keeps no trace. Screenshots are opt-in with UI_PROOF=1; assertions always run.
 test.use({ trace: "off" })
 
 let h: ForkHarness
@@ -18,43 +19,44 @@ let h: ForkHarness
 test.beforeAll(async () => {
   h = await startForkHarness()
   await openPosition(h.ctx, h.env.burnerAddress, 2n * 10n ** 18n, 1_000)
-  await mkdir("proof", { recursive: true })
+  if (process.env.UI_PROOF === "1") await mkdir("proof", { recursive: true })
 }, 300_000)
 
 test.afterAll(async () => {
   await h?.stop()
 })
 
-test("agents credit call matches the fork", async ({ page, useFork }) => {
+test("Developers credit call matches the fork", async ({ page, useFork }) => {
   test.setTimeout(240_000)
   await useFork(page, h.env)
   await installCreditBridge(page)
 
   await page.setViewportSize(viewports.wide)
   await page.goto("/agents")
-  await expect(page.getByRole("heading", { name: "Agents" })).toBeVisible()
-  await expect(page.getByRole("link", { name: "Intatto credit and health" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Developers" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Credit and health API" })).toBeVisible()
   await expect(page.getByLabel("Search services")).toHaveCount(0)
   await expect(page.getByRole("button", { name: "Add your API" })).toHaveCount(0)
   await expect(page.getByText("OKX AI listing: under review (agent #13907)")).toBeVisible()
-  await expect(page.getByText("Verified 25 Sep 2026")).toBeVisible()
+  await expect(page.getByText("OKX AI listing: under review (agent #13907)")).toHaveAttribute("title", /Verified 25 Sep 2026.*Registration is not listing approval/)
   await expect(page.getByText("Free", { exact: true }).first()).toBeVisible()
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/agents-catalog.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/agents-catalog.png", fullPage: true })
   await page.setViewportSize(viewports.narrow)
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/agents-catalog-390.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/agents-catalog-390.png", fullPage: true })
   await page.setViewportSize(viewports.wide)
 
-  await page.getByRole("link", { name: "Try it" }).click()
+  await page.getByRole("link", { name: "Open full reference" }).click()
   await expect(page).toHaveURL(/\/agents\/credit$/)
-  await expect(page.getByRole("heading", { name: "Intatto credit and health" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Credit and health", exact: true })).toBeVisible()
   await expect(page.getByText("OKX AI listing: under review (agent #13907)")).toBeVisible()
-  await expect(page.getByText("Verified 25 Sep 2026")).toBeVisible()
+  await expect(page.getByText("OKX AI listing: under review (agent #13907)")).toHaveAttribute("title", /Verified 25 Sep 2026.*Registration is not listing approval/)
   await expect(page.getByText("No paid receipt.")).toBeVisible()
-  await expect(page.getByText("Registration is not listing approval.")).toBeVisible()
   await expect(page.getByText("x402 on X Layer (eip155:196) after a real paid settlement is proven")).toBeHidden()
-  await expect(page.getByRole("link", { name: "see every keeper post on the Risk console" })).toBeVisible()
+  await expect(page.getByRole("link", { name: "View keeper log" })).toBeVisible()
+  const calls = page.locator("summary", { hasText: "Calls from this browser" })
+  await calls.click()
   await expect(page.getByTestId("credit-call-count")).toHaveText("0")
   expect(await page.locator("body").innerText()).not.toMatch(/listing: listed|listing approved/i)
 
@@ -65,7 +67,7 @@ test("agents credit call matches the fork", async ({ page, useFork }) => {
   await expect(page.getByRole("heading", { name: "Endpoints" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Parameters" })).toBeVisible()
   await expect(page.getByText("No client is wired up here.")).toBeVisible()
-  await expect(page.getByText(/^curl -sS /)).toBeVisible()
+  await expect(page.getByText(/^curl -sS /).last()).toBeVisible()
   await api.focus()
   await page.keyboard.press("Enter")
   await expect(page.getByRole("heading", { name: "Endpoints" })).toBeHidden()
@@ -114,11 +116,11 @@ test("agents credit call matches the fork", async ({ page, useFork }) => {
   expect(json.position.debtUsdg).toBe(debt)
 
   await expect(page.getByTestId("credit-session")).toHaveText(json.session.state)
-  await expect(page.getByTestId("credit-debt")).toHaveText(json.position.debtUsdg)
-  await expect(page.getByTestId("credit-capacity")).toHaveText(json.capacity.borrowableNowUsdg)
+  await expectMoney(page, "credit-debt", json.position.debtUsdg)
+  await expectMoney(page, "credit-capacity", json.capacity.borrowableNowUsdg)
   await expect(page.getByTestId("credit-price")).toHaveCount(0)
   await expect(page.getByTestId("credit-call-count")).toHaveText("1")
-  await expect(page.getByText("Stored in this browser only.")).toBeVisible()
+  await expect(page.getByText("Stored in this browser only.", { exact: false })).toBeVisible()
 
   const relay = market.priceRelay as Address
   const [liveness, twap, peg] = await Promise.all([
@@ -130,9 +132,9 @@ test("agents credit call matches the fork", async ({ page, useFork }) => {
   await responseDetails.focus()
   await page.keyboard.press("Enter")
   await expect(page.getByTestId("response-details")).toBeVisible()
-  await expect(page.getByTestId("credit-price")).toHaveText(json.price.usdPerToken ?? "none")
+  await expectMoney(page, "credit-price", json.price.usdPerToken ?? "none")
   await expect(page.getByTestId("credit-fetched")).toHaveText(json.price.fetchedAt ?? "none")
-  await expect(page.getByTestId("credit-liq-price")).toHaveText(json.liquidation.liquidationPriceUsd ?? "none")
+  await expectMoney(page, "credit-liq-price", json.liquidation.liquidationPriceUsd ?? "none")
   await expect(page.getByTestId("credit-gap")).toHaveText(
     json.liquidation.gapToLiquidationBps === null ? "none" : String(json.liquidation.gapToLiquidationBps),
   )
@@ -146,22 +148,22 @@ test("agents credit call matches the fork", async ({ page, useFork }) => {
   await expect(page.getByText("Issuer pause")).toBeVisible()
   await expect(page.getByTestId("credit-json")).toContainText(json.service)
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/agents-response.png" })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/agents-response.png" })
   await page.setViewportSize(viewports.narrow)
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/agents-response-390.png" })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/agents-response-390.png" })
   await page.keyboard.press("Escape")
   await expect(page.getByTestId("credit-price")).toBeHidden()
 
   await page.setViewportSize(viewports.wide)
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/agents.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/agents.png", fullPage: true })
   await page.setViewportSize(viewports.medium)
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/agents-768.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/agents-768.png", fullPage: true })
   await page.setViewportSize(viewports.narrow)
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/agents-390.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/agents-390.png", fullPage: true })
 })
 
 /**
@@ -198,4 +200,11 @@ async function installCreditBridge(page: import("@playwright/test").Page) {
       await route.fulfill({ status: upstream.status(), contentType: "application/json", body: text })
     }
   })
+}
+
+/** Compact money retains the exact API value in its title. */
+async function expectMoney(page: import("@playwright/test").Page, id: string, value: string) {
+  const shown = value === "none" ? value : formatTokenAmount(parseUnits(value, 18), 18, { minFractionDigits: 2, maxFractionDigits: 2 })
+  await expect(page.getByTestId(id)).toHaveText(shown)
+  await expect(page.getByTestId(id)).toHaveAttribute("title", value)
 }

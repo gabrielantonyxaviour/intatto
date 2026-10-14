@@ -9,7 +9,6 @@ import { createPublicClient, http, keccak256, pad, parseAbi, toHex, type Hex } f
 import { XLAYER, XLAYER_RPC_FALLBACKS } from "@intatto/config/xlayer"
 import { startForkHarness, type ForkHarness } from "../fork/harness.ts"
 import { REPO } from "../fork/node/deploy.ts"
-import { writeArtifactsModule } from "../../web/components/fork-proof/generate-artifacts.ts"
 import { test, expect, viewports, expectNoHorizontalScroll } from "./fixtures"
 type PwPage = import("@playwright/test").Page
 const USDG = XLAYER.usdg as Hex
@@ -23,7 +22,6 @@ let ledgerServer: Server
 test.beforeAll(async () => {
   test.setTimeout(300_000)
   h = await startForkHarness({ spyx: true })
-  writeArtifactsModule()
   ledgerServer = createServer((req, res) => {
     res.writeHead(200, { "content-type": "application/json", "access-control-allow-origin": "*" })
     res.end(JSON.stringify(req.url?.endsWith("/ledger") ? { entries: h.fork.ledger.entries } : { base: { sandboxOnlyMarkets: ["SPYx"] } }))
@@ -146,7 +144,7 @@ test("all four checks pass in the browser, and the shown values equal direct rea
     await page.setViewportSize(size)
     await expectNoHorizontalScroll(page)
     await page.evaluate(() => window.scrollTo(0, 0))
-    await page.screenshot({ path: `proof/fork-proof${name === "1440" ? "" : `-${name}`}.png`, fullPage: true, animations: "disabled" })
+    if (process.env.UI_PROOF === "1") await page.screenshot({ path: `proof/fork-proof${name === "1440" ? "" : `-${name}`}.png`, fullPage: true, animations: "disabled" })
     for (const label of [/^Raw values:/, /^Reproduce locally$/, /^View ledger$/]) {
       const triggers = page.getByRole("button", { name: label })
       for (const trigger of await triggers.all()) {
@@ -158,7 +156,7 @@ test("all four checks pass in the browser, and the shown values equal direct rea
         await expect(dialog.locator("details")).toHaveCount(0)
         expect(await dialog.evaluate((e) => e.scrollWidth <= e.clientWidth + 1)).toBe(true)
         expect(await dialog.locator("[aria-busy]").evaluate((e) => e.scrollWidth <= e.clientWidth + 1)).toBe(true)
-        if (labelText?.includes("state reads")) await page.screenshot({ path: `proof/fork-proof-evidence-${name}.png`, animations: "disabled" })
+        if (process.env.UI_PROOF === "1" && labelText?.includes("state reads")) await page.screenshot({ path: `proof/fork-proof-evidence-${name}.png`, animations: "disabled" })
         await closeEvidence(page)
         await expect(trigger).toBeFocused()
       }
@@ -176,7 +174,7 @@ test("an altered storage slot turns the state check red with old → new, and ba
   await h.fork.request("anvil_setStorageAt", [USDG, "0x2", newWord])
   expect(await rerun(page)).toEqual({ blocks: "pass", bytecode: "pass", state: "fail", intatto: "pass" })
   await expect(page.locator('[data-check="state"] [data-slot="differences"]')).toBeVisible()
-  await page.screenshot({ path: "proof/fork-proof-red-summary.png", fullPage: true, animations: "disabled" })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/fork-proof-red-summary.png", fullPage: true, animations: "disabled" })
   await openEvidence(page, "state")
   const changed = row(page, "state", "u.usdg.supply")
   await expect(changed).toHaveAttribute("data-equal", "false")
@@ -188,7 +186,7 @@ test("an altered storage slot turns the state check red with old → new, and ba
   ])
   await expect(row(page, "state", "usdg.totalSupply").locator('[data-side="new"]')).toContainText(String(BigInt(newWord)))
   await changed.scrollIntoViewIfNeeded()
-  await page.screenshot({ path: "proof/fork-proof-red.png", fullPage: false, animations: "disabled" })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/fork-proof-red.png", fullPage: false, animations: "disabled" })
   await closeEvidence(page)
   await h.fork.request("anvil_setStorageAt", [USDG, "0x2", oldWord])
   expect((await rerun(page)).state).toBe("pass")
@@ -256,7 +254,7 @@ test("an unreachable RPC shows that state on every check", async ({ page, useFor
   await expect(page.locator('[data-slot="unreachable"]').first()).toContainText("Could not reach the X Layer RPC")
   await page.setViewportSize(viewports.narrow)
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/fork-proof-unreachable-390.png", fullPage: true, animations: "disabled" })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/fork-proof-unreachable-390.png", fullPage: true, animations: "disabled" })
 })
 test("a read the RPC answers with a JSON-RPC error shows as refused, not unreachable", async ({ page, useFork }) => {
   test.setTimeout(300_000)

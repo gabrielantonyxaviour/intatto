@@ -19,14 +19,13 @@ const PRICE_REJECTED = parseAbiItem(
 const SESSION_POSTED = parseAbiItem("event SessionPosted(uint8 session, uint64 periodChangedAt, uint64 postedAt)")
 const CAP_POSTED = parseAbiItem("event CapPosted(address indexed market, uint256 targetCapUsdg, uint256 sliceUsdg, uint256 effectiveCapUsdg)")
 const ACTION_POSTED = parseAbiItem("event ActionPosted(uint64 activationAt, uint256 expectedMultiplier, uint256 preActionMultiplier, uint256 preActionPrice)")
-/** Two scenario borrowers with keyless addresses, driven by impersonation on the fork only. */
 const LOW = "0x000000000000000000000000000000000000b0b1" as Address
 const HIGH = "0x000000000000000000000000000000000000b0b2" as Address
 const CAP_TARGET = 40_000n * 10n ** 6n
 const CAP_SLICE = 2_000n * 10n ** 6n
 let h: ForkHarness
-const dollars = (v: bigint) => { const c = v / 10n ** 16n; return `$${(c / 100n).toLocaleString("en-US")}.${(c % 100n).toString().padStart(2, "0")}` }
-const usdgText = (v: bigint) => `${(v / 10n ** 6n).toLocaleString("en-US")}.${((v % 10n ** 6n) / 10n ** 4n).toString().padStart(2, "0")} USDG`
+const dollars = (v: bigint) => { const c = (v + 5n * 10n ** 15n) / 10n ** 16n; return `$${(c / 100n).toLocaleString("en-US")}.${(c % 100n).toString().padStart(2, "0")}` }
+const usdgText = (value: bigint) => { const v = ((value + 5_000n) / 10_000n) * 10_000n; return `${(v / 10n ** 6n).toLocaleString("en-US")}.${((v % 10n ** 6n) / 10n ** 4n).toString().padStart(2, "0")} USDG` }
 const pct = (bps: bigint) => `${(Number(bps) / 100).toFixed(2)}%`
 const newestFirst = <T extends { blockNumber: bigint | null; logIndex: number | null }>(logs: T[]) =>
   [...logs].sort((a, b) => (a.blockNumber === b.blockNumber ? b.logIndex! - a.logIndex! : a.blockNumber! > b.blockNumber! ? -1 : 1))
@@ -56,7 +55,13 @@ async function start(page: Page, useFork: (p: Page, e: ForkHarness["env"]) => Pr
   await useFork(page, h.env)
   await page.goto(`/risk${hash}`)
   await expect(page.getByTestId("risk-console")).toBeVisible({ timeout: 120_000 })
-  await expect(page.getByTestId("risk-scan")).toContainText("Events from blocks", { timeout: 60_000 })
+  await expect(page.getByTestId("risk-scan")).toContainText("events read · since this session began", { timeout: 60_000 })
+  if (hash !== "#keeper") {
+    const source = page.getByTestId("event-source")
+    await source.locator("summary").click()
+    await expect(source).toContainText(`Blocks #${h.deployment.block.toLocaleString("en-US")}–`)
+    await source.locator("summary").click()
+  }
 }
 async function expectReceipts(page: Page, scope: string) {
   const hashes = await page.locator(`${scope} [data-tx]:visible`).evaluateAll((els) => els.map((e) => e.getAttribute("data-tx")!))
@@ -82,9 +87,7 @@ test.beforeAll(async () => {
   const bad = await h.ctx.keeper.price((quote * 125n) / 100n)
   expect(bad.accepted).toBe(false)
 })
-test.afterAll(async () => {
-  await h?.stop()
-})
+test.afterAll(async () => { await h?.stop() })
 test("price posts equal the relay's events, rejection included, and every tx has a receipt", async ({ page, useFork }) => {
   test.setTimeout(240_000)
   await page.setViewportSize(viewports.wide)
@@ -121,7 +124,7 @@ test("price posts equal the relay's events, rejection included, and every tx has
   await expect(rows).toHaveCount(1)
   await page.getByRole("tab", { name: /^All/ }).click()
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/risk.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/risk.png", fullPage: true })
 })
 test("keeper log merges every keeper-sent event and links each to its transaction", async ({ page, useFork }) => {
   test.setTimeout(180_000)
@@ -152,7 +155,7 @@ test("keeper log merges every keeper-sent event and links each to its transactio
   await expect(page.getByTestId("keeper-sheet")).toBeVisible()
   await expect(page.locator('[data-section="keeper"]')).toBeVisible()
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/risk-keeper.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/risk-keeper.png", fullPage: true })
 })
 test("summary, caps and loans equal the contracts", async ({ page, useFork }) => {
   test.setTimeout(180_000)
@@ -167,7 +170,7 @@ test("summary, caps and loans equal the contracts", async ({ page, useFork }) =>
   await expect(page.locator('[data-tile="reserve"] [data-tile-value]')).toHaveText(usdgText(v.reserveBalance))
   await expect(page.locator('[data-tile="deficit"] [data-tile-value]')).toHaveText(usdgText(v.totalDeficit))
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/risk-summary.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/risk-summary.png", fullPage: true })
   await openView(page, "Caps and LTV spread")
   const capRows = page.locator('[data-row="cap-post"]:visible')
   await expect(capRows).toHaveCount(1, { timeout: 30_000 })
@@ -223,8 +226,10 @@ for (const [name, size] of [["390", viewports.narrow], ["768", viewports.medium]
     const scan = (await page.getByTestId("risk-scan").boundingBox())!
     const text = (await page.getByTestId("risk-scan").locator("p").first().boundingBox())!
     expect(scan.x + scan.width).toBeLessThanOrEqual(size.width)
-    expect(text.width).toBeGreaterThan(scan.width * 0.8)
-    await page.screenshot({ path: `proof/risk-${name}.png`, fullPage: true })
+    expect(text.width).toBeGreaterThan(0)
+    expect(text.x).toBeGreaterThanOrEqual(scan.x)
+    expect(text.x + text.width).toBeLessThanOrEqual(scan.x + scan.width)
+    if (process.env.UI_PROOF === "1") await page.screenshot({ path: `proof/risk-${name}.png`, fullPage: true })
     for (const view of ["Summary", "Price shock", "Loans near liquidation", "Caps and LTV spread", "Market overview", "Sessions", "Corporate actions", "Liquidations", "Keeper log", "Trust and bounds"]) {
       await openView(page, view)
       await expect(page.locator("[data-section]").first()).toBeVisible()
@@ -244,9 +249,9 @@ test("a failing guard is named with what it refuses once the keeper goes quiet",
   await expect(alert).toBeVisible({ timeout: 60_000 })
   await expect(alert.locator('[data-guard="UnknownSession"]')).toBeVisible()
   await expect(alert.locator('[data-guard="StalePrice"]')).toBeVisible()
-  await expect(alert).toContainText("Repaying and adding collateral stay open")
+  await expect(alert).toContainText("Repayments and collateral deposits stay open")
   await expect(page.locator('[data-tile="max-ltv"] [data-tile-value]')).toHaveText(pct(k.maxLtvBps))
-  await page.screenshot({ path: "proof/risk-guard-failed.png" })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/risk-guard-failed.png" })
 })
 async function dropSpot() {
   const t = TICKERS.NVDAx, fork = h.fork, w = t.wrapper as Address

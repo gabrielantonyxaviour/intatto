@@ -12,13 +12,12 @@ test.use({ trace: "off" })
 
 const WIDTHS = [
   ["390", viewports.narrow, false],
-  ["768", viewports.medium, true],
+  ["768", viewports.medium, false],
   ["1440", viewports.wide, true],
 ] as const
 
 async function expectBadge(page: Page, mode: "live" | "sandbox", stem: string) {
-  const long = mode === "live" ? "X Layer mainnet" : "X Layer mainnet fork"
-  const short = mode === "live" ? "X Layer" : "Fork"
+  const short = mode === "live" ? "Mainnet" : "Sandbox"
   const badge = page.locator("header").getByTestId("chain-badge")
   await expect(badge).toHaveAttribute("data-mode", mode)
   for (const [label, size, wide] of WIDTHS) {
@@ -28,30 +27,37 @@ async function expectBadge(page: Page, mode: "live" | "sandbox", stem: string) {
     const shortLabel = badge.getByTestId("chain-badge-short")
     if (wide) {
       await expect(longLabel).toBeVisible()
-      await expect(longLabel).toHaveText(long)
+      await expect(longLabel.getByRole("button", { name: "Mainnet" })).toHaveAttribute("aria-pressed", String(mode === "live"))
+      await expect(longLabel.getByRole("link", { name: "Sandbox" })).toHaveAttribute("href", "/sandbox")
+      if (mode === "sandbox") await expect(longLabel.getByRole("link", { name: "Sandbox" })).toHaveAttribute("aria-current", "true")
       await expect(shortLabel).toBeHidden()
     } else {
       await expect(shortLabel).toBeVisible()
       await expect(shortLabel).toHaveText(short)
       await expect(longLabel).toBeHidden()
     }
-    await page.screenshot({ path: `proof/${stem}-${label}.png` })
+    if (process.env.UI_PROOF === "1") await page.screenshot({ path: `proof/${stem}-${label}.png` })
   }
 }
 
 test("live mode shows X Layer mainnet with no wallet", async ({ page }) => {
   test.setTimeout(180_000)
-  mkdirSync("proof", { recursive: true })
+  if (process.env.UI_PROOF === "1") mkdirSync("proof", { recursive: true })
   await page.setViewportSize(viewports.wide)
   await page.goto("/")
   await expect(page.locator("header").getByTestId("chain-badge")).toBeVisible({ timeout: 120_000 })
   await expect(page.getByTestId("market-not-deployed").or(page.getByTestId("headline-stats"))).toBeVisible({ timeout: 120_000 })
   await expect(page.getByTestId("wallet-menu")).toHaveCount(0)
   await expect(page.locator("header").getByRole("button", { name: "Connect wallet" })).toBeVisible()
-  await expect(page.locator("header").getByRole("button", { name: "Connect wallet" })).toHaveAttribute("data-variant", "default")
+  await expect(page.locator("header").getByRole("button", { name: "Connect wallet" })).toHaveAttribute("data-variant", "outline")
+  await expect(page.locator("header").getByRole("link", { name: "Developers" })).toHaveAttribute("href", "/agents")
+  await expect(page.getByTestId("sandbox-dock")).toHaveCount(0)
   await expectBadge(page, "live", "shell-live")
   await page.setViewportSize(viewports.narrow)
   await expect(page.locator("header").getByRole("button", { name: "Connect" })).toBeVisible()
+  await page.getByRole("button", { name: "Open menu", exact: true }).click()
+  await expect(page.getByRole("dialog").getByRole("link", { name: "Developers" })).toHaveAttribute("href", "/agents")
+  await page.keyboard.press("Escape")
   await expectNoHorizontalScroll(page)
 })
 
@@ -61,7 +67,7 @@ test.describe("sandbox shell", () => {
   test.beforeAll(async () => {
     test.setTimeout(300_000)
     h = await startForkHarness()
-    mkdirSync("proof", { recursive: true })
+    if (process.env.UI_PROOF === "1") mkdirSync("proof", { recursive: true })
   })
 
   test.afterAll(async () => {
@@ -87,6 +93,17 @@ test.describe("sandbox shell", () => {
     expect(cells).toContain("1")
 
     await expectBadge(page, "sandbox", "shell-sandbox")
+    for (const size of Object.values(viewports)) {
+      await page.setViewportSize(size)
+      await page.getByTestId("sandbox-dock").click()
+      const dock = page.getByTestId("sandbox-dock-panel")
+      await expect(dock).toContainText("Simulation only. No real money moves.")
+      await expect(dock).toContainText("This custom fork has no sandbox API for time travel or scenarios.")
+      expect(await dock.evaluate((e) => e.scrollWidth <= e.clientWidth + 1)).toBe(true)
+      await page.keyboard.press("Escape")
+      await expect(dock).toBeHidden()
+    }
+    await page.setViewportSize(viewports.wide)
 
     await page.reload()
     await expect(page.getByTestId("wallet-avatar")).toHaveAttribute("data-cells", cells!, { timeout: 120_000 })
@@ -101,7 +118,7 @@ test.describe("sandbox shell", () => {
     await expect(page.getByRole("menuitem", { name: "Switch wallet" })).toHaveCount(0)
     await expect(page.getByRole("menuitem", { name: "Disconnect" })).toHaveCount(0)
     await expectNoHorizontalScroll(page)
-    await page.screenshot({ path: "proof/shell-sandbox-menu-390.png" })
+    if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/shell-sandbox-menu-390.png" })
     await copy.click({ timeout: 15_000 })
     await expect(page.getByText("Address copied")).toBeVisible()
     await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(h.env.burnerAddress)
@@ -110,17 +127,17 @@ test.describe("sandbox shell", () => {
     await page.setViewportSize(viewports.wide)
     await menu.click()
     await expect(end).toBeVisible()
-    await page.screenshot({ path: "proof/shell-sandbox-menu-1440.png" })
+    if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/shell-sandbox-menu-1440.png" })
     await end.click({ timeout: 15_000 })
 
     const badge = page.locator("header").getByTestId("chain-badge")
     await expect(badge).toHaveAttribute("data-mode", "live", { timeout: 30_000 })
-    await expect(badge.getByTestId("chain-badge-long")).toHaveText("X Layer mainnet")
+    await expect(badge.getByTestId("chain-badge-long").getByRole("button", { name: "Mainnet" })).toHaveAttribute("aria-pressed", "true")
     await expect(page.locator('[data-slot="sandbox-banner"]')).toHaveCount(0)
     await expect(page.getByTestId("wallet-menu")).toHaveCount(0)
     await expect(page.locator("header").getByRole("button", { name: "Connect wallet" })).toBeVisible()
     await expect.poll(() => page.evaluate(() => localStorage.getItem("intatto:sandbox"))).toBeNull()
     await expectNoHorizontalScroll(page)
-    await page.screenshot({ path: "proof/shell-ended-1440.png" })
+    if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/shell-ended-1440.png" })
   })
 })
