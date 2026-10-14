@@ -41,11 +41,16 @@ export function useDemoProgress(sessionId: string, admin: Admin, entries?: Ledge
     window.addEventListener("storage", sync)
     return () => { window.removeEventListener(EVENT, sync); window.removeEventListener("storage", sync) }
   }, [sessionId])
+  // Any visit to Borrow counts (nav, guide link or dock): step 1 always, step 3 once the market has been closed.
+  const closed = progress.done.includes(2)
   useEffect(() => {
-    if (pathname === "/borrow" && progress.pending) {
-      update((p) => p.pending ? ({ ...p, done: [...new Set([...p.done, p.pending])], pending: undefined }) : p)
-    }
-  }, [pathname, progress.pending, update])
+    if (pathname !== "/borrow") return
+    update((p) => {
+      const add = [1, ...(p.done.includes(2) ? [3] : []), ...(p.pending ? [p.pending] : [])]
+      const done = [...new Set([...p.done, ...add])]
+      return done.length === p.done.length && !p.pending ? p : { ...p, done, pending: undefined }
+    })
+  }, [pathname, closed, progress.pending, update])
   useEffect(() => {
     if (!entries) return
     const resetIndex = entries.findLastIndex((e) => e.kind === "reset")
