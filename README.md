@@ -41,6 +41,8 @@ X Layer mainnet, chain 196. Addresses are from [`deployments/xlayer-mainnet.json
 - Live app: https://intatto.larinova.com
 - Sandbox: https://intatto.larinova.com/sandbox
 - Fork proof: https://intatto.larinova.com/sandbox/proof
+- Sandbox explorer (during a session): https://intatto.larinova.com/sandbox/explorer
+- Developers (credit API, keeper): https://intatto.larinova.com/agents
 - Credit API: https://intatto.larinova.com/api/credit?wallet=0x7F23b131F7312bd0f63EF79974E215Dc3E12a415&market=NVDAx
 - Keeper log: https://intatto-keeper.larinova.com/log
 - Sandbox RPC host: https://intatto-rpc.larinova.com
@@ -49,12 +51,15 @@ X Layer mainnet, chain 196. Addresses are from [`deployments/xlayer-mainnet.json
 
 Use the sandbox. Nothing in these steps is a mainnet transaction.
 
-1. Open [Sandbox](https://intatto.larinova.com/sandbox) and press **Start a session**.
-2. Open **Borrow**. Enter a deposit and a loan, then press **Review**. The dialog title is **Review deposit & borrow**.
-3. Back on **Sandbox**, open **Time travel** and press **Jump to Saturday**.
-4. On **Borrow**, try to borrow more. After the contract simulation, the button reads `Refused: SessionLimit`. Under it: "This borrow would take the position above the current session's borrowing limit." and "The contract refused this in a simulation. Nothing was signed or sent." While that check is still running, the button can read `Maximum borrowable exceeded for the CLOSED session`.
-5. **Repay** still opens. Its dialog title is **Review repay & withdraw**.
-6. On **Sandbox**, press **Replay the January 2025 gap**, then **Run a synthetic 45% gap**. Read **Risk** and **Lend**.
+1. On the [home page](https://intatto.larinova.com) press **Try it in the sandbox** (or switch the header from **Mainnet** to **Sandbox**), then press **Start a session**. You get a test wallet funded with 10 NVDAx, 2 SPYx, 1,000 USDG and 0.1 OKB, and a **Guided demo** with five steps. On every other page, a **Sandbox controls** button in the bottom-right corner shows the next step and holds the time-travel and scenario buttons, so you never have to go back to the Sandbox page.
+2. **Borrow against NVDAx.** Press **Open Borrow**. Enter collateral (for example 1 NVDAx) and a loan, or use **25% / 50% / 75% / Max** of "You can borrow up to …". **Your position** previews collateral, debt, LTV, health factor and liquidation price as current → after. Press **Review**: the dialog is **Review deposit & borrow**, and the test wallet signs each step.
+3. **Close the market.** Open **Sandbox controls** and press **Jump to Saturday**. The session badge turns **CLOSED**, and **What changes when the market closes** highlights the closed-session limit (30% falling to 20%).
+4. **Try to borrow more.** Enter a loan above the new limit. The field says "Maximum borrowable exceeded for the CLOSED session. You can borrow up to … USDG now." After the contract simulation, the button reads `Refused: SessionLimit`, and the card above it says "This borrow would take the position above the current session's borrowing limit." and "Repaying and adding collateral still work." Under **Details**: "The contract refused this in a simulation. Nothing was signed or sent."
+5. Repaying still works: on **Repay & withdraw**, enter an amount and press **Review**. The dialog is **Review repay & withdraw**.
+6. **Replay a real gap.** In **Sandbox controls**, press **Replay the January 2025 gap** (about a minute), then read **Risk**.
+7. **Stress the reserve.** Press **Run a synthetic 45% gap**, then read **Lend**: the gap reserve pays first, and any remainder is a recognised deficit on lenders' shares. On **Lend**, the lending terms open when you first press **Deposit**.
+
+**Prove this is a real fork** (on the Sandbox page) runs the four fork checks in your browser. **Explorer** lists recent blocks and transactions on your fork, with each call decoded (your `borrow()`, the keeper's `post()`, the funding transfers).
 
 ## Architecture in brief
 
