@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import type { DecodedTxError } from "@/components/ui/web3"
 import type { Preflight } from "./preflight"
 import type { Refusal } from "./plan"
+import { RefusalCard } from "./refusal-card"
 
 export type Cta = {
   label: string
@@ -40,26 +41,17 @@ export function FormCta({ cta, onReview }: { cta: Cta; onReview: () => void }) {
 
   return (
     <div data-slot="form-cta" className="grid gap-2">
+      {note}
       <Button type="button" size="lg" className="w-full" disabled={!onClick} aria-busy={spinning || undefined} onClick={onClick}>
         {spinning ? <Loader2Icon className="animate-spin" aria-hidden /> : null}
         {label}
       </Button>
-      {note}
     </div>
   )
 }
 
-export function RefusalNote({ reason, simulated }: { reason: string; simulated: boolean }) {
-  return (
-    <div role="status" className="grid gap-0.5 text-xs">
-      <p className="text-destructive">{reason}</p>
-      <p className="text-muted-foreground">
-        {simulated
-          ? "The contract refused this in a simulation. Nothing was signed or sent."
-          : "Checked against the market's current limits. Nothing was signed or sent."}
-      </p>
-    </div>
-  )
+export function RefusalNote({ reason, simulated, code }: { reason: string; simulated: boolean; code?: string }) {
+  return <RefusalCard reason={reason} simulated={simulated} code={code} />
 }
 
 function FailedNote({ error }: { error: DecodedTxError }) {
@@ -83,9 +75,9 @@ function FailedNote({ error }: { error: DecodedTxError }) {
 export function simulatedCta(preflight: Preflight, precheck: Refusal | null): Cta | null {
   if (preflight.status === "refused") {
     const name = preflight.error.errorName ?? "reverted"
-    return { label: `Refused: ${name}`, enabled: false, note: <RefusalNote reason={preflight.error.message} simulated /> }
+    return { label: `Refused: ${name}`, enabled: false, note: <RefusalNote reason={preflight.error.message} code={name} simulated /> }
   }
-  if (precheck) return { label: precheck.label, enabled: false, note: <RefusalNote reason={precheck.reason} simulated={false} /> }
+  if (precheck) return { label: precheck.label, enabled: false, note: <RefusalNote reason={precheck.reason} code={precheck.name} simulated={false} /> }
   if (preflight.status === "checking") return { label: "Checking with the contract…", enabled: false, spinning: true }
   if (preflight.status === "failed") {
     return { label: "Retry check", enabled: true, onClick: preflight.retry, note: <FailedNote error={preflight.error} /> }
@@ -95,5 +87,5 @@ export function simulatedCta(preflight: Preflight, precheck: Refusal | null): Ct
 
 /** Same for an action that follows another step (e.g. borrow after a deposit): only the client pre-check applies. */
 export function precheckCta(precheck: Refusal | null): Cta | null {
-  return precheck ? { label: precheck.label, enabled: false, note: <RefusalNote reason={precheck.reason} simulated={false} /> } : null
+  return precheck ? { label: precheck.label, enabled: false, note: <RefusalNote reason={precheck.reason} code={precheck.name} simulated={false} /> } : null
 }

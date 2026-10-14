@@ -1,81 +1,38 @@
 "use client"
 
 import { TriangleAlertIcon } from "lucide-react"
-import { useProtocolParams, type MarketState, type VaultState } from "@/lib/chain"
+import { useProtocolParams, type MarketState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { DefinitionPopover } from "@/components/ui/ix"
-import { RISK_LEVELS, RiskMeter, riskLevel } from "@/components/ui/web3"
-import { formatTokenAmount } from "@/components/ui/web3/format"
-import { capacityUsdg, liqPrice, pct, usdg } from "./format"
-import { bpsToFraction, dropToLiquidation, yearlyInterest, type Metrics } from "./math"
+import { RISK_LEVELS, RiskMeter } from "@/components/ui/web3"
+import { liqPrice, pct, usdg } from "./format"
+import { bpsToFraction, dropToLiquidation, type Metrics } from "./math"
 import { useNames } from "./names"
-import type { Chip, Refusal } from "./plan"
+import { RefusalCard } from "./refusal-card"
+import type { Refusal } from "./plan"
 
-const DOT = { Low: "bg-success", Medium: "bg-warning", High: "bg-destructive" } as const
-
-/**
- * Preset loans at fixed risk levels (Liquity's chips), each coloured by the risk it lands on, and Max. All of them
- * follow the refusal in force now: when no borrow can go through, they are disabled and say why.
- */
-export function LoanChips({ chips, session, maxLtvBps, fill, capacity, refusal, onPick }: {
-  chips: Chip[]
-  session: string
-  maxLtvBps: bigint
-  /** What Max fills (the lens capacity less the accrual margin). */
+/** Capacity fractions use the existing capped, accrual-adjusted maximum. */
+export function LoanChips({ fill, capacity, refusal, onPick }: {
   fill: bigint
-  /** Lens borrow capacity, shown on the Max hint with all 6 USDG decimals. */
   capacity: bigint
   refusal: Refusal | null
   onPick: (amount: bigint) => void
 }) {
-  const shown = chips.filter((c) => c.amount >= 1_000_000n)
-  const why = refusal ? `${refusal.label}: ${refusal.reason}` : null
-  return (
-    <div role="group" aria-label="Preset loans by risk level" className="flex flex-wrap gap-1.5">
-      {shown.map((c) => {
-        const level = riskLevel(bpsToFraction(c.ltvBps), RISK_LEVELS)
-        const blocked = refusal !== null || c.overLimit
-        return (
-          <Button
-            key={c.level}
-            type="button"
-            variant="outline"
-            size="xs"
-            disabled={blocked}
-            title={why ?? (c.overLimit ? `Above the ${session} session's ${pct(maxLtvBps)} limit` : `${pct(c.ltvBps)} LTV`)}
-            aria-label={`${c.level} risk: borrow ${usdg(c.amount)} (${pct(c.ltvBps)} LTV)${blocked ? `, unavailable: ${refusal?.label ?? "above the session limit"}` : ""}`}
-            onClick={() => onPick(c.amount)}
-          >
-            <span aria-hidden className={cn("size-2 rounded-full", DOT[level])} />
-            {formatTokenAmount(c.amount, 6, { maxFractionDigits: c.amount >= 10_000_000n ? 0 : 2 })} USDG
-          </Button>
-        )
-      })}
-      <Button
-        type="button"
-        variant="outline"
-        size="xs"
-        disabled={refusal !== null || fill === 0n}
-        title={why ?? `Borrow ${capacityUsdg(capacity)}`}
-        aria-label={refusal ? `Max, unavailable: ${refusal.label}` : "Max"}
-        onClick={() => onPick(fill)}
-      >
-        Max
-      </Button>
-    </div>
-  )
+  return <div role="group" aria-label="Borrow capacity presets" className="flex flex-wrap gap-1.5">
+    {[25, 50, 75, 100].map((percent) => {
+      const amount = percent === 100 ? fill : capacity * BigInt(percent) / 100n
+      return <Button key={percent} type="button" variant="outline" size="xs"
+        disabled={refusal !== null || amount === 0n}
+        title={refusal ? `${refusal.label}: ${refusal.reason}` : `Borrow ${usdg(amount)}`}
+        onClick={() => onPick(amount)}>{percent === 100 ? "Max" : `${percent}%`}</Button>
+    })}
+  </div>
 }
 
-/** Shown under the loan field while no new borrow can go through, whatever the amount. */
 export function RefusedNow({ refusal }: { refusal: Refusal }) {
-  return (
-    <p className="text-xs text-destructive" data-testid="loan-refused-now">
-      New borrowing is refused right now: {refusal.label}. {refusal.reason}
-    </p>
-  )
+  return <RefusalCard reason={refusal.reason} code={refusal.name} />
 }
 
 /** Consequence lines under the loan field: LTV with its risk label, liquidation price and distance to it. */
@@ -93,7 +50,7 @@ export function LoanLine({ m, before, after, previewing }: {
     <div className="grid gap-2" data-testid="loan-line">
       <RiskMeter
         ltv={before.debt > 0n ? bpsToFraction(before.ltvBps) : null}
-        projectedLtv={previewing && after.debt > 0n ? bpsToFraction(after.ltvBps) : undefined}
+        projectedLtv={previewing ? bpsToFraction(after.ltvBps) : undefined}
         maxLtv={bpsToFraction(m.maxLtvBps)}
         liquidationThreshold={bpsToFraction(lt)}
         levels={RISK_LEVELS}
@@ -115,31 +72,6 @@ export function LoanLine({ m, before, after, previewing }: {
               : `${underlying} can fall ${(drop * 100).toFixed(1)}% before liquidation`}
         </span>
       </div>
-    </div>
-  )
-}
-
-/** The rate panel: Intatto's rate is variable (no manual mode), so the menu explains it instead. */
-export function RateRow({ v, debtAfter }: { v: VaultState; debtAfter: bigint }) {
-  const { symbol } = useNames()
-  const { data: params } = useProtocolParams(symbol)
-  return (
-    <div className="grid gap-1 rounded-lg border p-3">
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-medium">Interest rate</span>
-        <span className="inline-flex items-center text-xs">Variable
-          <DefinitionPopover term="variable rate" source={params ? `Reserve factor read at block ${params.blockNumber}` : undefined}>
-            Set by vault utilisation (now {pct(v.utilizationBps)}); changes as people borrow and repay.
-            {params ? ` ${pct(params.market.reserveFactorBps)} of interest funds the gap reserve.` : " Reserve allocation unavailable or loading."}
-          </DefinitionPopover>
-        </span>
-      </div>
-      <p className="text-2xl font-medium tabular-nums" data-testid="borrow-rate">
-        {pct(v.borrowRateBps)}
-      </p>
-      <p className="text-xs text-muted-foreground">
-        {debtAfter > 0n ? `≈ ${usdg(yearlyInterest(debtAfter, v.borrowRateBps))} / year on ${usdg(debtAfter)} at today's rate (estimate)` : "– USDG / year"}
-      </p>
     </div>
   )
 }

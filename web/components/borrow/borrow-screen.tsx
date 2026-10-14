@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DepositBorrowForm, type BorrowDraft } from "./deposit-borrow-form"
 import { MarketStatusAlert, SessionBadge } from "./market-info"
+import { MarketStrip } from "./market-strip"
 import { MarketSelect, useSelectedMarket, type MarketSelection } from "./market-select"
 import { NamesProvider, namesFor, useNames } from "./names"
 import { borrowPlan, repayPlan } from "./plan"
@@ -24,13 +25,14 @@ const EMPTY_BORROW: BorrowDraft = { collateral: "", loan: "", ack: false }
 const EMPTY_REPAY: RepayDraft = { repay: "", withdraw: "", all: false }
 
 function Header({ selection, session }: { selection: MarketSelection; session?: Parameters<typeof SessionBadge>[0]["session"] }) {
-  const { token } = useNames()
   return (
     <header className="grid gap-1">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="text-2xl font-semibold">Borrow USDG with {token}</h1>
-        <MarketSelect symbol={selection.symbol} available={selection.available} />
-        {session ? <SessionBadge session={session} /> : null}
+        <h1 className="mr-2 text-3xl font-semibold tracking-tight">Borrow USDG</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <MarketSelect symbol={selection.symbol} available={selection.available} />
+          {session ? <SessionBadge session={session} /> : null}
+        </div>
       </div>
     </header>
   )
@@ -107,13 +109,14 @@ function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: 
   return (
     <div className="grid gap-6" data-testid="borrow-screen">
       <Header selection={selection} session={m.session} />
+      <MarketStrip m={m} v={v} params={data.params.data} />
       {unknown}
       {data.failed ? <LoadError error={data.error} retry={data.retry} /> : null}
       {data.wrongNetwork ? <WrongNetwork /> : null}
       <MarketStatusAlert m={m} />
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)]">
-        <Card ref={formCard}>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <Card ref={formCard} className="min-w-0 shadow-none">
           <CardContent>
             <Tabs
               value={tab}
@@ -129,10 +132,8 @@ function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: 
               <TabsContent value="borrow" className="pt-4">
                   <DepositBorrowForm
                     m={m}
-                    v={v}
                     a={a}
                     marketAddress={market.market}
-                    decay={data.decay}
                     draft={borrowDraft}
                     onDraft={(patch) => setBorrowDraft((d) => ({ ...d, ...patch }))}
                     plan={bPlan}
@@ -198,6 +199,7 @@ function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: 
           after={active.empty ? null : active.after}
           reserveUsdg={v.reserveBalance}
           penaltyBps={data.params.data?.market.penaltyBps}
+          params={data.params.data}
         />
       </div>
     </div>
