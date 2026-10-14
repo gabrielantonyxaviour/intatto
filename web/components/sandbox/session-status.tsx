@@ -14,7 +14,8 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AddressDisplay, TokenAmount } from "@/components/ui/web3"
 import { formatNumber, formatUtc } from "@/components/ui/web3/format"
-import { SCREENS, SEED_LABEL, SESSION_LIMIT, SESSION_TONE } from "./copy"
+import { SCREENS, SESSION_LIMIT, SESSION_TONE } from "./copy"
+import { RelativeTime } from "./display"
 import { useBurnerBalances, useLatestBlock, useSandboxCardRefresh } from "./use-sandbox"
 
 const BADGE = { success: "success-light", info: "info-light", warning: "warning-light", destructive: "destructive-light" } as const
@@ -27,7 +28,6 @@ export function SessionBadge({ session }: { session: Session }) {
   )
 }
 
-const WEEKDAY = new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: "UTC" })
 
 /** Chain clock and the market session in force, read from the fork (block header and MarketLens). */
 function ChainClock() {
@@ -40,8 +40,8 @@ function ChainClock() {
         <dt className="text-muted-foreground">Chain time</dt>
         <dd data-testid="chain-time" className="tabular-nums">
           {block.data ? (
-            <time dateTime={new Date(Number(block.data.timestamp) * 1000).toISOString()}>
-              {WEEKDAY.format(new Date(Number(block.data.timestamp) * 1000))} {formatUtc(block.data.timestamp)}
+            <time className="text-lg font-medium" title={formatUtc(block.data.timestamp)} dateTime={new Date(Number(block.data.timestamp) * 1000).toISOString()}>
+              {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC", hour12: false }).format(new Date(Number(block.data.timestamp) * 1000))} UTC
             </time>
           ) : block.isError ? (
             <span className="text-destructive">unavailable</span>
@@ -50,14 +50,17 @@ function ChainClock() {
           )}
         </dd>
       </div>
-      <div className="grid gap-1">
-        <dt className="text-muted-foreground">Latest block</dt>
-        <dd data-testid="chain-block" className="font-mono tabular-nums">
-          {block.data ? formatNumber(block.data.number ?? 0n) : block.isError ? "–" : <Skeleton className="h-4 w-24" />}
-        </dd>
+      <div className="col-span-2 text-xs text-muted-foreground">
+        <dt className="sr-only">Latest block</dt>
+        <dd><details>
+          <summary className="cursor-pointer">Block details</summary>
+          <span data-testid="chain-block" className="mt-2 block font-mono tabular-nums">
+            {block.data ? formatNumber(block.data.number ?? 0n) : block.isError ? "–" : <Skeleton className="h-4 w-24" />}
+          </span>
+        </details></dd>
       </div>
-      <div className="grid gap-1">
-        <dt className="text-muted-foreground">Market session</dt>
+      <div className="col-span-2 grid gap-1">
+        <dt className="sr-only">Market session</dt>
         <dd className="flex flex-wrap items-center gap-1.5">
           {session ? (
             <>
@@ -85,13 +88,13 @@ const TOKENS = [
 function Balances({ address }: { address: Address }) {
   const balances = useBurnerBalances(address)
   return (
-    <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm" aria-busy={balances.isPending}>
+    <dl className="grid divide-y text-sm" aria-busy={balances.isPending}>
       {TOKENS.map((t) => (
-        <div key={t.symbol} className="flex items-baseline justify-between gap-2 rounded-md border px-3 py-2">
+        <div key={t.symbol} className="flex items-baseline justify-between gap-2 py-2.5">
           <dt className="text-muted-foreground">{t.symbol}</dt>
           <dd data-testid={`balance-${t.symbol}`}>
             {balances.data ? (
-              <TokenAmount value={balances.data[t.symbol]} decimals={t.decimals} maxFractionDigits={t.digits} />
+              <TokenAmount value={balances.data[t.symbol]} decimals={t.decimals} maxFractionDigits={t.digits} minFractionDigits={t.symbol === "USDG" ? 2 : 0} />
             ) : balances.isError ? (
               <span className="text-destructive">–</span>
             ) : (
@@ -121,7 +124,7 @@ export function SessionStatus({ burner, lastActiveAt, idleMinutes, stopped = fal
         <CardDescription>
           {stopped
             ? "This session's fork has stopped, so there is no chain time or balance to read. Start a new session to continue."
-            : "Borrow, Lend and Risk now read this fork, and the burner is the connected wallet on every screen."}
+            : "Your test wallet works across every page."}
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -140,7 +143,7 @@ export function SessionStatus({ burner, lastActiveAt, idleMinutes, stopped = fal
             {stopped ? (
               "Its fork has stopped; the key is useless now."
             ) : connected ? (
-              "Connected as your wallet. Its key lives only in this browser and signs locally."
+              "Connected · key stored only in this browser."
             ) : status === "connecting" || status === "reconnecting" ? (
               "Connecting the burner…"
             ) : (
@@ -156,18 +159,18 @@ export function SessionStatus({ burner, lastActiveAt, idleMinutes, stopped = fal
           </p>
           {stopped ? null : <Balances address={burner} />}
           <p className="text-xs text-muted-foreground" data-testid="seed-balances">
-            {SEED_LABEL} Funded by transfer from{" "}
+            Seeded funds, transferred from{" "}
             <span className="font-mono" title={FORK_FUNDING_HOLDER}>
               {FORK_FUNDING_HOLDER.slice(0, 6)}…{FORK_FUNDING_HOLDER.slice(-4)}
             </span>
-            , never minted. Each transfer is in the ledger.
+            , not minted. See the ledger for transfers.
           </p>
         </div>
         {stopped ? null : <Separator />}
         {stopped ? null : (
           <nav aria-label="Screens on this fork" className="flex flex-wrap gap-2">
-              {[SCREENS.borrow, SCREENS.lend, SCREENS.risk, SCREENS.market].map((s) => (
-                <Button key={s.href} asChild variant="outline" size="sm">
+              {[SCREENS.borrow, SCREENS.lend, { href: "/risk", label: "Risk" }, { href: "/sandbox/explorer", label: "Explorer" }, { href: "/sandbox/proof", label: "Fork proof" }].map((s) => (
+                <Button key={s.href} asChild variant="ghost" size="sm">
                   <Link href={s.href}>
                     {s.label}
                     <ArrowRightIcon aria-hidden />
@@ -180,7 +183,7 @@ export function SessionStatus({ burner, lastActiveAt, idleMinutes, stopped = fal
       <CardFooter className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-muted-foreground">
           {stopped ? "Stopped" : `Expires after ${idleMinutes ?? 30} idle minutes`}
-          {lastActiveAt ? ` · last active ${formatUtc(Date.parse(lastActiveAt) / 1000)} (real time)` : ""}
+          {lastActiveAt ? <> · active <RelativeTime timestamp={Date.parse(lastActiveAt) / 1000} /></> : null}
         </span>
         <Button variant="outline" size="sm" onClick={endSandbox}>
           <LogOutIcon aria-hidden />

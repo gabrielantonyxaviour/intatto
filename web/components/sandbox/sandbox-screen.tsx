@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useMemo } from "react"
 import { privateKeyToAccount } from "viem/accounts"
 import { InfoIcon, TriangleAlertIcon } from "lucide-react"
@@ -12,6 +13,9 @@ import { CompactFacts, ProveForkLink, SessionDetailsSheet } from "./fork-identit
 import { LedgerPanel } from "./ledger-table"
 import { Scenarios } from "./scenarios"
 import { SessionStatus } from "./session-status"
+import { GuidedDemo } from "./guided-demo"
+import { useDemoProgress } from "./demo-progress"
+import { SandboxPageHeader } from "./page-header"
 import { StartSession } from "./start-session"
 import { SANDBOX_PRICE_LABEL, START_METHOD } from "./copy"
 import { ApiUnavailable, ControlsSkeleton, NoApi, RpcProblem, SessionGone } from "./states"
@@ -27,7 +31,7 @@ function NoSessionView({ api, priceNote }: { api: ApiBase; priceNote: string }) 
       {!liveDeployment ? (
         <Alert variant="info" data-testid="sandbox-live-note">
           <InfoIcon aria-hidden />
-          <AlertTitle>Intatto is not deployed on X Layer mainnet yet</AlertTitle>
+          <AlertTitle>Mainnet contracts are not configured in this build</AlertTitle>
           <AlertDescription>The sandbox is where to try it: the same contracts on a fork of X Layer, with a funded throwaway wallet.</AlertDescription>
         </Alert>
       ) : null}
@@ -54,6 +58,7 @@ function SessionView({ api, sandbox, priceNote }: { api: ApiBase; sandbox: Sandb
   const gone = goneReason(info.data?.status, info.error)
   const ledger = useLedger(base, sandbox.sessionId)
   const admin = useAdminAction(base, sandbox.sessionId)
+  const progress = useDemoProgress(sandbox.sessionId, admin, ledger.data)
   const rpcChain = useRpcChainId()
   const block = useLatestBlock()
   const burner = useMemo(() => privateKeyToAccount(sandbox.burnerKey).address, [sandbox.burnerKey])
@@ -64,20 +69,6 @@ function SessionView({ api, sandbox, priceNote }: { api: ApiBase; sandbox: Sandb
 
   return (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <CompactFacts chainId={sandbox.chainId} forkBlock={sandbox.forkBlock} priceNote={priceNote} />
-        <div className="flex flex-wrap gap-2">
-          <SessionDetailsSheet
-            chainId={sandbox.chainId}
-            forkBlock={sandbox.forkBlock}
-            session={{ sessionId: sandbox.sessionId, rpcUrl: sandbox.rpcUrl }}
-            apiUrl={base}
-            priceNote={priceNote}
-            startMethod={START_METHOD}
-          />
-          <ProveForkLink />
-        </div>
-      </div>
       {apiDown ? <ApiUnavailable base={base} message={message(info.error)} onRetry={() => info.refetch()} /> : null}
       {wrongNetwork ? (
         <RpcProblem
@@ -95,28 +86,31 @@ function SessionView({ api, sandbox, priceNote }: { api: ApiBase; sandbox: Sandb
           }}
         />
       ) : null}
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
-        <aside className="grid gap-4 lg:sticky lg:top-20 lg:order-2" aria-label="Session">
-          <ActionOutcome admin={admin} />
-          <SessionStatus burner={burner} lastActiveAt={info.data?.lastActiveAt} idleMinutes={info.data?.expiresAfterIdleMinutes} stopped={Boolean(gone)} />
-        </aside>
-        <div className="grid min-w-0 gap-6 lg:order-1">
-          {!base ? (
-            <NoApi />
-          ) : gone ? (
-            <SessionGone base={base} reason={gone} />
-          ) : info.isPending ? (
-            <ControlsSkeleton />
-          ) : (
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]">
+        <div className="grid min-w-0 gap-6">
+          {!base ? <NoApi /> : gone ? <SessionGone base={base} reason={gone} /> : info.isPending ? <ControlsSkeleton /> : (
             <>
-              <TimeTravel admin={admin} />
-              <Scenarios admin={admin} />
-              <ResetControl admin={admin} />
+              <GuidedDemo admin={admin} progress={progress} />
+              <ActionOutcome admin={admin} />
+              <section className="grid min-w-0 gap-5 rounded-xl border p-4 sm:p-6" aria-label="All controls">
+                <h2 className="text-lg font-semibold">All controls</h2>
+                <TimeTravel admin={admin} />
+                <Scenarios admin={admin} />
+                <ResetControl admin={admin} />
+              </section>
             </>
           )}
+          {base ? <LedgerPanel ledger={ledger} asOf={block.data ? `chain time ${formatUtc(block.data.timestamp)}` : undefined} /> : null}
         </div>
+        <aside className="grid min-w-0 gap-4 lg:sticky lg:top-20" aria-label="Session">
+          <SessionStatus burner={burner} lastActiveAt={info.data?.lastActiveAt} idleMinutes={info.data?.expiresAfterIdleMinutes} stopped={Boolean(gone)} />
+          <CompactFacts chainId={sandbox.chainId} forkBlock={sandbox.forkBlock} priceNote={priceNote} />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <SessionDetailsSheet chainId={sandbox.chainId} forkBlock={sandbox.forkBlock} session={{ sessionId: sandbox.sessionId, rpcUrl: sandbox.rpcUrl }} apiUrl={base} priceNote={priceNote} startMethod={START_METHOD} />
+            <ProveForkLink />
+          </div>
+        </aside>
       </div>
-      {base ? <LedgerPanel ledger={ledger} asOf={block.data ? `chain time ${formatUtc(block.data.timestamp)}` : undefined} /> : null}
     </>
   )
 }
@@ -129,10 +123,12 @@ export function SandboxScreen() {
   const api = useApiBase()
   return (
     <div className="grid gap-6" data-testid="sandbox-screen" data-mode={sandbox ? "session" : "none"}>
-      <header className="grid gap-1">
-        <h1 className="text-2xl font-semibold">Sandbox</h1>
-        <p className="text-muted-foreground">No real money moves.</p>
-      </header>
+      <SandboxPageHeader title="Sandbox" description="Your own fork of X Layer. No real money moves." back={false}>
+        <nav aria-label="Sandbox tools" className="flex gap-4 text-sm">
+          <Link href="/sandbox/explorer" className="text-muted-foreground hover:text-foreground">Explorer</Link>
+          <Link href="/sandbox/proof" className="text-muted-foreground hover:text-foreground">Fork proof</Link>
+        </nav>
+      </SandboxPageHeader>
       {api.overrideInvalid ? (
         <Alert variant="warning" data-testid="sandbox-bad-override">
           <TriangleAlertIcon aria-hidden />
