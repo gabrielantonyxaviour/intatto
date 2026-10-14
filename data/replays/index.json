@@ -16,8 +16,8 @@
   {
     "id": "synthetic-gap",
     "kind": "synthetic",
-    "label": "Synthetic gap larger than the reserve (not market data)",
+    "label": "Synthetic 45% NVDAx gap (not market data)",
     "file": "synthetic-gap.json",
-    "sha256": "3cdcf526d82d05d7068e9710370fb2d40e222f89775f9087e4e90a8e47f56ff3"
+    "sha256": "11276212cf6aa00d4fce63507cdba36b48e2b1ad1e9f76f0c145629dbd4d8261"
   }
 ]

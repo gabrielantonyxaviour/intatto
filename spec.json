@@ -2,17 +2,17 @@
   "version": 1,
   "meta": {
     "productId": "close-guard",
-    "idea": "Close Guard",
+    "idea": "Intatto",
     "persona": "Borrower: a holder of tokenized US stocks (xStocks such as NVDAx or SPYx) on X Layer, in OKX's reachable markets, who wants dollars (USDG) without selling their stock exposure \u2014 including on weekends and at night, when the real stock market is closed. Lender: a USDG holder on X Layer who wants yield from borrower interest and is told plainly how losses are absorbed.",
     "version": "1.0.0",
     "discoveryMode": "fresh",
-    "repoPath": "/Users/gabrielantonyxaviour/Documents/products/close-guard",
+    "repoPath": "/Users/gabrielantonyxaviour/Documents/products/intatto",
     "productTypes": [
       "web",
       "endpoint"
     ],
     "gitBranch": "v1.0.0",
-    "checkoutPath": "/Users/gabrielantonyxaviour/Documents/products/close-guard",
+    "checkoutPath": "/Users/gabrielantonyxaviour/Documents/products/intatto",
     "delivery": "web"
   },
   "features": [
@@ -664,7 +664,7 @@
         "checks/sandbox.ts"
       ],
       "technical": {
-        "approach": "Container image with anvil forked from X Layer at a recorded block with a distinct chain id (proposal 1960196), started from a prebuilt state snapshot that already contains the Close Guard deployment (anvil --load-state), plus a small session service. A Worker routes each judge session to its own Cloudflare Container instance through a Durable Object keyed by session id; instances sleep after 30 idle minutes. Burner wallets are funded by impersonating real holders (never minting). warp, scenario and reset call admin methods inside the container (scenarios run the fork integration's scenario scripts with the replay data) and append each call to the D1 ledger. The public RPC route on closeguard-rpc.larinova.com forwards eth_* and refuses admin methods. Upstream https://xlayerrpc.okx.com with fallbacks; daily snapshot rebuild. Production custom domains and secrets are applied by the web deploy block.",
+        "approach": "Container image with anvil forked from X Layer at a recorded block with a distinct chain id (proposal 1960196), started from a prebuilt state snapshot that already contains the Intatto deployment (anvil --load-state), plus a small session service. A Worker routes each judge session to its own Cloudflare Container instance through a Durable Object keyed by session id; instances sleep after 30 idle minutes. Burner wallets are funded by impersonating real holders (never minting). warp, scenario and reset call admin methods inside the container (scenarios run the fork integration's scenario scripts with the replay data) and append each call to the D1 ledger. The public RPC route on intatto-rpc.larinova.com forwards eth_* and refuses admin methods. Upstream https://xlayerrpc.okx.com with fallbacks; daily snapshot rebuild. Production custom domains and secrets are applied by the web deploy block.",
         "touches": [
           "services/sandbox/"
         ],
@@ -997,7 +997,7 @@
         "proof/fork-proof*.png"
       ],
       "technical": {
-        "approach": "Browser-side viem clients to the public X Layer RPC and the sandbox RPC compare block hashes, bytecode hashes and state at the fork block, and Close Guard bytecode against mainnet; shows ledger, RPC URL, cast commands and the reproduce command. Before the mainnet deployment exists, the Close Guard bytecode check compares the sandbox's runtime code with the build artifacts and says so; after it, with the mainnet addresses.",
+        "approach": "Browser-side viem clients to the public X Layer RPC and the sandbox RPC compare block hashes, bytecode hashes and state at the fork block, and Intatto bytecode against mainnet; shows ledger, RPC URL, cast commands and the reproduce command. Before the mainnet deployment exists, the Intatto bytecode check compares the sandbox's runtime code with the build artifacts and says so; after it, with the mainnet addresses.",
         "touches": [
           "web/app/sandbox/proof/",
           "web/components/fork-proof/"
@@ -1027,7 +1027,7 @@
     {
       "id": "blk_mainnet_deploy",
       "title": "Mainnet deployment, seeding and the live position",
-      "userValue": "Close Guard is live on X Layer mainnet with verified contracts, a funded vault and reserve, a real position, the keeper running and the OKX AI service listed.",
+      "userValue": "Intatto is live on X Layer mainnet with verified contracts, a funded vault and reserve, a real position, the keeper running and the OKX AI service listed.",
       "lane": "logic",
       "surfaceIds": [],
       "dependsOn": [
@@ -1042,7 +1042,7 @@
         "checks/mainnet.ts"
       ],
       "technical": {
-        "approach": "Operator key CLOSE_GUARD_OPERATOR from the vault deploys and verifies sources on the X Layer explorer and seeds GapReserve with 0.5 USDG. The demo wallet CLOSE_GUARD_DEMO deposits 1.5 USDG into the vault, deposits 0.004878 NVDAx and borrows about 0.40 USDG. It then points the hosted app and credit API (already public through the web deploy block) at deployments/xlayer-mainnet.json and deploys the keeper Worker cron against mainnet with the operator key as a Worker secret. After a real call to the public credit API succeeds and Gabriel confirms, the ASP is registered and the listing submitted through onchainos with every parameter documented. Wallets touch only Close Guard contracts and the issuer wrapper.",
+        "approach": "Operator key CLOSE_GUARD_OPERATOR from the vault deploys and verifies sources on the X Layer explorer and seeds GapReserve with 0.5 USDG. The demo wallet CLOSE_GUARD_DEMO deposits 1.5 USDG into the vault, deposits 0.004878 NVDAx and borrows about 0.40 USDG. It then points the hosted app and credit API (already public through the web deploy block) at deployments/xlayer-mainnet.json and deploys the keeper Worker cron against mainnet with the operator key as a Worker secret. After a real call to the public credit API succeeds and Gabriel confirms, the ASP is registered and the listing submitted through onchainos with every parameter documented. Wallets touch only Intatto contracts and the issuer wrapper.",
         "touches": [
           "contracts/script/",
           "deployments/"
@@ -1102,7 +1102,7 @@
         "checks/public.ts"
       ],
       "technical": {
-        "approach": "Cloudflare deployment under larinova.com: the Next.js app, with the credit API, as a Worker through the OpenNext Cloudflare adapter on closeguard.larinova.com; the sandbox Worker, Durable Objects and Containers on closeguard-rpc.larinova.com; D1 databases; secrets from the vault through wrangler secret. Custom domains, production bindings and secrets are applied from deploy/**, so this block never edits a service's own directory. A health endpoint, Cloudflare observability, and a check from outside the network. It deploys the screens that exist and is rerun as screens land; the mainnet deploy block later points the hosted app at mainnet addresses and starts the keeper cron.",
+        "approach": "Cloudflare deployment under larinova.com: the Next.js app, with the credit API, as a Worker through the OpenNext Cloudflare adapter on intatto.larinova.com; the sandbox Worker, Durable Objects and Containers on intatto-rpc.larinova.com; D1 databases; secrets from the vault through wrangler secret. Custom domains, production bindings and secrets are applied from deploy/**, so this block never edits a service's own directory. A health endpoint, Cloudflare observability, and a check from outside the network. It deploys the screens that exist and is rerun as screens land; the mainnet deploy block later points the hosted app at mainnet addresses and starts the keeper cron.",
         "touches": [
           "deploy/"
         ],
@@ -1120,7 +1120,7 @@
           },
           "challenge": {
             "verdict": "sound",
-            "concern": "Hits https://closeguard.larinova.com (or PUBLIC_URL) and the public RPC over the internet, creates and ends a session, and compares the fork block hash with https://xlayerrpc.okx.com. The stranger flow across screens is the public sandbox done condition."
+            "concern": "Hits https://intatto.larinova.com (or PUBLIC_URL) and the public RPC over the internet, creates and ends a session, and compares the fork block hash with https://xlayerrpc.okx.com. The stranger flow across screens is the public sandbox done condition."
           }
         }
       ],
@@ -1143,7 +1143,7 @@
       "lane": "ui",
       "route": "/",
       "routeType": "screen",
-      "contract": "Landing view of the NVDAx market on X Layer mainnet. Shows the live market session (OPEN, EXTENDED, CLOSED with time since last fresh stock price, CORPORATE_ACTION, UNKNOWN) and the current max new-borrow LTV, the relayed NVDAx indicative price with its source, the keeper's fetch time (the issuer publishes no source timestamp) and guard status, the wNVDAx/USDG pool reference price, USDG supplied, USDG borrowed, utilization, borrow and supply rates, the gap reserve balance, any recognised deficit, the ticker credit cap and how much of it is used. A permanent disclosure states that the price is relayed by Close Guard's keeper from the xStocks issuer and bounded onchain. Entries to Borrow, Lend, Risk, Agents and the Sandbox. Connect wallet (OKX Wallet or any injected EVM wallet) on X Layer (chain 196). Read-only without a wallet.",
+      "contract": "Landing view of the NVDAx market on X Layer mainnet. Shows the live market session (OPEN, EXTENDED, CLOSED with time since last fresh stock price, CORPORATE_ACTION, UNKNOWN) and the current max new-borrow LTV, the relayed NVDAx indicative price with its source, the keeper's fetch time (the issuer publishes no source timestamp) and guard status, the wNVDAx/USDG pool reference price, USDG supplied, USDG borrowed, utilization, borrow and supply rates, the gap reserve balance, any recognised deficit, the ticker credit cap and how much of it is used. A permanent disclosure states that the price is relayed by Intatto's keeper from the xStocks issuer and bounded onchain. Entries to Borrow, Lend, Risk, Agents and the Sandbox. Connect wallet (OKX Wallet or any injected EVM wallet) on X Layer (chain 196). Read-only without a wallet.",
       "variants": [
         {
           "id": "closed",
@@ -1340,7 +1340,7 @@
       "lane": "ui",
       "route": "/agents",
       "routeType": "screen",
-      "contract": "How Close Guard works with OKX AI. Documents the credit/health service (inputs, outputs, price per call, x402 flow), shows its OKX AI listing link and review status, lets a visitor run a live call and see the response plus the payment receipt, and shows the keeper's OKX AI agent identity and track record. Honest about listing status if review is still pending.",
+      "contract": "How Intatto works with OKX AI. Documents the credit/health service (inputs, outputs, price per call, x402 flow), shows its OKX AI listing link and review status, lets a visitor run a live call and see the response plus the payment receipt, and shows the keeper's OKX AI agent identity and track record. Honest about listing status if review is still pending.",
       "variants": [
         {
           "id": "listing_pending",
@@ -1416,7 +1416,7 @@
       "lane": "ui",
       "route": "/sandbox/proof",
       "routeType": "screen",
-      "contract": "Checks run in the visitor's browser directly against the public X Layer RPC and the sandbox RPC (our server never computes them): (1) block hashes at the fork block and a few earlier blocks are equal; (2) bytecode hashes of NVDAx, wNVDAx, the wNVDAx/USDG pool, USDG, the Chainlink USDG/USD feed and the Aave pool are equal; (3) state read at the fork block is equal (NVDAx multiplier, pool slot0 and liquidity, a real holder's balance, USDG totalSupply); (4) Close Guard contract bytecode on the sandbox equals the mainnet deployment. Each check is green or red with the raw values. Shows the divergence ledger (every time warp, impersonation transfer, relayed historical price with its source and data hash, scenario script), the public sandbox RPC URL, copyable cast commands, and a reproduce-locally command. States that simulated future time is a simulation by definition.",
+      "contract": "Checks run in the visitor's browser directly against the public X Layer RPC and the sandbox RPC (our server never computes them): (1) block hashes at the fork block and a few earlier blocks are equal; (2) bytecode hashes of NVDAx, wNVDAx, the wNVDAx/USDG pool, USDG, the Chainlink USDG/USD feed and the Aave pool are equal; (3) state read at the fork block is equal (NVDAx multiplier, pool slot0 and liquidity, a real holder's balance, USDG totalSupply); (4) Intatto contract bytecode on the sandbox equals the mainnet deployment. Each check is green or red with the raw values. Shows the divergence ledger (every time warp, impersonation transfer, relayed historical price with its source and data hash, scenario script), the public sandbox RPC URL, copyable cast commands, and a reproduce-locally command. States that simulated future time is a simulation by definition.",
       "variants": [
         {
           "id": "all_green",
@@ -1539,7 +1539,7 @@
       "roles": [
         "borrower"
       ],
-      "startingState": "Close Guard is deployed on X Layer (chain 196) or a fork of it, with USDG in the vault and the keeper posting. The market session is OPEN, the relayed price is fresh and inside the pool TWAP band, and the ticker cap has headroom. The borrower's wallet holds NVDAx and gas, is not connected yet, and has no Close Guard position.",
+      "startingState": "Intatto is deployed on X Layer (chain 196) or a fork of it, with USDG in the vault and the keeper posting. The market session is OPEN, the relayed price is fresh and inside the pool TWAP band, and the ticker cap has headroom. The borrower's wallet holds NVDAx and gas, is not connected yet, and has no Intatto position.",
       "actions": [
         "Open Market and connect the wallet (OKX Wallet or another injected EVM wallet) on chain 196.",
         "Open Borrow and deposit NVDAx: approve, then deposit. The contract wraps it to wNVDAx.",
@@ -1559,7 +1559,7 @@
       "roles": [
         "lender"
       ],
-      "startingState": "Close Guard is deployed on X Layer (chain 196) or a fork of it, the vault holds USDG and some of it is borrowed. The lender's wallet holds USDG and gas, is not connected yet, and has no vault shares.",
+      "startingState": "Intatto is deployed on X Layer (chain 196) or a fork of it, the vault holds USDG and some of it is borrowed. The lender's wallet holds USDG and gas, is not connected yet, and has no vault shares.",
       "actions": [
         "Open Market and connect the wallet on chain 196.",
         "Open Lend and deposit USDG.",
@@ -1576,7 +1576,7 @@
       "roles": [
         "judge"
       ],
-      "startingState": "The hosted sandbox is healthy: a fork of X Layer mainnet at a recorded block, with Close Guard deployed and a distinct chain id. Sandbox chain time is a weekday with the session OPEN. The judge has no sandbox session and no wallet of their own.",
+      "startingState": "The hosted sandbox is healthy: a fork of X Layer mainnet at a recorded block, with Intatto deployed and a distinct chain id. Sandbox chain time is a weekday with the session OPEN. The judge has no sandbox session and no wallet of their own.",
       "actions": [
         "Open Sandbox and start a session.",
         "Receive a burner wallet funded with NVDAx and USDG moved from real holders.",
@@ -1631,14 +1631,14 @@
       "roles": [
         "judge"
       ],
-      "startingState": "The hosted sandbox runs a fork of X Layer mainnet at a recorded block with Close Guard deployed. The public X Layer RPC and the public sandbox RPC are reachable from the judge's browser. No session is needed.",
+      "startingState": "The hosted sandbox runs a fork of X Layer mainnet at a recorded block with Intatto deployed. The public X Layer RPC and the public sandbox RPC are reachable from the judge's browser. No session is needed.",
       "actions": [
         "From Sandbox, open the fork proof page.",
         "Let the four checks run in the browser against both RPCs.",
         "Read each check's raw values.",
         "Read the divergence ledger, the sandbox RPC URL, the cast commands and the reproduce command."
       ],
-      "expectedVisible": "Four checks, each green with its raw values: block hashes at the fork block and earlier blocks; bytecode hashes of NVDAx, wNVDAx, the wNVDAx/USDG pool, USDG, the Chainlink USDG/USD feed and the Aave pool; state at the fork block; and Close Guard bytecode against the mainnet deployment. The ledger, the public sandbox RPC URL, copyable cast commands and the reproduce command are shown, with the note that simulated future time is a simulation. An altered slot turns the state check red. An unreachable RPC shows that state.",
+      "expectedVisible": "Four checks, each green with its raw values: block hashes at the fork block and earlier blocks; bytecode hashes of NVDAx, wNVDAx, the wNVDAx/USDG pool, USDG, the Chainlink USDG/USD feed and the Aave pool; state at the fork block; and Intatto bytecode against the mainnet deployment. The ledger, the public sandbox RPC URL, copyable cast commands and the reproduce command are shown, with the note that simulated future time is a simulation. An altered slot turns the state check red. An unreachable RPC shows that state.",
       "expectedData": "The browser sends the reads directly to the public X Layer RPC and the sandbox RPC; our server computes none of them. Every compared value is equal on both RPCs."
     },
     {
@@ -1648,7 +1648,7 @@
       "roles": [
         "agent"
       ],
-      "startingState": "The credit and health service is running over a Close Guard deployment: X Layer mainnet, or a fork deployment in sandbox mode. It is offered as an OKX AI A2MCP service, listed or with its listing under review. A wallet with an NVDAx-backed position exists.",
+      "startingState": "The credit and health service is running over a Intatto deployment: X Layer mainnet, or a fork deployment in sandbox mode. It is offered as an OKX AI A2MCP service, listed or with its listing under review. A wallet with an NVDAx-backed position exists.",
       "actions": [
         "The agent calls the credit and health service for a wallet and the NVDAx market.",
         "The agent reads the answer: session, capacity, price with the keeper's fetch time, guards, liquidation price and the gap that would liquidate the position.",
@@ -1664,7 +1664,7 @@
       "roles": [
         "keeper"
       ],
-      "startingState": "Close Guard is deployed and verified on X Layer mainnet (chain 196). The keeper Worker holds the operator key and runs on its one-minute cron. The xStocks issuer API is reachable.",
+      "startingState": "Intatto is deployed and verified on X Layer mainnet (chain 196). The keeper Worker holds the operator key and runs on its one-minute cron. The xStocks issuer API is reachable.",
       "actions": [
         "A cron cycle reads the issuer: price quote, trading period, halt flags and multiplier data.",
         "The keeper posts session, price with its fetch time, pending actions, and the ticker cap from sampled QuoterV2 depth.",
@@ -1821,8 +1821,8 @@
     },
     {
       "id": "hosting",
-      "question": "Where does Close Guard run for judges?",
-      "chosen": "Directly on Cloudflare under larinova.com: the web app and credit API as a Worker on closeguard.larinova.com; the keeper as a Worker Cron Trigger every minute; the sandbox as Cloudflare Containers (one container per judge session running anvil from a prebuilt fork snapshot) behind closeguard-rpc.larinova.com; logs, ledger and receipts in D1. No tunnel and nothing on Gabriel's Mac.",
+      "question": "Where does Intatto run for judges?",
+      "chosen": "Directly on Cloudflare under larinova.com: the web app and credit API as a Worker on intatto.larinova.com; the keeper as a Worker Cron Trigger every minute; the sandbox as Cloudflare Containers (one container per judge session running anvil from a prebuilt fork snapshot) behind intatto-rpc.larinova.com; logs, ledger and receipts in D1. No tunnel and nothing on Gabriel's Mac.",
       "why": "Gabriel, 25 Sep 2026: 'use a subdomain of Larinova ... host it directly' on Cloudflare, no tunnel, because his Mac is not always on and the app must not break while judges test. larinova.com is an active zone in the vaulted Cloudflare account and Containers are enabled (checked 25 Sep 2026).",
       "rejected": [
         "A cloudflared tunnel to this Mac",
@@ -2050,7 +2050,7 @@
         "blk_mainnet_deploy",
         "blk_keeper"
       ],
-      "howToGet": "Created 25 Sep 2026 at Gabriel's request and stored in the vault: CLOSE_GUARD_OPERATOR (0xaBa1F7e4FB0500696855BF38012676c10e3ef808: deploys and runs the keeper) and CLOSE_GUARD_DEMO (0x7F23b131F7312bd0f63EF79974E215Dc3E12a415: demo borrower and lender). Gabriel sends the operator 0.02 OKB and 0.5 USDG, and the demo wallet 0.005 OKB, 1.5 USDG and his 0.004878 NVDAx. These wallets only ever interact with Close Guard contracts and the issuer wrapper; no swaps or trades.",
+      "howToGet": "Created 25 Sep 2026 at Gabriel's request and stored in the vault: CLOSE_GUARD_OPERATOR (0xaBa1F7e4FB0500696855BF38012676c10e3ef808: deploys and runs the keeper) and CLOSE_GUARD_DEMO (0x7F23b131F7312bd0f63EF79974E215Dc3E12a415: demo borrower and lender). Gabriel sends the operator 0.02 OKB and 0.5 USDG, and the demo wallet 0.005 OKB, 1.5 USDG and his 0.004878 NVDAx. These wallets only ever interact with Intatto contracts and the issuer wrapper; no swaps or trades.",
       "selfServable": false,
       "status": "needs_gabriel"
     },
@@ -2116,7 +2116,7 @@
         "blk_credit_api",
         "blk_mainnet_deploy"
       ],
-      "howToGet": "onchainos 4.5.2 on this machine is logged in as Gabriel's Agentic Wallet (email login, 2 accounts). Register the Close Guard ASP and submit the listing through onchainos only after the public endpoint is live and Gabriel confirms the outward submission.",
+      "howToGet": "onchainos 4.5.2 on this machine is logged in as Gabriel's Agentic Wallet (email login, 2 accounts). Register the Intatto ASP and submit the listing through onchainos only after the public endpoint is live and Gabriel confirms the outward submission.",
       "selfServable": true,
       "status": "have",
       "note": "Lesson from Gabriel's agent #9756 (Touch Grass), rejected: OKX's reviewer pays and calls each service; undelivered calls and undocumented parameters cause rejection. Document every parameter with name, type and example, and prove a real call before submitting.",
@@ -2264,7 +2264,7 @@
   "done": [
     {
       "id": "done_mainnet_live",
-      "condition": "On X Layer mainnet the verified Close Guard contracts hold a seeded vault and reserve, Gabriel's wallet has an NVDAx-backed USDG loan, and the keeper's last price post is within its liveness limit.",
+      "condition": "On X Layer mainnet the verified Intatto contracts hold a seeded vault and reserve, Gabriel's wallet has an NVDAx-backed USDG loan, and the keeper's last price post is within its liveness limit.",
       "why": "Local and fork passes do not prove anything exists on mainnet for judges to inspect.",
       "blocks": [
         "blk_mainnet_deploy",
@@ -2296,7 +2296,7 @@
   ],
   "idea": {
     "oneLiner": "Borrow USDG against your tokenized stocks on X Layer, with risk limits that know when the real stock market is closed.",
-    "whatItIs": "Close Guard is a lending market on X Layer mainnet. Holders of xStocks (NVDAx first, SPYx optional) deposit them as collateral and borrow USDG; USDG holders lend into a vault and earn borrower interest. Borrowing capacity follows the underlying market's session (open, extended, closed, corporate action, unknown), splits and dividends pause a stock instead of mis-valuing it, credit caps are sized from sampled exit depth on X Layer's pools, and liquidation is bounded and slow while the market is closed. Losses flow through an explicit waterfall: recovered collateral, then a seeded gap reserve, then lenders as a disclosed deficit. The price comes from a keeper that relays the xStocks issuer's published price and market state, openly disclosed as a trusted relayer and bounded onchain. Two OKX AI services sit on top: a per-call credit/health API other agents can pay for, and the keeper as a registered OKX AI agent. Judges get a live mainnet app plus a hosted fork of X Layer mainnet where they can time-travel to a weekend or a corporate action, with a client-side proof panel showing the fork is real.",
+    "whatItIs": "Intatto is a lending market on X Layer mainnet. Holders of xStocks (NVDAx first, SPYx optional) deposit them as collateral and borrow USDG; USDG holders lend into a vault and earn borrower interest. Borrowing capacity follows the underlying market's session (open, extended, closed, corporate action, unknown), splits and dividends pause a stock instead of mis-valuing it, credit caps are sized from sampled exit depth on X Layer's pools, and liquidation is bounded and slow while the market is closed. Losses flow through an explicit waterfall: recovered collateral, then a seeded gap reserve, then lenders as a disclosed deficit. The price comes from a keeper that relays the xStocks issuer's published price and market state, openly disclosed as a trusted relayer and bounded onchain. Two OKX AI services sit on top: a per-call credit/health API other agents can pay for, and the keeper as a registered OKX AI agent. Judges get a live mainnet app plus a hosted fork of X Layer mainnet where they can time-travel to a weekend or a corporate action, with a client-side proof panel showing the fork is real.",
     "problem": {
       "statement": "A tokenized stock trades 24/7 but the stock behind it does not. Off-hours the token's price comes from thin trading, the issuer cannot mint or redeem, splits and dividends change token units, and weekend news produces Monday gaps. Lenders therefore avoid stock collateral or switch borrowing off, and X Layer has no lending market for the xStocks it hosts.",
       "who": "xStocks holders on X Layer who want dollars without selling (borrowers), and USDG holders on X Layer who want yield with honest risk disclosure (lenders).",
@@ -2317,7 +2317,7 @@
       ]
     },
     "whyItWins": "It lands on OKX's top strategic priority (tokenized stocks), fills a gap OKX's competitors have already filled (stock collateral), gives idle xStocks and USDG on X Layer a use, belongs to the category that won comparable events (Cervile's stock-backed credit at Chainlink, xPrime's margin at Kraken's xStocks hackathon), and uses OKX AI in a load-bearing way. It is judged holistically on innovation, completeness, user value, technical execution, X Layer/OKX AI integration, growth potential and ecosystem contribution; innovation is its weaker criterion.",
-    "proofMoment": "On X Layer mainnet the Close Guard demo wallet deposits NVDAx and borrows USDG against verified contracts while the keeper posts the session and price; in the forked sandbox a judge jumps to Saturday, sees a new borrow rejected onchain with its reason while repay still works, replays NVIDIA's January 2025 weekend gap from CFD minute data, and watches the reserve absorb the shortfall and then a larger gap become an openly recognised lender deficit.",
+    "proofMoment": "On X Layer mainnet the Intatto demo wallet deposits NVDAx and borrows USDG against verified contracts while the keeper posts the session and price; in the forked sandbox a judge jumps to Saturday, sees a new borrow rejected onchain with its reason while repay still works, replays NVIDIA's January 2025 weekend gap from CFD minute data, and watches the reserve absorb the shortfall and then a larger gap become an openly recognised lender deficit.",
     "marketSignal": [
       {
         "claim": "Exchanges make tokenized stocks borrowable after listing them; OKX has not yet.",
@@ -2399,9 +2399,9 @@
         "myLean": "Gabriel to name the target."
       },
       {
-        "question": "Is the product name Close Guard final?",
+        "question": "Is the product name Intatto final?",
         "whyItMatters": "The name appears on the listing, repo and submission.",
-        "myLean": "Keep Close Guard unless Gabriel prefers another."
+        "myLean": "Keep Intatto unless Gabriel prefers another."
       }
     ]
   }

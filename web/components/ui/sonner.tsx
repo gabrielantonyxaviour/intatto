@@ -34,11 +34,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
           "--border-radius": "var(--radius)",
+          // A modal dialog sets pointer-events: none on <body>; keep toast links (the transaction) clickable over it.
+          pointerEvents: "auto",
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
           toast: "cn-toast",
+          description: "!text-foreground/80",
         },
       }}
       {...props}

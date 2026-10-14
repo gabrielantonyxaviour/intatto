@@ -2,9 +2,9 @@
 
 import { useState, type ReactNode } from "react"
 import Link from "next/link"
-import { InfoIcon } from "lucide-react"
+import { TriangleAlertIcon } from "lucide-react"
 import type { MarketDeployment } from "@intatto/config/deployments"
-import type { MarketState, VaultState } from "@/lib/chain"
+import { useIntatto, type MarketState, type VaultState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -64,7 +64,7 @@ function StockRow({ row, selected, onSelect }: { row: MarketRow; selected: boole
   )
 }
 
-function UsdgRow({ vault, loans, selected }: { vault: VaultState; loans: bigint; selected: string }) {
+function UsdgRow({ vault, loans, selected, borrowingOff }: { vault: VaultState; loans: bigint; selected: string; borrowingOff: boolean }) {
   return (
     <li data-testid="market-row-USDG" className={cn("grid gap-2 rounded-lg border p-3 text-sm lg:rounded-none lg:border-0 lg:border-t lg:px-3 lg:py-2.5", GRID)}>
       <div className="flex flex-wrap items-center gap-2">
@@ -82,7 +82,7 @@ function UsdgRow({ vault, loans, selected }: { vault: VaultState; loans: bigint;
           <Link href="/lend">Lend</Link>
         </Button>
         <Button asChild size="sm">
-          <Link href={borrowHref(selected)}>Borrow</Link>
+          <Link href={borrowHref(selected)}>{borrowingOff ? "Manage position" : "Borrow"}</Link>
         </Button>
       </div>
     </li>
@@ -101,10 +101,13 @@ export function MarketsTable({
   selected: string
   onSelect: (symbol: MarketDeployment["symbol"]) => void
 }) {
+  const { mode } = useIntatto()
   const open = rows.filter((r) => refusalsFor(r.state).length === 0)
   const off = rows.filter((r) => refusalsFor(r.state).length > 0)
   const [showOff, setShowOff] = useState(open.length === 0)
   const loans = rows.reduce((sum, r) => sum + r.state.totalDebt, 0n)
+  const selectedRow = rows.find((r) => r.deployment.symbol === selected)
+  const selectedBorrowingOff = selectedRow ? refusalsFor(selectedRow.state).length > 0 : false
   const shown = open.length + (showOff || open.length === 0 ? off.length : 0)
 
   return (
@@ -140,15 +143,24 @@ export function MarketsTable({
           {open.map((r) => (
             <StockRow key={r.deployment.symbol} row={r} selected={selected === r.deployment.symbol} onSelect={() => onSelect(r.deployment.symbol)} />
           ))}
-          <UsdgRow vault={vault} loans={loans} selected={selected} />
+          <UsdgRow vault={vault} loans={loans} selected={selected} borrowingOff={selectedBorrowingOff} />
         </ul>
         {off.length > 0 && (showOff || open.length === 0) ? (
           <div data-testid="markets-off" className="grid gap-3 pt-3 lg:gap-0 lg:border-t lg:pt-0">
-            <Alert variant="info" className="lg:m-3 lg:w-auto">
-              <InfoIcon aria-hidden />
+            <Alert variant="warning" className="lg:m-3 lg:w-auto">
+              <TriangleAlertIcon aria-hidden />
               <AlertDescription>
                 New borrowing is off in {off.length === 1 ? "this market" : "these markets"} right now; repaying and adding
                 collateral still work. Open a market to see which check refuses it.
+                {mode === "live" ? (
+                  <span className="block">
+                    To try borrowing with a funded test wallet, {" "}
+                    <Link href="/sandbox" className="font-medium underline underline-offset-4">
+                      start a mainnet-fork sandbox session
+                    </Link>
+                    . No mainnet funds move.
+                  </span>
+                ) : null}
               </AlertDescription>
             </Alert>
             <ul className="grid gap-3 lg:gap-0">

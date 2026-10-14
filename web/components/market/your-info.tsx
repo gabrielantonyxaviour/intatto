@@ -25,14 +25,14 @@ function Row({ label, value, testId }: { label: string; value: string; testId?: 
   )
 }
 
-function Actions({ symbol }: { symbol: MarketSymbol }) {
+function Actions({ symbol, borrowingOff }: { symbol: MarketSymbol; borrowingOff: boolean }) {
   return (
     <div className="grid grid-cols-2 gap-2">
       <Button asChild variant="outline">
         <Link href="/lend">Lend USDG</Link>
       </Button>
       <Button asChild>
-        <Link href={borrowHref(symbol)}>Borrow USDG</Link>
+        <Link href={borrowHref(symbol)}>{borrowingOff ? "Manage position" : "Borrow USDG"}</Link>
       </Button>
     </div>
   )
@@ -58,6 +58,7 @@ function Body({ symbol, market }: { symbol: MarketSymbol; market: MarketState })
   const { address, chainId, status } = useAccount()
   const { switchChain, isPending: switching } = useSwitchChain()
   const account = useAccountState(chainId === chain.id ? address : undefined, symbol)
+  const borrowingOff = refusalsFor(market).length > 0
 
   if (status === "connecting" || status === "reconnecting") {
     return (
@@ -74,7 +75,7 @@ function Body({ symbol, market }: { symbol: MarketSymbol; market: MarketState })
           <WalletIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           Connect a wallet with the button at the top to see your {symbol} and USDG balances and your position.
         </p>
-        <Actions symbol={symbol} />
+        <Actions symbol={symbol} borrowingOff={borrowingOff} />
       </div>
     )
   }
@@ -131,7 +132,7 @@ function Body({ symbol, market }: { symbol: MarketSymbol; market: MarketState })
         <h3 className="text-xs font-medium text-muted-foreground">Lending</h3>
         <Row label="In the USDG vault" value={usdg(a.vaultAssets)} />
       </div>
-      <Actions symbol={symbol} />
+      <Actions symbol={symbol} borrowingOff={borrowingOff} />
     </div>
   )
 }

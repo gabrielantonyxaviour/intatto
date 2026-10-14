@@ -30,7 +30,7 @@ export function Scenarios({ admin }: { admin: Admin }) {
               {group.names.map((name) => {
                 const s = SCENARIOS.find((item) => item.name === name)!
                 return (
-                  <section key={s.name} aria-labelledby={`scenario-${s.name}`} data-testid={`scenario-${s.name}`} className="grid min-w-0 content-start gap-2 rounded-lg border p-3">
+                  <section key={s.name} aria-labelledby={`scenario-${s.name}`} data-testid={`scenario-${s.name}`} className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-2 rounded-lg border p-3">
                     <h4 id={`scenario-${s.name}`} className="text-sm font-medium">
                       {s.title}
                     </h4>
@@ -48,19 +48,21 @@ export function Scenarios({ admin }: { admin: Admin }) {
                       <ActionButton admin={admin} request={{ kind: "scenario", name: s.name }} label={s.label} busy={s.busy} variant="outline" />
                       <LookAt {...s.look} />
                     </div>
-                    <EvidenceSheet
-                      title={s.title}
-                      summary="What this replay is, where it came from, and the fork method. It is not historical X Layer liquidity or a live issuer event unless the label says the multiplier itself is real."
-                      state="ready"
-                      triggerLabel={`Sources and method: ${s.title}`}
-                    >
-                      <div className="grid gap-2 text-sm">
-                        <p>{s.provenance}</p>
-                        <p>Source: {s.source}.</p>
-                        <p className="font-mono text-xs break-words">{s.method}</p>
-                        <p>{s.next}</p>
-                      </div>
-                    </EvidenceSheet>
+                    <div className="min-w-0 [&_button]:max-w-full [&_button]:whitespace-normal [&_button]:text-left">
+                      <EvidenceSheet
+                        title={s.title}
+                        summary="What this replay is, where it came from, and the fork method. It is not historical X Layer liquidity or a live issuer event unless the label says the multiplier itself is real."
+                        state="ready"
+                        triggerLabel={`Sources and method: ${s.title}`}
+                      >
+                        <div className="grid gap-2 text-sm">
+                          <p>{s.provenance}</p>
+                          <p>Source: {s.source}.</p>
+                          <p className="font-mono text-xs break-words">{s.method}</p>
+                          <p>{s.next}</p>
+                        </div>
+                      </EvidenceSheet>
+                    </div>
                   </section>
                 )
               })}

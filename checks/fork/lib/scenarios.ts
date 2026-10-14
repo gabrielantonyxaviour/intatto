@@ -133,7 +133,7 @@ export async function gapReplay(ctx: ScenarioContext, replay: GapReplay) {
   return { openGapBps: openBps, closeMoveBps: closeBps, slices: [...waiting, ...opened, ...later] }
 }
 
-/** A synthetic gap larger than the reserve (not market data): liquidation, reserve, then a lender deficit. */
+/** A synthetic price gap (not market data): liquidation and any resulting reserve coverage or lender deficit. */
 export async function syntheticGap(ctx: ScenarioContext, gap: SyntheticGap) {
   await ctx.fork.ledger.add({ kind: "scenario", summary: `replay ${gap.id}: ${gap.label}`, chainTime: await ctx.fork.chainTime() })
   await keeperTick(ctx)

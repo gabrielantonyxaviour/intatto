@@ -14,7 +14,7 @@ export type ExplorerLinkProps = {
   className?: string
 }
 
-/** Links to OKLink on X Layer mainnet; on a sandbox fork (no explorer) it renders the value as text. */
+/** Links to OKLink on X Layer mainnet, or to the in-app fork explorer for a sandbox transaction. Otherwise plain text. */
 export function ExplorerLink({ hash, address, children, className }: ExplorerLinkProps) {
   const { explorerTxUrl, explorerAddressUrl } = useIntatto()
   const value = hash ?? address ?? ""
@@ -38,7 +38,7 @@ export function ExplorerLink({ hash, address, children, className }: ExplorerLin
     >
       {content}
       <ExternalLinkIcon aria-hidden className="size-3" />
-      <span className="sr-only">(opens OKLink)</span>
+      <span className="sr-only">{url.startsWith("/") ? "(opens the sandbox explorer)" : "(opens OKLink)"}</span>
     </a>
   )
 }

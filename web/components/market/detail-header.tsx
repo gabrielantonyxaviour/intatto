@@ -6,7 +6,7 @@ import type { MarketDeployment } from "@intatto/config/deployments"
 import { usePriceProvenance, type MarketState } from "@/lib/chain"
 import { DefinitionPopover } from "@/components/ui/ix"
 import { Button } from "@/components/ui/button"
-import { RELAY_BOUNDS_LEAD, RELAY_DISCLOSURE, type MarketTerms } from "./copy"
+import { RELAY_BOUNDS_LEAD, RELAY_DISCLOSURE, refusalsFor, type MarketTerms } from "./copy"
 import { SessionBadge } from "./session-badge"
 import { ago, borrowHref, bpsShort, duration, formatUtc, usdPrice, usdg } from "./format"
 
@@ -33,6 +33,7 @@ function Chip({ testId, label, value, term, children }: { testId: string; label:
 export function DetailHeader({ market, state: s, terms, now }: Props) {
   const source = usePriceProvenance()
   const noPrice = s.priceE18 === 0n
+  const borrowingOff = refusalsFor(s).length > 0
   return (
     <div className="grid gap-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -47,7 +48,7 @@ export function DetailHeader({ market, state: s, terms, now }: Props) {
             <Link href="/lend">Lend USDG</Link>
           </Button>
           <Button asChild>
-            <Link href={borrowHref(market.symbol)}>Borrow USDG</Link>
+            <Link href={borrowHref(market.symbol)}>{borrowingOff ? "Manage position" : "Borrow USDG"}</Link>
           </Button>
         </div>
       </div>

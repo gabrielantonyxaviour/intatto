@@ -77,7 +77,7 @@ function TxButtonInner({
   className,
   size = "lg",
 }: TxButtonProps) {
-  const { chain, publicClient } = useIntatto()
+  const { chain, publicClient, explorerTxUrl } = useIntatto()
   const { address, chainId: walletChainId, isConnected } = useAccount()
   const { switchChain, isPending: switching } = useSwitchChain()
   const { writeContractAsync } = useWriteContract()
@@ -115,7 +115,7 @@ function TxButtonInner({
       const receipt = await publicClient.waitForTransactionReceipt({ hash })
       if (receipt.status === "reverted") throw new Error(`The transaction was mined but reverted (${hash}).`)
       setPhase({ name: "success", hash })
-      toast.success(successMessage, { description: `Transaction ${hash.slice(0, 10)}…` })
+      toast.success(successMessage, { description: <TxToastLink hash={hash} url={explorerTxUrl(hash)} />, duration: 12_000 })
       onSuccess?.(receipt, hash)
       void queryClient.invalidateQueries()
     } catch (err) {
@@ -207,5 +207,16 @@ function ErrorNote({ error }: { error: DecodedTxError }) {
         </pre>
       </details>
     </div>
+  )
+}
+
+/** The toast's transaction line: the hash, readable and linked to the explorer (OKLink live, the fork explorer in a sandbox). */
+function TxToastLink({ hash, url }: { hash: string; url: string | null }) {
+  const text = `${hash.slice(0, 10)}…${hash.slice(-6)}`
+  if (!url) return <span className="font-mono text-foreground">Transaction {text}</span>
+  return (
+    <a href={url} target="_blank" rel="noreferrer noopener" className="font-mono text-foreground underline underline-offset-4">
+      View transaction {text}
+    </a>
   )
 }

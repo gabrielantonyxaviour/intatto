@@ -3,7 +3,7 @@
 import Link from "next/link"
 import type { Session } from "@intatto/config/session"
 import { TriangleAlertIcon } from "lucide-react"
-import { useProtocolParams, usePriceProvenance, type MarketState } from "@/lib/chain"
+import { useIntatto, useProtocolParams, usePriceProvenance, type MarketState } from "@/lib/chain"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { DefinitionPopover } from "@/components/ui/ix"
@@ -64,6 +64,7 @@ export function CollateralLine({ m, decay }: { m: MarketState; decay: { floorBps
 
 /** Why new borrowing is off right now, and what still works. Null when every guard passes. */
 export function MarketStatusAlert({ m }: { m: MarketState }) {
+  const { mode } = useIntatto()
   const { token, underlying } = useNames()
   const reasons: string[] = []
   if (m.issuerPaused) reasons.push(`the token issuer has paused ${token}`)
@@ -88,6 +89,15 @@ export function MarketStatusAlert({ m }: { m: MarketState }) {
           </Link>
           .
         </p>
+        {mode === "live" ? (
+          <p>
+            Want to try borrowing now?{" "}
+            <Link href="/sandbox" className="font-medium underline underline-offset-4">
+              Start a mainnet-fork sandbox session
+            </Link>
+            . It uses a funded test wallet; no mainnet funds move.
+          </p>
+        ) : null}
       </AlertDescription>
     </Alert>
   )

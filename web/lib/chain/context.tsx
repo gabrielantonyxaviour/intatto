@@ -30,7 +30,7 @@ export type IntattoChain = {
   /** Set when a stored sandbox session exists but no longer parses; the app then runs live. */
   sandboxError: string | null
   publicClient: PublicClient<Transport, Chain>
-  /** OKLink URL in live mode; null in sandbox mode (a fork has no explorer). */
+  /** OKLink URL in live mode; the in-app fork explorer in sandbox mode. Addresses have no sandbox page (null). */
   explorerTxUrl(hash: string): string | null
   explorerAddressUrl(address: string): string | null
   /** Stores the session and switches every screen to the fork. */
@@ -117,7 +117,7 @@ export function IntattoChainProvider({ children }: { children: ReactNode }) {
       sandbox,
       sandboxError,
       publicClient: runtime.publicClient,
-      explorerTxUrl: (hash) => (live ? explorerTx(hash) : null),
+      explorerTxUrl: (hash) => (live ? explorerTx(hash) : `/sandbox/tx/${hash}`),
       explorerAddressUrl: (address) => (live ? explorerAddress(address) : null),
       startSandbox,
       endSandbox,

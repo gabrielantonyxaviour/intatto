@@ -22,7 +22,7 @@ const MULTIPLIER_URL = "https://api.xstocks.fi/api/v2/public/assets/NVDAx/multip
 const CURRENT_MULTIPLIER = 1.001701196801074
 const SCENARIO_NOTE =
   "A 10-for-1 split applied as a multiplier change; NVDA's real 10-for-1 split took effect 10 June 2024."
-const SYNTHETIC_NOTE = "A 45% overnight gap used only to exhaust the gap reserve and show deficit recognition."
+const SYNTHETIC_NOTE = "A 45% overnight gap used to test liquidation. Reserve coverage and lender loss depend on the fork state and preceding scenarios."
 const PROVENANCE_AT = "2026-09-25T05:46:50.604362+00:00"
 
 const sha = z.string().regex(/^[0-9a-f]{64}$/)
@@ -248,10 +248,10 @@ assert(liveMultiplier.currentMultiplier === CURRENT_MULTIPLIER, "live multiplier
 
 assert(synthetic.kind === "synthetic", "synthetic replay kind is synthetic")
 assert(synthetic.label.includes("Synthetic"), "synthetic replay label contains Synthetic")
-assert(synthetic.label === "Synthetic gap larger than the reserve (not market data)", "synthetic replay label states it is not market data")
+assert(synthetic.label === "Synthetic 45% NVDAx gap (not market data)", "synthetic replay label states it is not market data")
 assert(synthetic.sources.length === 0, "synthetic replay has no market-data source")
 assert(synthetic.gapBps === 4500, "synthetic gap is 4500 bps")
-assert(synthetic.note === SYNTHETIC_NOTE, "synthetic note says the gap is only for reserve exhaustion")
+assert(synthetic.note === SYNTHETIC_NOTE, "synthetic note describes outcome dependence on fork state")
 assert(
   sha256(JSON.stringify({ gapBps: synthetic.gapBps, note: synthetic.note })) === synthetic.contentSha256,
   "synthetic contentSha256 matches JSON.stringify({gapBps, note})",
