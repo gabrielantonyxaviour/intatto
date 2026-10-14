@@ -63,6 +63,11 @@ function UnknownMarket({ requested, symbol }: { requested: string; symbol: Marke
 function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: MarketSelection }) {
   const names = useNames()
   const data = useBorrowData(symbol)
+  // The session schedule and chain time are re-read every minute and after a sandbox warp; keep the last read
+  // for this market on screen meanwhile instead of flashing "—" (the limits themselves are constants).
+  const lastParams = useRef<{ symbol: MarketSymbol; params: NonNullable<typeof data.params.data> } | null>(null)
+  if (data.params.data) lastParams.current = { symbol, params: data.params.data }
+  const params = data.params.data ?? (lastParams.current?.symbol === symbol ? lastParams.current.params : undefined)
   const formCard = useRef<HTMLDivElement>(null)
   const [tab, setTab] = useState<Tab>("borrow")
   const [reviewing, setReviewing] = useState(false)
@@ -109,7 +114,7 @@ function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: 
   return (
     <div className="grid gap-6" data-testid="borrow-screen">
       <Header selection={selection} session={m.session} />
-      <MarketStrip m={m} v={v} params={data.params.data} />
+      <MarketStrip m={m} v={v} params={params} />
       {unknown}
       {data.failed ? <LoadError error={data.error} retry={data.retry} /> : null}
       {data.wrongNetwork ? <WrongNetwork /> : null}
@@ -198,8 +203,8 @@ function MarketBorrow({ symbol, selection }: { symbol: MarketSymbol; selection: 
           before={active.before}
           after={active.empty ? null : active.after}
           reserveUsdg={v.reserveBalance}
-          penaltyBps={data.params.data?.market.penaltyBps}
-          params={data.params.data}
+          penaltyBps={params?.market.penaltyBps}
+          params={params}
         />
       </div>
     </div>
