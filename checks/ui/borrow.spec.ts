@@ -12,7 +12,6 @@ import type { Page } from "@playwright/test"
 import { expect, expectNoHorizontalScroll, test, viewports } from "./fixtures"
 import { startForkHarness, type ForkHarness } from "../fork/harness.ts"
 import { weekend } from "../fork/lib/scenarios.ts"
-
 type LensAccount = {
   shares: bigint
   assets: bigint
@@ -23,44 +22,38 @@ type LensAccount = {
   walletToken: bigint
   walletUsdg: bigint
 }
-
 /** Formats like the UI: truncated (never rounded) to `digits` decimals, thousands grouped. */
 function fixed(x: bigint, decimals: number, digits: number) {
   const [i = "0", f = ""] = formatUnits(x, decimals).split(".")
   return `${i.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${f.slice(0, digits).padEnd(digits, "0")}`
 }
 const usdg = (x: bigint) => `${fixed(x, 6, 2)} USDG`
-const pct = (bps: bigint) => `${(Number(bps) / 100).toFixed(2)}%`
-/** Lens capacity as Borrow prints it: all 6 USDG decimals. */
-const capacityText = (x: bigint) => `${fixed(x, 6, 6)} USDG`
+const pct = (bps: bigint) => `${(Number(bps) / 100).toFixed(2).replace(/\.?0+$/, "")}%`
+/** Lens capacity in the compact two-decimal display. */
+const capacityText = usdg
 /** The drop (bps, rounded up) at which the position's LTV reaches the 65% liquidation threshold. */
 function liquidationLine(a: LensAccount, threshold: bigint): string {
   const keep = (a.debt * 10_000n * 1_000_000n) / (a.valueUsdg * threshold)
   const bps = ((1_000_000n - keep) * 10_000n + 999_999n) / 1_000_000n
   return `−${(Number(bps) / 100).toFixed(bps % 100n === 0n ? 0 : 2)}%`
 }
-
 let h: ForkHarness
 test.describe.configure({ mode: "serial" })
 // Other checks run concurrently and clean the shared checks/ui/.results at start, deleting in-flight trace files.
 test.use({ trace: "off" })
-
 test.beforeAll(async ({}, testInfo) => {
   testInfo.setTimeout(300_000)
   h = await startForkHarness()
-  mkdirSync("proof", { recursive: true })
+  if (process.env.UI_PROOF === "1") mkdirSync("proof", { recursive: true })
 })
-
 test.afterAll(async () => {
   await h?.stop()
 })
-
 /** Full-page shots start from the top so the sticky header is not captured mid-page. */
 async function shoot(page: Page, path: string) {
   await page.evaluate(() => window.scrollTo(0, 0))
-  await page.screenshot({ path, fullPage: true, animations: "disabled" })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path, fullPage: true, animations: "disabled" })
 }
-
 async function shootAllWidths(page: Page, name: string) {
   await shoot(page, `proof/${name}.png`)
   for (const [key, size] of [["768", viewports.medium], ["390", viewports.narrow]] as const) {
@@ -71,7 +64,6 @@ async function shootAllWidths(page: Page, name: string) {
   }
   await page.setViewportSize(viewports.wide)
 }
-
 test("deposit and borrow, refused before signing on the weekend, repay and withdraw always work", async ({ page, useFork }) => {
   test.setTimeout(600_000)
   const d = h.deployment
@@ -80,11 +72,9 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   const burner = h.env.burnerAddress
   const read = <T>(to: string, abi: never, fn: string, args: unknown[] = []) => h.fork.read<T>(to as Address, abi, fn, args)
   const account = () => read<LensAccount>(d.lens, marketLensAbi as never, "account", [market, burner])
-
   await useFork(page, h.env)
   await page.setViewportSize(viewports.wide)
   await page.goto("/borrow")
-
   // ── Empty state: market read from the chain, no position yet ──
   const lensMarket = await read<{ session: number; maxLtvBps: bigint; priceE18: bigint; liquidationThresholdBps: bigint }>(d.lens, marketLensAbi as never, "market", [market])
   const penalty = await read<bigint>(market, collateralMarketAbi as never, "PENALTY_BPS")
@@ -96,37 +86,44 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   await expect(page.getByTestId("market-select")).toContainText("NVDAx")
   await expect(page.getByTestId("relayed-price")).toHaveText(`$${fixed(lensMarket.priceE18, 18, 2)}`)
   await expect(page.getByTestId("session-max-ltv")).toHaveText(pct(lensMarket.maxLtvBps))
+  await expect(page.getByTestId("risk-link")).toHaveAttribute("href", "/risk")
+  await expect(page.getByRole("region", { name: "Session borrowing limits" })).toContainText(`liquidation stays at ${pct(lensMarket.liquidationThresholdBps)}`)
+  const vaultState = await read<{ borrowRateBps: bigint }>(d.lens, marketLensAbi as never, "vault", [market])
+  await expect(page.getByTestId("borrow-rate")).toHaveText(pct(vaultState.borrowRateBps))
   await expect(page.getByTestId("position-empty")).toBeVisible({ timeout: 60_000 })
   const form = page.getByTestId("deposit-borrow-form")
   const formCta = form.locator('[data-slot="form-cta"] button')
   await expect(formCta).toHaveText("Enter an amount")
   await expect(formCta).toBeDisabled()
   await expectNoHorizontalScroll(page)
-
   // IA: price provenance is mode-specific, and definitions are keyboard disclosures.
-  await expect(page.getByTestId("borrow-price-source")).toHaveText("Simulated keeper post (sandbox)")
-  for (const term of ["this price", "session limits", "variable rate"]) {
+  await expect(page.getByTestId("borrow-price-source")).toHaveCount(0)
+  for (const term of ["NVDAx price", "session borrowing limits", "Borrow APR"]) {
     const trigger = page.getByRole("button", { name: `About ${term}`, exact: true })
     await trigger.focus()
     await trigger.press("Enter")
     await expect(trigger).toHaveAttribute("aria-expanded", "true")
-    if (term === "variable rate") await expect(page.getByRole("dialog")).toContainText(`${pct(reserveFactor)} of interest`, { timeout: 30_000 })
-    if (term === "session limits") await expect(page.getByRole("dialog")).toContainText(`Liquidation threshold: ${pct(lensMarket.liquidationThresholdBps)}`, { timeout: 30_000 })
+    if (term === "NVDAx price") await expect(page.getByTestId("borrow-price-source")).toHaveText("Simulated keeper post (sandbox)")
+    if (term === "Borrow APR") await expect(page.getByRole("dialog")).toContainText(`${pct(reserveFactor)} of interest`, { timeout: 30_000 })
+    if (term === "session borrowing limits") await expect(page.getByRole("dialog")).toContainText("It does not itself liquidate your position.")
     await page.keyboard.press("Escape")
     await expect(trigger).toBeFocused()
   }
-
-  // ── Collateral Max → loan preset chip at the Medium risk level ──
+  // ── Collateral Max → 75% of chain-derived capacity ──
   const start = await account()
   await form.locator('[data-slot="amount-input"]').first().getByRole("button", { name: "Max" }).click()
   await expect(page.locator("#borrow-collateral")).toHaveValue(formatUnits(start.walletToken, 18))
-  await page.getByRole("button", { name: /^Medium risk/ }).click()
+  const presets = page.getByRole("group", { name: "Borrow capacity presets" })
+  await presets.getByRole("button", { name: "75%", exact: true }).click()
   const loan = parseUnits(await page.locator("#borrow-loan").inputValue(), 6)
   expect(loan).toBeGreaterThan(0n)
-  await expect(page.getByTestId("loan-line")).toContainText("Medium")
+  const openingCapacity = await account()
+  const projectedValue = openingCapacity.valueUsdg + start.walletToken * lensMarket.priceE18 / 10n ** 30n
+  expect(loan).toBe(projectedValue * lensMarket.maxLtvBps / 10_000n * 75n / 100n)
+  const projectedLtv = loan * 10_000n / projectedValue
+  await expect(page.getByTestId("loan-line")).toContainText(projectedLtv >= 4500n ? "High" : projectedLtv >= 3000n ? "Medium" : "Low")
   await expect(page.getByTestId("position-debt")).toContainText(usdg(loan))
   await expect(formCta).toHaveText("Review")
-
   // ── Review → approve NVDAx → deposit → borrow ──
   await formCta.click()
   const review = page.getByTestId("borrow-review")
@@ -164,10 +161,8 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   expect(await h.fork.client.getTransactionCount({ address: burner })).toBe(beforeRejectedBorrow)
   await page.unroute(rejectAt)
   await review.getByRole("button", { name: "Retry", exact: true }).click()
-
   await expect(review.getByTestId("review-finished")).toBeVisible({ timeout: 60_000 })
   await expect(review.getByTestId("review-done-step")).toHaveCount(2)
-
   const borrowed = await account()
   expect(borrowed.debt).toBeGreaterThanOrEqual(loan)
   expect(borrowed.walletUsdg).toBe(start.walletUsdg + loan)
@@ -204,15 +199,14 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   await shootAllWidths(page, "borrow-borrowed")
   await page.getByText("Monday gap scenarios", { exact: true }).press("Space")
   await expect(page.getByTestId("gap-table")).not.toBeVisible()
-
   // ── Saturday: the keeper posts CLOSED; the screen follows without a reload ──
-  // "Can borrow" and the Max hint are the lens borrowCapacity, all 6 USDG decimals.
+  // Capacity and the Max hint match the compact format of the lens borrowCapacity.
   const loanField = form.locator('[data-slot="amount-input"]').nth(1)
   await expect.poll(async () => {
     const cap = capacityText((await account()).borrowCapacity)
     const text = await loanField.innerText()
-    const title = await loanField.getByRole("button", { name: "Max" }).getAttribute("title")
-    return text.includes(`Can borrow ${cap}`) && title === `Borrow ${cap}`
+    const title = await presets.getByRole("button", { name: "Max", exact: true }).getAttribute("title")
+    return text.includes(`You can borrow up to ${cap} now`) && title === `Borrow ${cap}`
   }, { timeout: 30_000 }).toBe(true)
   await weekend(h.ctx)
   await expect(page.getByTestId("session-badge")).toHaveText("CLOSED", { timeout: 45_000 })
@@ -221,11 +215,10 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   expect((await account()).ltvBps).toBeGreaterThan(closed.maxLtvBps)
   // No room under the CLOSED limit: capacity reads 0 and the chips and Max are disabled with the reason.
   expect((await account()).borrowCapacity).toBe(0n)
-  await expect(page.getByTestId("loan-refused-now")).toContainText("Maximum borrowable exceeded for the CLOSED session", { timeout: 45_000 })
-  await expect(loanField).toContainText(`Can borrow ${capacityText(0n)}`)
-  await expect(page.getByRole("button", { name: /^Max, unavailable/ })).toBeDisabled()
-  for (const chip of await page.getByRole("button", { name: /risk: borrow/ }).all()) await expect(chip).toBeDisabled()
-
+  await expect(page.getByTestId("loan-refused-now")).toContainText(REFUSALS.SessionLimit, { timeout: 45_000 })
+  await expect(loanField).toContainText(`You can borrow up to ${capacityText(0n)} now`)
+  await expect(presets.getByRole("button")).toHaveCount(4)
+  for (const chip of await presets.getByRole("button").all()) await expect(chip).toBeDisabled()
   // ── A further borrow is refused before signing, by the contract's own simulation ──
   const nonceBefore = await h.fork.client.getTransactionCount({ address: burner })
   await page.locator("#borrow-loan").fill("10")
@@ -233,7 +226,8 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   await expect(formCta).toBeDisabled()
   await expect(form).toContainText(REFUSALS.SessionLimit)
   await expect(form).toContainText("Maximum borrowable exceeded for the CLOSED session")
-  await expect(form).toContainText("Nothing was signed or sent")
+  await form.getByTestId("loan-refused-now").locator("summary").click()
+  await expect(form.getByTestId("loan-refused-now")).toContainText("Nothing was signed or sent")
   await expect(form).toContainText(`You can borrow up to ${capacityText(0n)} now`)
   const simulated = await h.fork.client
     .simulateContract({ address: market, abi: collateralMarketAbi, functionName: "borrow", args: [10_000_000n], account: burner })
@@ -241,18 +235,18 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   expect(simulated).toContain("SessionLimit")
   expect(await h.fork.client.getTransactionCount({ address: burner })).toBe(nonceBefore)
   await shootAllWidths(page, "borrow")
-
   // ── Repay in the CLOSED session: Max = min(wallet, debt) → approve USDG → repay everything ──
   await page.locator("#borrow-loan").fill("")
   await page.getByRole("tab", { name: "Repay & withdraw" }).click()
   const rform = page.getByTestId("repay-withdraw-form")
-  await expect(rform).toContainText("Repaying never depends on the price or the market session")
+  await expect(rform).toContainText("Repaying works in every market session")
   await rform.locator('[data-slot="amount-input"]').first().getByRole("button", { name: "Max" }).click()
   await expect(rform).toContainText("Repays the whole loan")
   const rCta = rform.locator('[data-slot="form-cta"] button')
   await expect(rCta).toHaveText("Review")
   await rCta.click()
   const rreview = page.getByTestId("repay-review")
+  await expect(rreview.getByText("Price or session checks on repay").locator("..")).toContainText("None")
   await rreview.getByRole("button", { name: "Approve USDG" }).click({ timeout: 60_000 })
   await rreview.getByRole("button", { name: "Repay the whole loan" }).click({ timeout: 60_000 })
   await expect(rreview.getByTestId("review-finished")).toContainText("fully repaid", { timeout: 60_000 })
@@ -262,7 +256,6 @@ test("deposit and borrow, refused before signing on the weekend, repay and withd
   await expect(page.getByTestId("position-debt")).toContainText(usdg(0n))
   await expect(page.getByTestId("position-ltv")).toContainText(pct(0n))
   await shoot(page, "proof/borrow-repaid.png")
-
   // ── With no debt, everything can be withdrawn even while CLOSED; it comes back as NVDAx ──
   await rform.locator('[data-slot="amount-input"]').nth(1).getByRole("button", { name: "Max" }).click()
   await rCta.click()

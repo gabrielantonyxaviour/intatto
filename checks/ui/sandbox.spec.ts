@@ -16,32 +16,24 @@ import { TICKERS } from "@intatto/config/xlayer"
 import { test, expect, viewports, expectNoHorizontalScroll } from "./fixtures"
 import { startLocalSandbox, type LocalSandbox } from "../../services/sandbox/src/local.ts"
 import { formatTokenAmount } from "../../web/components/ui/web3/format.ts"
-
 test.describe.configure({ mode: "serial" })
-
 type Entry = { kind: string; summary: string; chainTime: number }
 type Stored = { sessionId: string; apiUrl: string; rpcUrl: string; chainId: number; burnerKey: `0x${string}`; deployment: { usdg: string; sessionRisk: string } }
-
 let sb: LocalSandbox
-
 test.beforeAll(async () => {
   test.setTimeout(300_000)
   sb = await startLocalSandbox()
-  mkdirSync("proof", { recursive: true })
+  if (process.env.UI_PROOF === "1") mkdirSync("proof", { recursive: true })
 })
-
 test.afterAll(async () => {
   await sb?.stop()
 })
-
 const stored = (page: Page) => page.evaluate(() => JSON.parse(window.localStorage.getItem("intatto:sandbox") ?? "null") as unknown) as Promise<Stored | null>
 const ledgerOf = async (id: string) => ((await (await fetch(`${sb.url}/session/${id}/ledger`)).json()) as { entries: Entry[] }).entries
-
 async function currentSession(client: PublicClient, s: Stored) {
   const index = await client.readContract({ address: s.deployment.sessionRisk as Address, abi: sessionRiskControllerAbi, functionName: "currentSession" })
   return sessionFromIndex(Number(index))
 }
-
 /** The banner's and the page's chain time both equal the RPC's latest block timestamp. */
 async function expectChainTimeMatchesRpc(page: Page, client: PublicClient) {
   await expect(async () => {
@@ -51,22 +43,20 @@ async function expectChainTimeMatchesRpc(page: Page, client: PublicClient) {
     await expect(page.getByTestId("chain-time").locator("time")).toHaveAttribute("datetime", iso, { timeout: 1_000 })
   }).toPass({ timeout: 60_000 })
 }
-
 /** The full ledger lives in the View ledger sheet. Open it once; a second click would close it. */
 async function openLedger(page: Page) {
   const ledger = page.getByTestId("ledger")
   if (!(await ledger.isVisible())) await page.getByRole("button", { name: "View ledger" }).click()
   await expect(ledger).toBeVisible()
 }
-
-async function closeDialog(page: Page) {
+async function closeDialog(page: Page, waitForFocus = false) {
   const dialog = page.getByRole("dialog")
   if (await dialog.isVisible()) {
+    if (waitForFocus) await expect.poll(() => dialog.evaluate((el) => el === document.activeElement || el.contains(document.activeElement))).toBe(true)
     await page.keyboard.press("Escape")
     await expect(dialog).toBeHidden()
   }
 }
-
 /** The ledger shown equals GET /session/:id/ledger: same count, kinds and summaries (newest first on screen). */
 async function expectLedgerMatchesApi(page: Page, id: string) {
   await openLedger(page)
@@ -82,24 +72,21 @@ async function expectLedgerMatchesApi(page: Page, id: string) {
   }).toPass({ timeout: 60_000 })
   return shown
 }
-
 /** Top of the page with no toasts, so full-page screenshots show the layout as a person first sees it. */
 async function settle(page: Page) {
   await expect(page.locator("[data-sonner-toast]")).toHaveCount(0, { timeout: 20_000 })
   await page.evaluate(() => window.scrollTo(0, 0))
 }
-
 async function screenshotsAtWidths(page: Page, name: string) {
   await settle(page)
   for (const [label, size] of [["390", viewports.narrow], ["768", viewports.medium]] as const) {
     await page.setViewportSize(size)
     await expectNoHorizontalScroll(page)
-    await page.screenshot({ path: `proof/${name}-${label}.png`, fullPage: true })
+    if (process.env.UI_PROOF === "1") await page.screenshot({ path: `proof/${name}-${label}.png`, fullPage: true })
   }
   await page.setViewportSize(viewports.wide)
   await expectNoHorizontalScroll(page)
 }
-
 test("unavailable: an unreachable sandbox API is said plainly and nothing can start", async ({ page }) => {
   test.setTimeout(180_000)
   await page.setViewportSize(viewports.narrow)
@@ -107,9 +94,8 @@ test("unavailable: an unreachable sandbox API is said plainly and nothing can st
   await expect(page.getByTestId("sandbox-unavailable")).toBeVisible({ timeout: 120_000 })
   await expect(page.getByRole("button", { name: "Start a session" })).toBeDisabled()
   await expectNoHorizontalScroll(page)
-  await page.screenshot({ path: "proof/sandbox-unavailable-390.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/sandbox-unavailable-390.png", fullPage: true })
 })
-
 test("a stored session without an API and with a dead RPC: both said, no blank page", async ({ page, useFork }) => {
   test.setTimeout(180_000)
   const key = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d" as const
@@ -119,7 +105,6 @@ test("a stored session without an API and with a dead RPC: both said, no blank p
   await expect(page.getByTestId("sandbox-rpc-error")).toBeVisible({ timeout: 60_000 })
   await expect(page.getByTestId("time-travel")).toHaveCount(0)
 })
-
 test("wrong network: an RPC that answers as another chain is flagged", async ({ page, useFork }) => {
   test.setTimeout(180_000)
   const res = await fetch(`${sb.url}/session`, { method: "POST" })
@@ -136,28 +121,29 @@ test("wrong network: an RPC that answers as another chain is flagged", async ({ 
   await page.goto("/sandbox")
   await expect(page.getByTestId("sandbox-wrong-network")).toContainText("chain 1960196", { timeout: 120_000 })
 })
-
 test("start → funded burner → Saturday → split → ledger → reset → expiry → new session → end", async ({ page }) => {
   test.setTimeout(900_000)
   await page.setViewportSize(viewports.wide)
   await page.goto(`/sandbox?api=${encodeURIComponent(sb.url)}`)
-
   // 1. The fork's identity first, from the service: parent network, chain id, fork block.
   await expect(page.getByTestId("identity-fork-block")).toContainText(sb.meta.forkBlock.toLocaleString("en-US"), { timeout: 120_000 })
   await expect(page.getByTestId("identity-chain-id")).toHaveText(String(sb.meta.chainId))
-  await expect(page.getByTestId("seed-snapshot")).toContainText("not organic mainnet activity")
-  await expect(page.getByTestId("sandbox-price-source")).toContainText("not the live issuer quote")
+  await expect(page.getByTestId("seed-snapshot")).toContainText("chosen amounts, not mainnet activity")
+  await expect(page.getByTestId("sandbox-price-source")).toContainText("Prices are simulated and relayed by the keeper")
+  const prices = page.getByRole("button", { name: "About Fork prices", exact: true })
+  await prices.click()
+  await expect(page.getByRole("dialog")).toContainText("not the live issuer quote")
+  await closeDialog(page)
   await expect(page.getByRole("button", { name: "Start a session" })).toBeEnabled()
-  const details = page.getByRole("button", { name: "Session details" })
+  const details = page.getByRole("button", { name: "How this fork is built" })
   await details.focus()
   await page.keyboard.press("Enter")
   await expect(page.getByRole("dialog", { name: "Session details" })).toBeVisible()
-  await page.keyboard.press("Escape")
+  await closeDialog(page, true)
   await expect(page.getByRole("dialog", { name: "Session details" })).toBeHidden()
   await expect(details).toBeFocused()
-  await page.screenshot({ path: "proof/sandbox-start.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/sandbox-start.png", fullPage: true })
   await screenshotsAtWidths(page, "sandbox-start")
-
   // 2. Start a session → the session is stored and every screen switches to the fork with the burner.
   const createdResponse = page.waitForResponse((r) => r.url() === `${sb.url}/session` && r.request().method() === "POST", { timeout: 180_000 })
   await page.getByRole("button", { name: "Start a session" }).click()
@@ -173,7 +159,6 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   await expect(page.getByTestId("identity-rpc")).toContainText(s.rpcUrl)
   await expect(page.getByTestId("sandbox-session").locator(`[title="${burner}"]`).first()).toBeVisible()
   await expect(page.getByTestId("burner-connection")).toContainText("Connected", { timeout: 60_000 })
-
   // 3. The burner is funded: every balance shown equals the RPC read.
   const token = (sym: "NVDAx" | "SPYx") => TICKERS[sym].token as Address
   const reads = {
@@ -184,37 +169,34 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   } as const
   for (const [sym, [value, decimals, digits]] of Object.entries(reads)) {
     expect(value, `${sym} funded`).toBeGreaterThan(0n)
-    await expect(page.getByTestId(`balance-${sym}`)).toHaveText(formatTokenAmount(value, decimals, { maxFractionDigits: digits }), { timeout: 60_000 })
+    await expect(page.getByTestId(`balance-${sym}`)).toHaveText(formatTokenAmount(value, decimals, { maxFractionDigits: digits, minFractionDigits: sym === "USDG" ? 2 : 0 }), { timeout: 60_000 })
   }
-
   // 4. The public RPC refuses fork control.
   await page.getByRole("button", { name: "Try evm_mine on it" }).click()
   await expect(page.getByTestId("admin-probe")).toContainText("Refused (-32601)")
   await closeDialog(page)
-  const howSaturday = page.getByRole("button", { name: "Saturday clock method" })
+  const howSaturday = page.getByRole("button", { name: "About Time travel", exact: true })
   await howSaturday.focus()
   await page.keyboard.press("Enter")
-  await expect(page.getByRole("dialog", { name: "Jump to Saturday method" })).toBeVisible()
-  await page.keyboard.press("Escape")
+  await expect(page.getByRole("dialog")).toContainText("evm_setNextBlockTimestamp")
+  await closeDialog(page)
   await expect(howSaturday).toBeFocused()
-  const januarySources = page.getByRole("button", { name: "Sources and method: January 2025 NVDA weekend gap" })
+  const januarySources = page.getByRole("button", { name: "About Sources and method: January 2025 NVDA weekend gap", exact: true })
   await januarySources.focus()
   await page.keyboard.press("Enter")
-  await expect(page.getByRole("dialog", { name: "January 2025 NVDA weekend gap" })).toBeVisible()
-  await page.keyboard.press("Escape")
+  await expect(page.getByRole("dialog")).toContainText("Dukascopy")
+  await closeDialog(page)
   await expect(januarySources).toBeFocused()
-  await expect(page.getByTestId("scenario-gap-2025-01")).toContainText("Dukascopy")
   await expect(page.getByTestId("scenario-synthetic-gap")).toContainText("45%")
   const viewLedger = page.getByRole("button", { name: "View ledger" })
   await viewLedger.focus()
   await page.keyboard.press("Enter")
   await expect(page.getByRole("dialog", { name: "Activity ledger" })).toBeVisible()
-  await page.keyboard.press("Escape")
+  await closeDialog(page)
   await expect(viewLedger).toBeFocused()
-
   // 5. Jump to Saturday → chain time equals the latest block; the session reads CLOSED like the contract.
   const warpResponse = page.waitForResponse((r) => r.url().endsWith(`/session/${s.sessionId}/warp`), { timeout: 180_000 })
-  await page.getByRole("button", { name: "Jump to Saturday", exact: true }).click()
+  await page.getByRole("region", { name: "All controls" }).getByRole("button", { name: "Jump to Saturday", exact: true }).click()
   const warp = (await (await warpResponse).json()) as { entries: Entry[] }
   await expect(page.getByTestId("action-result")).toContainText("Jump to Saturday: done", { timeout: 120_000 })
   await expectChainTimeMatchesRpc(page, client)
@@ -222,7 +204,6 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   expect(new Date(saturdayTime * 1000).getUTCDay()).toBe(6)
   expect(await currentSession(client, s)).toBe("CLOSED")
   await expect(page.getByTestId("market-session")).toHaveText("CLOSED", { timeout: 60_000 })
-
   // 6. Corporate action (10-for-1 split) → the ledger equals GET /ledger and holds every admin call made.
   const scenarioResponse = page.waitForResponse((r) => r.url().endsWith(`/session/${s.sessionId}/scenario`), { timeout: 300_000 })
   await page.getByRole("button", { name: "Schedule a 10-for-1 split" }).click()
@@ -236,9 +217,8 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   await closeDialog(page)
   await expectNoHorizontalScroll(page)
   await settle(page)
-  await page.screenshot({ path: "proof/sandbox.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/sandbox.png", fullPage: true })
   await screenshotsAtWidths(page, "sandbox")
-
   // 6b. Activate the split. balanceOf rebases when chain time passes activation; the card must show that read.
   const beforeSplit = await client.readContract({ address: token("NVDAx"), abi: erc20Abi, functionName: "balanceOf", args: [burner] })
   const activateResponse = page.waitForResponse((r) => r.url().endsWith(`/session/${s.sessionId}/scenario`) && r.request().method() === "POST", { timeout: 300_000 })
@@ -250,7 +230,6 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
     expect(onchain).toBeGreaterThan(beforeSplit)
     await expect(page.getByTestId("balance-NVDAx")).toHaveText(formatTokenAmount(onchain, 18, { maxFractionDigits: 4 }), { timeout: 2_000 })
   }).toPass({ timeout: 60_000 })
-
   // 7. Reset → back to the start snapshot: the clock returns, the ledger records the reset.
   await page.getByRole("button", { name: "Reset…" }).click()
   await page.getByRole("button", { name: "Yes, reset" }).click()
@@ -261,14 +240,13 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   expect(Number((await client.getBlock({ blockTag: "latest" })).timestamp)).toBeLessThan(saturdayTime)
   await expect(page.getByTestId("market-session")).toHaveText(await currentSession(client, s), { timeout: 60_000 })
   await expectLedgerMatchesApi(page, s.sessionId)
-
   // 8. Expiry (what 30 idle minutes does): the session's chain stops → "Start a new session" gives a fresh one.
   await sb.service.containerStopped(s.sessionId, "idle for more than 30 minutes (check)")
   await page.reload()
   await expect(page.getByTestId("session-expired")).toBeVisible({ timeout: 120_000 })
   await expect(page.getByTestId("session-expired")).toContainText("Session expired")
   await settle(page)
-  await page.screenshot({ path: "proof/sandbox-expired.png", fullPage: true })
+  if (process.env.UI_PROOF === "1") await page.screenshot({ path: "proof/sandbox-expired.png", fullPage: true })
   await page.getByRole("button", { name: "Start a new session" }).click()
   await expect(async () => {
     const next = await stored(page)
@@ -277,7 +255,6 @@ test("start → funded burner → Saturday → split → ledger → reset → ex
   }).toPass({ timeout: 180_000 })
   await expect(page.getByTestId("sandbox-session")).toBeVisible({ timeout: 120_000 })
   await expect(page.getByTestId("time-travel")).toBeVisible({ timeout: 60_000 })
-
   // 9. End session → back to X Layer mainnet: the stored session is gone and the creation form returns.
   await page.getByRole("button", { name: "End session" }).click()
   await expect(page.getByTestId("start-session")).toBeVisible({ timeout: 60_000 })

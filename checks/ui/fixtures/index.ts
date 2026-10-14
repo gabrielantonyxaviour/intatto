@@ -3,6 +3,7 @@
  *
  * `useFork(page, env)` seeds the app's sandbox session (localStorage "intatto:sandbox") before the
  * first navigation, so the app starts in sandbox mode against the fork with the burner connected.
+ * Set UI_PROOF=1 only when screenshots are requested; layout assertions always run.
  */
 import { test as base, expect, type Page } from "@playwright/test"
 import type { ForkEnv } from "../../lib/fork-env"
@@ -26,10 +27,19 @@ export function sandboxSessionFor(env: ForkEnv) {
 }
 
 type Fixtures = {
+  liveDeployed: boolean
   useFork: (page: Page, env: ForkEnv) => Promise<void>
 }
 
 export const test = base.extend<Fixtures>({
+  liveDeployed: async ({ request }, use) => {
+    const response = await request.get("/api/health")
+    expect(response.ok(), "app health endpoint answers").toBe(true)
+    const health = await response.json()
+    expect(health.service).toBe("intatto-web")
+    expect(typeof health.deployed).toBe("boolean")
+    await use(health.deployed)
+  },
   // eslint-disable-next-line no-empty-pattern
   useFork: async ({}, use) => {
     await use(async (page, env) => {
