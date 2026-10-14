@@ -25,11 +25,13 @@ export function DepositForm({
   account,
   termsAccepted,
   onOpenPrimer,
+  onShowRisk,
 }: {
   vault: VaultState
   account: AccountState | undefined
   termsAccepted: boolean
-  onOpenPrimer: () => void
+  onOpenPrimer: (continueDeposit?: () => void) => void
+  onShowRisk: () => void
 }) {
   const { deployment, chain } = useIntatto()
   const { address } = useAccount()
@@ -64,9 +66,7 @@ export function DepositForm({
       ? `${markets.data[0]!.symbol} · ${bpsText(markets.data[0]!.state.liquidationThresholdBps, 0)} liquidation threshold`
       : marketList(symbols)
 
-  const disabledReason = !termsAccepted
-    ? "Accept the lending terms first"
-    : typed === null
+  const disabledReason = typed === null
       ? "Enter an amount"
       : wallet !== undefined && typed > wallet
         ? "Insufficient USDG balance"
@@ -83,15 +83,15 @@ export function DepositForm({
           setValue(v)
           setAmount(a)
         }}
-        balance={wallet}
-        balanceLabel="Wallet"
+        footer={wallet !== undefined ? `Wallet ${usdg(wallet)}` : undefined}
         max={wallet}
         tooLargeMessage="Insufficient USDG balance"
         name="deposit-amount"
       />
-      <dl className="grid gap-2 rounded-lg border p-3" aria-label="Deposit summary">
-        <SummaryRow label="Network">{chain.name}</SummaryRow>
-        <ValueChange label="Your deposit" before={current} after={after} format={money} />
+      <dl className="grid gap-3 py-2" aria-label="Deposit summary">
+        <SummaryRow label="You receive">
+          {typed !== null ? <>≈ <TokenAmount value={previewShares(typed, vault)} decimals={USDG_DECIMALS} maxFractionDigits={4} symbol={SHARE_SYMBOL} /></> : `– ${SHARE_SYMBOL}`}
+        </SummaryRow>
         <SummaryRow label="Supply rate" testId="deposit-supply-rate">
           {bpsText(rate)}
         </SummaryRow>
@@ -118,21 +118,21 @@ export function DepositForm({
           />
         </DefinitionPopover>
       </div>
-      {!termsAccepted ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-dashed p-3 text-sm">
-          <span className="text-muted-foreground">Read how lending works before your first deposit.</span>
-          <Button variant="outline" size="sm" onClick={onOpenPrimer}>
-            Read and accept
-          </Button>
-        </div>
-      ) : null}
+      <p className="text-xs leading-relaxed text-warning-foreground">
+        Lenders can lose money in a gap larger than the reserve.{" "}
+        <button type="button" className="underline underline-offset-4" onClick={onShowRisk}>Learn more</button>
+      </p>
       <Button
         ref={reviewRef}
         type="button"
         disabled={disabledReason !== null}
         onClick={() => {
-          reviewedFrom.current = current
-          setReview(true)
+          const openReview = () => {
+            reviewedFrom.current = current
+            setReview(true)
+          }
+          if (!termsAccepted) onOpenPrimer(openReview)
+          else openReview()
         }}
       >
         {disabledReason ?? "Review"}
@@ -184,7 +184,7 @@ export function DepositForm({
                   : null
               }
               actionLabel="Deposit USDG"
-              disabledReason={disabledReason}
+              disabledReason={!termsAccepted ? "Accept the lending terms first" : disabledReason}
               successMessage="Deposit confirmed"
               onSuccess={(_receipt, hash) => {
                 if (typed !== null && reviewedFrom.current !== null) setDone({ amount: typed, hash, before: reviewedFrom.current })
@@ -202,7 +202,7 @@ export function DepositForm({
               <span className="text-success-foreground">{bpsText(rate)}</span>
             </SummaryRow>
             <SummaryRow label="You receive">
-              ≈ <TokenAmount value={previewShares(shown, vault)} decimals={USDG_DECIMALS} maxFractionDigits={6} symbol={SHARE_SYMBOL} />
+              ≈ <TokenAmount value={previewShares(shown, vault)} decimals={USDG_DECIMALS} maxFractionDigits={4} symbol={SHARE_SYMBOL} />
             </SummaryRow>
           </dl>
         ) : null}

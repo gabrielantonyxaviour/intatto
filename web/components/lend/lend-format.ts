@@ -12,26 +12,23 @@ export function marketList(symbols: readonly string[]): string {
 export const USDG_DECIMALS = 6
 export const SHARE_SYMBOL = "iUSDG"
 
-const TEN = 10_000_000n
 const THOUSAND = 1_000_000_000n
 
-/** Enough fraction digits for small amounts: at least 4 under 10, at least 2 under 1,000. */
-function fractionDigits(value: bigint, digits: number): number {
-  const abs = value < 0n ? -value : value
-  if (abs < TEN) return Math.max(digits, 4)
-  if (abs < THOUSAND) return Math.max(digits, 2)
-  return digits
-}
-
-/** 6-decimal base units as a plain amount: "50,150", "150.5", "1.4975". */
+/** Six-decimal base units, with presentation precision independent of transaction precision. */
 export function amount6(value: bigint, digits = 2): string {
-  return formatTokenAmount(value, USDG_DECIMALS, { maxFractionDigits: fractionDigits(value, digits), minFractionDigits: digits })
+  // Round monetary displays to cents; keep token/share precision independent.
+  const rounded = digits === 2 ? ((value + (value < 0n ? -5_000n : 5_000n)) / 10_000n) * 10_000n : value
+  return formatTokenAmount(rounded === 0n && value !== 0n ? value : rounded, USDG_DECIMALS, {
+    maxFractionDigits: digits, minFractionDigits: digits,
+  })
 }
 
-/** "12,345.67 USDG" from 6-decimal base units; amounts under 10 keep four decimals ("1.4975 USDG"). */
-export function usdg(value: bigint, digits = 2): string {
-  return `${amount6(value, digits)} USDG`
+/** USD-like balances consistently use two decimals. */
+export function usdg(value: bigint, _digits = 2): string {
+  return `${amount6(value, 2)} USDG`
 }
+
+export const dollars = (value: bigint) => `$${amount6(value, 2)}`
 
 /** USDG per whole iUSDG share, every digit the vault keeps: "1.000000". */
 export function sharePriceNumber(value: bigint): string {
@@ -40,18 +37,18 @@ export function sharePriceNumber(value: bigint): string {
 
 /** The share price with its unit: "1.000000 USDG". */
 export function sharePriceText(value: bigint): string {
-  return `${sharePriceNumber(value)} USDG`
+  return `${amount6(value, 4)} USDG`
 }
 
 /** Basis points as a percentage: 280n → "2.80%". */
 export function bpsText(bps: bigint | number, digits = 2): string {
-  return `${(Number(bps) / 100).toFixed(digits)}%`
+  return `${(Number(bps) / 100).toFixed(Math.min(digits, 2))}%`
 }
 
 /** a / b as a percentage string, "–" when b is zero. */
 export function ratioText(a: bigint, b: bigint, digits = 2): string {
   if (b === 0n) return "–"
-  return `${((Number(a) / Number(b)) * 100).toFixed(digits)}%`
+  return `${((Number(a) / Number(b)) * 100).toFixed(Math.min(digits, 2))}%`
 }
 
 /** Simple (non-compounding) interest on `amount` at `rateBps` a year, over `months` months. */
@@ -63,7 +60,7 @@ export function projectedEarnings(amount: bigint, rateBps: bigint, months: numbe
 export function changeText(before: bigint, after: bigint, digits = 4): string {
   if (before === 0n) return "–"
   const pct = ((Number(after) - Number(before)) / Number(before)) * 100
-  return `${pct > 0 ? "+" : ""}${pct.toFixed(digits)}%`
+  return `${pct > 0 ? "+" : ""}${pct.toFixed(Math.min(digits, 2))}%`
 }
 
 /**

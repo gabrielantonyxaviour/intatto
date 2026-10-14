@@ -1,26 +1,15 @@
 "use client"
 
-import { useState } from "react"
 import { useIntatto, type VaultState } from "@/lib/chain"
-import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { ExplorerLink } from "@/components/ui/web3"
-import { bpsText, marketList, usdg } from "./lend-format"
-
-export const SECTIONS = [
-  { id: "overview", label: "Overview" },
-  { id: "allocation", label: "Allocation" },
-  { id: "rates", label: "Rates" },
-  { id: "risk", label: "Risk" },
-  { id: "deficits", label: "Deficits" },
-  { id: "position", label: "Your position" },
-] as const
+import { bpsText, marketList, dollars } from "./lend-format"
 
 function Stat({ label, value, sub, testId }: { label: string; value: string; sub?: string; testId?: string }) {
   return (
     <div className="grid min-w-0 content-start gap-1">
       <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd data-testid={testId} className="text-2xl font-medium tabular-nums break-words">
+      <dd data-testid={testId} className="text-2xl font-semibold lg:text-3xl tabular-nums break-words">
         {value}
       </dd>
       {sub ? <dd className="text-xs text-muted-foreground">{sub}</dd> : null}
@@ -28,10 +17,9 @@ function Stat({ label, value, sub, testId }: { label: string; value: string; sub
   )
 }
 
-/** Vault name, identity chips, four headline numbers and the anchored section links. */
+/** Vault name, identity chips, four headline numbers. */
 export function VaultHero({ vault }: { vault: VaultState }) {
   const { deployment, chain, mode } = useIntatto()
-  const lent = vault.totalAssets > vault.idle ? vault.totalAssets - vault.idle : 0n
   const symbols = deployment?.markets.map((m) => m.symbol) ?? []
   const names = marketList(symbols)
   return (
@@ -39,7 +27,7 @@ export function VaultHero({ vault }: { vault: VaultState }) {
       <div className="grid gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <h1 id="lend-title" className="text-3xl font-semibold tracking-tight">
-            Intatto USDG vault
+            USDG vault
           </h1>
           <Badge variant="secondary">iUSDG</Badge>
         </div>
@@ -50,45 +38,18 @@ export function VaultHero({ vault }: { vault: VaultState }) {
             </span>
           ) : null}
           <span>{mode === "sandbox" ? `${chain.name} (fork of X Layer)` : chain.name}</span>
-          <span>Asset USDG</span>
           <span data-testid="lend-markets">Exposure: {names}</span>
         </div>
         <p className="max-w-2xl text-muted-foreground" data-testid="lend-intro">
-          Deposit USDG and earn the supply rate. Idle USDG can be withdrawn now; what is lent out waits on repayment.
+          Earn variable interest from stock-backed loans on X Layer.
         </p>
       </div>
       <dl className="grid grid-cols-2 gap-x-6 gap-y-4 md:grid-cols-4">
-        <Stat label="Total deposits" value={usdg(vault.totalAssets, 0)} testId="stat-total-deposits" />
-        <Stat label="Idle, withdrawable now" value={usdg(vault.idle, 0)} testId="stat-idle" />
-        <Stat label="Lent out" value={usdg(lent, 0)} sub={`${bpsText(vault.utilizationBps)} utilisation`} />
-        <Stat label="Supply rate" value={bpsText(vault.supplyRateBps)} sub="a year, variable" testId="stat-supply-rate" />
+        <Stat label="Supply APR" value={bpsText(vault.supplyRateBps)} sub="Variable annual rate" testId="stat-supply-rate" />
+        <Stat label="Total deposits" value={dollars(vault.totalAssets)} testId="stat-total-deposits" />
+        <Stat label="Available to withdraw" value={dollars(vault.idle)} sub="Idle USDG in the vault" testId="stat-idle" />
+        <Stat label="Utilisation" value={bpsText(vault.utilizationBps)} sub="Share of deposits lent out" />
       </dl>
     </section>
-  )
-}
-
-/** Anchored links to each section (the page scrolls; nothing is hidden). */
-export function SectionNav() {
-  const [active, setActive] = useState<string>(SECTIONS[0].id)
-  return (
-    <nav aria-label="Vault sections" className="border-b">
-      <ul className="-mb-px flex flex-wrap gap-x-4 gap-y-1">
-        {SECTIONS.map((s) => (
-          <li key={s.id}>
-            <a
-              href={`#${s.id}`}
-              onClick={() => setActive(s.id)}
-              aria-current={active === s.id ? "location" : undefined}
-              className={cn(
-                "inline-block border-b-2 border-transparent py-2 text-sm text-muted-foreground hover:text-foreground",
-                active === s.id && "border-foreground font-medium text-foreground",
-              )}
-            >
-              {s.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
   )
 }

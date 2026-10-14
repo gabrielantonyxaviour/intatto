@@ -8,7 +8,7 @@ import { SessionBadge } from "./badges"
 import { EventSourceNote, useDirectPlace } from "./status-bar"
 import { LoadError, Panel, Section } from "./states"
 import { Tile, TileGrid, TileSkeleton } from "./tiles"
-import { ago, blockNo, clock, pctBps, usd18, usdg, utc } from "./format"
+import { ago, blockNo, pctBps, usd18, usdg, utc } from "./format"
 
 function ratioBps(part: bigint, whole: bigint): bigint | null {
   return whole === 0n ? null : (part * 10_000n) / whole
@@ -32,11 +32,12 @@ export function SummaryView() {
       title={`${market.symbol} summary`}
       description={
         <>
-          Market lens and vault figures are read directly from {place}
-          {latestBlock !== null ? <> at block {blockNo(latestBlock)}</> : null} (chain time {utc(now)}).{" "}
+          <span title={`Read directly from ${place} · block ${latestBlock !== null ? blockNo(latestBlock) : "–"} · chain time ${utc(now)}`}>
+            Contract reads from {place}.
+          </span>{" "}
           {mode === "sandbox"
-            ? "The price is a simulated keeper post from the forked pool, not the live issuer quote."
-            : "The price is the issuer's indicative quote relayed by the keeper. It has no source timestamp; the time shown is when the keeper fetched it."}
+            ? "Prices are simulated keeper posts on this fork."
+            : <span title="The issuer quote has no source timestamp; the time shown is when the keeper fetched it.">Indicative prices are relayed by the keeper.</span>}
         </>
       }
     >
@@ -48,7 +49,7 @@ export function SummaryView() {
               testId="session"
               label="Market session"
               value={<SessionBadge session={s.session} />}
-              sub={<>Posted {ago(s.sessionPostedAt, now)} · period began {utc(s.periodChangedAt)}</>}
+              sub={<span title={`Posted ${utc(s.sessionPostedAt)} · period began ${utc(s.periodChangedAt)}`}>Posted {ago(s.sessionPostedAt, now)} · period began {ago(s.periodChangedAt, now)}</span>}
             />
             <Tile
               testId="max-ltv"
@@ -62,16 +63,16 @@ export function SummaryView() {
               value={usd18(s.priceE18)}
               delta={
                 priceDelta === null ? null : priceDelta === 0n ? (
-                  <span className="text-muted-foreground">Unchanged since the oldest post read ({clock(oldest!.time)} UTC)</span>
+                  <span className="text-muted-foreground" title={utc(oldest!.time)}>Unchanged over the posts read</span>
                 ) : (
-                  <span className={priceDelta < 0n ? "text-destructive" : "text-success-foreground"}>
-                    {priceDelta > 0n ? "▲" : "▼"} {pctBps(priceDelta < 0n ? -priceDelta : priceDelta)} since the oldest post read ({clock(oldest!.time)} UTC)
+                  <span title={utc(oldest!.time)} className={priceDelta < 0n ? "text-destructive" : "text-success-foreground"}>
+                    {priceDelta > 0n ? "▲" : "▼"} {pctBps(priceDelta < 0n ? -priceDelta : priceDelta)} over the posts read
                   </span>
                 )
               }
               sub={
                 <>
-                  Fetched by the keeper {ago(s.fetchedAt, now)} at {clock(s.fetchedAt)} UTC · {s.fresh ? "fresh" : "stale"} ·{" "}
+                  <span title={utc(s.fetchedAt)}>Fetched by the keeper {ago(s.fetchedAt, now)}</span> · {s.fresh ? "fresh" : "stale"} ·{" "}
                   {usd18((s.priceE18 * s.assetsPerShare) / 10n ** 18n)} per wrapper share
                 </>
               }
@@ -108,7 +109,7 @@ export function SummaryView() {
       <Panel title="Across the loans read" description={<>Borrowers are found from Borrow events in the scanned blocks. <EventSourceNote /></>}>
         {s && v ? (
           <div className="grid gap-4">
-            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <dl className="grid grid-cols-2 gap-4 xl:grid-cols-4">
               <Stat label="Open loans" value={openLoans === undefined ? "–" : openLoans.toLocaleString("en-US")} />
               <Stat label="Borrowed" value={usdg(s.totalDebt)} />
               <Stat label="Collateral value" value={usdg(s.totalCollateralValue)} />

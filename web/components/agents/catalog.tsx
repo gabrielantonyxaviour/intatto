@@ -1,68 +1,53 @@
 "use client"
 
 import Link from "next/link"
+import { ArrowUpRightIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { KeeperAddress } from "./keeper-address"
-import {
-  KEEPER_IDENTITY,
-  KEEPER_ROLE,
-  LISTING_STATUS,
-  PRICE_LABEL,
-  SERVICE_DESCRIPTION,
-  SERVICE_DOMAIN,
-  SERVICE_NAME,
-  VERIFIED_ON,
-} from "./content"
+import { ApiExample } from "./api-example"
+import { TryIt } from "./try-it"
 import { ChainNotices } from "./notices"
+import { KEEPER_IDENTITY, KEEPER_ROLE, LISTING_STATUS, recordCall, VERIFIED_ON } from "./content"
 
 export function AgentsCatalog() {
   return (
-    <div className="grid gap-6">
-      <header className="grid gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Agents</h1>
-        <p className="max-w-xl text-sm text-muted-foreground">
-          Ask what a wallet can borrow, or see the keeper that posts Intatto&apos;s onchain state.
-        </p>
+    <div className="mx-auto grid w-full max-w-5xl min-w-0 gap-10">
+      <header className="grid gap-2">
+        <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">Build on Intatto</p>
+        <h1 className="text-3xl font-semibold tracking-tight">Developers</h1>
+        <p className="text-muted-foreground">Read Intatto from your agent or app.</p>
       </header>
-
       <ChainNotices />
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Link href="/agents/credit" className="hover:underline">
-                {SERVICE_NAME}
-              </Link>
-            </CardTitle>
-            <CardDescription>{SERVICE_DESCRIPTION}</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            <p className="font-mono text-sm break-all">{SERVICE_DOMAIN}</p>
-            <p className="text-sm">
-              {LISTING_STATUS}. {PRICE_LABEL}. {VERIFIED_ON}.
-            </p>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <Badge variant="success-light">{PRICE_LABEL}</Badge>
-              <Button asChild>
-                <Link href="/agents/credit">Try it</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Keeper</CardTitle>
-            <CardDescription>{KEEPER_ROLE}</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            <KeeperAddress />
-            <Badge variant="outline">{KEEPER_IDENTITY}</Badge>
-          </CardContent>
-        </Card>
-      </div>
+      <section className="grid min-w-0 gap-6" aria-labelledby="credit-api-title">
+        <div className="grid gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 id="credit-api-title" className="text-xl font-semibold tracking-tight">Credit and health API</h2>
+            <Badge variant="secondary">Free</Badge>
+          </div>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            Borrowing capacity, market session and liquidation distance in one read-only call.
+          </p>
+          <Badge variant="outline" className="max-w-full whitespace-normal" title={`${VERIFIED_ON}. Registration is not listing approval.`}>
+            {LISTING_STATUS}
+          </Badge>
+        </div>
+        <ApiExample />
+        <div className="min-w-0 rounded-xl border p-4 sm:p-6">
+          <TryIt onCall={(entry) => { recordCall(entry) }} />
+        </div>
+        <Link href="/agents/credit" className="inline-flex items-center gap-1 justify-self-start text-sm underline underline-offset-4">
+          Open full reference <ArrowUpRightIcon aria-hidden className="size-3.5" />
+        </Link>
+      </section>
+      <section className="grid gap-4 border-t pt-8" aria-labelledby="keeper-title">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 id="keeper-title" className="text-xl font-semibold tracking-tight">Keeper</h2>
+          <Badge variant="outline">{KEEPER_IDENTITY}</Badge>
+        </div>
+        <p className="max-w-2xl text-sm text-muted-foreground">{KEEPER_ROLE}</p>
+        <KeeperAddress />
+        <Link href="/risk#keeper" className="justify-self-start text-sm underline underline-offset-4">View keeper log</Link>
+      </section>
     </div>
   )
 }

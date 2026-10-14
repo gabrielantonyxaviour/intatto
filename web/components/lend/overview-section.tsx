@@ -33,10 +33,10 @@ export function OverviewSection({ vault }: { vault: VaultState }) {
           {sharePriceText(vault.sharePrice)}
         </SummaryRow>
         <SummaryRow label="Share token" className="border-b pb-3">
-          {SHARE_SYMBOL} (ERC-4626, 6 decimals)
+          <span title="ERC-4626 vault shares with 6 decimals">{SHARE_SYMBOL}</span>
         </SummaryRow>
         <SummaryRow label="Shares outstanding" className="border-b pb-3">
-          {amount6(vault.totalSupply)} {SHARE_SYMBOL}
+          {amount6(vault.totalSupply, 4)} {SHARE_SYMBOL}
         </SummaryRow>
         <SummaryRow label="Withdrawals" className="border-b pb-3">
           Any time, up to the idle USDG
@@ -70,15 +70,15 @@ export function PositionSection({
           <Skeleton className="h-5 w-3/4" />
         </div>
       ) : (
-        <dl className="grid gap-x-8 gap-y-3 md:grid-cols-2">
+        <dl className="grid gap-3 text-sm">
           <SummaryRow label="Your shares" className="border-b pb-3" testId="position-shares">
-            <TokenAmount value={account.vaultShares} decimals={USDG_DECIMALS} maxFractionDigits={6} symbol={SHARE_SYMBOL} />
+            <TokenAmount value={account.vaultShares} decimals={USDG_DECIMALS} maxFractionDigits={4} symbol={SHARE_SYMBOL} />
           </SummaryRow>
           <SummaryRow label="Worth now" className="border-b pb-3" testId="position-value">
             {usdg(account.vaultAssets, 6)}
           </SummaryRow>
           <SummaryRow label="Share of the vault" className="border-b pb-3">
-            {ratioText(account.vaultShares, vault.totalSupply, 4)}
+            {ratioText(account.vaultShares, vault.totalSupply, 2)}
           </SummaryRow>
           <SummaryRow label="USDG in your wallet" className="border-b pb-3" testId="position-wallet">
             {usdg(account.walletUsdg)}

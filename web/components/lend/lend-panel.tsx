@@ -16,12 +16,14 @@ export function LendPanel({
   accountError,
   termsAccepted,
   onOpenPrimer,
+  onShowRisk,
 }: {
   vault: VaultState
   account: AccountState | undefined
   accountError: boolean
   termsAccepted: boolean
-  onOpenPrimer: () => void
+  onOpenPrimer: (continueDeposit?: () => void) => void
+  onShowRisk: () => void
 }) {
   const { chain } = useIntatto()
   const { isConnected, chainId } = useAccount()
@@ -55,7 +57,7 @@ export function LendPanel({
             <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
           </TabsList>
           <TabsContent value="deposit" className="pt-2">
-            <DepositForm vault={vault} account={account} termsAccepted={termsAccepted} onOpenPrimer={onOpenPrimer} />
+            <DepositForm vault={vault} account={account} termsAccepted={termsAccepted} onOpenPrimer={onOpenPrimer} onShowRisk={onShowRisk} />
           </TabsContent>
           <TabsContent value="withdraw" className="pt-2">
             <WithdrawForm vault={vault} account={account} />

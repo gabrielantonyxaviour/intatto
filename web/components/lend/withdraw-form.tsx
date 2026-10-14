@@ -87,15 +87,14 @@ export function WithdrawForm({ vault, account }: { vault: VaultState; account: A
           setValue(v)
           setAmount(a)
         }}
-        balance={account ? deposit : undefined}
-        balanceLabel="Your deposit"
+        footer={account ? `Your deposit ${usdg(deposit)}` : undefined}
         max={account ? max : undefined}
         tooLargeMessage={
           overDeposit ? `More than your deposit of ${usdg(deposit)}.` : `Only ${idleText} is idle; the rest is lent out.`
         }
         name="withdraw-amount"
       />
-      <dl className="grid gap-2 rounded-lg border p-3" aria-label="Withdrawal summary">
+      <dl className="grid gap-3 py-2" aria-label="Withdrawal summary">
         <ValueChange
           label="Your deposit"
           before={deposit}
@@ -109,7 +108,7 @@ export function WithdrawForm({ vault, account }: { vault: VaultState; account: A
               <TokenAmount
                 value={all || (done !== null && done.amount === deposit) ? shares : sharesFor(shown, vault)}
                 decimals={USDG_DECIMALS}
-                maxFractionDigits={6}
+                maxFractionDigits={4}
                 symbol={SHARE_SYMBOL}
               />
             </>

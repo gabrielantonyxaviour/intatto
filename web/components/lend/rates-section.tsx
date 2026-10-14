@@ -105,8 +105,8 @@ export function RatesSection({ vault }: { vault: VaultState }) {
           </div>
         ))}
       </dl>
-      <Button type="button" variant="outline" aria-expanded={curve} data-testid="rate-curve-toggle" onClick={() => setCurve((v) => !v)}>
-        {curve ? "Hide rate curve" : "Rate curve"}
+      <Button type="button" variant="link" size="sm" className="justify-self-start px-0" aria-expanded={curve} data-testid="rate-curve-toggle" onClick={() => setCurve((v) => !v)}>
+        {curve ? "Hide details" : "Details"}
       </Button>
       {curve && model && reserve !== undefined ? (
         <>

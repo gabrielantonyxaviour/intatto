@@ -1,11 +1,20 @@
 /** Formatting for the risk console. Every number carries its unit; bigints never pass through a float to display. */
 import { formatTokenAmount, formatUtc } from "@/components/ui/web3/format"
 
-/** USDG base units (6 dec) → "1,234.56 USDG". */
-export const usdg = (v: bigint, digits = 2) => `${formatTokenAmount(v, 6, { maxFractionDigits: digits, minFractionDigits: digits })} USDG`
+/** Round a display amount without changing underlying transaction precision. */
+function monetary(v: bigint, decimals: number, digits = 2): string {
+  const step = 10n ** BigInt(decimals - digits)
+  const rounded = ((v + (v < 0n ? -step / 2n : step / 2n)) / step) * step
+  return formatTokenAmount(rounded === 0n && v !== 0n ? v : rounded, decimals, {
+    maxFractionDigits: digits, minFractionDigits: digits,
+  })
+}
 
-/** An 18-decimal USD value → "$181.23" (truncated, never rounded up). */
-export const usd18 = (v: bigint, digits = 2) => `$${formatTokenAmount(v, 18, { maxFractionDigits: digits, minFractionDigits: digits })}`
+/** USDG base units (6 dec) → "1,234.56 USDG". */
+export const usdg = (v: bigint, _digits = 2) => `${monetary(v, 6)} USDG`
+
+/** An 18-decimal USD value → "$181.23". */
+export const usd18 = (v: bigint, digits = 2) => `$${monetary(v, 18, digits)}`
 
 /** A liquidator price: USDG (6 dec) per whole wrapper share → "181.23 USDG/share". */
 export const perShare = (v: bigint) => `${formatTokenAmount(v, 6, { maxFractionDigits: 2, minFractionDigits: 2 })} USDG/share`
@@ -32,9 +41,9 @@ export function duration(seconds: number | bigint): string {
   const m = Math.floor(s / 60)
   if (m < 60) return `${m} min`
   const h = Math.floor(m / 60)
-  if (h < 48) return m % 60 ? `${h} h ${m % 60} min` : `${h} h`
+  if (h < 24) return `${h} h`
   const d = Math.floor(h / 24)
-  return h % 24 ? `${d} d ${h % 24} h` : `${d} d`
+  return `${d} d`
 }
 
 /** "12 min ago" against chain time; "–" when either side is unknown. */

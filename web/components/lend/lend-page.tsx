@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Link from "next/link"
 import { useAccount } from "wagmi"
 import { RotateCwIcon, TriangleAlertIcon } from "lucide-react"
@@ -9,16 +9,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { AllocationSection } from "./allocation-section"
-import { DeficitsSection } from "./deficits-section"
 import { LendPanel } from "./lend-panel"
-import { OverviewSection, PositionSection } from "./overview-section"
+import { PositionSection } from "./overview-section"
 import { PrimerDialog } from "./primer-dialog"
-import { RatesSection } from "./rates-section"
-import { RiskSection } from "./risk-section"
 import { useLendMarkets } from "./use-lend-reads"
 import { useLendTerms } from "./use-lend-terms"
-import { SectionNav, VaultHero } from "./vault-hero"
+import { VaultHero } from "./vault-hero"
+import { VaultTabs } from "./vault-tabs"
 
 function NotDeployed() {
   return (
@@ -39,7 +36,7 @@ function NotDeployed() {
 
 function LoadingState() {
   return (
-    <div data-testid="lend-loading" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+    <div data-testid="lend-loading" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_23rem]">
       <div className="grid content-start gap-5">
         <Skeleton className="h-9 w-72 max-w-full" />
         <Skeleton className="h-5 w-full max-w-lg" />
@@ -73,7 +70,7 @@ function ErrorState({ onRetry, message }: { onRetry: () => void; message: string
   )
 }
 
-/** The lend screen: primer → vault page with deposit/withdraw → allocation → rates → risk → deficits. */
+/** Vault overview with an on-demand primer before the first deposit review. */
 export function LendPage() {
   const { deployment } = useIntatto()
   if (!deployment) return <NotDeployed />
@@ -83,20 +80,30 @@ export function LendPage() {
 function LendScreen() {
   const { address } = useAccount()
   const terms = useLendTerms()
-  const [primer, setPrimer] = useState<"auto" | "open" | "closed">("auto")
+  const [primerOpen, setPrimerOpen] = useState(false)
+  const [section, setSection] = useState("overview")
+  const afterAccept = useRef<(() => void) | null>(null)
   const vault = useVaultState()
   const markets = useLendMarkets()
   const account = useAccountState(address)
-  const primerOpen = primer === "open" || (primer === "auto" && !terms.accepted)
+  function openPrimer(continueDeposit?: () => void) {
+    afterAccept.current = continueDeposit ?? null
+    setPrimerOpen(true)
+  }
 
   const dialog = (
     <PrimerDialog
       open={primerOpen}
-      onOpenChange={(open) => setPrimer(open ? "open" : "closed")}
+      onOpenChange={(open) => {
+        setPrimerOpen(open)
+        if (!open) afterAccept.current = null
+      }}
       accepted={terms.accepted}
       onAccept={() => {
         terms.accept()
-        setPrimer("closed")
+        setPrimerOpen(false)
+        afterAccept.current?.()
+        afterAccept.current = null
       }}
     />
   )
@@ -121,34 +128,30 @@ function LendScreen() {
     <>
       {dialog}
       {v && list ? (
-        <div data-testid="lend-page" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          <div className="grid min-w-0 grid-cols-1 content-start gap-6 lg:col-start-1">
+        <div data-testid="lend-page" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_23rem]">
+          <div className="grid min-w-0 grid-cols-1 content-start gap-6 lg:col-span-2">
             <VaultHero vault={v} />
             {vault.isRefetchError ? (
               <p className="text-xs text-destructive">Showing the last numbers read; the latest refresh failed.</p>
             ) : null}
           </div>
-          <aside className="min-w-0 lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
+          <aside className="grid min-w-0 gap-5 lg:sticky lg:top-20 lg:col-start-2 lg:row-start-2 lg:self-start">
             <LendPanel
               vault={v}
               account={account.data}
               accountError={account.isError}
               termsAccepted={terms.accepted}
-              onOpenPrimer={() => setPrimer("open")}
+              onOpenPrimer={openPrimer}
+              onShowRisk={() => { setSection("risk"); document.getElementById("vault-sections")?.scrollIntoView({ behavior: "smooth", block: "start" }) }}
             />
-            <Button variant="link" size="sm" className="mt-1 px-0" onClick={() => setPrimer("open")}>
+            <Button variant="link" size="sm" className="justify-self-center px-0" onClick={() => openPrimer()}>
               How lending works
             </Button>
+            <div className="px-1">
+              <PositionSection vault={v} account={account.data} loading={account.isPending && Boolean(address)} />
+            </div>
           </aside>
-          <div className="grid min-w-0 grid-cols-1 content-start gap-10 lg:col-start-1">
-            <SectionNav />
-            <OverviewSection vault={v} />
-            <AllocationSection vault={v} markets={list} />
-            <RatesSection vault={v} />
-            <RiskSection vault={v} markets={list} />
-            <DeficitsSection vault={v} />
-            <PositionSection vault={v} account={account.data} loading={account.isPending && Boolean(address)} />
-          </div>
+          <VaultTabs vault={v} markets={list} value={section} onValueChange={setSection} />
         </div>
       ) : (
         <LoadingState />
