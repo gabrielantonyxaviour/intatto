@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
+import { SandboxPageHeader } from "@/components/sandbox/page-header"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -38,9 +39,11 @@ export function NoSandbox({ invalid }: { invalid?: string | null }) {
   }
 
   return (
+    <div className="mx-auto grid w-full max-w-4xl gap-6">
+      <SandboxPageHeader title="Fork proof" description="Compare this fork’s history, code and state with X Layer." />
     <Card data-slot="no-sandbox" className="gap-4">
       <CardHeader className="gap-1.5">
-        <h1 className="text-xl font-semibold">Fork proof</h1>
+        <h2 className="text-lg font-semibold">Start with your own fork</h2>
         <CardDescription>
           Start a sandbox session to compare its block history, code and state with X Layer.
         </CardDescription>
@@ -52,6 +55,7 @@ export function NoSandbox({ invalid }: { invalid?: string | null }) {
         {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
         <details className="min-w-0">
           <summary className="cursor-pointer text-sm font-medium">Check a custom RPC</summary>
+          <p className="mt-2 text-xs text-muted-foreground">RPC requests run from your browser. A custom RPC is compared against X Layer; it does not start a funded sandbox session.</p>
           <form onSubmit={submit} className="mt-3 grid max-w-xl gap-3" noValidate>
             <div className="grid gap-1.5">
               <Label htmlFor="proof-rpc">RPC URL</Label>
@@ -68,5 +72,6 @@ export function NoSandbox({ invalid }: { invalid?: string | null }) {
         </details>
       </CardContent>
     </Card>
+    </div>
   )
 }

@@ -7,10 +7,10 @@ import { SANDBOX_CHAIN_ID, XLAYER_CHAIN_ID } from "@intatto/config/xlayer"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { CopyButton, EvidenceSheet } from "@/components/ui/ix"
+import { CopyButton, DefinitionPopover, EvidenceSheet } from "@/components/ui/ix"
 import { formatNumber, formatUtc } from "@/components/ui/web3/format"
 import { probeAdminMethod } from "./api"
-import { REFUSED_METHODS, SEED_LABEL } from "./copy"
+import { REFUSED_METHODS } from "./copy"
 
 type ProbeState = { status: "idle" } | { status: "running" } | { status: "done"; refused: boolean; code?: number; message: string }
 
@@ -69,22 +69,20 @@ export type ForkFactsProps = {
 /** Fork block, chain id, seed and price source. These stay on the page, not inside Session details. */
 export function CompactFacts({ chainId, forkBlock, loading, priceNote }: ForkFactsProps) {
   return (
-    <div className="grid gap-2">
-      <dl className="grid gap-3 sm:grid-cols-3">
-        <Fact term="Parent network">X Layer mainnet · {XLAYER_CHAIN_ID}</Fact>
-        <Fact term="Fork block">
-          {loading ? <Skeleton className="h-4 w-28" /> : forkBlock !== undefined ? <span className="font-mono tabular-nums" data-testid="identity-fork-block">{formatNumber(forkBlock)}</span> : <span data-testid="identity-fork-block">–</span>}
-        </Fact>
-        <Fact term="Sandbox chain id">
-          {loading ? <Skeleton className="h-4 w-24" /> : <span className="font-mono" data-testid="identity-chain-id">{chainId ?? SANDBOX_CHAIN_ID}</span>}
-        </Fact>
-      </dl>
-      <p className="text-sm text-muted-foreground" data-testid="seed-snapshot">
-        {SEED_LABEL}
-      </p>
-      <p className="text-sm" data-testid="sandbox-price-source">
-        {priceNote}
-      </p>
+    <div className="grid gap-2 text-xs text-muted-foreground">
+      <p data-testid="seed-snapshot">Seeded simulation: funding, reserves and limits are chosen amounts, not mainnet activity.</p>
+      <div className="flex items-center gap-1">
+        <p data-testid="sandbox-price-source">Prices are simulated and relayed by the keeper.</p>
+        <DefinitionPopover term="Fork prices"><p>{priceNote}</p></DefinitionPopover>
+      </div>
+      <details>
+        <summary className="w-fit cursor-pointer underline-offset-4 hover:underline">Fork identity</summary>
+        <dl className="mt-3 grid gap-3 sm:grid-cols-3">
+          <Fact term="Parent network">X Layer mainnet · {XLAYER_CHAIN_ID}</Fact>
+          <Fact term="Fork block">{loading ? <Skeleton className="h-4 w-28" /> : <span className="font-mono tabular-nums" data-testid="identity-fork-block">{forkBlock !== undefined ? formatNumber(forkBlock) : "–"}</span>}</Fact>
+          <Fact term="Sandbox chain id">{loading ? <Skeleton className="h-4 w-24" /> : <span className="font-mono" data-testid="identity-chain-id">{chainId ?? SANDBOX_CHAIN_ID}</span>}</Fact>
+        </dl>
+      </details>
     </div>
   )
 }
@@ -150,23 +148,25 @@ export function SessionDetailsBody({ chainId, forkBlock, snapshotCreatedAt, mark
   )
 }
 
-export function SessionDetailsSheet(props: ForkFactsProps) {
+export function SessionDetailsSheet(props: ForkFactsProps & { triggerLabel?: string }) {
   return (
+    <div className="[&>button]:border-transparent [&>button]:bg-transparent [&>button]:px-0 [&>button]:shadow-none">
     <EvidenceSheet
       title="Session details"
       summary="Chain configuration, public RPC and sandbox API. The burner key stays in this browser and is not shown here."
       state="ready"
-      triggerLabel="Session details"
+      triggerLabel={props.triggerLabel ?? "Session details"}
       testId="session-details"
     >
       <SessionDetailsBody {...props} />
     </EvidenceSheet>
+    </div>
   )
 }
 
 export function ProveForkLink() {
   return (
-    <Button asChild variant="outline">
+    <Button asChild variant="link" className="h-auto whitespace-normal px-0 text-left">
       <Link href="/sandbox/proof">Prove this is a real fork</Link>
     </Button>
   )

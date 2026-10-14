@@ -7,11 +7,19 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { EvidenceSheet } from "@/components/ui/ix"
 import { ExplorerLink } from "@/components/ui/web3"
-import { formatUtc } from "@/components/ui/web3/format"
 import type { LedgerEntry } from "./api"
+import { RelativeTime } from "./display"
 import { KIND_LABEL } from "./copy"
 
 type Source = { url?: unknown; retrievedAt?: unknown; sha256?: unknown }
+
+function previewSummary(summary: string) {
+  const amount = (value: string) => Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return summary
+    .replace(/0x[a-fA-F0-9]{40}/g, (address) => `${address.slice(0, 6)}…${address.slice(-4)}`)
+    .replace(/\$(\d+(?:\.\d+)?)/g, (_, value: string) => `$${amount(value)}`)
+    .replace(/(\d+(?:\.\d+)?) USDG/g, (_, value: string) => `${amount(value)} USDG`)
+}
 
 function shortHash(v: string) {
   return v.length > 21 ? `${v.slice(0, 10)}…${v.slice(-6)}` : v
@@ -60,7 +68,7 @@ function Row({ entry }: { entry: LedgerEntry }) {
           {KIND_LABEL[entry.kind] ?? entry.kind}
         </Badge>
         {fromSnapshot ? <Badge variant="secondary">snapshot</Badge> : null}
-        <span className="text-xs text-muted-foreground tabular-nums">{entry.chainTime > 0 ? formatUtc(entry.chainTime) : "no chain time"}</span>
+        <span className="text-xs text-muted-foreground tabular-nums"><RelativeTime timestamp={Date.parse(entry.at) / 1000} /></span>
       </div>
       <div role="cell" className="min-w-0 text-sm">
         <p data-testid="ledger-summary" className="break-words">
@@ -85,7 +93,7 @@ export function LedgerPanel({ ledger, asOf }: { ledger: UseQueryResult<LedgerEnt
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div className="grid gap-1">
           <h2 className="text-base font-medium">Recent activity</h2>
-          <p className="text-sm text-muted-foreground">A preview. The ledger is the full list, including seeded funding and replay labels.</p>
+          <p className="text-sm text-muted-foreground">Latest calls on your fork.</p>
         </div>
         <EvidenceSheet
           title="Activity ledger"
@@ -135,7 +143,7 @@ export function LedgerPanel({ ledger, asOf }: { ledger: UseQueryResult<LedgerEnt
           {preview.map((e) => (
             <li key={e.at + e.summary} className="flex min-w-0 flex-wrap items-baseline gap-2">
               <Badge variant="outline">{KIND_LABEL[e.kind] ?? e.kind}</Badge>
-              <span className="min-w-0 break-words">{e.summary}</span>
+              <span className="min-w-0 break-words">{previewSummary(e.summary)}</span>
             </li>
           ))}
         </ul>

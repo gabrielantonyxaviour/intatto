@@ -9,8 +9,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { CopyButton } from "@/components/ui/ix"
-import { formatUtc } from "@/components/ui/web3/format"
+import { formatTokenAmount } from "@/components/ui/web3/format"
+import { RelativeTime, ShortHash } from "../display"
 import { useIntatto } from "@/lib/chain"
 import { decodeCall, decodeLogs, knownAddresses, nameOf } from "./decode"
 
@@ -18,7 +18,7 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="grid gap-1 border-b py-3 last:border-b-0 sm:grid-cols-[180px_minmax(0,1fr)] sm:gap-4">
       <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="min-w-0 break-all text-sm">{children}</dd>
+      <dd className="min-w-0 break-words text-sm">{children}</dd>
     </div>
   )
 }
@@ -28,7 +28,7 @@ function Addr({ value, name }: { value: string | null | undefined; name: string 
   return (
     <span className="grid gap-0.5">
       {name ? <span className="font-medium">{name}</span> : null}
-      <span className="font-mono text-xs text-muted-foreground">{value}</span>
+      <ShortHash value={value} name="address" />
     </span>
   )
 }
@@ -58,9 +58,9 @@ export function TxView({ hash }: { hash: string }) {
     return (
       <Alert variant="info">
         <AlertTitle>No sandbox session in this browser</AlertTitle>
-        <AlertDescription>
+        <AlertDescription><p>
           This explorer reads the fork your sandbox session runs. <Link className="underline underline-offset-4" href="/sandbox">Start a session</Link> first.
-        </AlertDescription>
+        </p></AlertDescription>
       </Alert>
     )
   }
@@ -93,8 +93,7 @@ export function TxView({ hash }: { hash: string }) {
             {call ? <Badge variant="outline" className="font-mono">{call.fn}()</Badge> : null}
           </div>
           <CardTitle className="flex flex-wrap items-center gap-2 font-mono text-base break-all">
-            {tx.hash}
-            <CopyButton name="transaction hash" value={tx.hash} />
+            <ShortHash value={tx.hash} name="transaction hash" />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -105,13 +104,13 @@ export function TxView({ hash }: { hash: string }) {
               </Link>
               <span className="text-muted-foreground"> · {forked} blocks after the fork of X Layer block {sandbox.forkBlock.toLocaleString("en-US")}</span>
             </Row>
-            <Row label="Block hash"><span className="font-mono text-xs">{block.hash}</span></Row>
-            <Row label="Parent hash"><span className="font-mono text-xs">{block.parentHash}</span></Row>
-            <Row label="Chain time">{formatUtc(block.timestamp)}</Row>
+            <Row label="Block hash">{block.hash ? <ShortHash value={block.hash} /> : "Pending"}</Row>
+            <Row label="Parent hash"><ShortHash value={block.parentHash} /></Row>
+            <Row label="Chain time"><RelativeTime timestamp={block.timestamp} /></Row>
             <Row label="From"><Addr value={tx.from} name={nameOf(known, tx.from)} /></Row>
             <Row label="To"><Addr value={tx.to} name={nameOf(known, tx.to)} /></Row>
-            <Row label="Value">{formatEther(tx.value)} OKB</Row>
-            <Row label="Gas used">{receipt.gasUsed.toLocaleString("en-US")} at {formatGwei(receipt.effectiveGasPrice)} gwei</Row>
+            <Row label="Value"><span title={`${formatEther(tx.value)} OKB`} className="tabular-nums">{formatTokenAmount(tx.value, 18, { maxFractionDigits: 4 })} OKB</span></Row>
+            <Row label="Gas used">{receipt.gasUsed.toLocaleString("en-US")} at <span title={`${formatGwei(receipt.effectiveGasPrice)} gwei`}>{formatTokenAmount(receipt.effectiveGasPrice, 9, { maxFractionDigits: 4 })} gwei</span></Row>
             <Row label="Nonce · position">{tx.nonce} · index {receipt.transactionIndex} in its block</Row>
             <Row label="Chain">Sandbox chain {sandbox.chainId}, a fork of X Layer mainnet (196)</Row>
           </dl>
@@ -122,9 +121,9 @@ export function TxView({ hash }: { hash: string }) {
         <Card>
           <CardHeader><CardTitle className="text-base">Call: <span className="font-mono">{call.fn}</span></CardTitle></CardHeader>
           <CardContent>
-            <dl>{call.args.map((a) => <Row key={a.name} label={a.name}><span className="font-mono">{a.value}</span></Row>)}</dl>
-            <details className="mt-3 text-xs">
-              <summary className="cursor-pointer text-muted-foreground">Raw input</summary>
+            <details className="text-sm">
+              <summary className="cursor-pointer text-muted-foreground">Decoded arguments & raw input</summary>
+              <dl>{call.args.map((a) => <Row key={a.name} label={a.name}><span className="break-all font-mono">{a.value}</span></Row>)}</dl>
               <p className="mt-2 font-mono break-all">{tx.input}</p>
             </details>
           </CardContent>
@@ -142,8 +141,10 @@ export function TxView({ hash }: { hash: string }) {
                 <span className="font-medium">{l.event ?? "Unknown event"}</span>
                 <span className="text-sm text-muted-foreground">{l.contract ?? l.address}</span>
               </div>
+              <details className="min-w-0">
+                <summary className="cursor-pointer text-xs text-muted-foreground">Event values</summary>
               {l.args.length ? (
-                <dl className="grid gap-1 text-xs">
+                <dl className="mt-2 grid gap-1 text-xs">
                   {l.args.map((a) => (
                     <div key={a.name} className="grid gap-x-3 sm:grid-cols-[160px_minmax(0,1fr)]">
                       <dt className="text-muted-foreground">{a.name}</dt>
@@ -154,6 +155,7 @@ export function TxView({ hash }: { hash: string }) {
               ) : (
                 <p className="font-mono text-xs break-all text-muted-foreground">{l.topics.join(" ")} {l.data}</p>
               )}
+              </details>
             </div>
           ))}
         </CardContent>

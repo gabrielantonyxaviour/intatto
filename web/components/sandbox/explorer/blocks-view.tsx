@@ -8,8 +8,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { formatUtc, shortAddress } from "@/components/ui/web3/format"
+import { shortAddress } from "@/components/ui/web3/format"
 import { useIntatto } from "@/lib/chain"
+import { RelativeTime, ShortHash } from "../display"
 import { decodeCall, knownAddresses, nameOf } from "./decode"
 
 const SHOWN = 30
@@ -38,9 +39,9 @@ export function BlocksView() {
     return (
       <Alert variant="info">
         <AlertTitle>No sandbox session in this browser</AlertTitle>
-        <AlertDescription>
+        <AlertDescription><p>
           <Link className="underline underline-offset-4" href="/sandbox">Start a session</Link> to explore its chain.
-        </AlertDescription>
+        </p></AlertDescription>
       </Alert>
     )
   }
@@ -55,14 +56,14 @@ export function BlocksView() {
           <Card key={b.hash} id={`block-${b.number}`} className="scroll-mt-24 target:ring-2 target:ring-primary">
             <CardContent className="grid gap-2 py-4">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="font-mono text-base font-semibold">#{b.number?.toString()}</span>
-                <span className="text-sm text-muted-foreground">{formatUtc(b.timestamp)}</span>
+                <span className="text-base font-semibold tabular-nums">#{b.number?.toLocaleString("en-US")}</span>
+                <span className="text-sm text-muted-foreground"><RelativeTime timestamp={b.timestamp} now={Number(q.data[0]?.timestamp)} /></span>
                 <span className="text-sm text-muted-foreground">{b.transactions.length} tx</span>
                 {isFork ? <Badge variant="info-light">Forked from X Layer mainnet</Badge> : null}
               </div>
               <dl className="grid gap-1 text-xs">
-                <div className="grid gap-x-3 sm:grid-cols-[96px_minmax(0,1fr)]"><dt className="text-muted-foreground">Hash</dt><dd className="font-mono break-all">{b.hash}</dd></div>
-                <div className="grid gap-x-3 sm:grid-cols-[96px_minmax(0,1fr)]"><dt className="text-muted-foreground">Parent</dt><dd className="font-mono break-all">{b.parentHash}</dd></div>
+                <div className="grid gap-x-3 sm:grid-cols-[96px_minmax(0,1fr)]"><dt className="text-muted-foreground">Hash</dt><dd className="min-w-0">{b.hash ? <ShortHash value={b.hash} /> : "Pending"}</dd></div>
+                <div className="grid gap-x-3 sm:grid-cols-[96px_minmax(0,1fr)]"><dt className="text-muted-foreground">Parent</dt><dd className="min-w-0"><ShortHash value={b.parentHash} name="parent hash" /></dd></div>
               </dl>
               {isFork ? (
                 <a
@@ -85,7 +86,7 @@ export function BlocksView() {
                           {shortAddress(tx.hash, 8)}
                         </Link>
                         <span className="font-mono text-xs">{call ? `${call.fn}()` : "call"}</span>
-                        <span className="text-muted-foreground">
+                        <span className="min-w-0 break-words text-muted-foreground">
                           {nameOf(known, tx.from) ?? shortAddress(tx.from)} → {nameOf(known, tx.to) ?? (tx.to ? shortAddress(tx.to) : "new contract")}
                         </span>
                       </li>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { SandboxPageHeader } from "@/components/sandbox/page-header"
 import { TxView } from "@/components/sandbox/explorer/tx-view"
 
 export const metadata: Metadata = {
@@ -11,11 +12,9 @@ export default async function Page({ params }: { params: Promise<{ hash: string 
   const { hash } = await params
   return (
     <div className="grid gap-6">
-      <header className="grid gap-1">
-        <Link href="/sandbox/explorer" className="text-sm text-muted-foreground underline-offset-4 hover:underline">Sandbox explorer</Link>
-        <h1 className="text-2xl font-semibold">Transaction</h1>
-        <p className="text-muted-foreground">Read from this session&apos;s fork of X Layer mainnet, the same chain the app signs on.</p>
-      </header>
+      <SandboxPageHeader title="Transaction" description="Read directly from your sandbox fork’s RPC.">
+        <Link href="/sandbox/explorer" className="text-sm text-muted-foreground underline-offset-4 hover:underline">All blocks</Link>
+      </SandboxPageHeader>
       <TxView hash={hash} />
     </div>
   )

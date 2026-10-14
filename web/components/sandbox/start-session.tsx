@@ -49,14 +49,19 @@ export function StartSession({ base, health, priceNote }: { base: string | null;
     startMethod: START_METHOD,
   }
   return (
-    <Card data-testid="start-session">
+    <Card data-testid="start-session" className="mx-auto w-full max-w-3xl gap-6 py-8 sm:py-10">
       <CardHeader>
         <CardTitle>
-          <h2>Start a session</h2>
+          <h2 className="max-w-lg text-2xl leading-tight tracking-tight sm:text-4xl">Try Intatto on a mainnet fork</h2>
         </CardTitle>
-        <CardDescription>A fork of X Layer mainnet with a throwaway wallet.</CardDescription>
+        <CardDescription>Explore the lending market with test funds. No real money moves.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
+        <ul className="mb-2 grid gap-3 text-sm leading-relaxed">
+          <li className="flex gap-3"><span aria-hidden>01</span><span>A funded test wallet: <strong className="font-medium tabular-nums">10 NVDAx, 2 SPYx, 1,000.00 USDG and 0.1 OKB.</strong></span></li>
+          <li className="flex gap-3"><span aria-hidden>02</span><span>Borrow against stocks, then jump to the weekend to see limits tighten.</span></li>
+          <li className="flex gap-3"><span aria-hidden>03</span><span>Replay price gaps and see how the reserve protects lenders.</span></li>
+        </ul>
         <div className="flex flex-wrap items-center gap-3">
           <Button onClick={() => start.mutate()} disabled={!ready || start.isPending} aria-busy={start.isPending}>
             {start.isPending ? <Loader2Icon aria-hidden className="animate-spin" /> : <PlayIcon aria-hidden />}
@@ -80,7 +85,7 @@ export function StartSession({ base, health, priceNote }: { base: string | null;
         <CompactFacts {...facts} />
       </CardContent>
       <CardFooter className="flex flex-wrap items-center gap-2">
-        <SessionDetailsSheet {...facts} />
+        <SessionDetailsSheet {...facts} triggerLabel="How this fork is built" />
         <ProveForkLink />
       </CardFooter>
     </Card>

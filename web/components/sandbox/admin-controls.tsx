@@ -6,9 +6,7 @@ import { ArrowRightIcon, CircleAlertIcon, CircleCheckIcon, ClockIcon, Loader2Ico
 import type { UseMutationResult } from "@tanstack/react-query"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatUtc } from "@/components/ui/web3/format"
-import { EvidenceSheet } from "@/components/ui/ix"
+import { DefinitionPopover } from "@/components/ui/ix"
 import { requestKey, type ActionResult, type AdminRequest } from "./api"
 import { RESET, requestLabel, WARPS } from "./copy"
 
@@ -17,10 +15,10 @@ export type Admin = UseMutationResult<ActionResult, Error, AdminRequest>
 /** Which control is running right now (its request key), or null. */
 export const runningKey = (admin: Admin) => (admin.isPending && admin.variables ? requestKey(admin.variables) : null)
 
-export function ActionButton({ admin, request, label, busy, variant = "default" }: { admin: Admin; request: AdminRequest; label: string; busy: string; variant?: "default" | "outline" }) {
+export function ActionButton({ admin, request, label, busy, variant = "outline" }: { admin: Admin; request: AdminRequest; label: string; busy: string; variant?: "default" | "outline" | "ghost" }) {
   const running = runningKey(admin) === requestKey(request)
   return (
-    <Button variant={variant} disabled={admin.isPending} aria-busy={running} onClick={() => admin.mutate(request)} className="justify-self-start">
+    <Button variant={variant} disabled={admin.isPending} aria-busy={running} onClick={() => admin.mutate(request)} className="h-auto min-h-9 max-w-full justify-self-start whitespace-normal text-left">
       {running ? <Loader2Icon aria-hidden className="animate-spin" /> : null}
       {running ? busy : label}
     </Button>
@@ -45,7 +43,7 @@ export function ActionOutcome({ admin }: { admin: Admin }) {
         <AlertTitle>{requestLabel(admin.variables)} did not complete</AlertTitle>
         <AlertDescription className="grid gap-2">
           <p className="break-words">{admin.error.message}</p>
-          <Button variant="outline" size="sm" className="justify-self-start" onClick={() => admin.mutate(admin.variables!)}>
+          <Button variant="outline" size="sm" className="h-auto min-h-9 max-w-full justify-self-start whitespace-normal text-left" onClick={() => admin.mutate(admin.variables!)}>
             Try again
           </Button>
         </AlertDescription>
@@ -60,11 +58,11 @@ export function ActionOutcome({ admin }: { admin: Admin }) {
         <AlertTitle>{requestLabel(admin.variables)}: done</AlertTitle>
         <AlertDescription>
           <p>
-            {entries.length} admin {entries.length === 1 ? "call" : "calls"} written to the activity ledger
+            {entries.length} {entries.length === 1 ? "call" : "calls"} recorded
             {chain ? (
               <>
                 {" "}
-                · chain time {formatUtc(chain.chainTime)} · session {chain.session}
+                · {chain.session}
               </>
             ) : null}
             .
@@ -76,34 +74,18 @@ export function ActionOutcome({ admin }: { admin: Admin }) {
   return null
 }
 
-/** Time-travel controls named after what they do and the fork method under each. */
+/** Shared by the page and the dock; all mutations use the existing admin hook. */
 export function TimeTravel({ admin }: { admin: Admin }) {
   return (
-    <Card data-testid="time-travel">
-      <CardHeader>
-        <CardTitle>
-          <h2 className="flex items-center gap-2">
-            <ClockIcon aria-hidden className="size-4" />
-            Time travel
-          </h2>
-        </CardTitle>
-        <CardDescription>Move this fork&apos;s clock. The keeper then posts the calendar session and a simulated pool-derived price.</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-3 xl:grid-cols-3">
-        {WARPS.map((w) => (
-          <div key={w.id} className="grid content-start gap-2 rounded-lg border p-3">
-            <ActionButton admin={admin} request={{ kind: "warp", target: w.id }} label={w.label} busy={w.busy} />
-            <p className="text-sm">{w.next}</p>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <EvidenceSheet title={`${w.label} method`} summary="Fork method for this clock change. It affects this session only." state="ready" triggerLabel={w.id === "saturday" ? "Saturday clock method" : w.id === "monday" ? "Monday clock method" : "One-hour clock method"}>
-                <p className="font-mono text-xs break-words">{w.method}</p>
-              </EvidenceSheet>
-              <LookAt {...w.look} />
-            </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+    <section data-testid="time-travel" className="grid min-w-0 gap-3">
+      <div className="flex items-center gap-1">
+        <h3 className="flex items-center gap-2 text-sm font-semibold"><ClockIcon aria-hidden className="size-4" />Time travel</h3>
+        <DefinitionPopover term="Time travel"><p>The keeper posts the calendar session and a simulated pool-derived price after each clock change.</p>
+          {WARPS.map((w) => <p key={w.id} className="mt-2 text-xs"><strong>{w.label}:</strong> {w.method}. {w.next}</p>)}
+        </DefinitionPopover>
+      </div>
+      <div className="flex flex-wrap gap-2">{WARPS.map((w) => <ActionButton key={w.id} admin={admin} request={{ kind: "warp", target: w.id }} label={w.label} busy={w.busy} />)}</div>
+    </section>
   )
 }
 
@@ -112,18 +94,18 @@ export function ResetControl({ admin }: { admin: Admin }) {
   const [confirming, setConfirming] = useState(false)
   const running = runningKey(admin) === "reset"
   return (
-    <Card data-testid="reset">
-      <CardHeader>
-        <CardTitle>
-          <h2 className="flex items-center gap-2">
+    <section data-testid="reset" className="grid gap-3 border-t pt-4">
+      <div className="flex items-center gap-1">
+
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
             <RotateCcwIcon aria-hidden className="size-4" />
             {RESET.label}
-          </h2>
-        </CardTitle>
-        <CardDescription>{RESET.next}</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-3">
-        <p className="font-mono text-xs break-words text-muted-foreground">{RESET.method}</p>
+          </h3>
+
+        <DefinitionPopover term="Reset session"><p>{RESET.next}</p><p className="mt-2 font-mono text-xs">{RESET.method}</p></DefinitionPopover>
+      </div>
+      <div className="grid gap-3">
+
         {confirming && !running ? (
           <div role="group" aria-label="Confirm reset" className="flex flex-wrap items-center gap-2">
             <span className="text-sm">Revert this fork to the moment the burner was funded? The ledger keeps every call.</span>
@@ -143,13 +125,13 @@ export function ResetControl({ admin }: { admin: Admin }) {
             </Button>
           </div>
         ) : (
-          <Button variant="outline" className="justify-self-start" disabled={admin.isPending} aria-busy={running} onClick={() => setConfirming(true)}>
+          <Button variant="outline" className="h-auto min-h-9 max-w-full justify-self-start whitespace-normal text-left" disabled={admin.isPending} aria-busy={running} onClick={() => setConfirming(true)}>
             {running ? <Loader2Icon aria-hidden className="animate-spin" /> : null}
             {running ? RESET.busy : "Reset…"}
           </Button>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   )
 }
 
