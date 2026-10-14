@@ -2,11 +2,10 @@
 
 import { formatUnits, type Address } from "viem"
 import { collateralMarketAbi } from "@intatto/config/abi"
-import type { AccountState, MarketState, VaultState } from "@/lib/chain"
-import { AmountInput } from "@/components/ui/web3"
+import type { AccountState, MarketState } from "@/lib/chain"
+import { AmountField } from "./amount-field"
 import { FormCta, precheckCta, simulatedCta, type Cta } from "./form-cta"
-import { CollateralLine } from "./market-info"
-import { LoanChips, LoanLine, RateRow, RefusedNow, RiskAck } from "./loan-details"
+import { LoanChips, LoanLine, RefusedNow, RiskAck } from "./loan-details"
 import { useNames } from "./names"
 import { usePreflight } from "./preflight"
 import { capacityUsdg, usd6 } from "./format"
@@ -17,10 +16,8 @@ export type BorrowDraft = { collateral: string; loan: string; ack: boolean }
 
 type Props = {
   m: MarketState
-  v: VaultState
   a: AccountState | null
   marketAddress: Address
-  decay: { floorBps: bigint; duration: number } | null
   draft: BorrowDraft
   onDraft: (patch: Partial<BorrowDraft>) => void
   plan: BorrowPlan
@@ -36,8 +33,8 @@ function borrowCta(plan: BorrowPlan, ack: boolean, pure: ReturnType<typeof simul
   return { label: "Review", enabled: true }
 }
 
-/** Collateral → loan → rate, each with its consequence line; Liquity V2's single-column borrow form. */
-export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraft, plan, onReview }: Props) {
+/** The existing deposit and borrow flow, with a compact capacity and risk preview. */
+export function DepositBorrowForm({ m, a, marketAddress, draft, onDraft, plan, onReview }: Props) {
   const names = useNames()
   const pureBorrow = plan.deposit === 0n && plan.loan > 0n && !plan.balanceError
   const preflight = usePreflight(
@@ -51,7 +48,7 @@ export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraf
   return (
     <div className="grid gap-5" data-testid="deposit-borrow-form">
       <div className="grid gap-2">
-        <AmountInput
+        <AmountField
           id="borrow-collateral"
           label="Collateral"
           token={names.token}
@@ -72,11 +69,10 @@ export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraf
             )
           }
         />
-        <CollateralLine m={m} decay={decay} />
       </div>
 
       <div className="grid gap-2">
-        <AmountInput
+        <AmountField
           id="borrow-loan"
           label="Loan"
           token="USDG"
@@ -88,12 +84,9 @@ export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraf
             a && hasCollateral ? (
               <span className="flex flex-wrap items-center gap-2">
                 <span className="tabular-nums" data-testid="borrow-capacity">
-                  Can borrow {capacityUsdg(plan.limits.max)}
+                  You can borrow up to {capacityUsdg(plan.limits.max)} now
                 </span>
                 <LoanChips
-                  chips={plan.chips}
-                  session={m.session}
-                  maxLtvBps={m.maxLtvBps}
                   fill={plan.limits.fill}
                   capacity={plan.limits.max}
                   refusal={plan.marketRefusal}
@@ -103,16 +96,14 @@ export function DepositBorrowForm({ m, v, a, marketAddress, decay, draft, onDraf
             ) : undefined
           }
         />
-        {a && hasCollateral && plan.marketRefusal ? <RefusedNow refusal={plan.marketRefusal} /> : null}
         {a ? <LoanLine m={m} before={plan.before} after={plan.after} previewing={!plan.empty} /> : <p className="text-xs text-muted-foreground">Position preview requires account data.</p>}
       </div>
-
-      <RateRow v={v} debtAfter={plan.after.debt} />
 
       {a && plan.needsAck ? (
         <RiskAck after={plan.after} lt={m.liquidationThresholdBps} checked={draft.ack} onChange={(ack) => onDraft({ ack })} />
       ) : null}
 
+      {(!cta.note || !a) && plan.marketRefusal ? <RefusedNow refusal={plan.marketRefusal} /> : null}
       <FormCta cta={a ? cta : { label: "Account data unavailable or loading", enabled: false }} onReview={onReview} />
     </div>
   )

@@ -29,17 +29,17 @@ export function distinct(a: bigint, b: bigint, decimals: number, minDigits: numb
 /** A USDG amount shown next to `other` with enough decimals to tell them apart. */
 export const usdgVs = (x: bigint, other: bigint) => `${distinct(x, other, 6, 2)[0]} USDG`
 
-/** Borrow capacity with every USDG decimal, the same figure Market and the credit API show. */
+/** Compact borrow capacity; transaction amounts retain their full precision. */
 export const capacityUsdg = (x: bigint) =>
-  `${formatTokenAmount(x, 6, { maxFractionDigits: 6, minFractionDigits: 6 })} USDG`
+  `${formatTokenAmount(x, 6, { maxFractionDigits: 2, minFractionDigits: 2 })} USDG`
 
 /** A token amount (18 decimals) shown next to `other` with enough decimals to tell them apart. */
 export const tokensVs = (x: bigint, other: bigint, symbol: string) => `${distinct(x, other, 18, 4)[0]} ${symbol}`
 
-/** 35.00% from bps; ">999%" for an unbounded LTV (debt with no collateral). */
+/** Up to two decimals from bps; ">999%" for an unbounded LTV (debt with no collateral). */
 export function pct(bps: bigint): string {
   if (isMaxUint(bps) || bps > 99_900n) return ">999%"
-  return `${(Number(bps) / 100).toFixed(2)}%`
+  return `${(Number(bps) / 100).toFixed(2).replace(/\.?0+$/, "")}%`
 }
 
 /** Health factor with two decimals; "∞" with no debt. */

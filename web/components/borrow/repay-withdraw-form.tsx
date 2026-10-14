@@ -1,11 +1,13 @@
 "use client"
 
-import type { Address } from "viem"
+import { formatUnits, type Address } from "viem"
 import { ShieldCheckIcon } from "lucide-react"
 import { collateralMarketAbi } from "@intatto/config/abi"
 import type { AccountState, MarketState } from "@/lib/chain"
-import { AmountInput } from "@/components/ui/web3"
+import { AmountField } from "./amount-field"
 import { FormCta, precheckCta, simulatedCta, type Cta } from "./form-cta"
+import { Button } from "@/components/ui/button"
+import { LoanLine } from "./loan-details"
 import { usePreflight } from "./preflight"
 import { distinct, usdg } from "./format"
 import { useNames } from "./names"
@@ -51,7 +53,7 @@ export function RepayWithdrawForm({ m, a, marketAddress, draft, onDraft, plan, o
   return (
     <div className="grid gap-5" data-testid="repay-withdraw-form">
       <div className="grid gap-2">
-        <AmountInput
+        <AmountField
           id="repay-amount"
           label="Repay loan"
           token="USDG"
@@ -63,25 +65,33 @@ export function RepayWithdrawForm({ m, a, marketAddress, draft, onDraft, plan, o
           max={a && debt > 0n ? plan.repayMax : undefined}
           tooLargeMessage={plan.walletShort ? "Insufficient USDG balance" : "More than you owe"}
           error={plan.repayError === "Nothing to repay" ? "You have no debt to repay." : null}
-          footer={<span className="tabular-nums">Owed {a ? plan.walletShort ? `${owed} USDG` : usdg(debt) : "—"}</span>}
+          footer={<span className="tabular-nums">Debt: {a ? usdg(debt) : "—"}</span>}
         />
+        {a && debt > 0n ? <div role="group" aria-label="Repay presets" className="flex gap-1.5">
+          {[25, 50, 75, 100].map((percent) => <Button key={percent} variant="outline" size="xs"
+            onClick={() => onDraft({ repay: formatUnits(plan.repayMax * BigInt(percent) / 100n, 6), all: percent === 100 && !plan.walletShort })}>
+            {percent === 100 ? "Max" : `${percent}%`}
+          </Button>)}
+        </div> : null}
         {plan.walletShort ? (
-          <p className="text-xs text-warning-foreground" data-testid="repay-wallet-short">
-            Your wallet holds {held} USDG, less than the {owed} USDG you owe. Max repays what you hold; {left} USDG stays
-            owed and keeps accruing interest.
-          </p>
+          <div className="grid gap-1 text-xs text-warning-foreground" data-testid="repay-wallet-short">
+            <p>Max repays your available USDG. The remaining debt keeps accruing interest.</p>
+            <details className="text-muted-foreground">
+              <summary className="cursor-pointer">Exact balances</summary>
+              <p>Wallet: {held} USDG. Debt: {owed} USDG. After Max: {left} USDG still owed.</p>
+            </details>
+          </div>
         ) : plan.repayAll ? (
           <p className="text-xs text-muted-foreground">Repays the whole loan, including interest that accrues until it lands.</p>
         ) : null}
         <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
           <ShieldCheckIcon aria-hidden className="mt-px size-3.5 shrink-0" />
-          Repaying never depends on the price or the market session: it works at night, on weekends and while borrowing is
-          paused.
+          Repaying works in every market session.
         </p>
       </div>
 
       <div className="grid gap-2">
-        <AmountInput
+        <AmountField
           id="withdraw-amount"
           label="Withdraw collateral"
           token={names.token}
@@ -102,10 +112,11 @@ export function RepayWithdrawForm({ m, a, marketAddress, draft, onDraft, plan, o
         <p className="text-xs text-muted-foreground">
           {!a ? "Account data is needed to calculate how much you can withdraw." : debt === 0n
             ? "With no debt you can take everything out, whatever the session."
-            : `With debt open, what stays must keep the position within the ${m.session} session's limit, and the price must be fresh. Collateral comes back as ${names.token}.`}
+            : `Keep enough collateral for the ${m.session} limit. Withdrawals with debt also need a fresh price.`}
         </p>
       </div>
 
+      {a ? <LoanLine m={m} before={plan.before} after={plan.after} previewing={!plan.empty} /> : null}
       <FormCta cta={a ? cta : { label: "Account data unavailable or loading", enabled: false }} onReview={onReview} />
     </div>
   )

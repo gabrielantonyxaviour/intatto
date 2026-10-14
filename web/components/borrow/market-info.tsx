@@ -3,12 +3,10 @@
 import Link from "next/link"
 import type { Session } from "@intatto/config/session"
 import { TriangleAlertIcon } from "lucide-react"
-import { useIntatto, useProtocolParams, usePriceProvenance, type MarketState } from "@/lib/chain"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { type MarketState } from "@/lib/chain"
 import { Badge } from "@/components/ui/badge"
 import { DefinitionPopover } from "@/components/ui/ix"
-import { formatUtc } from "@/components/ui/web3/format"
-import { pct, price, sessionMeaning, shortUtc } from "./format"
+import { sessionMeaning } from "./format"
 import { useNames } from "./names"
 
 const SESSION_BADGE: Record<Session, "success-light" | "info-light" | "warning-light" | "destructive-light"> = {
@@ -28,43 +26,8 @@ export function SessionBadge({ session }: { session: Session }) {
   )
 }
 
-/** Consequence line under the collateral field: the relayed price and the session's new-borrow limit. */
-export function CollateralLine({ m, decay }: { m: MarketState; decay: { floorBps: bigint; duration: number } | null }) {
-  const { token, symbol } = useNames()
-  const { data: params } = useProtocolParams(symbol)
-  const provenance = usePriceProvenance()
-  const floorAt = decay ? m.periodChangedAt + decay.duration : null
-  return (
-    <div className="grid gap-1 text-xs text-muted-foreground sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4">
-      <span className="flex flex-wrap items-center gap-x-1.5">
-        {token} price <span className="font-medium text-foreground tabular-nums" data-testid="relayed-price">{price(m.priceE18)}</span>
-        <span>· fetched by the keeper at {formatUtc(m.fetchedAt)}</span>
-        <DefinitionPopover term="this price" source={params ? `Bounds read at block ${params.blockNumber}` : "Parameter reads unavailable or loading"}>
-          {provenance.detail.replace("wNVDAx/USDG", `w${token}/USDG`)} {params ? `Keeper post liveness: ${Number(params.relay.priceLiveness) / 60} minutes. Pool TWAP window: ${Number(params.relay.twapWindow) / 60} minutes.` : "Price bounds unavailable."}
-        </DefinitionPopover>
-      </span>
-      <span data-testid="borrow-price-source">{provenance.short}</span>
-      <span className="flex flex-wrap items-center gap-x-1.5">
-        {m.session} session · max new-borrow LTV{" "}
-        <span className="font-medium text-foreground tabular-nums" data-testid="session-max-ltv">
-          {pct(m.maxLtvBps)}
-        </span>
-        {m.session === "CLOSED" && decay && floorAt ? <span>· falls to {pct(decay.floorBps)} by {shortUtc(floorAt)}</span> : null}
-        <span>· liquidation at {pct(m.liquidationThresholdBps)}</span>
-        <DefinitionPopover term="session limits" source={params ? `SessionRiskController · block ${params.blockNumber}` : undefined}>
-          {params ? `New-borrow LTV: OPEN ${pct(params.session.openBps)}, EXTENDED ${pct(params.session.extendedBps)}, CLOSED ${pct(params.session.closedStartBps)} falling to ${pct(params.session.closedFloorBps)} over ${Number(params.session.closedDecayDuration) / 3600} hours. Liquidation threshold: ${pct(params.market.liquidationThresholdBps)}.` : "Session schedule parameters are unavailable or loading. The current session limit above comes from the market read."}
-        </DefinitionPopover>
-        <Link href="/risk" className="underline underline-offset-4 hover:text-foreground" data-testid="risk-link">
-          Sessions, guards and caps on the Risk page
-        </Link>
-      </span>
-    </div>
-  )
-}
-
 /** Why new borrowing is off right now, and what still works. Null when every guard passes. */
 export function MarketStatusAlert({ m }: { m: MarketState }) {
-  const { mode } = useIntatto()
   const { token, underlying } = useNames()
   const reasons: string[] = []
   if (m.issuerPaused) reasons.push(`the token issuer has paused ${token}`)
@@ -77,28 +40,14 @@ export function MarketStatusAlert({ m }: { m: MarketState }) {
   if (!m.pegOk) reasons.push("USDG is off its $1 peg or its feed is stale")
   if (reasons.length === 0) return null
   return (
-    <Alert variant="warning" data-testid="market-status">
-      <TriangleAlertIcon aria-hidden />
-      <AlertTitle>New borrowing is paused</AlertTitle>
-      <AlertDescription>
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground" data-testid="market-status">
+      <TriangleAlertIcon className="size-4 shrink-0" aria-hidden />
+      <span>New borrowing is paused</span>
+      <DefinitionPopover term="borrowing paused">
         <p>Because {reasons.join("; ")}.</p>
-        <p>
-          Repaying always works. Adding collateral works too, and withdrawing does when you have no debt.{" "}
-          <Link href="/risk" className="underline underline-offset-4">
-            See every guard on the Risk page
-          </Link>
-          .
-        </p>
-        {mode === "live" ? (
-          <p>
-            Want to try borrowing now?{" "}
-            <Link href="/sandbox" className="font-medium underline underline-offset-4">
-              Start a mainnet-fork sandbox session
-            </Link>
-            . It uses a funded test wallet; no mainnet funds move.
-          </p>
-        ) : null}
-      </AlertDescription>
-    </Alert>
+        <p>Repaying and adding collateral still work. Withdrawals work with no debt.</p>
+        <Link href="/risk" className="underline underline-offset-4">See every guard</Link>
+      </DefinitionPopover>
+    </div>
   )
 }
