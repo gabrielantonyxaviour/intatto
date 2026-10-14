@@ -58,8 +58,8 @@ export function LoadError({ what, error, onRetry }: { what: string; error: unkno
 
 export function StatsSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Loading market totals" className="grid grid-cols-2 gap-3 md:grid-cols-5">
-      {Array.from({ length: 5 }, (_, i) => (
+    <div aria-busy="true" aria-label="Loading market totals" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {Array.from({ length: 4 }, (_, i) => (
         <Skeleton key={i} className="h-16" />
       ))}
     </div>

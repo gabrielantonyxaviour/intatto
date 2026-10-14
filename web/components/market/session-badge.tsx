@@ -12,9 +12,8 @@ const VARIANT = {
 /** The market session as a badge: its contract name plus a plain label. */
 export function SessionBadge({ session, size = "sm" }: { session: Session; size?: "sm" | "lg" }) {
   return (
-    <Badge variant={VARIANT[SESSION_TONE[session]]} size={size} data-session={session}>
-      {session}
-      <span className="sr-only"> ({SESSION_LABEL[session]})</span>
+    <Badge variant={session === "UNKNOWN" ? "warning-light" : VARIANT[SESSION_TONE[session]]} size={size} data-session={session}>
+      {SESSION_LABEL[session]}
     </Badge>
   )
 }

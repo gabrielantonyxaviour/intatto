@@ -4,21 +4,11 @@ import { useState } from "react"
 import type { Deployment } from "@intatto/config/deployments"
 import { ChainReady, useIntatto, useMarketState, useVaultState, type MarketSymbol } from "@/lib/chain"
 import { Skeleton } from "@/components/ui/skeleton"
+import { MarketHero } from "./market-hero"
 import { HeadlineStats } from "./headline-stats"
 import { MarketDetail } from "./market-detail"
 import { MarketsTable, type MarketRow } from "./markets-table"
 import { DetailSkeleton, LoadError, NotDeployed, StatsSkeleton } from "./states"
-
-function Intro() {
-  return (
-    <header className="grid gap-1">
-      <h1 className="text-2xl font-semibold">Market</h1>
-      <p className="max-w-2xl text-sm text-muted-foreground">
-        Borrow USDG against tokenized stocks on X Layer.
-      </p>
-    </header>
-  )
-}
 
 function Loaded({ deployment }: { deployment: Deployment }) {
   const primary = deployment.markets[0]!.symbol
@@ -31,19 +21,23 @@ function Loaded({ deployment }: { deployment: Deployment }) {
   const failed = [vault, ...queries.map((q) => q.query)].find((q) => q.isError)
   if (failed) {
     return (
-      <LoadError
-        what="the market from the chain"
-        error={failed.error}
-        onRetry={() => {
-          void vault.refetch()
-          for (const q of queries) void q.query.refetch()
-        }}
-      />
+      <div className="grid gap-8">
+        <MarketHero state={nvda.data} />
+        <LoadError
+          what="the market from the chain"
+          error={failed.error}
+          onRetry={() => {
+            void vault.refetch()
+            for (const q of queries) void q.query.refetch()
+          }}
+        />
+      </div>
     )
   }
   if (!vault.data || queries.some((q) => !q.query.data)) {
     return (
       <div className="grid gap-6">
+        <MarketHero state={nvda.data} />
         <StatsSkeleton />
         <Skeleton className="h-32" />
         <DetailSkeleton />
@@ -60,6 +54,7 @@ function Loaded({ deployment }: { deployment: Deployment }) {
 
   return (
     <div className="grid gap-8">
+      <MarketHero state={nvda.data} />
       <HeadlineStats vault={vault.data} markets={rows.map((r) => r.state)} />
       <MarketsTable rows={rows} vault={vault.data} selected={current.deployment.symbol} onSelect={select} />
       <MarketDetail key={current.deployment.symbol} deployment={deployment} market={current.deployment} state={current.state} />
@@ -71,7 +66,6 @@ function Screen() {
   const { deployment } = useIntatto()
   return (
     <div className="grid gap-6">
-      <Intro />
       {deployment ? <Loaded deployment={deployment} /> : <NotDeployed />}
     </div>
   )

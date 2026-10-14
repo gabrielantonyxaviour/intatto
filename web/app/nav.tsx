@@ -10,16 +10,14 @@ import { ChainBadge } from "@/components/shell/chain-badge"
 import { ConnectControl } from "./connect-control"
 
 export const NAV_LINKS = [
-  { href: "/", label: "Market" },
+  { href: "/", label: "Markets" },
   { href: "/borrow", label: "Borrow" },
   { href: "/lend", label: "Lend" },
   { href: "/risk", label: "Risk" },
-  { href: "/agents", label: "Agents" },
-  { href: "/sandbox", label: "Sandbox" },
-  { href: "/sandbox/proof", label: "Fork proof" },
+  { href: "/agents", label: "Developers" },
 ] as const
 
-/** The most specific link that contains the current path, so /sandbox/proof does not also light up Sandbox. */
+/** Sandbox routes belong to the environment control, not the primary navigation. */
 function activeHref(pathname: string): string | null {
   let best: string | null = null
   for (const { href } of NAV_LINKS) {
@@ -34,7 +32,7 @@ function NavLinks({ vertical, onNavigate }: { vertical?: boolean; onNavigate?: b
   const active = activeHref(pathname)
   return (
     <>
-      {NAV_LINKS.map(({ href, label }) => {
+      {NAV_LINKS.filter((link) => vertical || link.href !== "/agents").map(({ href, label }) => {
         const link = (
           <Link
             key={href}
@@ -64,19 +62,20 @@ function NavLinks({ vertical, onNavigate }: { vertical?: boolean; onNavigate?: b
 export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
-      <div className="mx-auto flex h-14 w-full max-w-7xl items-center gap-3 px-4 sm:px-6">
-        <Link href="/" className="shrink-0 font-semibold">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 lg:gap-6 px-4 sm:px-6">
+        <Link href="/" className="shrink-0 text-lg font-semibold tracking-tight">
           Intatto
         </Link>
-        <ChainBadge />
         <nav aria-label="Main" className="hidden items-center gap-0.5 lg:flex">
           <NavLinks />
         </nav>
-        <div className="ml-auto flex min-w-0 items-center gap-2">
+        <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-3">
+          <Link href="/agents" className="hidden rounded-md px-2 py-2 text-sm text-muted-foreground hover:text-foreground lg:block">Developers</Link>
+          <ChainBadge />
           <ConnectControl />
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon-lg" className="lg:hidden" aria-label="Open menu">
+              <Button variant="ghost" size="icon-lg" className="lg:hidden" aria-label="Open menu">
                 <MenuIcon aria-hidden />
               </Button>
             </SheetTrigger>

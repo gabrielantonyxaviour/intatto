@@ -17,11 +17,7 @@ export function ContractsCard({ deployment, market: m, state: s }: { deployment:
     { label: "USDG vault", address: deployment.vault },
   ]
   return (
-    <div data-testid="contracts-card" className="flex flex-wrap items-center justify-between gap-3 text-sm">
-      <p>
-        {tokens(sharesToTokens(s.totalShares, s.assetsPerShare), m.symbol)} held as {tokens(s.totalShares, `w${m.symbol}`)} shares, worth{" "}
-        {usdg(s.totalCollateralValue)} at the relayed price.
-      </p>
+    <div data-testid="contracts-card" className="contents">
       <EvidenceSheet
         title={`${m.symbol} contracts`}
         triggerLabel="Contracts"
@@ -30,6 +26,10 @@ export function ContractsCard({ deployment, market: m, state: s }: { deployment:
         evidenceFor="contracts"
         testId="contracts-sheet"
       >
+        <p>
+          {tokens(sharesToTokens(s.totalShares, s.assetsPerShare), m.symbol)} held as {tokens(s.totalShares, `w${m.symbol}`)} shares, worth{" "}
+          {usdg(s.totalCollateralValue)} at the relayed price.
+        </p>
         <dl className="grid gap-2 text-sm">
           {rows.map((r) => (
             <div key={r.label} className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b py-2">

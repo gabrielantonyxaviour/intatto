@@ -1,123 +1,64 @@
 "use client"
 
-import { CircleAlertIcon } from "lucide-react"
+import type { ReactNode } from "react"
 import type { MarketState, ProtocolParams } from "@/lib/chain"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { DefinitionPopover } from "@/components/ui/ix"
+import { Button } from "@/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { SessionBadge } from "./session-badge"
-import { SESSION_LABEL, pausedSentence, refusalsFor, sessionMeaning, type MarketTerms } from "./copy"
-import { bps, bpsShort, duration, formatUtc } from "./format"
+import { refusalsFor, sessionMeaning, type MarketTerms } from "./copy"
+import { bpsShort, duration, formatUtc, usdgDisplay } from "./format"
 
-function Tile({ id, label, value, note }: { id: string; label: string; value: string; note: string }) {
+function Tile({ id, label, value, children }: { id: string; label: string; value: string; children?: ReactNode }) {
+  return <div data-testid={`tile-${id}`} className="grid content-start gap-2"><span className="text-xs text-muted-foreground">{label}</span><span data-slot="value" className="flex items-center gap-1 text-lg font-semibold tabular-nums">{value}{children}</span></div>
+}
+
+export function SessionSchedule({ params }: { params: ProtocolParams | undefined }) {
   return (
-    <div data-testid={`tile-${id}`} className="grid gap-0.5 rounded-lg border p-3">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span data-slot="value" className="text-lg font-semibold tabular-nums">
-        {value}
-      </span>
-      <span className="text-xs text-muted-foreground">{note}</span>
-    </div>
+    <Popover>
+      <PopoverTrigger asChild><Button variant="ghost" className="text-xs text-muted-foreground">Session schedule</Button></PopoverTrigger>
+      <PopoverContent data-testid="session-schedule" className="w-80 max-w-[calc(100vw-2rem)]">
+        <h3 className="font-medium">New-loan limits</h3>
+        {params ? <>
+          <p className="text-xs text-muted-foreground">Closed limits decay from {bpsShort(params.session.closedStartBps)} to {bpsShort(params.session.closedFloorBps)} over {duration(params.session.closedDecayDuration)}.</p>
+          <dl className="grid gap-2 text-sm">{(["OPEN", "EXTENDED", "CLOSED"] as const).map((name) => <div key={name} className="flex justify-between gap-2"><dt className="capitalize">{name.toLowerCase()}</dt><dd className="tabular-nums">{bpsShort(params.session.table[name].atZeroBps)} → {bpsShort(params.session.table[name].atDecayBps)}</dd></div>)}</dl>
+          <p className="text-xs text-muted-foreground">Start → after closed decay. Limits from this deployment.</p>
+        </> : <p>Reading session schedule…</p>}
+      </PopoverContent>
+    </Popover>
   )
 }
 
-function Schedule({ params }: { params: ProtocolParams }) {
-  const rows = [
-    ["Open", params.session.table.OPEN],
-    ["Extended", params.session.table.EXTENDED],
-    ["Closed", params.session.table.CLOSED],
-  ] as const
-  return (
-    <details data-testid="session-schedule" className="rounded-lg border px-3 py-2 text-sm">
-      <summary className="cursor-pointer font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring">Session schedule</summary>
-      <p className="mt-2 text-xs text-muted-foreground">
-        New-loan limits from SessionRiskController on this deployment. Closed moves from {bps(params.session.closedStartBps)} to{" "}
-        {bps(params.session.closedFloorBps)} over {duration(params.session.closedDecayDuration)}.
-      </p>
-      <dl className="mt-2 grid gap-2">
-        {rows.map(([name, row]) => (
-          <div key={name} className="flex items-baseline justify-between gap-3">
-            <dt>{name}</dt>
-            <dd className="text-right text-muted-foreground">
-              {bps(row.atZeroBps)} at the start · {bps(row.atDecayBps)} after the closed decay
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </details>
-  )
-}
+type Props = { symbol: string; state: MarketState; terms: MarketTerms | undefined; now: number | undefined }
 
-type Props = {
-  symbol: string
-  state: MarketState
-  terms: MarketTerms | undefined
-  params: ProtocolParams | undefined
-  now: number | undefined
-}
-
-/** The session in force, what it means now, the three limits, and why new borrowing is off when it is. */
-export function SessionPanel({ symbol, state: s, terms, params, now }: Props) {
+export function SessionPanel({ symbol, state: s, terms, now }: Props) {
   const refusals = refusalsFor(s)
   return (
-    <Card data-testid="session-panel">
-      <CardHeader>
-        <CardTitle className="flex flex-wrap items-center gap-2">
-          Market session
-          <span data-testid="session-value" data-session={s.session}>
-            <SessionBadge session={s.session} size="lg" />
-          </span>
-          <span className="text-sm font-normal text-muted-foreground">{SESSION_LABEL[s.session]}</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        {terms && now !== undefined ? (
-          <p data-testid="session-meaning" className="text-sm leading-relaxed">
-            {sessionMeaning(s, terms, now)}
-          </p>
-        ) : (
-          <Skeleton className="h-10" />
-        )}
-        {s.sessionPostedAt > 0 ? (
-          <p className="text-xs text-muted-foreground">
-            Posted by the keeper at {formatUtc(s.sessionPostedAt)}
-            {s.periodChangedAt > 0 ? `; this period began ${formatUtc(s.periodChangedAt)}` : ""}.
-          </p>
-        ) : null}
-
-        {refusals.length > 0 ? (
-          <Alert variant="warning" data-testid="borrowing-off">
-            <CircleAlertIcon aria-hidden />
-            <AlertTitle>New borrowing is off</AlertTitle>
-            <AlertDescription>
-              <p>{pausedSentence(refusals[0]!, s, symbol, terms?.pegBps, terms?.twapWindowSeconds)}</p>
-              {refusals.length > 1 ? (
-                <p>
-                  {refusals.length === 2 ? "1 more check also refuses it" : `${refusals.length - 1} more checks also refuse it`}; see the
-                  guards below.
-                </p>
-              ) : null}
-            </AlertDescription>
-          </Alert>
-        ) : null}
-
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Tile
-            id="max-ltv"
-            label="Max LTV for new loans, now"
-            value={bps(s.maxLtvBps)}
-            note={s.maxLtvBps === 0n ? "No new loans in this session" : `Set by the ${s.session} session`}
-          />
-          <Tile id="liq-threshold" label="Liquidation threshold" value={bpsShort(s.liquidationThresholdBps)} note="The same in every session" />
-          <Tile
-            id="liq-penalty"
-            label="Liquidation penalty"
-            value={terms ? bpsShort(terms.penaltyBps) : "…"}
-            note="Of the debt a liquidation repays"
-          />
+    <div data-testid="session-panel" className="grid gap-3 border-y py-5">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4">
+        <div className="grid content-start gap-2">
+          <span className="text-xs text-muted-foreground">US market</span>
+          <div className="flex items-center gap-1">
+            <span data-testid="session-value" data-session={s.session}><SessionBadge session={s.session} /></span>
+            <DefinitionPopover term="Market session">
+              <div className="grid gap-2 text-xs">
+                <p data-testid="session-meaning">{terms && now !== undefined ? sessionMeaning(s, terms, now) : "Reading session rules…"}</p>
+                {s.sessionPostedAt > 0 ? <p>Keeper post: {formatUtc(s.sessionPostedAt)}. {s.periodChangedAt > 0 ? `Period began ${formatUtc(s.periodChangedAt)}.` : ""}</p> : null}
+              </div>
+            </DefinitionPopover>
+          </div>
         </div>
-        {params ? <Schedule params={params} /> : null}
-      </CardContent>
-    </Card>
+        <Tile id="max-ltv" label="Max LTV now" value={bpsShort(s.maxLtvBps)} />
+        <Tile id="liq-threshold" label="Liquidation at" value={bpsShort(s.liquidationThresholdBps)} />
+        <Tile id="liq-penalty" label="Liquidation penalty" value={terms ? bpsShort(terms.penaltyBps) : "—"}>
+          <span data-testid="chip-liquidation">
+            <DefinitionPopover term="Liquidation" contentTestId="chip-liquidation-tooltip">
+              {terms ? <p className="text-sm font-normal">Liquidation: bounded slices while the market is closed. A loan is liquidatable above {bpsShort(s.liquidationThresholdBps)} LTV. Closed slices sell {s.sliceUsdg > 0n ? `up to ${usdgDisplay(s.sliceUsdg)} of w${symbol}` : "a keeper-sized amount"}, at most {bpsShort(terms.liqClosedFloorBps)} below the relayed price, widening to {bpsShort(terms.liqClosedTimeoutFloorBps)} after {duration(terms.liqClosedTimeoutSeconds)}. Open and extended hours allow {bpsShort(terms.liqOpenFloorBps)} below. Penalty: {bpsShort(terms.penaltyBps)} of debt repaid.</p> : "Reading liquidation bounds…"}
+            </DefinitionPopover>
+          </span>
+        </Tile>
+      </div>
+      {refusals.length > 0 ? <p data-testid="borrowing-off" className="text-xs text-muted-foreground">New borrowing paused. You can still repay or add collateral.</p> : null}
+    </div>
   )
 }

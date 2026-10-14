@@ -96,3 +96,24 @@ export function sharesToTokens(shares: bigint, assetsPerShare: bigint): bigint {
 }
 
 export { formatUtc }
+
+/** Compact display helpers; exact-value exports above retain their existing contracts. */
+export function usdgDisplay(value: bigint): string {
+  return usdg(value, 2)
+}
+
+export function dollars(value: bigint): string {
+  return `$${formatTokenAmount(value, USDG_DECIMALS, { maxFractionDigits: 2, minFractionDigits: 2 })}`
+}
+
+export function tokenDisplay(value: bigint, symbol: string): string {
+  return `${formatTokenAmount(value, 18, { maxFractionDigits: 4 })} ${symbol}`
+}
+
+export function relativeTime(now: number, then: number): string {
+  const seconds = Math.max(0, now - then)
+  if (seconds < 60) return "just now"
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} h ago`
+  return `${Math.floor(seconds / 86400)} d ago`
+}

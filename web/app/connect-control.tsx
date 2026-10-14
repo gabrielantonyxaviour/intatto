@@ -38,7 +38,7 @@ function WalletControl() {
 
   if (mode === "sandbox" && !address) {
     return (
-      <Button className="h-9" onClick={() => connectors[0] && connect({ connector: connectors[0], chainId: chain.id })}>
+      <Button variant="outline" className="h-9" onClick={() => connectors[0] && connect({ connector: connectors[0], chainId: chain.id })}>
         Connect burner
       </Button>
     )
@@ -48,10 +48,9 @@ function WalletControl() {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button className="h-9">
-            <WalletIcon aria-hidden />
-            <span className="hidden sm:inline">Connect wallet</span>
-            <span className="sm:hidden">Connect</span>
+          <Button variant="outline" className="h-9">
+            <WalletIcon aria-hidden className="hidden sm:block" />
+            <span>Connect wallet</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-60">
@@ -75,7 +74,7 @@ function WalletControl() {
           aria-label={`Wrong network. Switch to ${chain.name}`}
         >
           {switching ? <Loader2Icon className="animate-spin" aria-hidden /> : <TriangleAlertIcon aria-hidden />}
-          <span className="hidden sm:inline">Wrong network ·</span> Switch
+          <span className="hidden sm:inline">Wrong network · Switch</span>
           <span className="hidden md:inline"> to {chain.name}</span>
         </Button>
       ) : null}

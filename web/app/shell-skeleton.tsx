@@ -6,7 +6,8 @@ export function ShellSkeleton() {
     <div aria-busy="true" aria-label="Loading" className="grid gap-4">
       <Skeleton className="h-8 w-48" />
       <Skeleton className="h-4 w-full max-w-xl" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <Skeleton className="h-28" />
         <Skeleton className="h-28" />
         <Skeleton className="h-28" />
         <Skeleton className="h-28" />

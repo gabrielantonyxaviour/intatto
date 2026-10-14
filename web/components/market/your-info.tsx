@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { RiskMeter, RISK_LEVELS } from "@/components/ui/web3"
 import { refusalReason, refusalsFor } from "./copy"
 import { LoadError } from "./states"
-import { borrowHref, tokens, usdPrice, usdg, usdgExact, usdgPair } from "./format"
+import { borrowHref, tokenDisplay as tokens, usdPrice, usdgDisplay as usdg, usdgExact } from "./format"
 
 function Row({ label, value, testId }: { label: string; value: string; testId?: string }) {
   return (
@@ -31,7 +31,7 @@ function Actions({ symbol, borrowingOff }: { symbol: MarketSymbol; borrowingOff:
       <Button asChild variant="outline">
         <Link href="/lend">Lend USDG</Link>
       </Button>
-      <Button asChild>
+      <Button asChild variant="outline">
         <Link href={borrowHref(symbol)}>{borrowingOff ? "Manage position" : "Borrow USDG"}</Link>
       </Button>
     </div>
@@ -42,8 +42,8 @@ function Actions({ symbol, borrowingOff }: { symbol: MarketSymbol; borrowingOff:
 function CanBorrow({ capacity, market }: { capacity: bigint; market: MarketState }) {
   const refused = refusalsFor(market)[0]
   return (
-    <div className="grid gap-0.5">
-      <Row label="Can borrow now" value={usdgExact(refused ? 0n : capacity)} testId="borrow-capacity" />
+    <div className="grid gap-0.5" title={`Exact capacity: ${usdgExact(refused ? 0n : capacity)}`}>
+      <Row label="Can borrow now" value={usdg(refused ? 0n : capacity)} testId="borrow-capacity" />
       {refused ? (
         <p data-testid="borrow-capacity-reason" className="text-right text-xs text-muted-foreground">
           {refusalReason(refused, market)}
@@ -73,7 +73,7 @@ function Body({ symbol, market }: { symbol: MarketSymbol; market: MarketState })
       <div data-testid="your-info-disconnected" className="grid gap-3 text-sm">
         <p className="flex items-start gap-2">
           <WalletIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          Connect a wallet with the button at the top to see your {symbol} and USDG balances and your position.
+          Connect your wallet above to see balances and your position.
         </p>
         <Actions symbol={symbol} borrowingOff={borrowingOff} />
       </div>
@@ -98,7 +98,7 @@ function Body({ symbol, market }: { symbol: MarketSymbol; market: MarketState })
 
   const a = account.data
   const ltv = a.debt === 0n ? null : Number(a.ltvBps) / 10_000
-  const [valueText, debtText] = usdgPair(a.valueUsdg, a.debt)
+  const [valueText, debtText] = [usdg(a.valueUsdg), usdg(a.debt)]
   return (
     <div data-testid="your-info-connected" className="grid gap-4">
       <div className="grid gap-2">
@@ -140,7 +140,7 @@ function Body({ symbol, market }: { symbol: MarketSymbol; market: MarketState })
 /** The connected wallet's side of this market: balances, loan, lending, and the way to Borrow and Lend. */
 export function YourInfo({ symbol, market }: { symbol: MarketSymbol; market: MarketState }) {
   return (
-    <Card data-testid="your-info">
+    <Card data-testid="your-info" className="gap-4">
       <CardHeader>
         <CardTitle>Your info</CardTitle>
       </CardHeader>
