@@ -1,0 +1,72 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Risk console
+
+Contract state (market lens, guards and positions) is read by your browser directly from X Layer. Event history comes through Intatto's log cache (/api/risk/logs: raw eth_getLogs results, cached, not modified), and falls back to a direct X Layer read when that route fails. The keeper's own log and last issuer read come from the keeper service at intatto-keeper.larinova.com (/log and /status). Back to the market
+
+Market NVDAx
+
+Events from blocks #71,562,056–#71,570,126 (from the deployment block) · 45 events · chain time 2026-09-25 12:26:03 UTC · latest #71,570,127
+
+Refresh
+
+Events via Intatto log cache.
+
+Summary
+Price posts
+Price shock
+Loans near liquidation
+Caps and LTV spread
+Market overview
+Sessions
+Corporate actions
+Liquidations
+Keeper log
+Trust and bounds
+NVDAx summary
+
+Market lens and vault figures are read directly from X Layer at block #71,570,127 (chain time 2026-09-25 12:26:03 UTC). The price is the issuer's indicative quote relayed by Intatto's keeper; it carries no source timestamp, so only the keeper's fetch time is shown.
+
+Market session
+EXTENDED
+Posted 10 min ago · period began 2026-09-25 08:00:00 UTC
+Max new-borrow LTV now
+40.00%
+Liquidation at 65% in every session
+NVDAx relayed price
+$225.94
+▼ 0.12% since the oldest post read (10:15:10 UTC)
+Fetched by the keeper 4 min ago at 12:21:56 UTC · fresh · $226.32 per wrapper share
+Credit cap used
+0.02%
+0.40 USDG of 1,562.50 USDG
+Gap reserve
+0.50 USDG
+Pays a liquidation shortfall before any lender loses money
+Lender deficit
+0.00 USDG
+0 recognised; 0 means no lender has lost money
+Across the loans read
+
+Borrowers are found from Borrow events in the scanned blocks. Events via Intatto log cache.
+
+Open loans
+1
+Borrowed
+0.40 USDG
+Collateral value
+1.10 USDG
+USDG supplied
+1.49 USDG
+Collateral
+1 USDG
+Debt
+<1 USDG

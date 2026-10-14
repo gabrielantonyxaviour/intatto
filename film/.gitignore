@@ -1,0 +1,6 @@
+# Raw takes (frames + mp4, several GB), probe screenshots and local secrets stay out of git.
+raw/
+look/
+.env.local
+remotion/public/takes/
+remotion/public/vo/

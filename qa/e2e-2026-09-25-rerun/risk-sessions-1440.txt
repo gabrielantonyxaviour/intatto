@@ -1,0 +1,111 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Risk console
+
+Every price the keeper posted or had refused, every session, cap, corporate action and liquidation, read from X Layer with its transaction. Nothing here comes from our servers. Back to the market
+
+Market NVDAx
+
+Events from blocks #71,562,056–#71,566,642 (from the deployment block) · 27 events · chain time 2026-09-25 11:28:08 UTC · latest #71,566,652
+
+Refresh
+Summary
+Price posts
+Price shock
+Loans near liquidation
+Caps and LTV spread
+Market overview
+Sessions
+Corporate actions
+Liquidations
+Keeper log
+Trust and bounds
+Sessions
+
+The keeper posts the stock market's session from the issuer's trading period; the session sets how far anyone can borrow. The liquidation LTV does not change with it.
+
+Now
+Session
+EXTENDED
+Max new-borrow LTV
+40.00%
+Last post
+7 min ago
+Period began
+2026-09-25 08:00:00 UTC
+New-borrow LTV by session
+
+Read from the session controller. Liquidation stays at 65% in every row.
+
+Session	Max LTV
+
+OPEN
+US regular hours
+	50%
+
+EXTENDED
+Pre-market, after-hours and overnight
+	40%
+
+CLOSED
+Weekends and holidays; falls in a straight line over 2 d 16 h from the issuer's period change
+	30% → 20%
+
+HALTED
+The issuer halted trading
+	0%
+
+CORPORATE_ACTION
+A split or dividend is activating
+	0%
+
+UNKNOWN
+No session post in the last 30 min
+	0%
+Timeline
+
+Each run of identical posts, oldest first.
+
+EXTENDED
+2026-09-25 10:15:09 UTC → 11:20:48 · 8 posts
+All session posts (8)
+Session	Posted (UTC)	Period began (UTC)	Transaction
+EXTENDED	2026-09-25 11:20:48	2026-09-25 08:00:00	
+0xf71cc0…46695e
+(opens OKLink)
+
+EXTENDED	2026-09-25 11:09:48	2026-09-25 08:00:00	
+0x02daa6…1cdbb2
+(opens OKLink)
+
+EXTENDED	2026-09-25 10:58:48	2026-09-25 08:00:00	
+0xd9b81f…b3c6a0
+(opens OKLink)
+
+EXTENDED	2026-09-25 10:47:48	2026-09-25 08:00:00	
+0x34484b…27e440
+(opens OKLink)
+
+EXTENDED	2026-09-25 10:36:48	2026-09-25 08:00:00	
+0xcbd56f…038043
+(opens OKLink)
+
+EXTENDED	2026-09-25 10:25:47	2026-09-25 08:00:00	
+0x795fb1…716702
+(opens OKLink)
+
+EXTENDED	2026-09-25 10:15:37	2026-09-25 08:00:00	
+0xbdeafc…fe6da1
+(opens OKLink)
+
+EXTENDED	2026-09-25 10:15:09	2026-09-25 08:00:00	
+0xc2a7c9…73183d
+(opens OKLink)

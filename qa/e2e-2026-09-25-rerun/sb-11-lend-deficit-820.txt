@@ -1,0 +1,204 @@
+Intatto
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-10-05 22:37:15 UTC
+
+Exit sandbox
+Intatto USDG vault
+iUSDG
+Vault
+0x89fC…308C
+Intatto sandbox (fork of X Layer)
+Asset USDG
+Lends to the NVDAx market
+
+Deposit USDG and earn the interest people pay to borrow against NVDAx. The vault lends to one market, whose borrowing limits follow the US stock market session.
+
+Total deposits
+49,854 USDG
+Idle, withdrawable now
+49,853 USDG
+Lent out
+0.4002 USDG
+0.00% utilisation
+Supply rate
+0.00%
+a year, variable
+Deposit
+Withdraw
+Deposit USDG
+USDG
+Wallet 999.9955 USDG
+Max
+Network
+Intatto sandbox
+Your deposit
+0.00 USDG
+Supply rate
+0.00%
+Projected monthly earnings
+0.00 USDG
+Projected yearly earnings
+0.00 USDG
+
+Projections use today's supply rate as simple interest. The rate moves with utilisation.
+
+Read how lending works before your first deposit.
+Read and accept
+1
+Approve USDG
+Lets the contract move your USDG.
+2
+Deposit USDG
+Accept the lending terms first
+How lending works
+Overview
+Allocation
+Rates
+Risk
+Deficits
+Your position
+Overview
+Vault contract
+0x89fC…308C
+Share price
+0.997055 USDG
+Share token
+iUSDG (ERC-4626, 6 decimals)
+Shares outstanding
+50,001.46 iUSDG
+Withdrawals
+Any time, up to the idle USDG
+Markets
+1 (NVDAx)
+Where the money is lent
+
+The vault lends to one market. Every USDG that is not idle is owed by people borrowing against NVDAx.
+
+Lent out 0.4002 USDG
+Idle 49,853 USDG (100.0%)
+
+USDG
+|
+NVDAx
+65% LT
+
+Borrowed
+0.4002 USDG
+Collateral value
+103.77 USDG
+Threshold
+65%
+Debt cap
+50,000 USDG · 0.0% used
+Can still be borrowed
+49,853 USDG
+
+New-borrow limit now: 40% · extended hours. It follows the US market session; the 65% liquidation threshold does not.
+
+Collateral is NVDAx held as the issuer's wNVDAx wrapper shares. Its price is the issuer's indicative quote, $103.26 per NVDAx, fetched by the keeper at 2026-10-05 22:37:13 UTC. The relay's guards pass: the post is recent, inside the band around the pool's 30-minute average, and USDG is on peg.
+
+Interest rates
+Supply rate
+0.00%
+Borrow rate
+2.00%
+Utilisation
+0.00%
+0%
+55%
+110%
+0%
+25%
+50%
+75%
+100%
+Now 0.0%
+kink 80%
+Borrow rate
+Supply rate
+x: utilisation · y: rate a year
+
+Borrowers pay 2.00% a year at zero utilisation, rising by 8.00% up to the 80% kink, then by a further 100.00% between the kink and full utilisation, so idle USDG comes back quickly. Lenders receive the borrow rate × utilisation, less the 20% that funds the gap reserve.
+
+Risk
+Loss risk
+Lenders can lose money in a gap larger than the reserve. There is no insurance fund beyond the gap reserve. If NVDAx opens far below where it closed and a liquidation cannot recover the debt, the gap reserve pays first; any remainder lowers the value of every lender's shares, in proportion to what they hold.
+Who pays for a loss, in order
+1. Recovered collateral
+
+103.77 USDG
+
+An unhealthy position's NVDAx is sold into the pool in bounded slices. The proceeds repay its debt and the 5% penalty first. Right now 103.77 USDG of collateral backs 0.4002 USDG of debt (0.4% loan-to-value across all borrowers).
+
+2. Gap reserve
+
+0.00 USDG
+
+If the collateral is gone and debt is left, the gap reserve pays the rest straight into the vault, up to its balance.
+
+3. Lenders, pro rata
+
+49,854.21 USDG
+
+Whatever the reserve cannot pay is written off. Every share loses the same fraction. Each 1,000 USDG written off lowers the share price by 2.005% at today's deposits.
+
+Every open loan, ranked by how close it is to liquidation, and price-shock scenarios are on the Risk page.
+
+How the gap reserve is funded
+Balance now
+0.00 USDG
+Seed
+USDG sent by the operator at launch (anyone can add more)
+Interest
+20% of all interest borrowers pay
+Liquidations
+Half of each 5% penalty (the keeper who liquidates keeps the other half)
+Withdrawals
+None: it can only pay shortfalls to the vault
+Market risk parameters
+Liquidation threshold
+65% in every session
+New-borrow limit
+50% open · 40% extended · 30% falling to 20% over 64 h closed · 0% halted
+Liquidation penalty
+5%, half to the keeper, half to the gap reserve
+Reserve factor
+20% of interest
+Roles
+Operator (owner)
+0xaBa1…f808
+Keeper
+0xaBa1…f808
+
+The operator can change the interest-rate model, the session limits, the price guards and the liquidation floors, and add markets to the vault, with no timelock. The keeper posts the market session, the NVDAx price and the debt cap, and runs liquidations; the contracts refuse a price outside their guards. Contracts: vault 
+0x89fC…308C
+, gap reserve 
+0x4CB0…CB52
+.
+
+Recognised deficits
+Deficits recognised
+1
+Total written off
+148.173416 USDG
+Deficit 1
+2026-10-05 22:37:14 UTC
+Written off
+148.173416 USDG
+Share price (USDG)
+1.000018 → 0.997055
+Change
+-0.2963%
+Borrower
+0x0000…5Ce7
+Your position
+Your shares
+0 iUSDG
+Worth now
+0.000000 USDG
+Share of the vault
+0.0000%
+USDG in your wallet
+999.99 USDG

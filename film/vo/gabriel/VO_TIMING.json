@@ -1,0 +1,30 @@
+{
+ "note": "Gabriel's voice-over, edit versions: pauses over 0.45 s shortened to 0.35 s, atempo 1.04 (pitch kept), -16 LUFS. Decision (Gabriel, 25 Sep): keep every word, 4% faster, continuous voice across scenes, film about 3:58.",
+ "files": {
+  "01-hook": "film/vo/gabriel/edit/01-hook.wav",
+  "02-why": "film/vo/gabriel/edit/02-why.wav",
+  "03-intatto": "film/vo/gabriel/edit/03-intatto.wav",
+  "04-live": "film/vo/gabriel/edit/04-live.wav",
+  "05-friday": "film/vo/gabriel/edit/05-friday.wav",
+  "06-saturday": "film/vo/gabriel/edit/06-saturday.wav",
+  "07-weekend": "film/vo/gabriel/edit/07-weekend.wav",
+  "08-risk": "film/vo/gabriel/edit/08-risk.wav",
+  "09-model": "film/vo/gabriel/edit/09-model.wav",
+  "10-okx-ai": "film/vo/gabriel/edit/10-okx-ai.wav",
+  "11-close": "film/vo/gabriel/edit/11-close.wav"
+ },
+ "seconds": {
+  "01-hook": 12.29,
+  "02-why": 24.84,
+  "03-intatto": 32.23,
+  "04-live": 14.47,
+  "05-friday": 16.18,
+  "06-saturday": 19.05,
+  "07-weekend": 23.91,
+  "08-risk": 22.43,
+  "09-model": 37.47,
+  "10-okx-ai": 22.19,
+  "11-close": 10.34
+ },
+ "totalSeconds": 235.4
+}

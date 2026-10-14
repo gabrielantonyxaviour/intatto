@@ -1,0 +1,369 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-09-25 11:28:32 UTC
+
+Exit sandbox
+Sandbox
+
+Prove the weekend and corporate-action behaviour yourself on a fork of X Layer mainnet: move the clock, replay a gap, and watch every screen follow. No real money moves.
+
+Fork of X Layer mainnet
+The same contracts, tokens and pool state as X Layer at the fork block, on a chain of its own.
+Parent network
+X Layer mainnet · chain 196
+Sandbox chain id
+1960196
+Fork block
+71,563,431
+Public RPC
+https://intatto-rpc.larinova.com/rpc/0rt93_mhyU05I6sPjEsiHQ
+Admin methods
+
+Refused on the public RPC: anvil_*evm_*hardhat_*debug_*trace_*eth_sendTransactioneth_sign*
+
+Time travel, scenarios and reset run through the sandbox API below, and each call is written to the activity ledger.
+
+Try evm_mine on it
+Session
+0rt93_mhyU05I6sPjEsiHQ
+Sandbox API
+https://intatto-rpc.larinova.com
+Prove this is a real fork
+Block hashes, bytecode and storage compared with X Layer mainnet, in your browser.
+Your session
+Borrow, Lend and Risk now read this fork, and the burner is the connected wallet on every screen.
+Chain time
+Fri 2026-09-25 11:28:32 UTC
+Latest block
+71,563,460
+Market session
+EXTENDED
+new loans up to 40% LTV
+Burner wallet
+0x4dBFf9…62BaeC
+
+Connected as your wallet. Its key lives only in this browser and signs locally.
+
+NVDAx
+9.9999
+SPYx
+1.9999
+USDG
+1,000
+OKB
+0.1
+
+Funded by transfers from a real X Layer holder (0x5075…305E), never minted. Each transfer is in the activity ledger.
+
+Look at it on
+Borrow
+Lend
+Risk console
+Market
+Expires after 30 idle minutes · last active 2026-09-25 11:28:32 UTC (real time)
+End session
+Time travel
+Move the fork's clock. The keeper then posts the session the calendar says, as it would on mainnet.
+Jump to Saturday
+
+evm_setNextBlockTimestamp + evm_mine to Saturday, 12 hours after the Friday 20:00 ET close, then the keeper posts CLOSED
+
+New borrowing is capped at 30% of collateral value and falls toward 20% over 64 hours. Liquidation still starts at 65%.
+
+Look at Borrow
+Jump to Monday open
+
+evm_setNextBlockTimestamp + evm_mine to Monday 09:31 ET, then the keeper posts OPEN and a fresh price
+
+Regular US hours: new borrowing can reach 50% of collateral value again.
+
+Look at Market
++1 hour
+
+evm_setNextBlockTimestamp + evm_mine at chain time + 3,600 s, then a keeper tick
+
+The session follows the calendar: it may move between OPEN, EXTENDED and CLOSED.
+
+Look at Market
+Scenarios
+Replays run on this fork with real contract code. Each ledger entry records the data's source URL, retrieval time and sha256.
+January 2025 NVDA weekend gap
+CFD counterfactual
+About a minute
+
+CFD counterfactual: prices, not historical X Layer liquidity. Source: Dukascopy NVDA.US-USD minute bars, 24 and 27 January 2025.
+
+Opens a scenario borrower just under the 50% weekday limit, jumps to the weekend, then Monday opens about 12.5% lower and falls about 5% more by the close (evm_setNextBlockTimestamp, pool swaps, keeper posts)
+
+What you should see next: The scenario borrower, opened at the 50% weekday limit, ends near 60% LTV: still under the 65% liquidation threshold. The last ledger entry says how many bounded liquidation slices ran.
+
+Replay the January 2025 gap
+Look at Risk console
+Corporate action: 10-for-1 split
+Issuer multiplier
+
+Issuer multiplier: the current multiplier is real; the 10-for-1 activation is a scenario. Source: xStocks public multiplier API for NVDAx on X Layer.
+
+The issuer's real multiplier updater (impersonated on the fork) schedules multiplier ×10 in 20 minutes; the keeper posts the pending action
+
+What you should see next: NVDAx borrowing and liquidation pause until the keeper resolves it; repay stays open.
+
+Schedule a 10-for-1 split
+Look at Borrow
+Split activation
+Scenario
+Follows the split
+
+Scenario: follows the scheduled split above (schedules one first if none is pending). Source: Same multiplier data as the split above.
+
+evm_setNextBlockTimestamp past activation, the keeper posts the post-split quote (price ÷ 10) and resolves the guard
+
+What you should see next: The keeper posts the post-split price (÷ 10), the guard resolves and NVDAx borrowing reopens; collateral value should be unchanged across the split.
+
+Activate the split
+Look at Market
+Synthetic gap beyond the reserve
+Synthetic
+About 20 seconds
+
+Synthetic: not market data. Source: A 45% drop chosen to be larger than the gap reserve.
+
+Opens a scenario borrower if needed, pushes the pool and the relayed price down 45% in steps, then liquidates
+
+What you should see next: The reserve pays first; what it cannot cover is recorded as a lender deficit and the share price falls.
+
+Run a synthetic 45% gap
+Look at Lend
+Reset to the session start
+Every transaction, warp and scenario since the start is discarded; the burner is funded again and the ledger keeps the record.
+
+evm_revert to the snapshot taken right after funding, then a fresh evm_snapshot
+
+Reset…
+Activity and divergence ledger
+Everything this fork has done that X Layer mainnet did not: deploys, funding, keeper posts, time travel, scenarios and resets. Refreshed after every action.
+Refresh
+Status · kind
+What
+Chain time
+Tx hash
+Funding
+
+1000 USDG transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+Details
+Chain time
+2026-09-25 11:28:31 UTC
+Tx
+0xdab3d9…f9347e
+Funding
+
+2 SPYx transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+Details
+Chain time
+2026-09-25 11:28:31 UTC
+Tx
+0x3a121e…7a5f97
+Funding
+
+10 NVDAx transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+Details
+Chain time
+2026-09-25 11:28:31 UTC
+Tx
+0xd1733a…ce23a7
+Funding
+
+0.1 OKB from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+Details
+Chain time
+2026-09-25 11:28:31 UTC
+Tx
+0xc19e58…882710
+Keeper
+
+keeper posted SPYx quote $769.016994 (accepted)
+
+Chain time
+2026-09-25 11:28:31 UTC
+Tx
+0x4c800b…4cda0c
+Keeper
+
+keeper posted NVDAx quote $225.945713 (accepted)
+
+Chain time
+2026-09-25 11:28:31 UTC
+Tx
+0x177428…a40be3
+Keeper
+
+keeper posted session EXTENDED
+
+Details
+Chain time
+2026-09-25 11:28:31 UTC
+Tx
+0xd03160…a3ae1c
+Time travel
+
+session clock set to the wall clock (2026-09-25T11:28:31Z); the snapshot was taken at 2026-09-25T10:34:47Z
+
+Details
+Chain time
+2026-09-25 11:28:31 UTC
+Tx
+no transaction
+Note
+
+session started from the snapshot of X Layer block 71563431 built 2026-09-25T10:35:08.373Z
+
+Details
+Chain time
+2026-09-25 10:34:47 UTC
+Tx
+no transaction
+Keeper
+snapshot
+
+keeper posted SPYx quote $769.016994 (accepted)
+
+Details
+Chain time
+2026-09-25 10:34:45 UTC
+Tx
+0x959ddc…520d9d
+Keeper
+snapshot
+
+keeper posted NVDAx quote $225.945713 (accepted)
+
+Details
+Chain time
+2026-09-25 10:34:40 UTC
+Tx
+0xfbe7c7…f76d49
+Keeper
+snapshot
+
+keeper posted session EXTENDED
+
+Details
+Chain time
+2026-09-25 10:34:40 UTC
+Tx
+0x906bba…883aab
+Funding
+snapshot
+
+gap reserve topped up with 100 USDG from real holder (now 100.5 USDG with mainnet's seed)
+
+Details
+Chain time
+2026-09-25 10:34:40 UTC
+Tx
+0x88050a…9719d5
+Funding
+snapshot
+
+50000 USDG transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+Details
+Chain time
+2026-09-25 10:34:37 UTC
+Tx
+0x60be25…5b4769
+Funding
+snapshot
+
+0.01 OKB from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+Details
+Chain time
+2026-09-25 10:34:37 UTC
+Tx
+0x45af5a…b140a6
+Note
+snapshot
+
+sandbox only: NVDAx ticker cap set from mainnet's 1000 USDG to 50000 USDG, sized to the sandbox lender, so scenario borrowers fit under it
+
+Details
+Chain time
+2026-09-25 10:34:37 UTC
+Tx
+0x3013f0…9fb422
+Note
+snapshot
+
+sandbox only: SPYx relay USDG/USD staleness limit widened to 30 days (the forked feed cannot update in simulated time); peg band still 1%
+
+Details
+Chain time
+2026-09-25 10:34:37 UTC
+Tx
+0x6c0c6d…80a9db
+Note
+snapshot
+
+sandbox only: NVDAx relay USDG/USD staleness limit widened to 30 days (the forked feed cannot update in simulated time); peg band still 1%
+
+Details
+Chain time
+2026-09-25 10:34:36 UTC
+Tx
+0xc7dc23…31957c
+Deploy
+snapshot
+
+sandbox only: SPYx market deployed on the fork on top of the mainnet core (DeploySecondMarket.s.sol) and wired: vault.addMarket, reserve.setMarket, market.setLiquidator, liquidator.setMarket, caps.setInitialCap 50000 USDG
+
+Details
+Chain time
+2026-09-25 10:34:36 UTC
+Tx
+no transaction
+Funding
+snapshot
+
+1 OKB from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+Details
+Chain time
+2026-09-25 10:34:27 UTC
+Tx
+0x2f1dd1…213549
+Note
+snapshot
+
+sandbox only: the mainnet keeper/owner 0xaBa1F7e4FB0500696855BF38012676c10e3ef808 is impersonated on the fork (owner changes below, and every sandbox keeper post)
+
+Details
+Chain time
+2026-09-25 10:34:27 UTC
+Tx
+no transaction
+Note
+snapshot
+
+fork of X Layer mainnet at block 71563431, after Intatto's mainnet deployment at block 71562056: the core contracts and the NVDAx market are the live mainnet contracts at their mainnet addresses
+
+Details
+Chain time
+2026-09-25 10:34:27 UTC
+Tx
+no transaction
+
+22 entries

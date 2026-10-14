@@ -1,0 +1,51 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-10-05 20:32:27 UTC
+
+Exit sandbox
+Risk console
+
+Every price the keeper posted or had refused, every session, cap, corporate action and liquidation, read from the sandbox fork with its transaction. Nothing here comes from our servers. Back to the market
+
+Market
+NVDAx
+
+Events from blocks #71,563,097–#71,563,496 · 22 events · chain time 2026-10-05 20:32:27 UTC · latest #71,563,496
+
+Refresh
+
+Still loading older blocks back to the deployment (28% read); rows appear as they arrive.
+
+Summary
+Price posts
+Price shock
+Loans near liquidation
+Caps and LTV spread
+Market overview
+Sessions
+Corporate actions
+Liquidations
+Keeper log
+Trust and bounds
+Liquidations
+
+Past 65% LTV a position is sold into the pool in slices, never below a floor under the relayed price (15% below while trading, 3% while CLOSED). A slice that cannot fill at its floor waits.
+
+Gap reserve now
+100.50 USDG
+Lender deficit now
+0.00 USDG (0)
+Repaid by slices read
+0.00 USDG
+Reserve covered · deficit
+0.00 USDG · 0.00 USDG
+No liquidation has run in the scanned blocks.

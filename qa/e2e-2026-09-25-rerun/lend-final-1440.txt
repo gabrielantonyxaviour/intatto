@@ -1,0 +1,244 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Intatto USDG vault
+iUSDG
+Vault
+0x89fC…308C
+(opens OKLink)
+X Layer
+Asset USDG
+Lends to the NVDAx market
+
+Deposit USDG and earn the interest people pay to borrow against NVDAx. The vault lends to one market, whose borrowing limits follow the US stock market session.
+
+Total deposits
+1.4975 USDG
+Idle, withdrawable now
+1.0975 USDG
+Lent out
+0.4 USDG
+26.71% utilisation
+Supply rate
+0.99%
+a year, variable
+Deposit
+Withdraw
+Deposit USDG
+USDG
+Wallet 0.4 USDG
+Max
+Network
+X Layer
+Your deposit
+1.4975 USDG
+Supply rate
+0.99%
+Projected monthly earnings
+0.0012 USDG
+Projected yearly earnings
+0.0148 USDG
+
+Projections use today's supply rate as simple interest. The rate moves with utilisation.
+
+Read how lending works before your first deposit.
+Read and accept
+1
+Approve USDG
+Lets the contract move your USDG.
+2
+Deposit USDG
+Accept the lending terms first
+How lending works
+Overview
+Allocation
+Rates
+Risk
+Deficits
+Your position
+Overview
+Vault contract
+0x89fC…308C
+(opens OKLink)
+Share price
+1.000002 USDG
+Share token
+iUSDG (ERC-4626, 6 decimals)
+Shares outstanding
+1.4975 iUSDG
+Withdrawals
+Any time, up to the idle USDG
+Markets
+1 (NVDAx)
+Where the money is lent
+
+The vault lends to one market. Every USDG that is not idle is owed by people borrowing against NVDAx.
+
+Lent out 0.4 USDG
+Idle 1.0975 USDG (73.3%)
+Market	Borrowed	Collateral value	Threshold	Debt cap	Can still be borrowed
+
+USDG
+|
+NVDAx
+65% LT
+	0.40 USDG	1.1036 USDG	65%	1,250 USDG
+0.0% used
+	1.0975 USDG
+
+New-borrow limit now: 40% · extended hours. It follows the US market session; the 65% liquidation threshold does not.
+
+Collateral is NVDAx held as the issuer's wNVDAx wrapper shares. Its price is the issuer's indicative quote, $226.24 per NVDAx, fetched by the keeper at 2026-09-25 11:36:42 UTC. The relay's guards pass: the post is recent, inside the band around the pool's 30-minute average, and USDG is on peg.
+
+Interest rates
+Supply rate
+0.99%
+Borrow rate
+4.67%
+Utilisation
+26.71%
+0%
+55%
+110%
+0%
+25%
+50%
+75%
+100%
+Now 26.7%
+kink 80%
+Borrow rate
+Supply rate
+x: utilisation · y: rate a year
+
+Borrowers pay 2.00% a year at zero utilisation, rising by 8.00% up to the 80% kink, then by a further 100.00% between the kink and full utilisation, so idle USDG comes back quickly. Lenders receive the borrow rate × utilisation, less the 20% that funds the gap reserve.
+
+Risk
+Loss risk
+Lenders can lose money in a gap larger than the reserve. There is no insurance fund beyond the gap reserve. If NVDAx opens far below where it closed and a liquidation cannot recover the debt, the gap reserve pays first; any remainder lowers the value of every lender's shares, in proportion to what they hold.
+Who pays for a loss, in order
+1. Recovered collateral
+
+1.1036 USDG
+
+An unhealthy position's NVDAx is sold into the pool in bounded slices. The proceeds repay its debt and the 5% penalty first. Right now 1.1036 USDG of collateral backs 0.4 USDG of debt (36.2% loan-to-value across all borrowers).
+
+2. Gap reserve
+
+0.50 USDG
+
+If the collateral is gone and debt is left, the gap reserve pays the rest straight into the vault, up to its balance.
+
+3. Lenders, pro rata
+
+1.4975 USDG
+
+Whatever the reserve cannot pay is written off. Every share loses the same fraction. The vault holds 1.4975 USDG today, so a write-off that size would wipe out all deposits.
+
+Every open loan, ranked by how close it is to liquidation, and price-shock scenarios are on the Risk page.
+
+How the gap reserve is funded
+Balance now
+0.50 USDG
+Seed
+USDG sent by the operator at launch (anyone can add more)
+Interest
+20% of all interest borrowers pay
+Liquidations
+Half of each 5% penalty (the keeper who liquidates keeps the other half)
+Withdrawals
+None: it can only pay shortfalls to the vault
+Market risk parameters
+Liquidation threshold
+65% in every session
+New-borrow limit
+50% open · 40% extended · 30% falling to 20% over 64 h closed · 0% halted
+Liquidation penalty
+5%, half to the keeper, half to the gap reserve
+Reserve factor
+20% of interest
+Roles
+Operator (owner)
+0xaBa1…f808
+(opens OKLink)
+Keeper
+0xaBa1…f808
+(opens OKLink)
+
+The operator can change the interest-rate model, the session limits, the price guards and the liquidation floors, and add markets to the vault, with no timelock. The keeper posts the market session, the NVDAx price and the debt cap, and runs liquidations; the contracts refuse a price outside their guards. Contracts: vault 
+0x89fC…308C
+, gap reserve 
+0x4CB0…CB52
+.
+
+Recognised deficits
+Deficits recognised
+0
+Total written off
+0.000000 USDG
+
+No deficits recognised. Every liquidation so far was covered by its collateral or the gap reserve.
+
+Your position
+Your shares
+1.497501 iUSDG
+Worth now
+1.497503 USDG
+Share of the vault
+100.0000%
+USDG in your wallet
+0.40 USDG
+How lending on Intatto works
+
+Read this once before your first deposit.
+
+You
+
+the lender
+
+Deposit USDG
+
+you receive iUSDG vault shares
+
+Intatto USDG vault
+
+holds idle USDG and what is lent out
+
+NVDAx market
+
+borrowers post NVDAx and borrow USDG
+
+01
+
+Deposit USDG in the vault
+
+You receive iUSDG shares. A share is worth more USDG as borrowers pay interest, and less if a loss is ever written off.
+
+02
+
+The vault lends to one market: NVDAx
+
+Borrowers post NVDAx (held as the issuer's wNVDAx wrapper shares) and borrow USDG up to a limit that follows the US market session. As a depositor you carry this market's risks: the stock itself, the keeper-relayed price and the 65% liquidation threshold.
+
+03
+
+Earn interest from over-collateralised borrowers
+
+Lenders receive 80% of the interest borrowers pay. The other 20% funds the gap reserve, which pays for a liquidation shortfall before lenders do.
+
+Lenders can lose money. If a stock gaps further than the collateral and the gap reserve can cover, the rest is written off and every lender's shares lose value pro rata. There is no insurance fund beyond the gap reserve.
+
+The NVDAx price is the issuer's indicative quote, relayed on chain by a keeper. It carries no source timestamp; the relay only accepts it inside a band around the pool's 30-minute average.
+
+Intatto is experimental software. Check that you may use it where you live.
+
+I have read how lending works and understand I can lose part of my deposit.
+Continue
+Close

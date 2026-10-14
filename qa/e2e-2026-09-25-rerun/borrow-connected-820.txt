@@ -1,0 +1,87 @@
+Intatto
+X Layer
+0x7F23…a415
+Borrow USDG with NVDAx
+NVDAx · NVDA
+EXTENDED
+
+Deposit NVDAx and borrow USDG against it. How much you can borrow follows the US market session; the liquidation line stays at 65% LTV around the clock.
+
+Deposit & borrow
+Repay & withdraw
+Collateral
+NVDAx
+Adds to your collateral
+Wallet <0.0001 NVDAx
+Max
+NVDAx price
+$226.05
+· fetched by the keeper at 2026-09-25 11:21:42 UTC
+EXTENDED session · max new-borrow LTV
+40.00%
+Sessions, guards and caps on the Risk page
+Loan
+USDG
+Max
+Can borrow 0.041 USDG
+LTV
+36.27%
+Medium
+EXTENDED max 40.00%
+Liquidation 65.00%
+Liquidation price $126.15
+NVDA can fall 44.2% before liquidation
+Interest rate
+Variable
+
+4.67%
+
+≈ 0.01 USDG / year on 0.40 USDG at today's rate
+
+Enter an amount
+Your position
+1 wNVDAx = 1.0017 NVDAx (issuer multiplier). Collateral is held as wNVDAx and valued at the relayed price.
+Collateral
+0.0048 NVDAx
+Held as
+0.0048 wNVDAx
+Collateral value
+1.10 USDG
+Debt
+0.40 USDG
+LTV
+36.27%
+Health factor
+1.79
+Liquidation price
+$126.15
+
+New-borrow limit 40.00% (EXTENDED) · liquidation at 65.00%
+
+If NVDA opens lower on Monday
+Monday open	NVDAx	LTV	Health	Status	Lenders lose (est.)
+−5%	$214.75	38.18%	1.70	Safe	
+0.00 USDG
+
+−10%	$203.44	40.30%	1.61	Safe	
+0.00 USDG
+
+−20%	$180.84	45.34%	1.43	Safe	
+0.00 USDG
+
+−30%	$158.23	51.82%	1.25	Safe	
+0.00 USDG
+
+−40%	$135.63	60.45%	1.07	Safe	
+0.00 USDG
+
+−44.20%	$126.13	65.00%	0.99	Liquidation starts	
+0.00 USDG
+
+−50%	$113.02	72.54%	0.89	Liquidatable	
+0.00 USDG
+
+−60%	$90.42	90.68%	0.71	Liquidatable	
+0.00 USDG
+
+Liquidation starts above 65.00% LTV (health below 1.00) in every session, with a 5% penalty. Lender loss is an estimate at the oracle price with no slippage: the debt that selling all the collateral would not repay after the penalty, less the gap reserve's 0.50 USDG (shared by every position). Market-wide stress on the Risk page.

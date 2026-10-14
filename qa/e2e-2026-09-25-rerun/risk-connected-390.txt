@@ -1,0 +1,36 @@
+Intatto
+X Layer
+0x7F23…a415
+Risk console
+
+Every price the keeper posted or had refused, every session, cap, corporate action and liquidation, read from X Layer with its transaction. Nothing here comes from our servers. Back to the market
+
+Market NVDAx
+
+Refresh
+Analysis
+Summary
+NVDAx summary
+
+Read (chain time –). The price is the issuer's indicative quote relayed by Intatto's keeper; it carries no source timestamp, so only the keeper's fetch time is shown.
+
+Market session
+EXTENDED
+Posted – · period began 2026-09-25 08:00:00 UTC
+Max new-borrow LTV now
+40.00%
+Liquidation at 65% in every session
+NVDAx relayed price
+$226.05
+Fetched by the keeper – at 11:21:42 UTC · fresh · $226.43 per wrapper share
+Credit cap used
+0.03%
+0.40 USDG of 1,250.00 USDG
+Gap reserve
+–
+Pays a liquidation shortfall before any lender loses money
+Lender deficit
+–
+Across the loans read
+
+Borrowers are found from Borrow events in the scanned blocks.

@@ -1,0 +1,14 @@
+[{
+ "key": "decide:voiceover",
+ "kind": "decide",
+ "title": "Whose voice narrates the Dev Day demo video?",
+ "body": "The 3:30 script is on the Demo tab (9 beats, about 420 words). I'm cutting the rough cut with a scratch Mac voice for timing only; the final voice drops in per beat whatever you pick. My pick is (c): it's your own voice, needs none of your time before tonight's 23:59 UTC deadline, and costs about 2,600 of the 130,000 characters left this month. Choose (a) if you'd rather record it: read each beat into your phone and send me the files by about 19:00 UTC. For (b), the stock voice would be ElevenLabs 'Evan – Calm, Grounded'.",
+ "nodeIds": [],
+ "options": [
+  {"key": "a", "label": "I record the voice-over myself from the script"},
+  {"key": "b", "label": "A generated stock voice (ElevenLabs Evan, calm)"},
+  {"key": "c", "label": "My ElevenLabs professional voice clone 'Gabriel' (I consent to it narrating this video)"},
+  {"key": "d", "label": "The Higgsfield 'Narrator' element voice used for Strehl"}
+ ],
+ "recommended": "c"
+}]

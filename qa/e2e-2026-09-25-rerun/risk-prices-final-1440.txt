@@ -1,0 +1,43 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Risk console
+
+Every price the keeper posted or had refused, every session, cap, corporate action and liquidation, read from X Layer with its transaction. Nothing here comes from our servers. Back to the market
+
+Market NVDAx
+
+Refresh
+Summary
+Price posts
+Price shock
+Loans near liquidation
+Caps and LTV spread
+Market overview
+Sessions
+Corporate actions
+Liquidations
+Keeper log
+Trust and bounds
+Price posts
+
+Each NVDAx quote the keeper sent to the relay, with the guard that stopped it when one did. A rejected post changes nothing onchain.
+
+All 0
+Accepted 0
+Rejected 0
+How the price is built
+
+Layered and checked onchain on every post.
+
+The issuer's indicative NVDAx quote, fetched by Intatto's keeper. It has no source timestamp, so the relay records when the keeper fetched it.
+Converted to a wrapper-share price with the wrapper's own share-to-token rate (the issuer multiplier is inside it, never applied twice).
+Checked against the wrapper/USDG pool's 30-minute TWAP: within ±3% while the market is OPEN, ±8% otherwise.
+Capped at 15% of movement from the last accepted post, and refused while Chainlink USDG/USD is stale or more than 1% off $1.

@@ -1,0 +1,14 @@
+{
+  "marketShown": "0.040863 USDG",
+  "marketApi": "0.040863",
+  "borrowLine": "Can borrow 0.040863 USDG",
+  "borrowApi": "0.040863",
+  "marketMatch": true,
+  "borrowMatch": true,
+  "marketMicros": "40863",
+  "marketApiMicros": "40863",
+  "borrowMicros": "40863",
+  "borrowApiMicros": "40863",
+  "borrowSixDecimals": true,
+  "pass": true
+}

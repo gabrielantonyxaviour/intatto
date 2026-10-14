@@ -1,0 +1,6594 @@
+{
+ "1": {
+  "file": "vo/gabriel/edit/01-hook.wav",
+  "seconds": 12.294,
+  "words": [
+   {
+    "text": "Tokenized",
+    "start": 0.676,
+    "end": 1.47,
+    "heard": true
+   },
+   {
+    "text": "stocks",
+    "start": 1.49,
+    "end": 1.79,
+    "heard": true
+   },
+   {
+    "text": "trade",
+    "start": 1.81,
+    "end": 2.25,
+    "heard": true
+   },
+   {
+    "text": "twenty-",
+    "start": 2.27,
+    "end": 2.667,
+    "heard": true
+   },
+   {
+    "text": "four",
+    "start": 2.667,
+    "end": 2.931,
+    "heard": true
+   },
+   {
+    "text": "seven,",
+    "start": 2.931,
+    "end": 3.262,
+    "heard": true
+   },
+   {
+    "text": "but",
+    "start": 3.282,
+    "end": 3.35,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 3.37,
+    "end": 3.59,
+    "heard": true
+   },
+   {
+    "text": "stocks",
+    "start": 3.61,
+    "end": 3.91,
+    "heard": true
+   },
+   {
+    "text": "underneath",
+    "start": 3.93,
+    "end": 4.39,
+    "heard": true
+   },
+   {
+    "text": "them",
+    "start": 4.41,
+    "end": 4.69,
+    "heard": true
+   },
+   {
+    "text": "don't.",
+    "start": 4.71,
+    "end": 5.517,
+    "heard": true
+   },
+   {
+    "text": "There's",
+    "start": 5.537,
+    "end": 5.89,
+    "heard": true
+   },
+   {
+    "text": "about",
+    "start": 5.91,
+    "end": 6.37,
+    "heard": true
+   },
+   {
+    "text": "ninety",
+    "start": 6.39,
+    "end": 6.67,
+    "heard": true
+   },
+   {
+    "text": "million",
+    "start": 6.69,
+    "end": 7.03,
+    "heard": true
+   },
+   {
+    "text": "dollars",
+    "start": 7.05,
+    "end": 7.31,
+    "heard": true
+   },
+   {
+    "text": "of",
+    "start": 7.33,
+    "end": 7.47,
+    "heard": true
+   },
+   {
+    "text": "them",
+    "start": 7.49,
+    "end": 7.69,
+    "heard": true
+   },
+   {
+    "text": "on",
+    "start": 7.71,
+    "end": 7.93,
+    "heard": true
+   },
+   {
+    "text": "X",
+    "start": 7.95,
+    "end": 8.091,
+    "heard": true
+   },
+   {
+    "text": "Layer,",
+    "start": 8.091,
+    "end": 8.798,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 8.818,
+    "end": 8.91,
+    "heard": true
+   },
+   {
+    "text": "right",
+    "start": 8.93,
+    "end": 9.19,
+    "heard": true
+   },
+   {
+    "text": "now",
+    "start": 9.21,
+    "end": 9.47,
+    "heard": true
+   },
+   {
+    "text": "you",
+    "start": 9.49,
+    "end": 9.81,
+    "heard": true
+   },
+   {
+    "text": "can't",
+    "start": 9.83,
+    "end": 10.31,
+    "heard": true
+   },
+   {
+    "text": "borrow",
+    "start": 10.33,
+    "end": 10.65,
+    "heard": true
+   },
+   {
+    "text": "against",
+    "start": 10.67,
+    "end": 11.013,
+    "heard": true
+   },
+   {
+    "text": "any",
+    "start": 11.033,
+    "end": 11.23,
+    "heard": true
+   },
+   {
+    "text": "of",
+    "start": 11.25,
+    "end": 11.41,
+    "heard": true
+   },
+   {
+    "text": "it.",
+    "start": 11.43,
+    "end": 12,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "Tokenized",
+    "start": 0.676,
+    "end": 1.47
+   },
+   {
+    "text": "stocks",
+    "start": 1.49,
+    "end": 1.79
+   },
+   {
+    "text": "trade",
+    "start": 1.81,
+    "end": 2.25
+   },
+   {
+    "text": "24x7",
+    "start": 2.27,
+    "end": 3.262
+   },
+   {
+    "text": "but",
+    "start": 3.282,
+    "end": 3.35
+   },
+   {
+    "text": "the",
+    "start": 3.37,
+    "end": 3.59
+   },
+   {
+    "text": "stocks",
+    "start": 3.61,
+    "end": 3.91
+   },
+   {
+    "text": "underneath",
+    "start": 3.93,
+    "end": 4.39
+   },
+   {
+    "text": "them",
+    "start": 4.41,
+    "end": 4.69
+   },
+   {
+    "text": "don't.",
+    "start": 4.71,
+    "end": 5.517
+   },
+   {
+    "text": "There's",
+    "start": 5.537,
+    "end": 5.89
+   },
+   {
+    "text": "about",
+    "start": 5.91,
+    "end": 6.37
+   },
+   {
+    "text": "90",
+    "start": 6.39,
+    "end": 6.67
+   },
+   {
+    "text": "million",
+    "start": 6.69,
+    "end": 7.03
+   },
+   {
+    "text": "dollars",
+    "start": 7.05,
+    "end": 7.31
+   },
+   {
+    "text": "of",
+    "start": 7.33,
+    "end": 7.47
+   },
+   {
+    "text": "them",
+    "start": 7.49,
+    "end": 7.69
+   },
+   {
+    "text": "on",
+    "start": 7.71,
+    "end": 7.93
+   },
+   {
+    "text": "xLayer",
+    "start": 7.95,
+    "end": 8.798
+   },
+   {
+    "text": "and",
+    "start": 8.818,
+    "end": 8.91
+   },
+   {
+    "text": "right",
+    "start": 8.93,
+    "end": 9.19
+   },
+   {
+    "text": "now",
+    "start": 9.21,
+    "end": 9.47
+   },
+   {
+    "text": "you",
+    "start": 9.49,
+    "end": 9.81
+   },
+   {
+    "text": "can't",
+    "start": 9.83,
+    "end": 10.31
+   },
+   {
+    "text": "borrow",
+    "start": 10.33,
+    "end": 10.65
+   },
+   {
+    "text": "against",
+    "start": 10.67,
+    "end": 11.013
+   },
+   {
+    "text": "any",
+    "start": 11.033,
+    "end": 11.23
+   },
+   {
+    "text": "of",
+    "start": 11.25,
+    "end": 11.41
+   },
+   {
+    "text": "it.",
+    "start": 11.43,
+    "end": 12
+   }
+  ]
+ },
+ "2": {
+  "file": "vo/gabriel/edit/02-why.wav",
+  "seconds": 24.841,
+  "words": [
+   {
+    "text": "Bybit,",
+    "start": 0.603,
+    "end": 1.37,
+    "heard": true
+   },
+   {
+    "text": "Kraken",
+    "start": 1.39,
+    "end": 1.79,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 1.81,
+    "end": 1.91,
+    "heard": true
+   },
+   {
+    "text": "Bitget",
+    "start": 1.93,
+    "end": 2.67,
+    "heard": true
+   },
+   {
+    "text": "already",
+    "start": 2.69,
+    "end": 2.99,
+    "heard": true
+   },
+   {
+    "text": "lend",
+    "start": 3.01,
+    "end": 3.35,
+    "heard": true
+   },
+   {
+    "text": "against",
+    "start": 3.37,
+    "end": 3.65,
+    "heard": true
+   },
+   {
+    "text": "these",
+    "start": 3.67,
+    "end": 3.99,
+    "heard": true
+   },
+   {
+    "text": "tokens,",
+    "start": 4.01,
+    "end": 4.904,
+    "heard": true
+   },
+   {
+    "text": "but",
+    "start": 4.924,
+    "end": 5.07,
+    "heard": true
+   },
+   {
+    "text": "doing",
+    "start": 5.09,
+    "end": 5.25,
+    "heard": true
+   },
+   {
+    "text": "it",
+    "start": 5.27,
+    "end": 5.47,
+    "heard": true
+   },
+   {
+    "text": "onchain",
+    "start": 5.47,
+    "end": 6.01,
+    "heard": false
+   },
+   {
+    "text": "is",
+    "start": 6.01,
+    "end": 6.41,
+    "heard": true
+   },
+   {
+    "text": "harder,",
+    "start": 6.43,
+    "end": 7.072,
+    "heard": true
+   },
+   {
+    "text": "because",
+    "start": 7.092,
+    "end": 7.33,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 7.35,
+    "end": 7.63,
+    "heard": true
+   },
+   {
+    "text": "weekend",
+    "start": 7.65,
+    "end": 8.07,
+    "heard": true
+   },
+   {
+    "text": "breaks",
+    "start": 8.09,
+    "end": 8.482,
+    "heard": true
+   },
+   {
+    "text": "pricing.",
+    "start": 8.502,
+    "end": 9.745,
+    "heard": true
+   },
+   {
+    "text": "Price",
+    "start": 9.765,
+    "end": 10.13,
+    "heard": true
+   },
+   {
+    "text": "discovery",
+    "start": 10.15,
+    "end": 10.75,
+    "heard": true
+   },
+   {
+    "text": "stops",
+    "start": 10.77,
+    "end": 11.17,
+    "heard": true
+   },
+   {
+    "text": "Friday",
+    "start": 11.19,
+    "end": 11.43,
+    "heard": true
+   },
+   {
+    "text": "at",
+    "start": 11.45,
+    "end": 11.67,
+    "heard": true
+   },
+   {
+    "text": "8",
+    "start": 11.67,
+    "end": 11.97,
+    "heard": false
+   },
+   {
+    "text": "p.m.",
+    "start": 11.97,
+    "end": 12.25,
+    "heard": true
+   },
+   {
+    "text": "Eastern.",
+    "start": 12.27,
+    "end": 13.266,
+    "heard": true
+   },
+   {
+    "text": "The",
+    "start": 13.286,
+    "end": 13.57,
+    "heard": true
+   },
+   {
+    "text": "token",
+    "start": 13.59,
+    "end": 13.95,
+    "heard": true
+   },
+   {
+    "text": "keeps",
+    "start": 13.97,
+    "end": 14.39,
+    "heard": true
+   },
+   {
+    "text": "trading",
+    "start": 14.41,
+    "end": 14.67,
+    "heard": true
+   },
+   {
+    "text": "on",
+    "start": 14.69,
+    "end": 14.996,
+    "heard": true
+   },
+   {
+    "text": "thin",
+    "start": 15.016,
+    "end": 15.47,
+    "heard": true
+   },
+   {
+    "text": "liquidity,",
+    "start": 15.49,
+    "end": 16.402,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 16.422,
+    "end": 16.59,
+    "heard": true
+   },
+   {
+    "text": "even",
+    "start": 16.61,
+    "end": 16.81,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 16.83,
+    "end": 17.11,
+    "heard": true
+   },
+   {
+    "text": "issuer",
+    "start": 17.13,
+    "end": 17.57,
+    "heard": true
+   },
+   {
+    "text": "stops",
+    "start": 17.59,
+    "end": 17.93,
+    "heard": true
+   },
+   {
+    "text": "quoting",
+    "start": 17.95,
+    "end": 18.51,
+    "heard": true
+   },
+   {
+    "text": "until",
+    "start": 18.53,
+    "end": 18.65,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 18.65,
+    "end": 19.05,
+    "heard": false
+   },
+   {
+    "text": "open.",
+    "start": 19.05,
+    "end": 20.019,
+    "heard": true
+   },
+   {
+    "text": "Lend",
+    "start": 20.019,
+    "end": 20.37,
+    "heard": false
+   },
+   {
+    "text": "into",
+    "start": 20.37,
+    "end": 20.69,
+    "heard": true
+   },
+   {
+    "text": "that,",
+    "start": 20.71,
+    "end": 21.07,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 21.09,
+    "end": 21.23,
+    "heard": true
+   },
+   {
+    "text": "you're",
+    "start": 21.25,
+    "end": 21.69,
+    "heard": true
+   },
+   {
+    "text": "carrying",
+    "start": 21.71,
+    "end": 22.13,
+    "heard": true
+   },
+   {
+    "text": "gap",
+    "start": 22.15,
+    "end": 22.47,
+    "heard": true
+   },
+   {
+    "text": "risk",
+    "start": 22.49,
+    "end": 22.886,
+    "heard": true
+   },
+   {
+    "text": "with",
+    "start": 22.906,
+    "end": 23.15,
+    "heard": true
+   },
+   {
+    "text": "no",
+    "start": 23.17,
+    "end": 23.37,
+    "heard": true
+   },
+   {
+    "text": "real",
+    "start": 23.39,
+    "end": 23.83,
+    "heard": true
+   },
+   {
+    "text": "price.",
+    "start": 23.85,
+    "end": 24.841,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "-",
+    "start": 0,
+    "end": 0.583
+   },
+   {
+    "text": "Bybit,",
+    "start": 0.603,
+    "end": 1.37
+   },
+   {
+    "text": "Kraken",
+    "start": 1.39,
+    "end": 1.79
+   },
+   {
+    "text": "and",
+    "start": 1.81,
+    "end": 1.91
+   },
+   {
+    "text": "Bitget",
+    "start": 1.93,
+    "end": 2.67
+   },
+   {
+    "text": "already",
+    "start": 2.69,
+    "end": 2.99
+   },
+   {
+    "text": "lend",
+    "start": 3.01,
+    "end": 3.35
+   },
+   {
+    "text": "against",
+    "start": 3.37,
+    "end": 3.65
+   },
+   {
+    "text": "these",
+    "start": 3.67,
+    "end": 3.99
+   },
+   {
+    "text": "tokens,",
+    "start": 4.01,
+    "end": 4.904
+   },
+   {
+    "text": "but",
+    "start": 4.924,
+    "end": 5.07
+   },
+   {
+    "text": "doing",
+    "start": 5.09,
+    "end": 5.25
+   },
+   {
+    "text": "it",
+    "start": 5.27,
+    "end": 5.47
+   },
+   {
+    "text": "on-chain",
+    "start": 5.49,
+    "end": 5.99
+   },
+   {
+    "text": "is",
+    "start": 6.01,
+    "end": 6.41
+   },
+   {
+    "text": "harder",
+    "start": 6.43,
+    "end": 7.072
+   },
+   {
+    "text": "because",
+    "start": 7.092,
+    "end": 7.33
+   },
+   {
+    "text": "the",
+    "start": 7.35,
+    "end": 7.63
+   },
+   {
+    "text": "weekend",
+    "start": 7.65,
+    "end": 8.07
+   },
+   {
+    "text": "breaks",
+    "start": 8.09,
+    "end": 8.482
+   },
+   {
+    "text": "pricing.",
+    "start": 8.502,
+    "end": 9.745
+   },
+   {
+    "text": "Price",
+    "start": 9.765,
+    "end": 10.13
+   },
+   {
+    "text": "discovery",
+    "start": 10.15,
+    "end": 10.75
+   },
+   {
+    "text": "stops",
+    "start": 10.77,
+    "end": 11.17
+   },
+   {
+    "text": "Friday",
+    "start": 11.19,
+    "end": 11.43
+   },
+   {
+    "text": "at",
+    "start": 11.45,
+    "end": 11.67
+   },
+   {
+    "text": "8",
+    "start": 11.69,
+    "end": 11.95
+   },
+   {
+    "text": "PM",
+    "start": 11.97,
+    "end": 12.25
+   },
+   {
+    "text": "Eastern.",
+    "start": 12.27,
+    "end": 13.266
+   },
+   {
+    "text": "The",
+    "start": 13.286,
+    "end": 13.57
+   },
+   {
+    "text": "token",
+    "start": 13.59,
+    "end": 13.95
+   },
+   {
+    "text": "keeps",
+    "start": 13.97,
+    "end": 14.39
+   },
+   {
+    "text": "trading",
+    "start": 14.41,
+    "end": 14.67
+   },
+   {
+    "text": "on",
+    "start": 14.69,
+    "end": 14.996
+   },
+   {
+    "text": "thin",
+    "start": 15.016,
+    "end": 15.47
+   },
+   {
+    "text": "liquidity",
+    "start": 15.49,
+    "end": 16.402
+   },
+   {
+    "text": "and",
+    "start": 16.422,
+    "end": 16.59
+   },
+   {
+    "text": "even",
+    "start": 16.61,
+    "end": 16.81
+   },
+   {
+    "text": "the",
+    "start": 16.83,
+    "end": 17.11
+   },
+   {
+    "text": "issuer",
+    "start": 17.13,
+    "end": 17.57
+   },
+   {
+    "text": "stops",
+    "start": 17.59,
+    "end": 17.93
+   },
+   {
+    "text": "quoting",
+    "start": 17.95,
+    "end": 18.51
+   },
+   {
+    "text": "until",
+    "start": 18.53,
+    "end": 18.65
+   },
+   {
+    "text": "they're",
+    "start": 18.67,
+    "end": 19.03
+   },
+   {
+    "text": "open.",
+    "start": 19.05,
+    "end": 20.019
+   },
+   {
+    "text": "Blend",
+    "start": 20.039,
+    "end": 20.35
+   },
+   {
+    "text": "into",
+    "start": 20.37,
+    "end": 20.69
+   },
+   {
+    "text": "that",
+    "start": 20.71,
+    "end": 21.07
+   },
+   {
+    "text": "and",
+    "start": 21.09,
+    "end": 21.23
+   },
+   {
+    "text": "you're",
+    "start": 21.25,
+    "end": 21.69
+   },
+   {
+    "text": "carrying",
+    "start": 21.71,
+    "end": 22.13
+   },
+   {
+    "text": "gap",
+    "start": 22.15,
+    "end": 22.47
+   },
+   {
+    "text": "risk",
+    "start": 22.49,
+    "end": 22.886
+   },
+   {
+    "text": "with",
+    "start": 22.906,
+    "end": 23.15
+   },
+   {
+    "text": "no",
+    "start": 23.17,
+    "end": 23.37
+   },
+   {
+    "text": "real",
+    "start": 23.39,
+    "end": 23.83
+   },
+   {
+    "text": "price.",
+    "start": 23.85,
+    "end": 24.841
+   }
+  ]
+ },
+ "3": {
+  "file": "vo/gabriel/edit/03-intatto.wav",
+  "seconds": 32.234,
+  "words": [
+   {
+    "text": "So",
+    "start": 0.61,
+    "end": 0.91,
+    "heard": true
+   },
+   {
+    "text": "we",
+    "start": 0.93,
+    "end": 1.21,
+    "heard": true
+   },
+   {
+    "text": "built",
+    "start": 1.23,
+    "end": 1.49,
+    "heard": true
+   },
+   {
+    "text": "Intatto,",
+    "start": 1.51,
+    "end": 2.542,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 2.562,
+    "end": 2.67,
+    "heard": true
+   },
+   {
+    "text": "lending",
+    "start": 2.69,
+    "end": 3.11,
+    "heard": true
+   },
+   {
+    "text": "market",
+    "start": 3.13,
+    "end": 3.35,
+    "heard": true
+   },
+   {
+    "text": "that",
+    "start": 3.37,
+    "end": 3.59,
+    "heard": true
+   },
+   {
+    "text": "lives",
+    "start": 3.61,
+    "end": 3.99,
+    "heard": true
+   },
+   {
+    "text": "natively",
+    "start": 4.01,
+    "end": 4.41,
+    "heard": true
+   },
+   {
+    "text": "on",
+    "start": 4.43,
+    "end": 4.63,
+    "heard": true
+   },
+   {
+    "text": "X",
+    "start": 4.65,
+    "end": 4.853,
+    "heard": true
+   },
+   {
+    "text": "Layer.",
+    "start": 4.853,
+    "end": 5.867,
+    "heard": true
+   },
+   {
+    "text": "You",
+    "start": 5.887,
+    "end": 5.99,
+    "heard": true
+   },
+   {
+    "text": "just",
+    "start": 6.01,
+    "end": 6.23,
+    "heard": true
+   },
+   {
+    "text": "put",
+    "start": 6.25,
+    "end": 6.37,
+    "heard": true
+   },
+   {
+    "text": "in",
+    "start": 6.39,
+    "end": 6.53,
+    "heard": true
+   },
+   {
+    "text": "your",
+    "start": 6.55,
+    "end": 6.77,
+    "heard": true
+   },
+   {
+    "text": "tokenized",
+    "start": 6.79,
+    "end": 7.27,
+    "heard": true
+   },
+   {
+    "text": "stocks",
+    "start": 7.29,
+    "end": 7.97,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 7.99,
+    "end": 8.23,
+    "heard": true
+   },
+   {
+    "text": "borrow",
+    "start": 8.25,
+    "end": 8.65,
+    "heard": true
+   },
+   {
+    "text": "USDG",
+    "start": 8.67,
+    "end": 9.15,
+    "heard": true
+   },
+   {
+    "text": "against",
+    "start": 9.17,
+    "end": 9.55,
+    "heard": true
+   },
+   {
+    "text": "them,",
+    "start": 9.57,
+    "end": 9.972,
+    "heard": true
+   },
+   {
+    "text": "any",
+    "start": 9.992,
+    "end": 10.17,
+    "heard": true
+   },
+   {
+    "text": "day",
+    "start": 10.19,
+    "end": 10.31,
+    "heard": true
+   },
+   {
+    "text": "of",
+    "start": 10.33,
+    "end": 10.41,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 10.43,
+    "end": 10.65,
+    "heard": true
+   },
+   {
+    "text": "week.",
+    "start": 10.67,
+    "end": 11.323,
+    "heard": true
+   },
+   {
+    "text": "The",
+    "start": 11.343,
+    "end": 11.47,
+    "heard": true
+   },
+   {
+    "text": "key",
+    "start": 11.49,
+    "end": 11.71,
+    "heard": true
+   },
+   {
+    "text": "thing",
+    "start": 11.73,
+    "end": 11.89,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 11.91,
+    "end": 12.23,
+    "heard": true
+   },
+   {
+    "text": "that",
+    "start": 12.25,
+    "end": 12.573,
+    "heard": true
+   },
+   {
+    "text": "Intatto",
+    "start": 12.593,
+    "end": 13.11,
+    "heard": true
+   },
+   {
+    "text": "knows",
+    "start": 13.13,
+    "end": 13.49,
+    "heard": true
+   },
+   {
+    "text": "when",
+    "start": 13.51,
+    "end": 13.65,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 13.67,
+    "end": 14.01,
+    "heard": true
+   },
+   {
+    "text": "actual",
+    "start": 14.03,
+    "end": 14.29,
+    "heard": true
+   },
+   {
+    "text": "stock",
+    "start": 14.31,
+    "end": 14.63,
+    "heard": true
+   },
+   {
+    "text": "market",
+    "start": 14.65,
+    "end": 14.79,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 14.81,
+    "end": 15.09,
+    "heard": true
+   },
+   {
+    "text": "open.",
+    "start": 15.11,
+    "end": 15.929,
+    "heard": true
+   },
+   {
+    "text": "Your",
+    "start": 15.949,
+    "end": 16.25,
+    "heard": true
+   },
+   {
+    "text": "borrowing",
+    "start": 16.27,
+    "end": 16.67,
+    "heard": true
+   },
+   {
+    "text": "limit",
+    "start": 16.69,
+    "end": 17.108,
+    "heard": true
+   },
+   {
+    "text": "tracks",
+    "start": 17.128,
+    "end": 17.49,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 17.51,
+    "end": 17.77,
+    "heard": true
+   },
+   {
+    "text": "market",
+    "start": 17.79,
+    "end": 18.19,
+    "heard": true
+   },
+   {
+    "text": "session:",
+    "start": 18.21,
+    "end": 18.887,
+    "heard": true
+   },
+   {
+    "text": "it's",
+    "start": 19.13,
+    "end": 19.57,
+    "heard": true
+   },
+   {
+    "text": "higher",
+    "start": 19.59,
+    "end": 19.83,
+    "heard": true
+   },
+   {
+    "text": "while",
+    "start": 19.85,
+    "end": 19.99,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 20.01,
+    "end": 20.19,
+    "heard": true
+   },
+   {
+    "text": "stock",
+    "start": 20.21,
+    "end": 20.35,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 20.37,
+    "end": 20.71,
+    "heard": true
+   },
+   {
+    "text": "actually",
+    "start": 20.73,
+    "end": 21.01,
+    "heard": true
+   },
+   {
+    "text": "trading,",
+    "start": 21.03,
+    "end": 21.684,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 21.704,
+    "end": 21.83,
+    "heard": true
+   },
+   {
+    "text": "it",
+    "start": 21.85,
+    "end": 21.99,
+    "heard": true
+   },
+   {
+    "text": "tightens",
+    "start": 22.01,
+    "end": 22.85,
+    "heard": true
+   },
+   {
+    "text": "once",
+    "start": 22.87,
+    "end": 23.07,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 23.09,
+    "end": 23.33,
+    "heard": true
+   },
+   {
+    "text": "market",
+    "start": 23.35,
+    "end": 23.73,
+    "heard": true
+   },
+   {
+    "text": "closes.",
+    "start": 23.75,
+    "end": 24.739,
+    "heard": true
+   },
+   {
+    "text": "And",
+    "start": 24.759,
+    "end": 24.81,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 24.83,
+    "end": 25.01,
+    "heard": true
+   },
+   {
+    "text": "liquidation",
+    "start": 25.03,
+    "end": 25.71,
+    "heard": true
+   },
+   {
+    "text": "threshold",
+    "start": 25.73,
+    "end": 26.13,
+    "heard": true
+   },
+   {
+    "text": "never",
+    "start": 26.15,
+    "end": 26.61,
+    "heard": true
+   },
+   {
+    "text": "moves,",
+    "start": 26.63,
+    "end": 27.066,
+    "heard": true
+   },
+   {
+    "text": "so",
+    "start": 27.086,
+    "end": 27.31,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 27.33,
+    "end": 27.57,
+    "heard": true
+   },
+   {
+    "text": "market",
+    "start": 27.59,
+    "end": 28.03,
+    "heard": true
+   },
+   {
+    "text": "close",
+    "start": 28.05,
+    "end": 28.61,
+    "heard": true
+   },
+   {
+    "text": "never",
+    "start": 28.63,
+    "end": 28.99,
+    "heard": true
+   },
+   {
+    "text": "pushes",
+    "start": 29.01,
+    "end": 29.23,
+    "heard": true
+   },
+   {
+    "text": "an",
+    "start": 29.25,
+    "end": 29.61,
+    "heard": true
+   },
+   {
+    "text": "existing",
+    "start": 29.63,
+    "end": 30.13,
+    "heard": true
+   },
+   {
+    "text": "loan",
+    "start": 30.15,
+    "end": 30.57,
+    "heard": true
+   },
+   {
+    "text": "toward",
+    "start": 30.59,
+    "end": 30.83,
+    "heard": true
+   },
+   {
+    "text": "liquidation.",
+    "start": 30.85,
+    "end": 31.4,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "So,",
+    "start": 0.61,
+    "end": 0.91
+   },
+   {
+    "text": "we",
+    "start": 0.93,
+    "end": 1.21
+   },
+   {
+    "text": "built",
+    "start": 1.23,
+    "end": 1.49
+   },
+   {
+    "text": "Intatto,",
+    "start": 1.51,
+    "end": 2.542
+   },
+   {
+    "text": "a",
+    "start": 2.562,
+    "end": 2.67
+   },
+   {
+    "text": "lending",
+    "start": 2.69,
+    "end": 3.11
+   },
+   {
+    "text": "market",
+    "start": 3.13,
+    "end": 3.35
+   },
+   {
+    "text": "that",
+    "start": 3.37,
+    "end": 3.59
+   },
+   {
+    "text": "lives",
+    "start": 3.61,
+    "end": 3.99
+   },
+   {
+    "text": "natively",
+    "start": 4.01,
+    "end": 4.41
+   },
+   {
+    "text": "on",
+    "start": 4.43,
+    "end": 4.63
+   },
+   {
+    "text": "xLayer.",
+    "start": 4.65,
+    "end": 5.867
+   },
+   {
+    "text": "You",
+    "start": 5.887,
+    "end": 5.99
+   },
+   {
+    "text": "just",
+    "start": 6.01,
+    "end": 6.23
+   },
+   {
+    "text": "put",
+    "start": 6.25,
+    "end": 6.37
+   },
+   {
+    "text": "in",
+    "start": 6.39,
+    "end": 6.53
+   },
+   {
+    "text": "your",
+    "start": 6.55,
+    "end": 6.77
+   },
+   {
+    "text": "tokenized",
+    "start": 6.79,
+    "end": 7.27
+   },
+   {
+    "text": "stocks",
+    "start": 7.29,
+    "end": 7.97
+   },
+   {
+    "text": "and",
+    "start": 7.99,
+    "end": 8.23
+   },
+   {
+    "text": "borrow",
+    "start": 8.25,
+    "end": 8.65
+   },
+   {
+    "text": "USDG",
+    "start": 8.67,
+    "end": 9.15
+   },
+   {
+    "text": "against",
+    "start": 9.17,
+    "end": 9.55
+   },
+   {
+    "text": "them",
+    "start": 9.57,
+    "end": 9.972
+   },
+   {
+    "text": "any",
+    "start": 9.992,
+    "end": 10.17
+   },
+   {
+    "text": "day",
+    "start": 10.19,
+    "end": 10.31
+   },
+   {
+    "text": "of",
+    "start": 10.33,
+    "end": 10.41
+   },
+   {
+    "text": "the",
+    "start": 10.43,
+    "end": 10.65
+   },
+   {
+    "text": "week.",
+    "start": 10.67,
+    "end": 11.323
+   },
+   {
+    "text": "The",
+    "start": 11.343,
+    "end": 11.47
+   },
+   {
+    "text": "key",
+    "start": 11.49,
+    "end": 11.71
+   },
+   {
+    "text": "thing",
+    "start": 11.73,
+    "end": 11.89
+   },
+   {
+    "text": "is",
+    "start": 11.91,
+    "end": 12.23
+   },
+   {
+    "text": "that,",
+    "start": 12.25,
+    "end": 12.573
+   },
+   {
+    "text": "Intatto",
+    "start": 12.593,
+    "end": 13.11
+   },
+   {
+    "text": "knows",
+    "start": 13.13,
+    "end": 13.49
+   },
+   {
+    "text": "when",
+    "start": 13.51,
+    "end": 13.65
+   },
+   {
+    "text": "the",
+    "start": 13.67,
+    "end": 14.01
+   },
+   {
+    "text": "actual",
+    "start": 14.03,
+    "end": 14.29
+   },
+   {
+    "text": "stock",
+    "start": 14.31,
+    "end": 14.63
+   },
+   {
+    "text": "market",
+    "start": 14.65,
+    "end": 14.79
+   },
+   {
+    "text": "is",
+    "start": 14.81,
+    "end": 15.09
+   },
+   {
+    "text": "open.",
+    "start": 15.11,
+    "end": 15.929
+   },
+   {
+    "text": "Your",
+    "start": 15.949,
+    "end": 16.25
+   },
+   {
+    "text": "borrowing",
+    "start": 16.27,
+    "end": 16.67
+   },
+   {
+    "text": "limit",
+    "start": 16.69,
+    "end": 17.108
+   },
+   {
+    "text": "tracks",
+    "start": 17.128,
+    "end": 17.49
+   },
+   {
+    "text": "the",
+    "start": 17.51,
+    "end": 17.77
+   },
+   {
+    "text": "market",
+    "start": 17.79,
+    "end": 18.19
+   },
+   {
+    "text": "session",
+    "start": 18.21,
+    "end": 18.887
+   },
+   {
+    "text": "so",
+    "start": 18.907,
+    "end": 18.99
+   },
+   {
+    "text": "that",
+    "start": 19.01,
+    "end": 19.11
+   },
+   {
+    "text": "it's",
+    "start": 19.13,
+    "end": 19.57
+   },
+   {
+    "text": "higher",
+    "start": 19.59,
+    "end": 19.83
+   },
+   {
+    "text": "while",
+    "start": 19.85,
+    "end": 19.99
+   },
+   {
+    "text": "the",
+    "start": 20.01,
+    "end": 20.19
+   },
+   {
+    "text": "stock",
+    "start": 20.21,
+    "end": 20.35
+   },
+   {
+    "text": "is",
+    "start": 20.37,
+    "end": 20.71
+   },
+   {
+    "text": "actually",
+    "start": 20.73,
+    "end": 21.01
+   },
+   {
+    "text": "trading",
+    "start": 21.03,
+    "end": 21.684
+   },
+   {
+    "text": "and",
+    "start": 21.704,
+    "end": 21.83
+   },
+   {
+    "text": "it",
+    "start": 21.85,
+    "end": 21.99
+   },
+   {
+    "text": "tightens",
+    "start": 22.01,
+    "end": 22.85
+   },
+   {
+    "text": "once",
+    "start": 22.87,
+    "end": 23.07
+   },
+   {
+    "text": "the",
+    "start": 23.09,
+    "end": 23.33
+   },
+   {
+    "text": "market",
+    "start": 23.35,
+    "end": 23.73
+   },
+   {
+    "text": "closes.",
+    "start": 23.75,
+    "end": 24.739
+   },
+   {
+    "text": "And",
+    "start": 24.759,
+    "end": 24.81
+   },
+   {
+    "text": "the",
+    "start": 24.83,
+    "end": 25.01
+   },
+   {
+    "text": "liquidation",
+    "start": 25.03,
+    "end": 25.71
+   },
+   {
+    "text": "threshold",
+    "start": 25.73,
+    "end": 26.13
+   },
+   {
+    "text": "never",
+    "start": 26.15,
+    "end": 26.61
+   },
+   {
+    "text": "moves,",
+    "start": 26.63,
+    "end": 27.066
+   },
+   {
+    "text": "so",
+    "start": 27.086,
+    "end": 27.31
+   },
+   {
+    "text": "a",
+    "start": 27.33,
+    "end": 27.57
+   },
+   {
+    "text": "market",
+    "start": 27.59,
+    "end": 28.03
+   },
+   {
+    "text": "close",
+    "start": 28.05,
+    "end": 28.61
+   },
+   {
+    "text": "never",
+    "start": 28.63,
+    "end": 28.99
+   },
+   {
+    "text": "pushes",
+    "start": 29.01,
+    "end": 29.23
+   },
+   {
+    "text": "an",
+    "start": 29.25,
+    "end": 29.61
+   },
+   {
+    "text": "existing",
+    "start": 29.63,
+    "end": 30.13
+   },
+   {
+    "text": "loan",
+    "start": 30.15,
+    "end": 30.57
+   },
+   {
+    "text": "towards",
+    "start": 30.59,
+    "end": 30.83
+   },
+   {
+    "text": "liquidation.",
+    "start": 30.85,
+    "end": 31.4
+   }
+  ]
+ },
+ "4": {
+  "file": "vo/gabriel/edit/04-live.wav",
+  "seconds": 14.469,
+  "words": [
+   {
+    "text": "Intatto",
+    "start": 0.889,
+    "end": 1.45,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 1.47,
+    "end": 1.71,
+    "heard": true
+   },
+   {
+    "text": "live",
+    "start": 1.73,
+    "end": 1.91,
+    "heard": true
+   },
+   {
+    "text": "on",
+    "start": 1.93,
+    "end": 2.15,
+    "heard": true
+   },
+   {
+    "text": "X",
+    "start": 2.17,
+    "end": 2.24,
+    "heard": true
+   },
+   {
+    "text": "Layer",
+    "start": 2.24,
+    "end": 2.59,
+    "heard": true
+   },
+   {
+    "text": "mainnet",
+    "start": 2.61,
+    "end": 2.97,
+    "heard": true
+   },
+   {
+    "text": "right",
+    "start": 2.99,
+    "end": 3.61,
+    "heard": true
+   },
+   {
+    "text": "now.",
+    "start": 3.63,
+    "end": 3.937,
+    "heard": true
+   },
+   {
+    "text": "For",
+    "start": 4.07,
+    "end": 4.21,
+    "heard": true
+   },
+   {
+    "text": "this",
+    "start": 4.23,
+    "end": 4.49,
+    "heard": true
+   },
+   {
+    "text": "demo,",
+    "start": 4.51,
+    "end": 4.89,
+    "heard": true
+   },
+   {
+    "text": "we",
+    "start": 4.91,
+    "end": 5.13,
+    "heard": true
+   },
+   {
+    "text": "forked",
+    "start": 5.15,
+    "end": 5.45,
+    "heard": true
+   },
+   {
+    "text": "mainnet,",
+    "start": 5.63,
+    "end": 6.09,
+    "heard": true
+   },
+   {
+    "text": "so",
+    "start": 6.11,
+    "end": 6.29,
+    "heard": true
+   },
+   {
+    "text": "we",
+    "start": 6.31,
+    "end": 6.43,
+    "heard": true
+   },
+   {
+    "text": "can",
+    "start": 6.45,
+    "end": 6.65,
+    "heard": true
+   },
+   {
+    "text": "show",
+    "start": 6.67,
+    "end": 6.83,
+    "heard": true
+   },
+   {
+    "text": "you",
+    "start": 6.85,
+    "end": 7.09,
+    "heard": true
+   },
+   {
+    "text": "how",
+    "start": 7.11,
+    "end": 7.33,
+    "heard": true
+   },
+   {
+    "text": "it",
+    "start": 7.35,
+    "end": 7.71,
+    "heard": true
+   },
+   {
+    "text": "behaves",
+    "start": 7.73,
+    "end": 8.418,
+    "heard": true
+   },
+   {
+    "text": "at",
+    "start": 8.438,
+    "end": 8.65,
+    "heard": true
+   },
+   {
+    "text": "different",
+    "start": 8.67,
+    "end": 8.97,
+    "heard": true
+   },
+   {
+    "text": "points",
+    "start": 8.99,
+    "end": 9.19,
+    "heard": true
+   },
+   {
+    "text": "in",
+    "start": 9.21,
+    "end": 9.29,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 9.31,
+    "end": 9.55,
+    "heard": true
+   },
+   {
+    "text": "market",
+    "start": 9.57,
+    "end": 9.91,
+    "heard": true
+   },
+   {
+    "text": "week.",
+    "start": 9.93,
+    "end": 10.801,
+    "heard": true
+   },
+   {
+    "text": "Everything",
+    "start": 10.821,
+    "end": 11.19,
+    "heard": true
+   },
+   {
+    "text": "you",
+    "start": 11.21,
+    "end": 11.35,
+    "heard": true
+   },
+   {
+    "text": "see",
+    "start": 11.37,
+    "end": 11.43,
+    "heard": true
+   },
+   {
+    "text": "in",
+    "start": 11.45,
+    "end": 11.53,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 11.55,
+    "end": 11.79,
+    "heard": true
+   },
+   {
+    "text": "demo,",
+    "start": 11.81,
+    "end": 12.13,
+    "heard": true
+   },
+   {
+    "text": "you",
+    "start": 12.15,
+    "end": 12.27,
+    "heard": true
+   },
+   {
+    "text": "can",
+    "start": 12.29,
+    "end": 12.51,
+    "heard": true
+   },
+   {
+    "text": "try",
+    "start": 12.53,
+    "end": 12.93,
+    "heard": true
+   },
+   {
+    "text": "yourself",
+    "start": 12.95,
+    "end": 13.27,
+    "heard": true
+   },
+   {
+    "text": "on",
+    "start": 13.29,
+    "end": 13.43,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 13.45,
+    "end": 13.65,
+    "heard": true
+   },
+   {
+    "text": "fork.",
+    "start": 13.67,
+    "end": 14,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "Intatto",
+    "start": 0.889,
+    "end": 1.45
+   },
+   {
+    "text": "is",
+    "start": 1.47,
+    "end": 1.71
+   },
+   {
+    "text": "live",
+    "start": 1.73,
+    "end": 1.91
+   },
+   {
+    "text": "on",
+    "start": 1.93,
+    "end": 2.15
+   },
+   {
+    "text": "xLayer",
+    "start": 2.17,
+    "end": 2.59
+   },
+   {
+    "text": "mainnet",
+    "start": 2.61,
+    "end": 2.97
+   },
+   {
+    "text": "right",
+    "start": 2.99,
+    "end": 3.61
+   },
+   {
+    "text": "now,",
+    "start": 3.63,
+    "end": 3.937
+   },
+   {
+    "text": "but",
+    "start": 3.957,
+    "end": 4.05
+   },
+   {
+    "text": "for",
+    "start": 4.07,
+    "end": 4.21
+   },
+   {
+    "text": "this",
+    "start": 4.23,
+    "end": 4.49
+   },
+   {
+    "text": "demo,",
+    "start": 4.51,
+    "end": 4.89
+   },
+   {
+    "text": "we",
+    "start": 4.91,
+    "end": 5.13
+   },
+   {
+    "text": "forked",
+    "start": 5.15,
+    "end": 5.45
+   },
+   {
+    "text": "the",
+    "start": 5.47,
+    "end": 5.61
+   },
+   {
+    "text": "mainnet",
+    "start": 5.63,
+    "end": 6.09
+   },
+   {
+    "text": "so",
+    "start": 6.11,
+    "end": 6.29
+   },
+   {
+    "text": "we",
+    "start": 6.31,
+    "end": 6.43
+   },
+   {
+    "text": "can",
+    "start": 6.45,
+    "end": 6.65
+   },
+   {
+    "text": "show",
+    "start": 6.67,
+    "end": 6.83
+   },
+   {
+    "text": "you",
+    "start": 6.85,
+    "end": 7.09
+   },
+   {
+    "text": "how",
+    "start": 7.11,
+    "end": 7.33
+   },
+   {
+    "text": "it",
+    "start": 7.35,
+    "end": 7.71
+   },
+   {
+    "text": "behaves",
+    "start": 7.73,
+    "end": 8.418
+   },
+   {
+    "text": "at",
+    "start": 8.438,
+    "end": 8.65
+   },
+   {
+    "text": "different",
+    "start": 8.67,
+    "end": 8.97
+   },
+   {
+    "text": "points",
+    "start": 8.99,
+    "end": 9.19
+   },
+   {
+    "text": "in",
+    "start": 9.21,
+    "end": 9.29
+   },
+   {
+    "text": "the",
+    "start": 9.31,
+    "end": 9.55
+   },
+   {
+    "text": "market",
+    "start": 9.57,
+    "end": 9.91
+   },
+   {
+    "text": "week.",
+    "start": 9.93,
+    "end": 10.801
+   },
+   {
+    "text": "Everything",
+    "start": 10.821,
+    "end": 11.19
+   },
+   {
+    "text": "you",
+    "start": 11.21,
+    "end": 11.35
+   },
+   {
+    "text": "see",
+    "start": 11.37,
+    "end": 11.43
+   },
+   {
+    "text": "in",
+    "start": 11.45,
+    "end": 11.53
+   },
+   {
+    "text": "the",
+    "start": 11.55,
+    "end": 11.79
+   },
+   {
+    "text": "demo,",
+    "start": 11.81,
+    "end": 12.13
+   },
+   {
+    "text": "you",
+    "start": 12.15,
+    "end": 12.27
+   },
+   {
+    "text": "can",
+    "start": 12.29,
+    "end": 12.51
+   },
+   {
+    "text": "try",
+    "start": 12.53,
+    "end": 12.93
+   },
+   {
+    "text": "yourself",
+    "start": 12.95,
+    "end": 13.27
+   },
+   {
+    "text": "on",
+    "start": 13.29,
+    "end": 13.43
+   },
+   {
+    "text": "the",
+    "start": 13.45,
+    "end": 13.65
+   },
+   {
+    "text": "fork.",
+    "start": 13.67,
+    "end": 14
+   }
+  ]
+ },
+ "5": {
+  "file": "vo/gabriel/edit/05-friday.wav",
+  "seconds": 16.183,
+  "words": [
+   {
+    "text": "Let's",
+    "start": 1.429,
+    "end": 1.73,
+    "heard": true
+   },
+   {
+    "text": "say",
+    "start": 1.75,
+    "end": 1.85,
+    "heard": true
+   },
+   {
+    "text": "it's",
+    "start": 1.87,
+    "end": 2.07,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 2.09,
+    "end": 2.33,
+    "heard": true
+   },
+   {
+    "text": "Friday",
+    "start": 2.35,
+    "end": 2.77,
+    "heard": true
+   },
+   {
+    "text": "afternoon",
+    "start": 2.79,
+    "end": 3.03,
+    "heard": true
+   },
+   {
+    "text": "right",
+    "start": 3.05,
+    "end": 3.33,
+    "heard": true
+   },
+   {
+    "text": "now,",
+    "start": 3.35,
+    "end": 3.852,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 3.872,
+    "end": 3.93,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 3.95,
+    "end": 4.11,
+    "heard": true
+   },
+   {
+    "text": "market's",
+    "start": 4.13,
+    "end": 4.59,
+    "heard": true
+   },
+   {
+    "text": "open.",
+    "start": 4.61,
+    "end": 5.365,
+    "heard": true
+   },
+   {
+    "text": "I'm",
+    "start": 5.365,
+    "end": 5.63,
+    "heard": false
+   },
+   {
+    "text": "going",
+    "start": 5.63,
+    "end": 5.77,
+    "heard": true
+   },
+   {
+    "text": "to",
+    "start": 5.79,
+    "end": 6.13,
+    "heard": true
+   },
+   {
+    "text": "deposit",
+    "start": 6.15,
+    "end": 6.43,
+    "heard": true
+   },
+   {
+    "text": "some",
+    "start": 6.45,
+    "end": 6.75,
+    "heard": true
+   },
+   {
+    "text": "NVDAx",
+    "start": 6.77,
+    "end": 7.761,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 7.781,
+    "end": 8.07,
+    "heard": true
+   },
+   {
+    "text": "borrow",
+    "start": 8.09,
+    "end": 8.43,
+    "heard": true
+   },
+   {
+    "text": "USDG",
+    "start": 8.45,
+    "end": 8.95,
+    "heard": true
+   },
+   {
+    "text": "against",
+    "start": 8.97,
+    "end": 9.39,
+    "heard": true
+   },
+   {
+    "text": "it.",
+    "start": 9.41,
+    "end": 10.103,
+    "heard": true
+   },
+   {
+    "text": "Since",
+    "start": 10.123,
+    "end": 10.21,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 10.23,
+    "end": 10.41,
+    "heard": true
+   },
+   {
+    "text": "market's",
+    "start": 10.43,
+    "end": 10.87,
+    "heard": true
+   },
+   {
+    "text": "open,",
+    "start": 10.89,
+    "end": 11.25,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 11.27,
+    "end": 11.51,
+    "heard": true
+   },
+   {
+    "text": "protocol",
+    "start": 11.53,
+    "end": 11.85,
+    "heard": true
+   },
+   {
+    "text": "lets",
+    "start": 11.87,
+    "end": 12.09,
+    "heard": true
+   },
+   {
+    "text": "me",
+    "start": 12.11,
+    "end": 12.47,
+    "heard": true
+   },
+   {
+    "text": "borrow",
+    "start": 12.49,
+    "end": 12.69,
+    "heard": true
+   },
+   {
+    "text": "up",
+    "start": 12.71,
+    "end": 12.87,
+    "heard": true
+   },
+   {
+    "text": "to",
+    "start": 12.89,
+    "end": 13.11,
+    "heard": true
+   },
+   {
+    "text": "fifty",
+    "start": 13.13,
+    "end": 13.372,
+    "heard": true
+   },
+   {
+    "text": "percent",
+    "start": 13.372,
+    "end": 13.71,
+    "heard": true
+   },
+   {
+    "text": "of",
+    "start": 13.73,
+    "end": 13.95,
+    "heard": true
+   },
+   {
+    "text": "what",
+    "start": 13.97,
+    "end": 14.13,
+    "heard": true
+   },
+   {
+    "text": "my",
+    "start": 14.15,
+    "end": 14.41,
+    "heard": true
+   },
+   {
+    "text": "NVDAx",
+    "start": 14.43,
+    "end": 14.95,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 14.97,
+    "end": 15.27,
+    "heard": true
+   },
+   {
+    "text": "worth.",
+    "start": 15.29,
+    "end": 15.58,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "Let's",
+    "start": 1.429,
+    "end": 1.73
+   },
+   {
+    "text": "say",
+    "start": 1.75,
+    "end": 1.85
+   },
+   {
+    "text": "it's",
+    "start": 1.87,
+    "end": 2.07
+   },
+   {
+    "text": "a",
+    "start": 2.09,
+    "end": 2.33
+   },
+   {
+    "text": "Friday",
+    "start": 2.35,
+    "end": 2.77
+   },
+   {
+    "text": "afternoon",
+    "start": 2.79,
+    "end": 3.03
+   },
+   {
+    "text": "right",
+    "start": 3.05,
+    "end": 3.33
+   },
+   {
+    "text": "now,",
+    "start": 3.35,
+    "end": 3.852
+   },
+   {
+    "text": "and",
+    "start": 3.872,
+    "end": 3.93
+   },
+   {
+    "text": "the",
+    "start": 3.95,
+    "end": 4.11
+   },
+   {
+    "text": "market's",
+    "start": 4.13,
+    "end": 4.59
+   },
+   {
+    "text": "open.",
+    "start": 4.61,
+    "end": 5.365
+   },
+   {
+    "text": "I",
+    "start": 5.385,
+    "end": 5.435
+   },
+   {
+    "text": "am",
+    "start": 5.435,
+    "end": 5.61
+   },
+   {
+    "text": "going",
+    "start": 5.63,
+    "end": 5.77
+   },
+   {
+    "text": "to",
+    "start": 5.79,
+    "end": 6.13
+   },
+   {
+    "text": "deposit",
+    "start": 6.15,
+    "end": 6.43
+   },
+   {
+    "text": "some",
+    "start": 6.45,
+    "end": 6.75
+   },
+   {
+    "text": "NVDAx",
+    "start": 6.77,
+    "end": 7.761
+   },
+   {
+    "text": "and",
+    "start": 7.781,
+    "end": 8.07
+   },
+   {
+    "text": "borrow",
+    "start": 8.09,
+    "end": 8.43
+   },
+   {
+    "text": "USDG",
+    "start": 8.45,
+    "end": 8.95
+   },
+   {
+    "text": "against",
+    "start": 8.97,
+    "end": 9.39
+   },
+   {
+    "text": "it.",
+    "start": 9.41,
+    "end": 10.103
+   },
+   {
+    "text": "Since",
+    "start": 10.123,
+    "end": 10.21
+   },
+   {
+    "text": "the",
+    "start": 10.23,
+    "end": 10.41
+   },
+   {
+    "text": "market's",
+    "start": 10.43,
+    "end": 10.87
+   },
+   {
+    "text": "open,",
+    "start": 10.89,
+    "end": 11.25
+   },
+   {
+    "text": "the",
+    "start": 11.27,
+    "end": 11.51
+   },
+   {
+    "text": "protocol",
+    "start": 11.53,
+    "end": 11.85
+   },
+   {
+    "text": "lets",
+    "start": 11.87,
+    "end": 12.09
+   },
+   {
+    "text": "me",
+    "start": 12.11,
+    "end": 12.47
+   },
+   {
+    "text": "borrow",
+    "start": 12.49,
+    "end": 12.69
+   },
+   {
+    "text": "up",
+    "start": 12.71,
+    "end": 12.87
+   },
+   {
+    "text": "to",
+    "start": 12.89,
+    "end": 13.11
+   },
+   {
+    "text": "50%",
+    "start": 13.13,
+    "end": 13.71
+   },
+   {
+    "text": "of",
+    "start": 13.73,
+    "end": 13.95
+   },
+   {
+    "text": "what",
+    "start": 13.97,
+    "end": 14.13
+   },
+   {
+    "text": "my",
+    "start": 14.15,
+    "end": 14.41
+   },
+   {
+    "text": "NVDAx",
+    "start": 14.43,
+    "end": 14.95
+   },
+   {
+    "text": "is",
+    "start": 14.97,
+    "end": 15.27
+   },
+   {
+    "text": "worth.",
+    "start": 15.29,
+    "end": 15.58
+   }
+  ]
+ },
+ "6": {
+  "file": "vo/gabriel/edit/06-saturday.wav",
+  "seconds": 19.047,
+  "words": [
+   {
+    "text": "Now",
+    "start": 1.017,
+    "end": 1.51,
+    "heard": true
+   },
+   {
+    "text": "let's",
+    "start": 1.53,
+    "end": 1.83,
+    "heard": true
+   },
+   {
+    "text": "jump",
+    "start": 1.85,
+    "end": 2.15,
+    "heard": true
+   },
+   {
+    "text": "ahead",
+    "start": 2.17,
+    "end": 2.33,
+    "heard": true
+   },
+   {
+    "text": "to",
+    "start": 2.35,
+    "end": 2.67,
+    "heard": true
+   },
+   {
+    "text": "Saturday.",
+    "start": 2.69,
+    "end": 3.766,
+    "heard": true
+   },
+   {
+    "text": "With",
+    "start": 3.786,
+    "end": 3.836,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 3.85,
+    "end": 4.03,
+    "heard": true
+   },
+   {
+    "text": "stock",
+    "start": 4.05,
+    "end": 4.33,
+    "heard": true
+   },
+   {
+    "text": "market",
+    "start": 4.35,
+    "end": 4.67,
+    "heard": true
+   },
+   {
+    "text": "closed,",
+    "start": 4.69,
+    "end": 5.105,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 5.125,
+    "end": 5.35,
+    "heard": true
+   },
+   {
+    "text": "protocol",
+    "start": 5.37,
+    "end": 5.59,
+    "heard": true
+   },
+   {
+    "text": "has",
+    "start": 5.61,
+    "end": 5.91,
+    "heard": true
+   },
+   {
+    "text": "lowered",
+    "start": 5.93,
+    "end": 6.23,
+    "heard": true
+   },
+   {
+    "text": "my",
+    "start": 6.25,
+    "end": 6.55,
+    "heard": true
+   },
+   {
+    "text": "borrowing",
+    "start": 6.57,
+    "end": 6.97,
+    "heard": true
+   },
+   {
+    "text": "limit.",
+    "start": 6.99,
+    "end": 7.827,
+    "heard": true
+   },
+   {
+    "text": "So",
+    "start": 7.847,
+    "end": 7.897,
+    "heard": true
+   },
+   {
+    "text": "when",
+    "start": 7.897,
+    "end": 8.03,
+    "heard": true
+   },
+   {
+    "text": "I",
+    "start": 8.05,
+    "end": 8.17,
+    "heard": true
+   },
+   {
+    "text": "try",
+    "start": 8.19,
+    "end": 8.35,
+    "heard": true
+   },
+   {
+    "text": "to",
+    "start": 8.37,
+    "end": 8.59,
+    "heard": true
+   },
+   {
+    "text": "borrow",
+    "start": 8.61,
+    "end": 8.79,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 8.81,
+    "end": 8.95,
+    "heard": true
+   },
+   {
+    "text": "little",
+    "start": 8.97,
+    "end": 9.39,
+    "heard": true
+   },
+   {
+    "text": "more,",
+    "start": 9.41,
+    "end": 9.935,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 9.955,
+    "end": 10.41,
+    "heard": true
+   },
+   {
+    "text": "contract",
+    "start": 10.43,
+    "end": 10.79,
+    "heard": true
+   },
+   {
+    "text": "rejects",
+    "start": 10.81,
+    "end": 11.152,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 11.172,
+    "end": 11.61,
+    "heard": true
+   },
+   {
+    "text": "transaction",
+    "start": 11.63,
+    "end": 12.07,
+    "heard": true
+   },
+   {
+    "text": "before",
+    "start": 12.09,
+    "end": 12.27,
+    "heard": true
+   },
+   {
+    "text": "I",
+    "start": 12.29,
+    "end": 12.47,
+    "heard": true
+   },
+   {
+    "text": "even",
+    "start": 12.49,
+    "end": 12.77,
+    "heard": true
+   },
+   {
+    "text": "sign",
+    "start": 12.79,
+    "end": 13.15,
+    "heard": true
+   },
+   {
+    "text": "it.",
+    "start": 13.17,
+    "end": 13.835,
+    "heard": true
+   },
+   {
+    "text": "Repaying",
+    "start": 13.855,
+    "end": 14.41,
+    "heard": true
+   },
+   {
+    "text": "still",
+    "start": 14.43,
+    "end": 14.75,
+    "heard": true
+   },
+   {
+    "text": "goes",
+    "start": 14.77,
+    "end": 15.17,
+    "heard": true
+   },
+   {
+    "text": "through,",
+    "start": 15.19,
+    "end": 15.51,
+    "heard": true
+   },
+   {
+    "text": "though,",
+    "start": 15.53,
+    "end": 16.127,
+    "heard": true
+   },
+   {
+    "text": "because",
+    "start": 16.147,
+    "end": 16.81,
+    "heard": true
+   },
+   {
+    "text": "reducing",
+    "start": 16.83,
+    "end": 17.07,
+    "heard": true
+   },
+   {
+    "text": "your",
+    "start": 17.09,
+    "end": 17.29,
+    "heard": true
+   },
+   {
+    "text": "risk",
+    "start": 17.31,
+    "end": 17.53,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 17.55,
+    "end": 17.81,
+    "heard": true
+   },
+   {
+    "text": "never",
+    "start": 17.83,
+    "end": 18.17,
+    "heard": true
+   },
+   {
+    "text": "blocked.",
+    "start": 18.19,
+    "end": 18.4,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "Now,",
+    "start": 1.017,
+    "end": 1.51
+   },
+   {
+    "text": "let's",
+    "start": 1.53,
+    "end": 1.83
+   },
+   {
+    "text": "jump",
+    "start": 1.85,
+    "end": 2.15
+   },
+   {
+    "text": "ahead",
+    "start": 2.17,
+    "end": 2.33
+   },
+   {
+    "text": "to",
+    "start": 2.35,
+    "end": 2.67
+   },
+   {
+    "text": "Saturday.",
+    "start": 2.69,
+    "end": 3.766
+   },
+   {
+    "text": "With",
+    "start": 3.786,
+    "end": 3.836
+   },
+   {
+    "text": "the",
+    "start": 3.85,
+    "end": 4.03
+   },
+   {
+    "text": "stock",
+    "start": 4.05,
+    "end": 4.33
+   },
+   {
+    "text": "market",
+    "start": 4.35,
+    "end": 4.67
+   },
+   {
+    "text": "closed,",
+    "start": 4.69,
+    "end": 5.105
+   },
+   {
+    "text": "the",
+    "start": 5.125,
+    "end": 5.35
+   },
+   {
+    "text": "protocol",
+    "start": 5.37,
+    "end": 5.59
+   },
+   {
+    "text": "has",
+    "start": 5.61,
+    "end": 5.91
+   },
+   {
+    "text": "lowered",
+    "start": 5.93,
+    "end": 6.23
+   },
+   {
+    "text": "my",
+    "start": 6.25,
+    "end": 6.55
+   },
+   {
+    "text": "borrowing",
+    "start": 6.57,
+    "end": 6.97
+   },
+   {
+    "text": "limit.",
+    "start": 6.99,
+    "end": 7.827
+   },
+   {
+    "text": "So",
+    "start": 7.847,
+    "end": 7.897
+   },
+   {
+    "text": "when",
+    "start": 7.897,
+    "end": 8.03
+   },
+   {
+    "text": "I",
+    "start": 8.05,
+    "end": 8.17
+   },
+   {
+    "text": "try",
+    "start": 8.19,
+    "end": 8.35
+   },
+   {
+    "text": "to",
+    "start": 8.37,
+    "end": 8.59
+   },
+   {
+    "text": "borrow",
+    "start": 8.61,
+    "end": 8.79
+   },
+   {
+    "text": "a",
+    "start": 8.81,
+    "end": 8.95
+   },
+   {
+    "text": "little",
+    "start": 8.97,
+    "end": 9.39
+   },
+   {
+    "text": "more,",
+    "start": 9.41,
+    "end": 9.935
+   },
+   {
+    "text": "the",
+    "start": 9.955,
+    "end": 10.41
+   },
+   {
+    "text": "contract",
+    "start": 10.43,
+    "end": 10.79
+   },
+   {
+    "text": "rejects",
+    "start": 10.81,
+    "end": 11.152
+   },
+   {
+    "text": "the",
+    "start": 11.172,
+    "end": 11.61
+   },
+   {
+    "text": "transaction",
+    "start": 11.63,
+    "end": 12.07
+   },
+   {
+    "text": "before",
+    "start": 12.09,
+    "end": 12.27
+   },
+   {
+    "text": "I",
+    "start": 12.29,
+    "end": 12.47
+   },
+   {
+    "text": "even",
+    "start": 12.49,
+    "end": 12.77
+   },
+   {
+    "text": "sign",
+    "start": 12.79,
+    "end": 13.15
+   },
+   {
+    "text": "it.",
+    "start": 13.17,
+    "end": 13.835
+   },
+   {
+    "text": "Repaying",
+    "start": 13.855,
+    "end": 14.41
+   },
+   {
+    "text": "still",
+    "start": 14.43,
+    "end": 14.75
+   },
+   {
+    "text": "goes",
+    "start": 14.77,
+    "end": 15.17
+   },
+   {
+    "text": "through",
+    "start": 15.19,
+    "end": 15.51
+   },
+   {
+    "text": "though,",
+    "start": 15.53,
+    "end": 16.127
+   },
+   {
+    "text": "because",
+    "start": 16.147,
+    "end": 16.81
+   },
+   {
+    "text": "reducing",
+    "start": 16.83,
+    "end": 17.07
+   },
+   {
+    "text": "your",
+    "start": 17.09,
+    "end": 17.29
+   },
+   {
+    "text": "risk",
+    "start": 17.31,
+    "end": 17.53
+   },
+   {
+    "text": "is",
+    "start": 17.55,
+    "end": 17.81
+   },
+   {
+    "text": "never",
+    "start": 17.83,
+    "end": 18.17
+   },
+   {
+    "text": "blocked.",
+    "start": 18.19,
+    "end": 18.4
+   }
+  ]
+ },
+ "7": {
+  "file": "vo/gabriel/edit/07-weekend.wav",
+  "seconds": 23.906,
+  "words": [
+   {
+    "text": "Now",
+    "start": 0.843,
+    "end": 1.13,
+    "heard": true
+   },
+   {
+    "text": "here's",
+    "start": 1.15,
+    "end": 1.33,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 1.35,
+    "end": 1.47,
+    "heard": true
+   },
+   {
+    "text": "real",
+    "start": 1.49,
+    "end": 1.91,
+    "heard": true
+   },
+   {
+    "text": "example.",
+    "start": 1.93,
+    "end": 2.7,
+    "heard": true
+   },
+   {
+    "text": "In",
+    "start": 2.72,
+    "end": 2.93,
+    "heard": true
+   },
+   {
+    "text": "January",
+    "start": 2.95,
+    "end": 3.83,
+    "heard": true
+   },
+   {
+    "text": "2025,",
+    "start": 3.85,
+    "end": 4.585,
+    "heard": true
+   },
+   {
+    "text": "after",
+    "start": 4.605,
+    "end": 4.93,
+    "heard": true
+   },
+   {
+    "text": "DeepSeek's",
+    "start": 4.95,
+    "end": 5.55,
+    "heard": true
+   },
+   {
+    "text": "new",
+    "start": 5.57,
+    "end": 5.89,
+    "heard": true
+   },
+   {
+    "text": "AI",
+    "start": 5.91,
+    "end": 6.19,
+    "heard": true
+   },
+   {
+    "text": "model",
+    "start": 6.21,
+    "end": 6.49,
+    "heard": true
+   },
+   {
+    "text": "took",
+    "start": 6.51,
+    "end": 6.83,
+    "heard": true
+   },
+   {
+    "text": "off",
+    "start": 6.83,
+    "end": 6.85,
+    "heard": false
+   },
+   {
+    "text": "over",
+    "start": 6.85,
+    "end": 7.05,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 7.05,
+    "end": 7.49,
+    "heard": false
+   },
+   {
+    "text": "weekend,",
+    "start": 7.49,
+    "end": 8.331,
+    "heard": true
+   },
+   {
+    "text": "NVIDIA",
+    "start": 8.351,
+    "end": 8.99,
+    "heard": true
+   },
+   {
+    "text": "opened",
+    "start": 9.01,
+    "end": 9.481,
+    "heard": true
+   },
+   {
+    "text": "twelve",
+    "start": 9.501,
+    "end": 9.864,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 9.864,
+    "end": 10.045,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 10.045,
+    "end": 10.105,
+    "heard": true
+   },
+   {
+    "text": "half",
+    "start": 10.105,
+    "end": 10.347,
+    "heard": true
+   },
+   {
+    "text": "percent",
+    "start": 10.347,
+    "end": 10.77,
+    "heard": true
+   },
+   {
+    "text": "down",
+    "start": 10.79,
+    "end": 11.03,
+    "heard": true
+   },
+   {
+    "text": "that",
+    "start": 11.05,
+    "end": 11.43,
+    "heard": true
+   },
+   {
+    "text": "Monday.",
+    "start": 11.45,
+    "end": 12.348,
+    "heard": true
+   },
+   {
+    "text": "Replayed",
+    "start": 12.368,
+    "end": 12.85,
+    "heard": true
+   },
+   {
+    "text": "on",
+    "start": 12.87,
+    "end": 13.03,
+    "heard": true
+   },
+   {
+    "text": "our",
+    "start": 13.05,
+    "end": 13.41,
+    "heard": true
+   },
+   {
+    "text": "fork,",
+    "start": 13.43,
+    "end": 13.89,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 13.89,
+    "end": 14.19,
+    "heard": false
+   },
+   {
+    "text": "loan",
+    "start": 14.19,
+    "end": 14.49,
+    "heard": false
+   },
+   {
+    "text": "taken",
+    "start": 14.49,
+    "end": 14.79,
+    "heard": true
+   },
+   {
+    "text": "at",
+    "start": 14.81,
+    "end": 14.91,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 14.91,
+    "end": 15.21,
+    "heard": false
+   },
+   {
+    "text": "weekday",
+    "start": 15.21,
+    "end": 15.57,
+    "heard": true
+   },
+   {
+    "text": "limit",
+    "start": 15.59,
+    "end": 16.141,
+    "heard": true
+   },
+   {
+    "text": "goes",
+    "start": 16.161,
+    "end": 16.39,
+    "heard": true
+   },
+   {
+    "text": "up",
+    "start": 16.41,
+    "end": 16.55,
+    "heard": true
+   },
+   {
+    "text": "to",
+    "start": 16.57,
+    "end": 16.79,
+    "heard": true
+   },
+   {
+    "text": "about",
+    "start": 16.81,
+    "end": 17.25,
+    "heard": true
+   },
+   {
+    "text": "sixty",
+    "start": 17.27,
+    "end": 17.47,
+    "heard": true
+   },
+   {
+    "text": "percent",
+    "start": 17.47,
+    "end": 17.75,
+    "heard": true
+   },
+   {
+    "text": "LTV,",
+    "start": 17.77,
+    "end": 18.825,
+    "heard": true
+   },
+   {
+    "text": "which",
+    "start": 18.845,
+    "end": 18.895,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 18.91,
+    "end": 19.07,
+    "heard": true
+   },
+   {
+    "text": "still",
+    "start": 19.09,
+    "end": 19.37,
+    "heard": true
+   },
+   {
+    "text": "under",
+    "start": 19.39,
+    "end": 19.55,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 19.57,
+    "end": 19.97,
+    "heard": true
+   },
+   {
+    "text": "sixty-",
+    "start": 19.99,
+    "end": 20.171,
+    "heard": true
+   },
+   {
+    "text": "five",
+    "start": 20.171,
+    "end": 20.316,
+    "heard": true
+   },
+   {
+    "text": "percent",
+    "start": 20.316,
+    "end": 20.57,
+    "heard": true
+   },
+   {
+    "text": "liquidation",
+    "start": 20.59,
+    "end": 21.21,
+    "heard": true
+   },
+   {
+    "text": "threshold,",
+    "start": 21.23,
+    "end": 21.935,
+    "heard": true
+   },
+   {
+    "text": "so",
+    "start": 21.955,
+    "end": 22.17,
+    "heard": true
+   },
+   {
+    "text": "nobody",
+    "start": 22.19,
+    "end": 22.47,
+    "heard": true
+   },
+   {
+    "text": "gets",
+    "start": 22.49,
+    "end": 22.75,
+    "heard": true
+   },
+   {
+    "text": "liquidated.",
+    "start": 22.77,
+    "end": 23.906,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "Now",
+    "start": 0.843,
+    "end": 1.13
+   },
+   {
+    "text": "here's",
+    "start": 1.15,
+    "end": 1.33
+   },
+   {
+    "text": "a",
+    "start": 1.35,
+    "end": 1.47
+   },
+   {
+    "text": "real",
+    "start": 1.49,
+    "end": 1.91
+   },
+   {
+    "text": "example,",
+    "start": 1.93,
+    "end": 2.7
+   },
+   {
+    "text": "in",
+    "start": 2.72,
+    "end": 2.93
+   },
+   {
+    "text": "January",
+    "start": 2.95,
+    "end": 3.83
+   },
+   {
+    "text": "2025,",
+    "start": 3.85,
+    "end": 4.585
+   },
+   {
+    "text": "after",
+    "start": 4.605,
+    "end": 4.93
+   },
+   {
+    "text": "DeepSeek's",
+    "start": 4.95,
+    "end": 5.55
+   },
+   {
+    "text": "new",
+    "start": 5.57,
+    "end": 5.89
+   },
+   {
+    "text": "AI",
+    "start": 5.91,
+    "end": 6.19
+   },
+   {
+    "text": "model",
+    "start": 6.21,
+    "end": 6.49
+   },
+   {
+    "text": "took",
+    "start": 6.51,
+    "end": 6.83
+   },
+   {
+    "text": "over",
+    "start": 6.85,
+    "end": 7.05
+   },
+   {
+    "text": "the",
+    "start": 7.07,
+    "end": 7.47
+   },
+   {
+    "text": "weekend,",
+    "start": 7.49,
+    "end": 8.331
+   },
+   {
+    "text": "NVDA",
+    "start": 8.351,
+    "end": 8.99
+   },
+   {
+    "text": "opened",
+    "start": 9.01,
+    "end": 9.481
+   },
+   {
+    "text": "12.5%",
+    "start": 9.501,
+    "end": 10.77
+   },
+   {
+    "text": "down",
+    "start": 10.79,
+    "end": 11.03
+   },
+   {
+    "text": "that",
+    "start": 11.05,
+    "end": 11.43
+   },
+   {
+    "text": "Monday.",
+    "start": 11.45,
+    "end": 12.348
+   },
+   {
+    "text": "Replayed",
+    "start": 12.368,
+    "end": 12.85
+   },
+   {
+    "text": "on",
+    "start": 12.87,
+    "end": 13.03
+   },
+   {
+    "text": "our",
+    "start": 13.05,
+    "end": 13.41
+   },
+   {
+    "text": "fork,",
+    "start": 13.43,
+    "end": 13.89
+   },
+   {
+    "text": "alone",
+    "start": 13.91,
+    "end": 14.47
+   },
+   {
+    "text": "taken",
+    "start": 14.49,
+    "end": 14.79
+   },
+   {
+    "text": "at",
+    "start": 14.81,
+    "end": 14.91
+   },
+   {
+    "text": "a",
+    "start": 14.93,
+    "end": 15.19
+   },
+   {
+    "text": "weekday",
+    "start": 15.21,
+    "end": 15.57
+   },
+   {
+    "text": "limit,",
+    "start": 15.59,
+    "end": 16.141
+   },
+   {
+    "text": "goes",
+    "start": 16.161,
+    "end": 16.39
+   },
+   {
+    "text": "up",
+    "start": 16.41,
+    "end": 16.55
+   },
+   {
+    "text": "to",
+    "start": 16.57,
+    "end": 16.79
+   },
+   {
+    "text": "about",
+    "start": 16.81,
+    "end": 17.25
+   },
+   {
+    "text": "60%",
+    "start": 17.27,
+    "end": 17.75
+   },
+   {
+    "text": "LTV,",
+    "start": 17.77,
+    "end": 18.825
+   },
+   {
+    "text": "which",
+    "start": 18.845,
+    "end": 18.895
+   },
+   {
+    "text": "is",
+    "start": 18.91,
+    "end": 19.07
+   },
+   {
+    "text": "still",
+    "start": 19.09,
+    "end": 19.37
+   },
+   {
+    "text": "under",
+    "start": 19.39,
+    "end": 19.55
+   },
+   {
+    "text": "the",
+    "start": 19.57,
+    "end": 19.97
+   },
+   {
+    "text": "65%",
+    "start": 19.99,
+    "end": 20.57
+   },
+   {
+    "text": "liquidation",
+    "start": 20.59,
+    "end": 21.21
+   },
+   {
+    "text": "threshold,",
+    "start": 21.23,
+    "end": 21.935
+   },
+   {
+    "text": "so",
+    "start": 21.955,
+    "end": 22.17
+   },
+   {
+    "text": "nobody",
+    "start": 22.19,
+    "end": 22.47
+   },
+   {
+    "text": "gets",
+    "start": 22.49,
+    "end": 22.75
+   },
+   {
+    "text": "liquidated.",
+    "start": 22.77,
+    "end": 23.906
+   }
+  ]
+ },
+ "8": {
+  "file": "vo/gabriel/edit/08-risk.wav",
+  "seconds": 22.433,
+  "words": [
+   {
+    "text": "Under",
+    "start": 1.032,
+    "end": 1.21,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 1.23,
+    "end": 1.49,
+    "heard": true
+   },
+   {
+    "text": "hood,",
+    "start": 1.51,
+    "end": 1.75,
+    "heard": true
+   },
+   {
+    "text": "we've",
+    "start": 1.77,
+    "end": 1.95,
+    "heard": true
+   },
+   {
+    "text": "been",
+    "start": 1.97,
+    "end": 2.25,
+    "heard": true
+   },
+   {
+    "text": "really",
+    "start": 2.27,
+    "end": 2.65,
+    "heard": true
+   },
+   {
+    "text": "careful",
+    "start": 2.67,
+    "end": 3.05,
+    "heard": true
+   },
+   {
+    "text": "about",
+    "start": 3.07,
+    "end": 3.31,
+    "heard": true
+   },
+   {
+    "text": "risk.",
+    "start": 3.33,
+    "end": 3.986,
+    "heard": true
+   },
+   {
+    "text": "The",
+    "start": 4.006,
+    "end": 4.27,
+    "heard": true
+   },
+   {
+    "text": "price",
+    "start": 4.29,
+    "end": 4.61,
+    "heard": true
+   },
+   {
+    "text": "comes",
+    "start": 4.63,
+    "end": 4.89,
+    "heard": true
+   },
+   {
+    "text": "onchain",
+    "start": 4.89,
+    "end": 5.53,
+    "heard": false
+   },
+   {
+    "text": "through",
+    "start": 5.53,
+    "end": 5.67,
+    "heard": true
+   },
+   {
+    "text": "our",
+    "start": 5.67,
+    "end": 5.91,
+    "heard": false
+   },
+   {
+    "text": "keeper,",
+    "start": 5.91,
+    "end": 6.691,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 6.711,
+    "end": 6.761,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 6.761,
+    "end": 7.13,
+    "heard": true
+   },
+   {
+    "text": "contracts",
+    "start": 7.15,
+    "end": 7.47,
+    "heard": true
+   },
+   {
+    "text": "check",
+    "start": 7.49,
+    "end": 7.63,
+    "heard": true
+   },
+   {
+    "text": "it",
+    "start": 7.65,
+    "end": 7.97,
+    "heard": true
+   },
+   {
+    "text": "against",
+    "start": 7.99,
+    "end": 8.23,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 8.25,
+    "end": 8.49,
+    "heard": true
+   },
+   {
+    "text": "pool",
+    "start": 8.51,
+    "end": 8.85,
+    "heard": true
+   },
+   {
+    "text": "before",
+    "start": 8.87,
+    "end": 9.23,
+    "heard": true
+   },
+   {
+    "text": "accepting",
+    "start": 9.25,
+    "end": 9.65,
+    "heard": true
+   },
+   {
+    "text": "it.",
+    "start": 9.67,
+    "end": 10.404,
+    "heard": true
+   },
+   {
+    "text": "For",
+    "start": 10.424,
+    "end": 10.69,
+    "heard": true
+   },
+   {
+    "text": "production,",
+    "start": 10.71,
+    "end": 11.443,
+    "heard": true
+   },
+   {
+    "text": "we've",
+    "start": 11.463,
+    "end": 11.73,
+    "heard": true
+   },
+   {
+    "text": "already",
+    "start": 11.75,
+    "end": 11.99,
+    "heard": true
+   },
+   {
+    "text": "built",
+    "start": 12.01,
+    "end": 12.13,
+    "heard": true
+   },
+   {
+    "text": "an",
+    "start": 12.15,
+    "end": 12.53,
+    "heard": true
+   },
+   {
+    "text": "adapter",
+    "start": 12.55,
+    "end": 12.85,
+    "heard": true
+   },
+   {
+    "text": "for",
+    "start": 12.87,
+    "end": 13.11,
+    "heard": true
+   },
+   {
+    "text": "Chainlink",
+    "start": 13.13,
+    "end": 13.47,
+    "heard": true
+   },
+   {
+    "text": "Data",
+    "start": 13.49,
+    "end": 13.89,
+    "heard": true
+   },
+   {
+    "text": "Streams,",
+    "start": 13.91,
+    "end": 14.477,
+    "heard": true
+   },
+   {
+    "text": "so",
+    "start": 14.497,
+    "end": 14.71,
+    "heard": true
+   },
+   {
+    "text": "that",
+    "start": 14.73,
+    "end": 15.139,
+    "heard": true
+   },
+   {
+    "text": "price",
+    "start": 15.37,
+    "end": 15.71,
+    "heard": true
+   },
+   {
+    "text": "becomes",
+    "start": 15.73,
+    "end": 16.09,
+    "heard": true
+   },
+   {
+    "text": "fully",
+    "start": 16.11,
+    "end": 16.27,
+    "heard": true
+   },
+   {
+    "text": "verifiable.",
+    "start": 16.29,
+    "end": 17.846,
+    "heard": true
+   },
+   {
+    "text": "We",
+    "start": 17.866,
+    "end": 18.35,
+    "heard": true
+   },
+   {
+    "text": "only",
+    "start": 18.37,
+    "end": 18.71,
+    "heard": true
+   },
+   {
+    "text": "lend",
+    "start": 18.73,
+    "end": 19.11,
+    "heard": true
+   },
+   {
+    "text": "what",
+    "start": 19.13,
+    "end": 19.41,
+    "heard": true
+   },
+   {
+    "text": "X",
+    "start": 19.43,
+    "end": 19.59,
+    "heard": true
+   },
+   {
+    "text": "Layer's",
+    "start": 19.61,
+    "end": 20.17,
+    "heard": true
+   },
+   {
+    "text": "pools",
+    "start": 20.19,
+    "end": 20.674,
+    "heard": true
+   },
+   {
+    "text": "could",
+    "start": 20.694,
+    "end": 20.99,
+    "heard": true
+   },
+   {
+    "text": "absorb",
+    "start": 20.99,
+    "end": 21.19,
+    "heard": false
+   },
+   {
+    "text": "in",
+    "start": 21.19,
+    "end": 21.31,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 21.33,
+    "end": 21.57,
+    "heard": true
+   },
+   {
+    "text": "sale.",
+    "start": 21.59,
+    "end": 22.433,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "Under",
+    "start": 1.032,
+    "end": 1.21
+   },
+   {
+    "text": "the",
+    "start": 1.23,
+    "end": 1.49
+   },
+   {
+    "text": "hood,",
+    "start": 1.51,
+    "end": 1.75
+   },
+   {
+    "text": "we've",
+    "start": 1.77,
+    "end": 1.95
+   },
+   {
+    "text": "been",
+    "start": 1.97,
+    "end": 2.25
+   },
+   {
+    "text": "really",
+    "start": 2.27,
+    "end": 2.65
+   },
+   {
+    "text": "careful",
+    "start": 2.67,
+    "end": 3.05
+   },
+   {
+    "text": "about",
+    "start": 3.07,
+    "end": 3.31
+   },
+   {
+    "text": "risk.",
+    "start": 3.33,
+    "end": 3.986
+   },
+   {
+    "text": "The",
+    "start": 4.006,
+    "end": 4.27
+   },
+   {
+    "text": "price",
+    "start": 4.29,
+    "end": 4.61
+   },
+   {
+    "text": "comes",
+    "start": 4.63,
+    "end": 4.89
+   },
+   {
+    "text": "on",
+    "start": 4.91,
+    "end": 5.17
+   },
+   {
+    "text": "chain",
+    "start": 5.19,
+    "end": 5.51
+   },
+   {
+    "text": "through",
+    "start": 5.53,
+    "end": 5.67
+   },
+   {
+    "text": "a",
+    "start": 5.69,
+    "end": 5.89
+   },
+   {
+    "text": "keeper",
+    "start": 5.91,
+    "end": 6.691
+   },
+   {
+    "text": "and",
+    "start": 6.711,
+    "end": 6.761
+   },
+   {
+    "text": "the",
+    "start": 6.761,
+    "end": 7.13
+   },
+   {
+    "text": "contracts",
+    "start": 7.15,
+    "end": 7.47
+   },
+   {
+    "text": "check",
+    "start": 7.49,
+    "end": 7.63
+   },
+   {
+    "text": "it",
+    "start": 7.65,
+    "end": 7.97
+   },
+   {
+    "text": "against",
+    "start": 7.99,
+    "end": 8.23
+   },
+   {
+    "text": "the",
+    "start": 8.25,
+    "end": 8.49
+   },
+   {
+    "text": "pool",
+    "start": 8.51,
+    "end": 8.85
+   },
+   {
+    "text": "before",
+    "start": 8.87,
+    "end": 9.23
+   },
+   {
+    "text": "accepting",
+    "start": 9.25,
+    "end": 9.65
+   },
+   {
+    "text": "it.",
+    "start": 9.67,
+    "end": 10.404
+   },
+   {
+    "text": "For",
+    "start": 10.424,
+    "end": 10.69
+   },
+   {
+    "text": "production,",
+    "start": 10.71,
+    "end": 11.443
+   },
+   {
+    "text": "we've",
+    "start": 11.463,
+    "end": 11.73
+   },
+   {
+    "text": "already",
+    "start": 11.75,
+    "end": 11.99
+   },
+   {
+    "text": "built",
+    "start": 12.01,
+    "end": 12.13
+   },
+   {
+    "text": "an",
+    "start": 12.15,
+    "end": 12.53
+   },
+   {
+    "text": "adapter",
+    "start": 12.55,
+    "end": 12.85
+   },
+   {
+    "text": "for",
+    "start": 12.87,
+    "end": 13.11
+   },
+   {
+    "text": "Chainlink",
+    "start": 13.13,
+    "end": 13.47
+   },
+   {
+    "text": "data",
+    "start": 13.49,
+    "end": 13.89
+   },
+   {
+    "text": "streams",
+    "start": 13.91,
+    "end": 14.477
+   },
+   {
+    "text": "so",
+    "start": 14.497,
+    "end": 14.71
+   },
+   {
+    "text": "that",
+    "start": 14.73,
+    "end": 15.139
+   },
+   {
+    "text": "the",
+    "start": 15.159,
+    "end": 15.35
+   },
+   {
+    "text": "price",
+    "start": 15.37,
+    "end": 15.71
+   },
+   {
+    "text": "becomes",
+    "start": 15.73,
+    "end": 16.09
+   },
+   {
+    "text": "fully",
+    "start": 16.11,
+    "end": 16.27
+   },
+   {
+    "text": "verifiable.",
+    "start": 16.29,
+    "end": 17.846
+   },
+   {
+    "text": "We",
+    "start": 17.866,
+    "end": 18.35
+   },
+   {
+    "text": "only",
+    "start": 18.37,
+    "end": 18.71
+   },
+   {
+    "text": "lend",
+    "start": 18.73,
+    "end": 19.11
+   },
+   {
+    "text": "what",
+    "start": 19.13,
+    "end": 19.41
+   },
+   {
+    "text": "X",
+    "start": 19.43,
+    "end": 19.59
+   },
+   {
+    "text": "Layer's",
+    "start": 19.61,
+    "end": 20.17
+   },
+   {
+    "text": "pool",
+    "start": 20.19,
+    "end": 20.674
+   },
+   {
+    "text": "could",
+    "start": 20.694,
+    "end": 20.99
+   },
+   {
+    "text": "observe",
+    "start": 21.01,
+    "end": 21.17
+   },
+   {
+    "text": "in",
+    "start": 21.19,
+    "end": 21.31
+   },
+   {
+    "text": "a",
+    "start": 21.33,
+    "end": 21.57
+   },
+   {
+    "text": "sale.",
+    "start": 21.59,
+    "end": 22.433
+   }
+  ]
+ },
+ "9": {
+  "file": "vo/gabriel/edit/09-model.wav",
+  "seconds": 37.47,
+  "words": [
+   {
+    "text": "The",
+    "start": 1.08,
+    "end": 1.29,
+    "heard": true
+   },
+   {
+    "text": "model",
+    "start": 1.31,
+    "end": 1.51,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 1.53,
+    "end": 1.73,
+    "heard": true
+   },
+   {
+    "text": "pretty",
+    "start": 1.75,
+    "end": 2.17,
+    "heard": true
+   },
+   {
+    "text": "simple:",
+    "start": 2.19,
+    "end": 2.766,
+    "heard": true
+   },
+   {
+    "text": "borrowers",
+    "start": 2.99,
+    "end": 3.35,
+    "heard": true
+   },
+   {
+    "text": "pay",
+    "start": 3.37,
+    "end": 3.81,
+    "heard": true
+   },
+   {
+    "text": "interest,",
+    "start": 3.83,
+    "end": 4.536,
+    "heard": true
+   },
+   {
+    "text": "eighty",
+    "start": 4.556,
+    "end": 4.821,
+    "heard": true
+   },
+   {
+    "text": "percent",
+    "start": 4.821,
+    "end": 5.13,
+    "heard": true
+   },
+   {
+    "text": "of",
+    "start": 5.15,
+    "end": 5.29,
+    "heard": true
+   },
+   {
+    "text": "it",
+    "start": 5.31,
+    "end": 5.53,
+    "heard": true
+   },
+   {
+    "text": "goes",
+    "start": 5.55,
+    "end": 5.75,
+    "heard": true
+   },
+   {
+    "text": "to",
+    "start": 5.77,
+    "end": 5.95,
+    "heard": true
+   },
+   {
+    "text": "lenders,",
+    "start": 5.97,
+    "end": 6.552,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 6.572,
+    "end": 6.83,
+    "heard": true
+   },
+   {
+    "text": "twenty",
+    "start": 6.85,
+    "end": 7.136,
+    "heard": true
+   },
+   {
+    "text": "percent",
+    "start": 7.136,
+    "end": 7.47,
+    "heard": true
+   },
+   {
+    "text": "goes",
+    "start": 7.49,
+    "end": 7.71,
+    "heard": true
+   },
+   {
+    "text": "into",
+    "start": 7.73,
+    "end": 7.83,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 7.85,
+    "end": 8.05,
+    "heard": true
+   },
+   {
+    "text": "gap",
+    "start": 8.07,
+    "end": 8.39,
+    "heard": true
+   },
+   {
+    "text": "reserve.",
+    "start": 8.39,
+    "end": 9.485,
+    "heard": false
+   },
+   {
+    "text": "We",
+    "start": 9.485,
+    "end": 9.67,
+    "heard": true
+   },
+   {
+    "text": "make",
+    "start": 9.69,
+    "end": 9.97,
+    "heard": true
+   },
+   {
+    "text": "money",
+    "start": 9.99,
+    "end": 10.27,
+    "heard": true
+   },
+   {
+    "text": "by",
+    "start": 10.29,
+    "end": 10.53,
+    "heard": true
+   },
+   {
+    "text": "running",
+    "start": 10.55,
+    "end": 10.75,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 10.77,
+    "end": 11.03,
+    "heard": true
+   },
+   {
+    "text": "keeper,",
+    "start": 11.05,
+    "end": 11.603,
+    "heard": true
+   },
+   {
+    "text": "which",
+    "start": 11.623,
+    "end": 12.01,
+    "heard": true
+   },
+   {
+    "text": "earns",
+    "start": 12.03,
+    "end": 12.55,
+    "heard": true
+   },
+   {
+    "text": "half",
+    "start": 12.57,
+    "end": 12.81,
+    "heard": true
+   },
+   {
+    "text": "of",
+    "start": 12.83,
+    "end": 12.91,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 12.93,
+    "end": 13.15,
+    "heard": true
+   },
+   {
+    "text": "five",
+    "start": 13.17,
+    "end": 13.374,
+    "heard": true
+   },
+   {
+    "text": "percent",
+    "start": 13.374,
+    "end": 13.73,
+    "heard": true
+   },
+   {
+    "text": "liquidation",
+    "start": 13.75,
+    "end": 14.43,
+    "heard": true
+   },
+   {
+    "text": "penalty,",
+    "start": 14.45,
+    "end": 15.416,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 15.436,
+    "end": 15.55,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 15.57,
+    "end": 15.73,
+    "heard": true
+   },
+   {
+    "text": "credit",
+    "start": 15.75,
+    "end": 16.27,
+    "heard": true
+   },
+   {
+    "text": "API",
+    "start": 16.29,
+    "end": 16.73,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 16.75,
+    "end": 17.01,
+    "heard": true
+   },
+   {
+    "text": "built",
+    "start": 17.03,
+    "end": 17.29,
+    "heard": true
+   },
+   {
+    "text": "for",
+    "start": 17.31,
+    "end": 17.51,
+    "heard": true
+   },
+   {
+    "text": "pay-",
+    "start": 17.53,
+    "end": 17.69,
+    "heard": true
+   },
+   {
+    "text": "per-",
+    "start": 17.71,
+    "end": 18.01,
+    "heard": true
+   },
+   {
+    "text": "call",
+    "start": 18.03,
+    "end": 18.607,
+    "heard": true
+   },
+   {
+    "text": "through",
+    "start": 18.627,
+    "end": 18.87,
+    "heard": true
+   },
+   {
+    "text": "x402,",
+    "start": 18.89,
+    "end": 20.185,
+    "heard": true
+   },
+   {
+    "text": "so",
+    "start": 20.205,
+    "end": 20.43,
+    "heard": true
+   },
+   {
+    "text": "agents",
+    "start": 20.45,
+    "end": 20.75,
+    "heard": true
+   },
+   {
+    "text": "can",
+    "start": 20.77,
+    "end": 20.97,
+    "heard": true
+   },
+   {
+    "text": "pay",
+    "start": 20.99,
+    "end": 21.21,
+    "heard": true
+   },
+   {
+    "text": "per",
+    "start": 21.23,
+    "end": 21.53,
+    "heard": true
+   },
+   {
+    "text": "query",
+    "start": 21.55,
+    "end": 22.176,
+    "heard": true
+   },
+   {
+    "text": "once",
+    "start": 22.196,
+    "end": 22.53,
+    "heard": true
+   },
+   {
+    "text": "we",
+    "start": 22.55,
+    "end": 22.73,
+    "heard": true
+   },
+   {
+    "text": "switch",
+    "start": 22.75,
+    "end": 22.93,
+    "heard": true
+   },
+   {
+    "text": "it",
+    "start": 22.95,
+    "end": 23.17,
+    "heard": true
+   },
+   {
+    "text": "on.",
+    "start": 23.19,
+    "end": 24.042,
+    "heard": true
+   },
+   {
+    "text": "Every",
+    "start": 24.062,
+    "end": 24.43,
+    "heard": true
+   },
+   {
+    "text": "stock",
+    "start": 24.45,
+    "end": 25.356,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 25.376,
+    "end": 25.47,
+    "heard": true
+   },
+   {
+    "text": "its",
+    "start": 25.49,
+    "end": 25.79,
+    "heard": true
+   },
+   {
+    "text": "own",
+    "start": 25.81,
+    "end": 26.33,
+    "heard": true
+   },
+   {
+    "text": "isolated",
+    "start": 26.35,
+    "end": 26.77,
+    "heard": true
+   },
+   {
+    "text": "market,",
+    "start": 26.79,
+    "end": 27.411,
+    "heard": true
+   },
+   {
+    "text": "so",
+    "start": 27.431,
+    "end": 27.71,
+    "heard": true
+   },
+   {
+    "text": "adding",
+    "start": 27.73,
+    "end": 27.91,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 27.93,
+    "end": 28.11,
+    "heard": true
+   },
+   {
+    "text": "next",
+    "start": 28.13,
+    "end": 28.47,
+    "heard": true
+   },
+   {
+    "text": "stock",
+    "start": 28.49,
+    "end": 28.87,
+    "heard": true
+   },
+   {
+    "text": "is",
+    "start": 28.89,
+    "end": 29.15,
+    "heard": true
+   },
+   {
+    "text": "just",
+    "start": 29.17,
+    "end": 29.31,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 29.33,
+    "end": 29.75,
+    "heard": true
+   },
+   {
+    "text": "deployment",
+    "start": 29.77,
+    "end": 30.27,
+    "heard": true
+   },
+   {
+    "text": "away.",
+    "start": 30.29,
+    "end": 31.298,
+    "heard": true
+   },
+   {
+    "text": "We",
+    "start": 31.318,
+    "end": 31.53,
+    "heard": true
+   },
+   {
+    "text": "already",
+    "start": 31.55,
+    "end": 31.91,
+    "heard": true
+   },
+   {
+    "text": "run",
+    "start": 31.93,
+    "end": 32.29,
+    "heard": true
+   },
+   {
+    "text": "NVDAx",
+    "start": 32.31,
+    "end": 33.09,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 33.11,
+    "end": 33.43,
+    "heard": true
+   },
+   {
+    "text": "SPYx",
+    "start": 33.45,
+    "end": 34.11,
+    "heard": true
+   },
+   {
+    "text": "on",
+    "start": 34.13,
+    "end": 34.27,
+    "heard": true
+   },
+   {
+    "text": "our",
+    "start": 34.29,
+    "end": 34.57,
+    "heard": true
+   },
+   {
+    "text": "fork,",
+    "start": 34.59,
+    "end": 35.057,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 35.077,
+    "end": 35.33,
+    "heard": true
+   },
+   {
+    "text": "NVDAx",
+    "start": 35.35,
+    "end": 36.13,
+    "heard": true
+   },
+   {
+    "text": "on",
+    "start": 36.15,
+    "end": 36.35,
+    "heard": true
+   },
+   {
+    "text": "mainnet.",
+    "start": 36.37,
+    "end": 36.7,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "The",
+    "start": 1.08,
+    "end": 1.29
+   },
+   {
+    "text": "model",
+    "start": 1.31,
+    "end": 1.51
+   },
+   {
+    "text": "is",
+    "start": 1.53,
+    "end": 1.73
+   },
+   {
+    "text": "pretty",
+    "start": 1.75,
+    "end": 2.17
+   },
+   {
+    "text": "simple,",
+    "start": 2.19,
+    "end": 2.766
+   },
+   {
+    "text": "the",
+    "start": 2.786,
+    "end": 2.97
+   },
+   {
+    "text": "borrowers",
+    "start": 2.99,
+    "end": 3.35
+   },
+   {
+    "text": "pay",
+    "start": 3.37,
+    "end": 3.81
+   },
+   {
+    "text": "interest,",
+    "start": 3.83,
+    "end": 4.536
+   },
+   {
+    "text": "80%",
+    "start": 4.556,
+    "end": 5.13
+   },
+   {
+    "text": "of",
+    "start": 5.15,
+    "end": 5.29
+   },
+   {
+    "text": "it",
+    "start": 5.31,
+    "end": 5.53
+   },
+   {
+    "text": "goes",
+    "start": 5.55,
+    "end": 5.75
+   },
+   {
+    "text": "to",
+    "start": 5.77,
+    "end": 5.95
+   },
+   {
+    "text": "lenders",
+    "start": 5.97,
+    "end": 6.552
+   },
+   {
+    "text": "and",
+    "start": 6.572,
+    "end": 6.83
+   },
+   {
+    "text": "20%",
+    "start": 6.85,
+    "end": 7.47
+   },
+   {
+    "text": "goes",
+    "start": 7.49,
+    "end": 7.71
+   },
+   {
+    "text": "into",
+    "start": 7.73,
+    "end": 7.83
+   },
+   {
+    "text": "the",
+    "start": 7.85,
+    "end": 8.05
+   },
+   {
+    "text": "gap",
+    "start": 8.07,
+    "end": 8.39
+   },
+   {
+    "text": "racer.",
+    "start": 8.41,
+    "end": 9.465
+   },
+   {
+    "text": "We",
+    "start": 9.485,
+    "end": 9.67
+   },
+   {
+    "text": "make",
+    "start": 9.69,
+    "end": 9.97
+   },
+   {
+    "text": "money",
+    "start": 9.99,
+    "end": 10.27
+   },
+   {
+    "text": "by",
+    "start": 10.29,
+    "end": 10.53
+   },
+   {
+    "text": "running",
+    "start": 10.55,
+    "end": 10.75
+   },
+   {
+    "text": "the",
+    "start": 10.77,
+    "end": 11.03
+   },
+   {
+    "text": "keeper",
+    "start": 11.05,
+    "end": 11.603
+   },
+   {
+    "text": "which",
+    "start": 11.623,
+    "end": 12.01
+   },
+   {
+    "text": "earns",
+    "start": 12.03,
+    "end": 12.55
+   },
+   {
+    "text": "half",
+    "start": 12.57,
+    "end": 12.81
+   },
+   {
+    "text": "of",
+    "start": 12.83,
+    "end": 12.91
+   },
+   {
+    "text": "the",
+    "start": 12.93,
+    "end": 13.15
+   },
+   {
+    "text": "5%",
+    "start": 13.17,
+    "end": 13.73
+   },
+   {
+    "text": "liquidation",
+    "start": 13.75,
+    "end": 14.43
+   },
+   {
+    "text": "penalty",
+    "start": 14.45,
+    "end": 15.416
+   },
+   {
+    "text": "and",
+    "start": 15.436,
+    "end": 15.55
+   },
+   {
+    "text": "the",
+    "start": 15.57,
+    "end": 15.73
+   },
+   {
+    "text": "credit",
+    "start": 15.75,
+    "end": 16.27
+   },
+   {
+    "text": "API",
+    "start": 16.29,
+    "end": 16.73
+   },
+   {
+    "text": "is",
+    "start": 16.75,
+    "end": 17.01
+   },
+   {
+    "text": "built",
+    "start": 17.03,
+    "end": 17.29
+   },
+   {
+    "text": "for",
+    "start": 17.31,
+    "end": 17.51
+   },
+   {
+    "text": "pay",
+    "start": 17.53,
+    "end": 17.69
+   },
+   {
+    "text": "per",
+    "start": 17.71,
+    "end": 18.01
+   },
+   {
+    "text": "call",
+    "start": 18.03,
+    "end": 18.607
+   },
+   {
+    "text": "through",
+    "start": 18.627,
+    "end": 18.87
+   },
+   {
+    "text": "x402.",
+    "start": 18.89,
+    "end": 20.185
+   },
+   {
+    "text": "So",
+    "start": 20.205,
+    "end": 20.43
+   },
+   {
+    "text": "agents",
+    "start": 20.45,
+    "end": 20.75
+   },
+   {
+    "text": "can",
+    "start": 20.77,
+    "end": 20.97
+   },
+   {
+    "text": "pay",
+    "start": 20.99,
+    "end": 21.21
+   },
+   {
+    "text": "per",
+    "start": 21.23,
+    "end": 21.53
+   },
+   {
+    "text": "query",
+    "start": 21.55,
+    "end": 22.176
+   },
+   {
+    "text": "once",
+    "start": 22.196,
+    "end": 22.53
+   },
+   {
+    "text": "we",
+    "start": 22.55,
+    "end": 22.73
+   },
+   {
+    "text": "switch",
+    "start": 22.75,
+    "end": 22.93
+   },
+   {
+    "text": "it",
+    "start": 22.95,
+    "end": 23.17
+   },
+   {
+    "text": "on.",
+    "start": 23.19,
+    "end": 24.042
+   },
+   {
+    "text": "Every",
+    "start": 24.062,
+    "end": 24.43
+   },
+   {
+    "text": "stock",
+    "start": 24.45,
+    "end": 25.356
+   },
+   {
+    "text": "is",
+    "start": 25.376,
+    "end": 25.47
+   },
+   {
+    "text": "its",
+    "start": 25.49,
+    "end": 25.79
+   },
+   {
+    "text": "own",
+    "start": 25.81,
+    "end": 26.33
+   },
+   {
+    "text": "isolated",
+    "start": 26.35,
+    "end": 26.77
+   },
+   {
+    "text": "market,",
+    "start": 26.79,
+    "end": 27.411
+   },
+   {
+    "text": "so",
+    "start": 27.431,
+    "end": 27.71
+   },
+   {
+    "text": "adding",
+    "start": 27.73,
+    "end": 27.91
+   },
+   {
+    "text": "the",
+    "start": 27.93,
+    "end": 28.11
+   },
+   {
+    "text": "next",
+    "start": 28.13,
+    "end": 28.47
+   },
+   {
+    "text": "stock",
+    "start": 28.49,
+    "end": 28.87
+   },
+   {
+    "text": "is",
+    "start": 28.89,
+    "end": 29.15
+   },
+   {
+    "text": "just",
+    "start": 29.17,
+    "end": 29.31
+   },
+   {
+    "text": "a",
+    "start": 29.33,
+    "end": 29.75
+   },
+   {
+    "text": "deployment",
+    "start": 29.77,
+    "end": 30.27
+   },
+   {
+    "text": "away.",
+    "start": 30.29,
+    "end": 31.298
+   },
+   {
+    "text": "We",
+    "start": 31.318,
+    "end": 31.53
+   },
+   {
+    "text": "already",
+    "start": 31.55,
+    "end": 31.91
+   },
+   {
+    "text": "run",
+    "start": 31.93,
+    "end": 32.29
+   },
+   {
+    "text": "NVDAx",
+    "start": 32.31,
+    "end": 33.09
+   },
+   {
+    "text": "and",
+    "start": 33.11,
+    "end": 33.43
+   },
+   {
+    "text": "SPYx",
+    "start": 33.45,
+    "end": 34.11
+   },
+   {
+    "text": "on",
+    "start": 34.13,
+    "end": 34.27
+   },
+   {
+    "text": "our",
+    "start": 34.29,
+    "end": 34.57
+   },
+   {
+    "text": "fork",
+    "start": 34.59,
+    "end": 35.057
+   },
+   {
+    "text": "and",
+    "start": 35.077,
+    "end": 35.33
+   },
+   {
+    "text": "NVDAx",
+    "start": 35.35,
+    "end": 36.13
+   },
+   {
+    "text": "on",
+    "start": 36.15,
+    "end": 36.35
+   },
+   {
+    "text": "mainnet.",
+    "start": 36.37,
+    "end": 36.7
+   }
+  ]
+ },
+ "10": {
+  "file": "vo/gabriel/edit/10-okx-ai.wav",
+  "seconds": 22.187,
+  "words": [
+   {
+    "text": "We've",
+    "start": 0,
+    "end": 1.11,
+    "heard": false
+   },
+   {
+    "text": "also",
+    "start": 1.11,
+    "end": 1.51,
+    "heard": true
+   },
+   {
+    "text": "registered",
+    "start": 1.53,
+    "end": 1.85,
+    "heard": true
+   },
+   {
+    "text": "Intatto",
+    "start": 1.87,
+    "end": 2.39,
+    "heard": true
+   },
+   {
+    "text": "on",
+    "start": 2.41,
+    "end": 2.47,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 2.49,
+    "end": 2.77,
+    "heard": true
+   },
+   {
+    "text": "OKX",
+    "start": 2.79,
+    "end": 3.15,
+    "heard": true
+   },
+   {
+    "text": "AI",
+    "start": 3.17,
+    "end": 3.69,
+    "heard": true
+   },
+   {
+    "text": "marketplace.",
+    "start": 3.71,
+    "end": 4.676,
+    "heard": true
+   },
+   {
+    "text": "It",
+    "start": 4.696,
+    "end": 4.91,
+    "heard": true
+   },
+   {
+    "text": "provides",
+    "start": 4.93,
+    "end": 5.15,
+    "heard": true
+   },
+   {
+    "text": "an",
+    "start": 5.17,
+    "end": 5.29,
+    "heard": true
+   },
+   {
+    "text": "A2MCP",
+    "start": 5.31,
+    "end": 6.27,
+    "heard": true
+   },
+   {
+    "text": "service",
+    "start": 6.29,
+    "end": 6.791,
+    "heard": true
+   },
+   {
+    "text": "called",
+    "start": 6.811,
+    "end": 7.11,
+    "heard": true
+   },
+   {
+    "text": "Borrow",
+    "start": 7.13,
+    "end": 7.77,
+    "heard": true
+   },
+   {
+    "text": "capacity",
+    "start": 7.79,
+    "end": 8.372,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 8.372,
+    "end": 8.392,
+    "heard": false
+   },
+   {
+    "text": "health,",
+    "start": 8.392,
+    "end": 9.306,
+    "heard": true
+   },
+   {
+    "text": "so",
+    "start": 9.326,
+    "end": 9.55,
+    "heard": true
+   },
+   {
+    "text": "anyone",
+    "start": 9.57,
+    "end": 9.89,
+    "heard": true
+   },
+   {
+    "text": "can",
+    "start": 9.91,
+    "end": 10.21,
+    "heard": true
+   },
+   {
+    "text": "have",
+    "start": 10.23,
+    "end": 10.41,
+    "heard": true
+   },
+   {
+    "text": "their",
+    "start": 10.43,
+    "end": 10.81,
+    "heard": true
+   },
+   {
+    "text": "agent",
+    "start": 10.83,
+    "end": 11.19,
+    "heard": true
+   },
+   {
+    "text": "call",
+    "start": 11.21,
+    "end": 11.43,
+    "heard": true
+   },
+   {
+    "text": "it",
+    "start": 11.45,
+    "end": 11.67,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 11.69,
+    "end": 11.89,
+    "heard": true
+   },
+   {
+    "text": "ask",
+    "start": 11.91,
+    "end": 12.13,
+    "heard": true
+   },
+   {
+    "text": "how",
+    "start": 12.15,
+    "end": 12.31,
+    "heard": true
+   },
+   {
+    "text": "much",
+    "start": 12.33,
+    "end": 12.49,
+    "heard": true
+   },
+   {
+    "text": "a",
+    "start": 12.51,
+    "end": 12.65,
+    "heard": true
+   },
+   {
+    "text": "wallet",
+    "start": 12.67,
+    "end": 12.93,
+    "heard": true
+   },
+   {
+    "text": "can",
+    "start": 12.95,
+    "end": 13.19,
+    "heard": true
+   },
+   {
+    "text": "borrow",
+    "start": 13.21,
+    "end": 13.45,
+    "heard": true
+   },
+   {
+    "text": "right",
+    "start": 13.47,
+    "end": 13.77,
+    "heard": true
+   },
+   {
+    "text": "now.",
+    "start": 13.79,
+    "end": 14.631,
+    "heard": true
+   },
+   {
+    "text": "It",
+    "start": 14.651,
+    "end": 14.87,
+    "heard": true
+   },
+   {
+    "text": "reads",
+    "start": 14.89,
+    "end": 15.21,
+    "heard": true
+   },
+   {
+    "text": "straight",
+    "start": 15.23,
+    "end": 15.51,
+    "heard": true
+   },
+   {
+    "text": "from",
+    "start": 15.53,
+    "end": 15.65,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 15.67,
+    "end": 15.93,
+    "heard": true
+   },
+   {
+    "text": "chain,",
+    "start": 15.95,
+    "end": 16.381,
+    "heard": true
+   },
+   {
+    "text": "works",
+    "start": 16.401,
+    "end": 16.63,
+    "heard": true
+   },
+   {
+    "text": "out",
+    "start": 16.65,
+    "end": 16.83,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 16.85,
+    "end": 17.05,
+    "heard": true
+   },
+   {
+    "text": "numbers,",
+    "start": 17.07,
+    "end": 17.57,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 17.59,
+    "end": 17.97,
+    "heard": true
+   },
+   {
+    "text": "responds",
+    "start": 17.99,
+    "end": 18.29,
+    "heard": true
+   },
+   {
+    "text": "with",
+    "start": 18.31,
+    "end": 18.43,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 18.45,
+    "end": 18.71,
+    "heard": true
+   },
+   {
+    "text": "session,",
+    "start": 18.73,
+    "end": 18.97,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 18.97,
+    "end": 18.99,
+    "heard": false
+   },
+   {
+    "text": "limit,",
+    "start": 18.99,
+    "end": 19.665,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 19.685,
+    "end": 19.75,
+    "heard": true
+   },
+   {
+    "text": "LTV",
+    "start": 19.77,
+    "end": 20.35,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 20.37,
+    "end": 20.45,
+    "heard": true
+   },
+   {
+    "text": "the",
+    "start": 20.47,
+    "end": 20.61,
+    "heard": true
+   },
+   {
+    "text": "liquidation",
+    "start": 20.63,
+    "end": 21.23,
+    "heard": true
+   },
+   {
+    "text": "price.",
+    "start": 21.25,
+    "end": 21.64,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "We",
+    "start": 0.74,
+    "end": 0.81
+   },
+   {
+    "text": "have",
+    "start": 0.83,
+    "end": 1.09
+   },
+   {
+    "text": "also",
+    "start": 1.11,
+    "end": 1.51
+   },
+   {
+    "text": "registered",
+    "start": 1.53,
+    "end": 1.85
+   },
+   {
+    "text": "Intatto",
+    "start": 1.87,
+    "end": 2.39
+   },
+   {
+    "text": "on",
+    "start": 2.41,
+    "end": 2.47
+   },
+   {
+    "text": "the",
+    "start": 2.49,
+    "end": 2.77
+   },
+   {
+    "text": "OKX",
+    "start": 2.79,
+    "end": 3.15
+   },
+   {
+    "text": "AI",
+    "start": 3.17,
+    "end": 3.69
+   },
+   {
+    "text": "marketplace.",
+    "start": 3.71,
+    "end": 4.676
+   },
+   {
+    "text": "It",
+    "start": 4.696,
+    "end": 4.91
+   },
+   {
+    "text": "provides",
+    "start": 4.93,
+    "end": 5.15
+   },
+   {
+    "text": "an",
+    "start": 5.17,
+    "end": 5.29
+   },
+   {
+    "text": "A2MCP",
+    "start": 5.31,
+    "end": 6.27
+   },
+   {
+    "text": "service",
+    "start": 6.29,
+    "end": 6.791
+   },
+   {
+    "text": "called",
+    "start": 6.811,
+    "end": 7.11
+   },
+   {
+    "text": "Borrow",
+    "start": 7.13,
+    "end": 7.77
+   },
+   {
+    "text": "Capacity",
+    "start": 7.79,
+    "end": 8.372
+   },
+   {
+    "text": "Health,",
+    "start": 8.392,
+    "end": 9.306
+   },
+   {
+    "text": "so",
+    "start": 9.326,
+    "end": 9.55
+   },
+   {
+    "text": "anyone",
+    "start": 9.57,
+    "end": 9.89
+   },
+   {
+    "text": "can",
+    "start": 9.91,
+    "end": 10.21
+   },
+   {
+    "text": "have",
+    "start": 10.23,
+    "end": 10.41
+   },
+   {
+    "text": "their",
+    "start": 10.43,
+    "end": 10.81
+   },
+   {
+    "text": "agent",
+    "start": 10.83,
+    "end": 11.19
+   },
+   {
+    "text": "call",
+    "start": 11.21,
+    "end": 11.43
+   },
+   {
+    "text": "it",
+    "start": 11.45,
+    "end": 11.67
+   },
+   {
+    "text": "and",
+    "start": 11.69,
+    "end": 11.89
+   },
+   {
+    "text": "ask",
+    "start": 11.91,
+    "end": 12.13
+   },
+   {
+    "text": "how",
+    "start": 12.15,
+    "end": 12.31
+   },
+   {
+    "text": "much",
+    "start": 12.33,
+    "end": 12.49
+   },
+   {
+    "text": "a",
+    "start": 12.51,
+    "end": 12.65
+   },
+   {
+    "text": "wallet",
+    "start": 12.67,
+    "end": 12.93
+   },
+   {
+    "text": "can",
+    "start": 12.95,
+    "end": 13.19
+   },
+   {
+    "text": "borrow",
+    "start": 13.21,
+    "end": 13.45
+   },
+   {
+    "text": "right",
+    "start": 13.47,
+    "end": 13.77
+   },
+   {
+    "text": "now.",
+    "start": 13.79,
+    "end": 14.631
+   },
+   {
+    "text": "It",
+    "start": 14.651,
+    "end": 14.87
+   },
+   {
+    "text": "reads",
+    "start": 14.89,
+    "end": 15.21
+   },
+   {
+    "text": "straight",
+    "start": 15.23,
+    "end": 15.51
+   },
+   {
+    "text": "from",
+    "start": 15.53,
+    "end": 15.65
+   },
+   {
+    "text": "the",
+    "start": 15.67,
+    "end": 15.93
+   },
+   {
+    "text": "chain,",
+    "start": 15.95,
+    "end": 16.381
+   },
+   {
+    "text": "works",
+    "start": 16.401,
+    "end": 16.63
+   },
+   {
+    "text": "out",
+    "start": 16.65,
+    "end": 16.83
+   },
+   {
+    "text": "the",
+    "start": 16.85,
+    "end": 17.05
+   },
+   {
+    "text": "numbers",
+    "start": 17.07,
+    "end": 17.57
+   },
+   {
+    "text": "and",
+    "start": 17.59,
+    "end": 17.97
+   },
+   {
+    "text": "responds",
+    "start": 17.99,
+    "end": 18.29
+   },
+   {
+    "text": "with",
+    "start": 18.31,
+    "end": 18.43
+   },
+   {
+    "text": "the",
+    "start": 18.45,
+    "end": 18.71
+   },
+   {
+    "text": "session",
+    "start": 18.73,
+    "end": 18.97
+   },
+   {
+    "text": "limit,",
+    "start": 18.99,
+    "end": 19.665
+   },
+   {
+    "text": "the",
+    "start": 19.685,
+    "end": 19.75
+   },
+   {
+    "text": "LTV",
+    "start": 19.77,
+    "end": 20.35
+   },
+   {
+    "text": "and",
+    "start": 20.37,
+    "end": 20.45
+   },
+   {
+    "text": "the",
+    "start": 20.47,
+    "end": 20.61
+   },
+   {
+    "text": "liquidation",
+    "start": 20.63,
+    "end": 21.23
+   },
+   {
+    "text": "price.",
+    "start": 21.25,
+    "end": 21.64
+   }
+  ]
+ },
+ "11": {
+  "file": "vo/gabriel/edit/11-close.wav",
+  "seconds": 10.338,
+  "words": [
+   {
+    "text": "That's",
+    "start": 0.91,
+    "end": 1.25,
+    "heard": true
+   },
+   {
+    "text": "Intatto.",
+    "start": 1.27,
+    "end": 2.023,
+    "heard": true
+   },
+   {
+    "text": "You",
+    "start": 2.043,
+    "end": 2.15,
+    "heard": true
+   },
+   {
+    "text": "can",
+    "start": 2.17,
+    "end": 2.43,
+    "heard": true
+   },
+   {
+    "text": "borrow",
+    "start": 2.45,
+    "end": 2.77,
+    "heard": true
+   },
+   {
+    "text": "against",
+    "start": 2.79,
+    "end": 2.95,
+    "heard": true
+   },
+   {
+    "text": "your",
+    "start": 2.97,
+    "end": 3.15,
+    "heard": true
+   },
+   {
+    "text": "tokenized",
+    "start": 3.17,
+    "end": 3.67,
+    "heard": true
+   },
+   {
+    "text": "stocks",
+    "start": 3.69,
+    "end": 4.09,
+    "heard": true
+   },
+   {
+    "text": "on",
+    "start": 4.11,
+    "end": 4.31,
+    "heard": true
+   },
+   {
+    "text": "X",
+    "start": 4.33,
+    "end": 4.463,
+    "heard": true
+   },
+   {
+    "text": "Layer",
+    "start": 4.463,
+    "end": 5.13,
+    "heard": true
+   },
+   {
+    "text": "twenty-",
+    "start": 5.15,
+    "end": 5.638,
+    "heard": true
+   },
+   {
+    "text": "four",
+    "start": 5.638,
+    "end": 5.964,
+    "heard": true
+   },
+   {
+    "text": "seven,",
+    "start": 5.964,
+    "end": 6.371,
+    "heard": true
+   },
+   {
+    "text": "and",
+    "start": 6.391,
+    "end": 6.441,
+    "heard": true
+   },
+   {
+    "text": "it's",
+    "start": 6.441,
+    "end": 6.71,
+    "heard": true
+   },
+   {
+    "text": "live",
+    "start": 6.73,
+    "end": 6.95,
+    "heard": true
+   },
+   {
+    "text": "right",
+    "start": 6.97,
+    "end": 7.31,
+    "heard": true
+   },
+   {
+    "text": "now",
+    "start": 7.33,
+    "end": 7.65,
+    "heard": true
+   },
+   {
+    "text": "at",
+    "start": 7.67,
+    "end": 7.87,
+    "heard": true
+   },
+   {
+    "text": "intatto",
+    "start": 7.89,
+    "end": 8.358,
+    "heard": true
+   },
+   {
+    "text": "dot",
+    "start": 8.358,
+    "end": 8.558,
+    "heard": true
+   },
+   {
+    "text": "larinova",
+    "start": 8.558,
+    "end": 9.159,
+    "heard": true
+   },
+   {
+    "text": "dot",
+    "start": 9.159,
+    "end": 9.36,
+    "heard": true
+   },
+   {
+    "text": "com.",
+    "start": 9.36,
+    "end": 9.56,
+    "heard": true
+   }
+  ],
+  "whisper": [
+   {
+    "text": "That's",
+    "start": 0.91,
+    "end": 1.25
+   },
+   {
+    "text": "Intatto,",
+    "start": 1.27,
+    "end": 2.023
+   },
+   {
+    "text": "you",
+    "start": 2.043,
+    "end": 2.15
+   },
+   {
+    "text": "can",
+    "start": 2.17,
+    "end": 2.43
+   },
+   {
+    "text": "borrow",
+    "start": 2.45,
+    "end": 2.77
+   },
+   {
+    "text": "against",
+    "start": 2.79,
+    "end": 2.95
+   },
+   {
+    "text": "your",
+    "start": 2.97,
+    "end": 3.15
+   },
+   {
+    "text": "tokenized",
+    "start": 3.17,
+    "end": 3.67
+   },
+   {
+    "text": "stocks",
+    "start": 3.69,
+    "end": 4.09
+   },
+   {
+    "text": "on",
+    "start": 4.11,
+    "end": 4.31
+   },
+   {
+    "text": "xLayer",
+    "start": 4.33,
+    "end": 5.13
+   },
+   {
+    "text": "24x7",
+    "start": 5.15,
+    "end": 6.371
+   },
+   {
+    "text": "and",
+    "start": 6.391,
+    "end": 6.441
+   },
+   {
+    "text": "it's",
+    "start": 6.441,
+    "end": 6.71
+   },
+   {
+    "text": "live",
+    "start": 6.73,
+    "end": 6.95
+   },
+   {
+    "text": "right",
+    "start": 6.97,
+    "end": 7.31
+   },
+   {
+    "text": "now",
+    "start": 7.33,
+    "end": 7.65
+   },
+   {
+    "text": "at",
+    "start": 7.67,
+    "end": 7.87
+   },
+   {
+    "text": "intatto.larinowar.com",
+    "start": 7.89,
+    "end": 9.56
+   }
+  ]
+ }
+}

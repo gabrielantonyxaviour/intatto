@@ -1,0 +1,40 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Risk console
+
+Every price the keeper posted or had refused, every session, cap, corporate action and liquidation, read from X Layer with its transaction. Nothing here comes from our servers. Back to the market
+
+Market NVDAx
+
+Events from blocks #71,562,056–#71,566,642 (from the deployment block) · 27 events · chain time 2026-09-25 11:28:08 UTC · latest #71,566,652
+
+Refresh
+Summary
+Price posts
+Price shock
+Loans near liquidation
+Caps and LTV spread
+Market overview
+Sessions
+Corporate actions
+Liquidations
+Keeper log
+Trust and bounds
+Corporate actions
+
+A split or dividend changes NVDAx's multiplier. Borrowing and liquidation pause from shortly before activation until a price posted after it agrees with the new multiplier (value per share within 10%).
+
+Nothing pending
+Action history
+
+ActionPosted, ActionResolved and ActionCleared events.
+
+No corporate action events in the scanned blocks.

@@ -1,0 +1,61 @@
+{
+ "retrievedAt": "2026-09-25T20:31:19.240Z",
+ "rpc": "https://rpc.xlayer.tech",
+ "capPost": {
+  "at": "2026-09-25T14:21:56.000Z",
+  "txHash": "0xc6946577a62b71579b4e3f1f73cf464a8154b2d0833851b3659a3b3b80a3ee55",
+  "block": 71577084,
+  "detail": "posted depth cap 22,334.81 USDG, slice 11,167.4 USDG: selling 200 wNVDAx returns 44,669.61 USDG at 223.35/share vs 224.34 at the smallest size",
+  "data": {
+   "capUsdg": "22334806105",
+   "sliceUsdg": "11167403052",
+   "sizeShares": "200",
+   "outUsdg": "44669612211"
+  }
+ },
+ "sampledAtBlock": 71577082,
+ "note": "The block whose 200-share quote equals the posted proceeds exactly.",
+ "poolFee": "500",
+ "depth": [
+  {
+   "shares": 0.5,
+   "out": "112168718",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,500000000000000000,500,0) --block 71577082 --rpc-url https://rpc.xlayer.tech"
+  },
+  {
+   "shares": 2,
+   "out": "448660001",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,2000000000000000000,500,0) --block 71577082 --rpc-url https://rpc.xlayer.tech"
+  },
+  {
+   "shares": 10,
+   "out": "2242903452",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,10000000000000000000,500,0) --block 71577082 --rpc-url https://rpc.xlayer.tech"
+  },
+  {
+   "shares": 50,
+   "out": "11204606002",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,50000000000000000000,500,0) --block 71577082 --rpc-url https://rpc.xlayer.tech"
+  },
+  {
+   "shares": 200,
+   "out": "44669612211",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,200000000000000000000,500,0) --block 71577082 --rpc-url https://rpc.xlayer.tech"
+  },
+  {
+   "shares": 400,
+   "out": "88958061314",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,400000000000000000000,500,0) --block 71577082 --rpc-url https://rpc.xlayer.tech"
+  },
+  {
+   "shares": 800,
+   "out": "176370299107",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,800000000000000000000,500,0) --block 71577082 --rpc-url https://rpc.xlayer.tech"
+  },
+  {
+   "shares": 1600,
+   "out": "345959257327",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,1600000000000000000000,500,0) --block 71577082 --rpc-url https://rpc.xlayer.tech"
+  }
+ ]
+}

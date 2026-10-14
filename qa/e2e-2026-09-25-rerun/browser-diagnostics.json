@@ -1,0 +1,15 @@
+{
+  "errors": [
+    {
+      "url": "https://intatto.larinova.com/",
+      "text": "Failed to load resource: the server responded with a status of 429 ()"
+    }
+  ],
+  "failed": [],
+  "responses": [
+    {
+      "url": "https://xlayerrpc.okx.com/",
+      "status": 429
+    }
+  ]
+}

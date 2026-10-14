@@ -1,0 +1,228 @@
+{
+  "status": 200,
+  "body": {
+    "sessionId": "0rt93_mhyU05I6sPjEsiHQ",
+    "entries": [
+      {
+        "kind": "scenario",
+        "summary": "scenario synthetic-gap started: Synthetic gap larger than the reserve (not market data)",
+        "detail": {
+          "replay": "synthetic-gap",
+          "label": "Synthetic gap larger than the reserve (not market data)",
+          "kind": "synthetic",
+          "sources": [],
+          "fileSha256": "3cdcf526d82d05d7068e9710370fb2d40e222f89775f9087e4e90a8e47f56ff3",
+          "contentSha256": "0aca28cbc915458b466408be70823c9d6323f05680cc99eee947d852ef56e73d",
+          "note": "A 45% overnight gap used only to exhaust the gap reserve and show deficit recognition."
+        },
+        "chainTime": 1791232347,
+        "at": "2026-09-25T11:32:17.844Z"
+      },
+      {
+        "kind": "scenario",
+        "summary": "replay synthetic-gap: Synthetic gap larger than the reserve (not market data)",
+        "chainTime": 1791232347,
+        "at": "2026-09-25T11:32:17.869Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session EXTENDED",
+        "detail": {
+          "periodChangedAt": 1791230400
+        },
+        "txHash": "0xb5363cdab03cd199ce855a68634662eaaacd86f99f150495cfcb93dc7190b6c6",
+        "chainTime": 1791232381,
+        "at": "2026-09-25T11:32:17.997Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $187.763106 (accepted)",
+        "txHash": "0xc9bbdec434af39c5c67e2fe987747cf268625f9ed00907e84149f2a781d71a8d",
+        "chainTime": 1791232381,
+        "at": "2026-09-25T11:32:18.176Z"
+      },
+      {
+        "kind": "actor",
+        "summary": "simulated arbitrageur (real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E) sold wNVDAx into the real pool: $188.08 → $161.75",
+        "detail": {
+          "dropBps": 1400
+        },
+        "txHash": "0x25ae63ea405d35ce20842f0e0a20586875efc7e8ac4157f94bc2dba2cd4cd08d",
+        "chainTime": 1791232390,
+        "at": "2026-09-25T11:32:26.809Z"
+      },
+      {
+        "kind": "warp",
+        "summary": "synthetic gap: let the 30-minute TWAP settle",
+        "detail": {
+          "from": 1791232390,
+          "to": 1791234250
+        },
+        "chainTime": 1791234250,
+        "at": "2026-09-25T11:32:26.902Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session EXTENDED",
+        "detail": {
+          "periodChangedAt": 1791230400
+        },
+        "txHash": "0xd604ccff3bc906af5fc9046983f27fb5fa83622562b0dbcf30e96f4186a51313",
+        "chainTime": 1791234250,
+        "at": "2026-09-25T11:32:27.035Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $161.476271 (accepted)",
+        "txHash": "0x10874b99bc5730c831b97b580b90a4f61b08f268e6eaa606431457ac59f2ce3e",
+        "chainTime": 1791234250,
+        "at": "2026-09-25T11:32:27.219Z"
+      },
+      {
+        "kind": "actor",
+        "summary": "simulated arbitrageur (real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E) sold wNVDAx into the real pool: $161.75 → $139.11",
+        "detail": {
+          "dropBps": 1400
+        },
+        "txHash": "0x9b825f4d9034324b9878b1c4c734c33e7e0609823a5a76aa3cc03063498d2e7d",
+        "chainTime": 1791234251,
+        "at": "2026-09-25T11:32:27.824Z"
+      },
+      {
+        "kind": "warp",
+        "summary": "synthetic gap: let the 30-minute TWAP settle",
+        "detail": {
+          "from": 1791234251,
+          "to": 1791236111
+        },
+        "chainTime": 1791236111,
+        "at": "2026-09-25T11:32:27.937Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session EXTENDED",
+        "detail": {
+          "periodChangedAt": 1791230400
+        },
+        "txHash": "0x979964dbaf0e5ac4db9ef2f662002b6d5ce9fb743cab8bd1f31ef9f763bce2ee",
+        "chainTime": 1791236112,
+        "at": "2026-09-25T11:32:28.070Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $138.869593 (accepted)",
+        "txHash": "0x4204f647c3d1c91142f7ad7b7054dc7defebd3829ff1a378d95b834dff04a0dc",
+        "chainTime": 1791236112,
+        "at": "2026-09-25T11:32:28.246Z"
+      },
+      {
+        "kind": "actor",
+        "summary": "simulated arbitrageur (real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E) sold wNVDAx into the real pool: $139.11 → $119.63",
+        "detail": {
+          "dropBps": 1400
+        },
+        "txHash": "0x6d8088fa5ec67605646a66e7be4bfc0420063a89379ec4159d8b25b0b1927a4e",
+        "chainTime": 1791236112,
+        "at": "2026-09-25T11:32:28.921Z"
+      },
+      {
+        "kind": "warp",
+        "summary": "synthetic gap: let the 30-minute TWAP settle",
+        "detail": {
+          "from": 1791236112,
+          "to": 1791237972
+        },
+        "chainTime": 1791237972,
+        "at": "2026-09-25T11:32:29.026Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session EXTENDED",
+        "detail": {
+          "periodChangedAt": 1791230400
+        },
+        "txHash": "0x7640659bde36ce816f2a3439fc637160efadd5ceda57c80acd0aa387162b61dd",
+        "chainTime": 1791237973,
+        "at": "2026-09-25T11:32:29.178Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $119.42785 (accepted)",
+        "txHash": "0x8b0238c70a5af5cfb07c3f06ecab829bf4d4d6435116c0a38c47ceaa79380c79",
+        "chainTime": 1791237973,
+        "at": "2026-09-25T11:32:29.378Z"
+      },
+      {
+        "kind": "actor",
+        "summary": "simulated arbitrageur (real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E) sold wNVDAx into the real pool: $119.63 → $103.44",
+        "detail": {
+          "dropBps": 1353
+        },
+        "txHash": "0x94c9eb3cd33b45eaf763a1bfb68303ce85558d807109c1c7afdfdc753ba06555",
+        "chainTime": 1791237973,
+        "at": "2026-09-25T11:32:29.810Z"
+      },
+      {
+        "kind": "warp",
+        "summary": "synthetic gap: let the 30-minute TWAP settle",
+        "detail": {
+          "from": 1791237973,
+          "to": 1791239833
+        },
+        "chainTime": 1791239833,
+        "at": "2026-09-25T11:32:30.348Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session EXTENDED",
+        "detail": {
+          "periodChangedAt": 1791230400
+        },
+        "txHash": "0xc9ee20f8b154ab1e37484df3a377a88331199cca8a3e8b06ad740499c0bce0bb",
+        "chainTime": 1791239833,
+        "at": "2026-09-25T11:32:30.480Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $103.269262 (accepted)",
+        "txHash": "0x2919cf1c8b280876e39e56a86006e5895a544434eb44954ac80ddd957943c2c5",
+        "chainTime": 1791239833,
+        "at": "2026-09-25T11:32:30.634Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper ran a bounded liquidation slice for 0x0000000000000000000000000000000000005Ce7",
+        "txHash": "0x73a7be15193f4f4381f91306928b027da88feae0bcf0405ddd87ab15b3806406",
+        "chainTime": 1791239834,
+        "at": "2026-09-25T11:32:31.916Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted SPYx quote $769.016994 (accepted)",
+        "txHash": "0xdf96c1cc983d782b0847ddba044231aa5292c4825bc3215d351e19e5b98622b5",
+        "chainTime": 1791239834,
+        "at": "2026-09-25T11:32:32.085Z"
+      },
+      {
+        "kind": "scenario",
+        "summary": "synthetic gap finished: 45% drop, 1 liquidation slice(s), lender deficit 148.173416 USDG",
+        "detail": {
+          "replay": "synthetic-gap",
+          "slices": [
+            "0x73a7be15193f4f4381f91306928b027da88feae0bcf0405ddd87ab15b3806406"
+          ],
+          "totalDeficit": "148173416"
+        },
+        "chainTime": 1791239835,
+        "at": "2026-09-25T11:32:32.110Z"
+      }
+    ],
+    "chain": {
+      "chainTime": 1791239835,
+      "block": 71563520,
+      "forkBlock": 71563431,
+      "session": "EXTENDED",
+      "burnerAddress": "0x4dBFf93af70F7Ca0C4C5A098b0FA55751562BaeC"
+    }
+  }
+}

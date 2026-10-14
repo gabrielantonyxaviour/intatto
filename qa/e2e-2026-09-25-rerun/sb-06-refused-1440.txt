@@ -1,0 +1,115 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-09-26 12:00:01 UTC
+
+Exit sandbox
+Borrow USDG with NVDAx
+NVDAx · NVDA
+CLOSED
+
+Deposit NVDAx and borrow USDG against it. How much you can borrow follows the US market session; the liquidation line stays at 65% LTV around the clock.
+
+Deposit & borrow
+Repay & withdraw
+Collateral
+NVDAx
+Adds to your collateral
+Wallet 8.9999 NVDAx
+Max
+NVDAx price
+$225.94
+· fetched by the keeper at 2026-09-26 12:00:00 UTC
+CLOSED session · max new-borrow LTV
+28.12%
+· falls to 20.00% by Mon 16:00 UTC
+Sessions, guards and caps on the Risk page
+Loan
+USDG
+28 USDG
+Max
+Can borrow 0 USDG
+
+Maximum borrowable exceeded for the CLOSED session. You can borrow up to 0.00 USDG now.
+
+New borrowing is refused right now: Maximum borrowable exceeded for the CLOSED session. This borrow would take the position above the current session's borrowing limit.
+
+LTV
+35.40% →
+35.85%
+Medium
+CLOSED max 28.12%
+Liquidation 65.00%
+Liquidation price $124.62
+NVDA can fall 44.8% before liquidation
+Interest rate
+Variable
+
+2.01%
+
+≈ 1.62 USDG / year on 81.00 USDG at today's rate
+
+Refused: SessionLimit
+
+This borrow would take the position above the current session's borrowing limit.
+
+The contract refused this in a simulation. Nothing was signed or sent.
+
+Your position
+1 wNVDAx = 1.0017 NVDAx (issuer multiplier). Collateral is held as wNVDAx and valued at the relayed price.
+Collateral
+0.9999 NVDAx
+Held as
+0.9983 wNVDAx
+Collateral value
+225.94 USDG
+Debt
+80.00 USDG
+81.00 USDG
+LTV
+35.40%
+35.85%
+Health factor
+1.83
+1.81
+Liquidation price
+$123.08
+$124.62
+
+New-borrow limit 28.12% (CLOSED) · liquidation at 65.00%
+
+If NVDA opens lower on Monday (after this change)
+Monday open	NVDAx	LTV	Health	Status	Lenders lose (est.)
+−5%	$214.64	37.73%	1.72	Safe	
+0.00 USDG
+
+−10%	$203.35	39.83%	1.63	Safe	
+0.00 USDG
+
+−20%	$180.75	44.81%	1.45	Safe	
+0.00 USDG
+
+−30%	$158.16	51.21%	1.26	Safe	
+0.00 USDG
+
+−40%	$135.56	59.75%	1.08	Safe	
+0.00 USDG
+
+−44.85%	$124.60	65.00%	0.99	Liquidation starts	
+0.00 USDG
+
+−50%	$112.97	71.70%	0.90	Liquidatable	
+0.00 USDG
+
+−60%	$90.37	89.62%	0.72	Liquidatable	
+0.00 USDG
+
+Liquidation starts above 65.00% LTV (health below 1.00) in every session, with a 5% penalty. Lender loss is an estimate at the oracle price with no slippage: the debt that selling all the collateral would not repay after the penalty, less the gap reserve's 100.50 USDG (shared by every position). Market-wide stress on the Risk page.

@@ -1,0 +1,22 @@
+{
+  "credit": {
+    "status": 200,
+    "type": "application/json",
+    "body": "{\"service\":\"intatto-credit\",\"version\":\"1\",\"network\":\"mainnet\",\"chainId\":196,\"block\":71566430,\"wallet\":\"0x7F23b131F7312bd0f63EF79974E215Dc3E12a415\",\"market\":\"NVDAx\",\"session\":{\"state\":\"EXTENDED\",\"maxNewBorrowLtvBps\":4000,\"periodChangedAt\":\"2026-09-25T08:00:00.000Z\",\"postedAt\":\"2026-09-25T11:20:48.000Z\"},\"price\":{\"usdPerToken\":\"226.055\",\"fetchedAt\":\"2026-09-25T11:21:42.000Z\",\"sourceTimestamp\":null,\"source\":\"keeper relay of the xStocks issuer's indicative quote (trusted relayer, bounded onchain)\"},\"guards\":{\"fresh\":true,\"inBand\":true,\"pegOk\":true,\"corporateActionPaused\":false,\"issuerPaused\":false},\"position\":{\"collateralTokens\":\"0.00487805547415048\",\"collateralWrapperShares\":\"0.004869771035243362\",\"valueUsdg\":\"1.102708\",\"debtUsdg\":\"0.400003\",\"ltvBps\":3627,\"healthFactor\":\"1.791887060847043647\"},\"capacity\":{\"borrowableNowUsdg\":\"0.04108\",\"limitBps\":4000},\"liquidation\":{\"thresholdBps\":6500,\"liquidationPriceUsd\":\"126.15461919821681432\",\"gapToLiquidationBps\":4419,\"liquidatableNow\":false},\"asOf\":\"2026-09-25T11:24:26.000Z\"}"
+  },
+  "receipts": {
+    "status": 503,
+    "type": "application/json",
+    "body": "{\"error\":\"Credit call receipts are unavailable.\",\"code\":\"RECEIPTS_UNAVAILABLE\"}"
+  },
+  "unknown": {
+    "status": 404,
+    "type": "application/json",
+    "body": "{\"error\":\"No API at /api/qa-unknown. The credit API is /api/credit.\",\"code\":\"NOT_FOUND\"}"
+  },
+  "wrongChain": {
+    "status": 400,
+    "type": "application/json",
+    "body": "{\"error\":\"chain does not match the network: use 196 for mainnet or 1960196 with network=sandbox\",\"code\":\"WRONG_CHAIN\"}"
+  }
+}

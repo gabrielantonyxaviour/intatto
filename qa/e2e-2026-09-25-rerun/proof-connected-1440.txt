@@ -1,0 +1,16 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Fork proof
+There is no sandbox to check yet. Start a sandbox session, or give any RPC that claims to be a fork of X Layer: this page compares it with a public X Layer RPC, from your browser.
+Start a sandbox session
+RPC URL
+Fork block (optional for a local anvil, which reports its own)
+Check this RPC

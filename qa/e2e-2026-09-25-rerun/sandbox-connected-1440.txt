@@ -1,0 +1,57 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Sandbox
+
+Prove the weekend and corporate-action behaviour yourself on a fork of X Layer mainnet: move the clock, replay a gap, and watch every screen follow. No real money moves.
+
+Fork of X Layer mainnet
+The same contracts, tokens and pool state as X Layer at the fork block, on a chain of its own.
+Parent network
+X Layer mainnet · chain 196
+Sandbox chain id
+1960196
+Fork block
+71,563,431 · snapshot built 2026-09-25 10:35:08 UTC
+Markets
+NVDAx, SPYx
+Public RPC
+Issued for each session when you start one.
+Admin methods
+
+Refused on the public RPC: anvil_*evm_*hardhat_*debug_*trace_*eth_sendTransactioneth_sign*
+
+Time travel, scenarios and reset run through the sandbox API below, and each call is written to the activity ledger.
+
+Sandbox API
+https://intatto-rpc.larinova.com
+Prove this is a real fork
+Block hashes, bytecode and storage compared with X Layer mainnet, in your browser.
+Start a session
+Your own fork of X Layer mainnet with Intatto deployed and a throwaway wallet. Nothing here touches real funds.
+Parent network
+
+The only network Intatto runs on.
+
+Fork block
+
+Fixed by the snapshot built 2026-09-25 10:35:08 UTC.
+
+Custom chain id
+
+Differs from 196, so nothing signed here can be replayed on mainnet.
+
+State sync
+
+The fork stays frozen at the fork block; later X Layer blocks never reach it.
+
+Loads the snapshot into a fresh fork, sets the chain clock to now (evm_setNextBlockTimestamp), has the keeper post the session and prices, and funds a new burner from a real X Layer holder (anvil_impersonateAccount + transfer).
+
+Start a session

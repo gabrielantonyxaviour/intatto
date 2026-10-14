@@ -1,0 +1,114 @@
+Intatto
+X Layer
+0x7F23…a415
+Market
+
+Borrow USDG against tokenized stocks on X Layer. How much you can borrow follows the US market session; the liquidation line stays put.
+
+Total deposits
+1.497504 USDG
+Loans
+0.400003 USDG
+Available
+1.097501 USDG
+Collateral value
+1.102708 USDG
+Utilisation
+26.71%
+Gap reserve
+0.50 USDG
+Recognised deficits
+0.00 USDG
+0 recorded
+
+If a liquidation cannot repay a loan, the gap reserve pays the rest; anything beyond it becomes a recognised deficit that lenders share pro rata. How losses are covered
+
+Markets
+Showing 1 of 1 stock market
+NVDAx
+Collateral only
+EXTENDED
+(Extended hours)
+Show the NVDAx market below
+Collateral supplied
+0.004878 NVDAx
+1.102708 USDG
+Borrowed against it
+0.400003 USDG
+Max LTV now / liquidation
+40.00% / 65%
+Supply / borrow rate
+– / –
+Add collateral
+USDG
+Lend or borrow
+Supplied by lenders
+1.497504 USDG
+Borrowed
+0.400003 USDG
+Max LTV now / liquidation
+–
+Supply / borrow rate
+0.99% / 4.67%
+Lend
+Borrow
+NVDAx market
+EXTENDED
+(Extended hours)
+Lend USDG
+Borrow USDG
+Price
+$226.05
+Relay
+keeper, bounded onchain
+Overview
+Your info
+Market session
+EXTENDED
+(Extended hours)
+Extended hours
+
+Posted by the keeper at 2026-09-25 11:20:48 UTC; this period began 2026-09-25 08:00:00 UTC.
+
+Max LTV for new loans, now
+40.00%
+Set by the EXTENDED session
+Liquidation threshold
+65%
+The same in every session
+Liquidation penalty
+…
+Of the debt a liquidation repays
+Borrowing cap for NVDAx
+Total debt against NVDAx may not pass a cap the keeper sizes from what the pool can absorb in a sale.
+0.03%
+0.400003 USDG of 1,250.00 USDG
+Room left: 1,249.59 USDG. While the market is closed a liquidation slice sells at most 1,250.00 USDG.
+How the NVDAx price is made
+$226.05 per NVDAx, fetched by the keeper at 2026-09-25 11:21:42 UTC
+Recent keeper posts
+
+Newest first. Each post passed the relay's checks when it landed.
+
+The relayed price next to the pool TWAP over time is on the Risk page.
+
+Collateral held onchain
+0.004878 NVDAx held as 0.004869 wNVDAx shares, worth 1.102708 USDG at the relayed price.
+Market (holds the collateral)
+0xE670…9D0D
+(opens OKLink)
+Price relay
+0xf69c…67a4
+(opens OKLink)
+NVDAx token
+0xc845…849d
+(opens OKLink)
+wNVDAx wrapper
+0xa8dd…50D5
+(opens OKLink)
+wNVDAx/USDG pool
+0x2a2B…a7b2
+(opens OKLink)
+USDG vault
+0x89fC…308C
+(opens OKLink)

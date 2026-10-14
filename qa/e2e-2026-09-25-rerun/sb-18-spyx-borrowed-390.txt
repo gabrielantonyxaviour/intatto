@@ -1,0 +1,181 @@
+Intatto
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-10-05 22:58:21 UTC
+
+Exit sandbox
+Borrow USDG with SPYx
+SPYx · SPY
+EXTENDED
+
+Deposit SPYx and borrow USDG against it. How much you can borrow follows the US market session; the liquidation line stays at 65% LTV around the clock.
+
+Deposit & borrow
+Repay & withdraw
+Back
+Done
+YOUR USDG LOAN
+10.00 USDG
+Collateral
+0.0999 SPYx
+0.0994 wSPYx
+Liquidation price
+$153.84
+LTV
+13.00% of 40.00% allowed
+Interest rate
+2.00% variable
+Liquidation risk
+Low
+Health factor
+4.99
+Collateral deposit
+0.1 SPYx
+≈ $76.90 · held as 0.0994 wSPYx
+Loan
+10.00 USDG
+Sent to your wallet
+Interest rate
+2.00% variable
+≈ 0.20 USDG per year at today's rate
+Liquidation penalty
+5%
+Only charged if the position is liquidated
+Deposited 0.1 SPYx
+Confirmed · 0xf27341…30eb67
+Borrowed 10.00 USDG
+Confirmed · 0xe4fed1…799628
+
+You borrowed 10.00 USDG. Watch the position panel: it shows what a Monday gap would do to it.
+
+Back to the form
+Your position
+1 wSPYx = 1.0057 SPYx (issuer multiplier). Collateral is held as wSPYx and valued at the relayed price.
+Collateral
+0.0999 SPYx
+Held as
+0.0994 wSPYx
+Collateral value
+76.90 USDG
+Debt
+10.00 USDG
+LTV
+13.00%
+Health factor
+4.99
+Liquidation price
+$153.84
+
+New-borrow limit 40.00% (EXTENDED) · liquidation at 65.00%
+
+If SPY opens lower on Monday
+Opens −5%
+Safe
+SPYx
+$730.56
+LTV
+13.68%
+Health
+4.74
+Lenders lose
+0.00 USDG
+Opens −10%
+Safe
+SPYx
+$692.11
+LTV
+14.44%
+Health
+4.49
+Lenders lose
+0.00 USDG
+Opens −20%
+Safe
+SPYx
+$615.21
+LTV
+16.25%
+Health
+3.99
+Lenders lose
+0.00 USDG
+Opens −30%
+Safe
+SPYx
+$538.31
+LTV
+18.57%
+Health
+3.49
+Lenders lose
+0.00 USDG
+Opens −40%
+Safe
+SPYx
+$461.41
+LTV
+21.67%
+Health
+2.99
+Lenders lose
+0.00 USDG
+Opens −50%
+Safe
+SPYx
+$384.50
+LTV
+26.00%
+Health
+2.49
+Lenders lose
+0.00 USDG
+Opens −60%
+Safe
+SPYx
+$307.60
+LTV
+32.50%
+Health
+1.99
+Lenders lose
+0.00 USDG
+Opens −70%
+Safe
+SPYx
+$230.70
+LTV
+43.34%
+Health
+1.49
+Lenders lose
+0.00 USDG
+Opens −80%
+Liquidation starts
+SPYx
+$153.80
+LTV
+65.01%
+Health
+0.99
+Lenders lose
+0.00 USDG
+Opens −90%
+Liquidatable
+SPYx
+$76.90
+LTV
+130.03%
+Health
+0.49
+Lenders lose
+2.67 USDG
+
+Liquidation starts above 65.00% LTV (health below 1.00) in every session, with a 5% penalty. Lender loss is an estimate at the oracle price with no slippage: the debt that selling all the collateral would not repay after the penalty, less the gap reserve's 0.00 USDG (shared by every position). Market-wide stress on the Risk page.
+
+USDG borrowed
+Transaction 0xe4fed135…
+Collateral deposited
+Transaction 0xf27341a2…
+SPYx approved
+Transaction 0x2fd8bcfc…

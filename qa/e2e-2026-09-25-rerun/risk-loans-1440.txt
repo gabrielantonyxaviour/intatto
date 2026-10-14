@@ -1,0 +1,54 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Risk console
+
+Every price the keeper posted or had refused, every session, cap, corporate action and liquidation, read from X Layer with its transaction. Nothing here comes from our servers. Back to the market
+
+Market NVDAx
+
+Events from blocks #71,562,056–#71,566,642 (from the deployment block) · 27 events · chain time 2026-09-25 11:28:08 UTC · latest #71,566,652
+
+Refresh
+Summary
+Price posts
+Price shock
+Loans near liquidation
+Caps and LTV spread
+Market overview
+Sessions
+Corporate actions
+Liquidations
+Keeper log
+Trust and bounds
+Loans near liquidation
+
+Every borrower found in the scanned blocks, read now through the market lens at block #71,566,651. Distance is the LTV points left before 65%, and the price fall that would get there.
+
+Sort by
+Distance to liquidation
+Show
+Top 30
+Hide loans with no debt
+Borrower	LTV · limit · liquidation	Distance to liquidation	Collateral	Debt	Net value	Liquidation price / NVDAx
+
+0x7f23…a415
+(opens OKLink)
+You
+	
+36.25%
+40% · 65%
+	
+28.75 pts
+price −44.2%
+	
+0.0048 NVDAx
+1.10 USDG
+	0.40 USDG	0.70 USDG	$126.15

@@ -1,0 +1,863 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-09-25 11:28:32 UTC
+
+Exit sandbox
+Back to sandbox
+Fork proof
+
+Four checks this browser runs directly against the sandbox RPC and a public X Layer RPC, to show the sandbox is X Layer mainnet forked at one block with Intatto deployed on top. The Intatto server computes none of them.
+
+Re-run checks
+
+4 of 4 passed
+
+Sandbox RPC
+https://intatto-rpc.larinova.com/rpc/0rt93_mhyU05I6sPjEsiHQ
+from your sandbox session
+Chain ids
+sandbox 1960196 · X Layer 196
+The sandbox uses its own id (1960196) so nothing signed there can be replayed on X Layer.
+Fork block
+71,563,431
+from your sandbox session
+X Layer RPC
+https://xlayerrpc.okx.com
+Public X Layer RPCs, tried in order: https://xlayerrpc.okx.com, https://rpc.xlayer.tech.
+Reads
+Block hashes at each block number on both RPCs. Code and state: the sandbox now against X Layer at the fork block.
+A sandbox started from a state snapshot cannot serve state at the fork block itself, and now is what a borrower on the sandbox meets.
+Run
+started 2026-09-25 11:29:00 UTC in this browser
+
+Reproduce locally
+
+anvil --fork-url https://xlayerrpc.okx.com --fork-block-number 71563431 --chain-id 1960196
+
+Starts your own fork of X Layer at the same block with the sandbox chain id; each check below lists the cast commands to compare it, or this sandbox, with X Layer.
+
+Time after the fork block is a simulation
+
+Everything after block 71,563,431 (warps to a weekend, replayed prices, scenario actions) is simulated by definition: it is not X Layer history. These checks prove the starting state and the code; the ledger lists what the sandbox changed since.
+
+Check 1: Block hashes match X Layer
+passed
+The fork block and the blocks 1, 10 and 100 before it have the same hash on both RPCs, so the sandbox shares X Layer's history up to block 71,563,431.
+
+Block 71,563,431 · fork block
+
+equal
+X Layer hash
+0x39cd860eb0a09786ec4a3931622ba185fbeadb237f1e585044deecc81371c039
+Sandbox hash
+0x39cd860eb0a09786ec4a3931622ba185fbeadb237f1e585044deecc81371c039
+Block time
+2026-09-25 10:34:27 UTC
+
+Block 71,563,430 · fork block − 1
+
+equal
+X Layer hash
+0x460528191c3347085062d86ed7ba150b8fb17f91d6d96e440996ee2dce28c27a
+Sandbox hash
+0x460528191c3347085062d86ed7ba150b8fb17f91d6d96e440996ee2dce28c27a
+
+Block 71,563,421 · fork block − 10
+
+equal
+X Layer hash
+0x33bd886550f6c0761bf3f763e29c0974acf384ea57a8250f212fa0f9763006b2
+Sandbox hash
+0x33bd886550f6c0761bf3f763e29c0974acf384ea57a8250f212fa0f9763006b2
+
+Block 71,563,331 · fork block − 100
+
+equal
+X Layer hash
+0xb6b9b4090dfda756fa002c619056f694a080035aed27f089c1d45f717724f3fa
+Sandbox hash
+0xb6b9b4090dfda756fa002c619056f694a080035aed27f089c1d45f717724f3fa
+Reproduce with cast
+Check 2: Contract code matches X Layer
+passed
+The sandbox's current code for every external contract Intatto relies on equals X Layer's at block 71,563,431. (The sandbox is read now: one started from a snapshot cannot serve state at the fork block itself.)
+
+14 addresses covered. keccak256 of each address's runtime code:
+
+NVDAx
+
+0xc845b2894dbddd03858fd2d643b4ef725fe0849d
+
+issuer token (proxy)
+
+equal
+X Layer, block 71,563,431
+0xe7cbfea5a664672738dd729f7774677b0fa82dbdda74320df20eec49d2211b4c
+2,138 bytes
+Sandbox now
+0xe7cbfea5a664672738dd729f7774677b0fa82dbdda74320df20eec49d2211b4c
+2,138 bytes
+
+NVDAx implementation
+
+0x65c40D624Af3B18C109fBF87B7DEff34CdC5f19b
+
+EIP-1967 implementation slot of NVDAx
+
+equal
+X Layer, block 71,563,431
+0x867df49d5c7ab1198b64f29e6be9b2c1be8482d35a59b38d0f9e243be448ae68
+15,981 bytes
+Sandbox now
+0x867df49d5c7ab1198b64f29e6be9b2c1be8482d35a59b38d0f9e243be448ae68
+15,981 bytes
+
+NVDAx proxy admin
+
+0x696C685a02A1Fc6E2AaCbe26CD6695F4f4a6a085
+
+EIP-1967 admin slot of NVDAx
+
+equal
+X Layer, block 71,563,431
+0x4ed584b73b5af6bdcb94b78b7050318d652716a0e865874c2d7caed199475e50
+1,855 bytes
+Sandbox now
+0x4ed584b73b5af6bdcb94b78b7050318d652716a0e865874c2d7caed199475e50
+1,855 bytes
+
+wNVDAx
+
+0xa8ddb5cd96b5222afe198316e9a57caa642850d5
+
+issuer ERC-4626 wrapper (proxy)
+
+equal
+X Layer, block 71,563,431
+0x22c711b98473b782f9d8863b9033148c180d6d4d8e3e3bce129ff566352500e8
+2,138 bytes
+Sandbox now
+0x22c711b98473b782f9d8863b9033148c180d6d4d8e3e3bce129ff566352500e8
+2,138 bytes
+
+wNVDAx implementation
+
+0x76C6851ea0B2741EeDcBBED240715E8817E85583
+
+EIP-1967 implementation slot of wNVDAx
+
+equal
+X Layer, block 71,563,431
+0x65fbe0111d1e611f05aaab7a4e80f5b883e996037bb58fcddb1043534a5e9a61
+12,035 bytes
+Sandbox now
+0x65fbe0111d1e611f05aaab7a4e80f5b883e996037bb58fcddb1043534a5e9a61
+12,035 bytes
+
+wNVDAx proxy admin
+
+0x312063009E74142339Edc92BcfF6CfCfAA958BFA
+
+EIP-1967 admin slot of wNVDAx
+
+equal
+X Layer, block 71,563,431
+0x4ed584b73b5af6bdcb94b78b7050318d652716a0e865874c2d7caed199475e50
+1,855 bytes
+Sandbox now
+0x4ed584b73b5af6bdcb94b78b7050318d652716a0e865874c2d7caed199475e50
+1,855 bytes
+
+wNVDAx/USDG pool
+
+0x2a2b11730c2b6d99a58034a869dd810d7300a7b2
+
+Uniswap v3 pool, 0.05% fee
+
+equal
+X Layer, block 71,563,431
+0x038691e59a3c8497c5b2f21d4e625690ad032f1d346d03500c2280584cab8e5c
+22,142 bytes
+Sandbox now
+0x038691e59a3c8497c5b2f21d4e625690ad032f1d346d03500c2280584cab8e5c
+22,142 bytes
+
+USDG
+
+0x4ae46a509f6b1d9056937ba4500cb143933d2dc8
+
+stablecoin (proxy)
+
+equal
+X Layer, block 71,563,431
+0x5e4dcb0bb1910f6429e5fe91678990088a51c6d1cfe1b31d05fb9d948cc7867c
+708 bytes
+Sandbox now
+0x5e4dcb0bb1910f6429e5fe91678990088a51c6d1cfe1b31d05fb9d948cc7867c
+708 bytes
+
+USDG implementation
+
+0x50607322Caa9CE5C27B8Cc403C476838CAAa9202
+
+EIP-1967 implementation slot of USDG
+
+equal
+X Layer, block 71,563,431
+0x1817911a4edde54a1ec32fdc3d5b354670520e839ad7bf53575b872b36db1cb4
+18,644 bytes
+Sandbox now
+0x1817911a4edde54a1ec32fdc3d5b354670520e839ad7bf53575b872b36db1cb4
+18,644 bytes
+
+Chainlink USDG/USD proxy
+
+0x385C6bDDE06b0E438319bF4ddBfFe51C521ABf3D
+
+price feed proxy
+
+equal
+X Layer, block 71,563,431
+0xbd6f524cdc4268b6bd1bb6f77a8821faeea9c52ee9e0afa0b6d948ce82c966c2
+9,571 bytes
+Sandbox now
+0xbd6f524cdc4268b6bd1bb6f77a8821faeea9c52ee9e0afa0b6d948ce82c966c2
+9,571 bytes
+
+Chainlink USDG/USD aggregator
+
+0xD51BaF49600F01e2c289dD0848d550c526D38010
+
+aggregator() of the feed proxy
+
+equal
+X Layer, block 71,563,431
+0x16f41184f797cb8f8918680df0ebf2a97cc3192aa6b104615f61096fc674f2aa
+22,337 bytes
+Sandbox now
+0x16f41184f797cb8f8918680df0ebf2a97cc3192aa6b104615f61096fc674f2aa
+22,337 bytes
+
+Aave v3 PoolAddressesProvider
+
+0xdFf435BCcf782f11187D3a4454d96702eD78e092
+
+from the Aave address book (AaveV3XLayer)
+
+equal
+X Layer, block 71,563,431
+0x35aab86c167b0d508bc2b8fe879cab12f92c222e8dee2e0c3244ffbb12533df0
+6,907 bytes
+Sandbox now
+0x35aab86c167b0d508bc2b8fe879cab12f92c222e8dee2e0c3244ffbb12533df0
+6,907 bytes
+
+Aave v3 Pool
+
+0xE3F3Caefdd7180F884c01E57f65Df979Af84f116
+
+getPool() of the PoolAddressesProvider
+
+equal
+X Layer, block 71,563,431
+0xade071cf93d723c0a6c61715d4d162c611d10fc9c6a6e785c7475af8d10c36fd
+1,841 bytes
+Sandbox now
+0xade071cf93d723c0a6c61715d4d162c611d10fc9c6a6e785c7475af8d10c36fd
+1,841 bytes
+
+Aave v3 Pool implementation
+
+0x5Bc7204274230a8F4778a35A58B776D16CF104b4
+
+EIP-1967 implementation slot of the Aave v3 Pool
+
+equal
+X Layer, block 71,563,431
+0x72c24c2d36fa591ee8429f17ce90c5cc1dcee55078dc5335b7959ea4ebb582a7
+22,442 bytes
+Sandbox now
+0x72c24c2d36fa591ee8429f17ce90c5cc1dcee55078dc5335b7959ea4ebb582a7
+22,442 bytes
+Reproduce with cast
+Check 3: State matches X Layer
+passed
+The sandbox's current state equals X Layer's at block 71,563,431, apart from changes its use explains: storage and reads no sandbox action writes must be identical; balances, the pool price and the multiplier are listed apart with the ledger entries behind them.
+a. Equal to X Layer at the fork block (12 reads)
+
+Contract reads and raw storage no sandbox action writes (proxy implementations and admins, total supplies, since the sandbox moves balances but never mints, the token's name, and the feed's answer, aggregator and owner). The sandbox is read now, X Layer at block 71,563,431. Any difference means the sandbox state was edited outside its recorded actions.
+
+USDG · totalSupply()
+
+0x4ae46a509f6b1d9056937ba4500cb143933d2dc8
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+1513579282911390
+
+1,513,579,282.91139 USDG
+
+Chainlink USDG/USD · latestRoundData()
+
+0x385C6bDDE06b0E438319bF4ddBfFe51C521ABf3D
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+18446744073709551964, 99990000, 1790277893, 1790277907, 18446744073709551964
+
+18,446,744,073,709,551,964 · $0.9999 · 2026-09-24 19:24:53 UTC · 2026-09-24 19:25:07 UTC · 18,446,744,073,709,551,964
+
+NVDAx · slot 0x360894a1… · EIP-1967 implementation
+
+0xc845b2894dbddd03858fd2d643b4ef725fe0849d
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0x00000000000000000000000065c40d624af3b18c109fbf87b7deff34cdc5f19b
+
+0x65c40D624Af3B18C109fBF87B7DEff34CdC5f19b
+
+NVDAx · slot 0xb5312768… · EIP-1967 admin
+
+0xc845b2894dbddd03858fd2d643b4ef725fe0849d
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0x000000000000000000000000696c685a02a1fc6e2aacbe26cd6695f4f4a6a085
+
+0x696C685a02A1Fc6E2AaCbe26CD6695F4f4a6a085
+
+NVDAx · slot 0x68 · name
+
+0xc845b2894dbddd03858fd2d643b4ef725fe0849d
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0x4e5649444941207853746f636b0000000000000000000000000000000000001a
+
+"NVIDIA xStock"
+
+NVDAx · slot 0x108 · total supply before the multiplier
+
+0xc845b2894dbddd03858fd2d643b4ef725fe0849d
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0x000000000000000000000000000000000000000000000990a57984321f373147
+
+45,169.553199 NVDAx
+
+wNVDAx · slot 0x360894a1… · EIP-1967 implementation
+
+0xa8ddb5cd96b5222afe198316e9a57caa642850d5
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0x00000000000000000000000076c6851ea0b2741eedcbbed240715e8817e85583
+
+0x76C6851ea0B2741EeDcBBED240715E8817E85583
+
+wNVDAx · slot 0xb5312768… · EIP-1967 admin
+
+0xa8ddb5cd96b5222afe198316e9a57caa642850d5
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0x000000000000000000000000312063009e74142339edc92bcff6cfcfaa958bfa
+
+0x312063009E74142339Edc92BcfF6CfCfAA958BFA
+
+USDG · slot 0x360894a1… · EIP-1967 implementation
+
+0x4ae46a509f6b1d9056937ba4500cb143933d2dc8
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0x00000000000000000000000050607322caa9ce5c27b8cc403c476838caaa9202
+
+0x50607322Caa9CE5C27B8Cc403C476838CAAa9202
+
+USDG · slot 0x2 · totalSupply
+
+0x4ae46a509f6b1d9056937ba4500cb143933d2dc8
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0x00000000000000000000000000000000000000000000000000056097a37f509e
+
+1,513,579,282.91139 USDG
+
+Chainlink USDG/USD · slot 0x2 · current phase (id and aggregator)
+
+0x385C6bDDE06b0E438319bF4ddBfFe51C521ABf3D
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0x00000000000000000000d51baf49600f01e2c289dd0848d550c526d380100001
+
+phase 1, aggregator 0xD51BaF49600F01e2c289dD0848d550c526D38010
+
+Chainlink USDG/USD · slot 0x0 · owner
+
+0x385C6bDDE06b0E438319bF4ddBfFe51C521ABf3D
+equal
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0x000000000000000000000000d9f6f0c071ae8d804129309fa7bb371626eafb04
+
+0xd9F6f0C071AE8d804129309fa7bB371626eafb04
+
+b. Moved by sandbox use, listed apart (9 values)
+
+Balances, the pool price and the multiplier move as the sandbox is used: funding, swaps, time warps and scenarios. Each shows X Layer at block 71,563,431, the sandbox now, and the ledger entries that explain a change. These never fail the check.
+
+NVDAx · balanceOf(real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E)
+
+0xc845b2894dbddd03858fd2d643b4ef725fe0849d
+moved by sandbox use
+
+Every session funds its burner with NVDAx from this real holder.
+
+− X Layer, block 71,563,431
+
+4182697103733349062001
+
+4,182.697103 NVDAx
+
++ Sandbox now
+
+4172697103733349062002
+
+4,172.697103 NVDAx
+
+Ledger (fund): 10 NVDAx transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+NVDAx · totalSupply()
+
+0xc845b2894dbddd03858fd2d643b4ef725fe0849d
+unchanged since the fork
+
+Total supply is the raw supply times the multiplier. The issuer's multiplier accrues its fee as time passes (so time warps move it) and the corporate-action scenario schedules a new one.
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+45246395498688786785496
+
+45,246.395498 NVDAx
+
+NVDAx · getCurrentMultiplier()
+
+0xc845b2894dbddd03858fd2d643b4ef725fe0849d
+unchanged since the fork
+
+The issuer's multiplier accrues its fee as time passes (so time warps move it) and the corporate-action scenario schedules a new one.
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+1001701196801074000, 0, 5
+
+1.001701196801074× · 0 · 5
+
+NVDAx · newMultiplier()
+
+0xc845b2894dbddd03858fd2d643b4ef725fe0849d
+unchanged since the fork
+
+The issuer's multiplier accrues its fee as time passes (so time warps move it) and the corporate-action scenario schedules a new one.
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+1001701196801074000
+
+1.001701196801074×
+
+NVDAx · newMultiplierActivationTime()
+
+0xc845b2894dbddd03858fd2d643b4ef725fe0849d
+unchanged since the fork
+
+The issuer's multiplier accrues its fee as time passes (so time warps move it) and the corporate-action scenario schedules a new one.
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+0
+
+0 (none)
+
+wNVDAx · convertToAssets(1e18)
+
+0xa8ddb5cd96b5222afe198316e9a57caa642850d5
+unchanged since the fork
+
+One wrapper share is worth more NVDAx as the multiplier changes. The issuer's multiplier accrues its fee as time passes (so time warps move it) and the corporate-action scenario schedules a new one.
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+1001701196801074000
+
+1.001701 NVDAx
+
+wNVDAx · totalSupply()
+
+0xa8ddb5cd96b5222afe198316e9a57caa642850d5
+unchanged since the fork
+
+Any wrap or unwrap changes this, including a borrower adding collateral.
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+3670402308518998960114
+
+3,670.402308 wNVDAx
+
+wNVDAx/USDG pool · slot0()
+
+0x2a2b11730c2b6d99a58034a869dd810d7300a7b2
+unchanged since the fork
+
+Any swap in the pool changes this, including liquidation slices.
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+5266334432176166567887042058826168, 222101, 213, 256, 256, 68, true
+
+5,266,334,432,176,166,567,887,042,058,826,168 · 222101 · 213 · 256 · 256 · 68 · true
+
+wNVDAx/USDG pool · liquidity()
+
+0x2a2b11730c2b6d99a58034a869dd810d7300a7b2
+unchanged since the fork
+
+A swap that crosses a tick changes the active liquidity.
+
+= on both (X Layer, block 71,563,431; Sandbox now)
+
+531414874066097675
+
+531,414,874,066,097,675
+
+Reproduce with cast
+Check 4: Intatto's code is the published code
+passed
+Each Intatto contract on the sandbox runs the same code as the X Layer mainnet deployment when this app has one configured, otherwise as this repo's build; sandbox-only markets are always compared with the build.
+
+Compared with the X Layer mainnet deployment: each contract's code on the sandbox is compared with the code at the same role on mainnet. SPYx is a sandbox-only market (not on mainnet), so its contracts are compared with this repo's build. Immutables (values a constructor writes into the code, such as addresses) are zeroed on both sides first.
+
+Lending vault (LendingVault)
+
+0x89fC3a0637768fA0c7e779375786bc129B6c308C
+equal
+Sandbox, masked
+0xdbf217433b79a96bb52f5555f532908eeee049ea186d1ac79abe82ba3a4fae29
+6,695 bytes · 6 immutable ranges zeroed
+X Layer mainnet, masked
+0xdbf217433b79a96bb52f5555f532908eeee049ea186d1ac79abe82ba3a4fae29
+6,695 bytes at 0x89fC3a0637768fA0c7e779375786bc129B6c308C
+
+Gap reserve (GapReserve)
+
+0x4CB09f7b032cb5F6575faE46176e9697DB07CB52
+equal
+Sandbox, masked
+0x3e25e48c5910898c27d35dd0ebad1396699312e5bba911b577d3642e3b016ed9
+1,920 bytes · 7 immutable ranges zeroed
+X Layer mainnet, masked
+0x3e25e48c5910898c27d35dd0ebad1396699312e5bba911b577d3642e3b016ed9
+1,920 bytes at 0x4CB09f7b032cb5F6575faE46176e9697DB07CB52
+
+Interest rate model (InterestRateModel)
+
+0xa3677c6aAC24C366C5A75083738ba568cEf8AD16
+equal
+Sandbox, masked
+0xe137edea598383ac0a704b25b3dc31f615da69a84fb65586e4f0f805f8959c57
+1,339 bytes · 0 immutable ranges zeroed
+X Layer mainnet, masked
+0xe137edea598383ac0a704b25b3dc31f615da69a84fb65586e4f0f805f8959c57
+1,339 bytes at 0xa3677c6aAC24C366C5A75083738ba568cEf8AD16
+
+Session risk controller (SessionRiskController)
+
+0x2d7F438AB59767fD48b4E560B16B72bD8Fb055c8
+equal
+Sandbox, masked
+0x494ec9ef176da098824c170e942f68c2404f83180574e620c646693524c5e118
+3,218 bytes · 0 immutable ranges zeroed
+X Layer mainnet, masked
+0x494ec9ef176da098824c170e942f68c2404f83180574e620c646693524c5e118
+3,218 bytes at 0x2d7F438AB59767fD48b4E560B16B72bD8Fb055c8
+
+Depth cap registry (DepthCapRegistry)
+
+0x30279C37B299b51f03F4b2b5898902670e13F986
+equal
+Sandbox, masked
+0x9c913bc2978e31a7d7ef91cb975f3a9df62ea27633e89e3a1bb2390d953215f4
+2,281 bytes · 0 immutable ranges zeroed
+X Layer mainnet, masked
+0x9c913bc2978e31a7d7ef91cb975f3a9df62ea27633e89e3a1bb2390d953215f4
+2,281 bytes at 0x30279C37B299b51f03F4b2b5898902670e13F986
+
+Bounded liquidator (BoundedLiquidator)
+
+0xc0289c36e72a2E6a799D01EdF11FC460D07bEAc0
+equal
+Sandbox, masked
+0xf0e4a0c4a9ee6dcb654d926a0715f00fe97b831bcc649a4970010af92f180052
+10,434 bytes · 4 immutable ranges zeroed
+X Layer mainnet, masked
+0xf0e4a0c4a9ee6dcb654d926a0715f00fe97b831bcc649a4970010af92f180052
+10,434 bytes at 0xc0289c36e72a2E6a799D01EdF11FC460D07bEAc0
+
+Market lens (MarketLens)
+
+0xb7c45ca15038Ab9b0eDDC9607cdB6e2bfA89dD66
+equal
+Sandbox, masked
+0x528228437cceaf32b2bee563e1b7f63b270195760ec7c3c7f0bd162cfd2d6143
+8,380 bytes · 0 immutable ranges zeroed
+X Layer mainnet, masked
+0x528228437cceaf32b2bee563e1b7f63b270195760ec7c3c7f0bd162cfd2d6143
+8,380 bytes at 0xb7c45ca15038Ab9b0eDDC9607cdB6e2bfA89dD66
+
+NVDAx market (CollateralMarket)
+
+0xE6708CC6598F17611f9A468f9907052688459D0D
+equal
+Sandbox, masked
+0x775d25a592711077f05417dc606d653998f512559878b94d4b00d0fa323b8a4e
+11,365 bytes · 53 immutable ranges zeroed
+X Layer mainnet, masked
+0x775d25a592711077f05417dc606d653998f512559878b94d4b00d0fa323b8a4e
+11,365 bytes at 0xE6708CC6598F17611f9A468f9907052688459D0D
+
+NVDAx price relay (PriceRelayAdapter)
+
+0xf69c0EA60a6f6b94fF3C0F40af8bA3B97A4567a4
+equal
+Sandbox, masked
+0xd52797712c1f07d0a74b87b991ae9bc7b947ff6cd8c294e7953f942c30337413
+7,448 bytes · 11 immutable ranges zeroed
+X Layer mainnet, masked
+0xd52797712c1f07d0a74b87b991ae9bc7b947ff6cd8c294e7953f942c30337413
+7,448 bytes at 0xf69c0EA60a6f6b94fF3C0F40af8bA3B97A4567a4
+
+NVDAx corporate-action guard (CorporateActionGuard)
+
+0x4b4B28da545064837CFbd66C16F94f21a0750BDE
+equal
+Sandbox, masked
+0xed7c8041a8bcdc7be3d94e1a496aa4ae5543d29d1f7a23681eaa631c5b9646b3
+4,785 bytes · 11 immutable ranges zeroed
+X Layer mainnet, masked
+0xed7c8041a8bcdc7be3d94e1a496aa4ae5543d29d1f7a23681eaa631c5b9646b3
+4,785 bytes at 0x4b4B28da545064837CFbd66C16F94f21a0750BDE
+
+SPYx market (CollateralMarket)
+
+Sandbox-only market, compared with this repo's build
+
+0x16A2f3Aff010f494BDDdBecF4256a956Fe6D9E4d
+equal
+Sandbox, masked
+0x775d25a592711077f05417dc606d653998f512559878b94d4b00d0fa323b8a4e
+11,365 bytes · 53 immutable ranges zeroed
+Build artifact, masked
+0x775d25a592711077f05417dc606d653998f512559878b94d4b00d0fa323b8a4e
+11,365 bytes
+
+SPYx price relay (PriceRelayAdapter)
+
+Sandbox-only market, compared with this repo's build
+
+0xBFE7Be40ebB271Fb0c220BF176377157f9CBD0c2
+equal
+Sandbox, masked
+0xd52797712c1f07d0a74b87b991ae9bc7b947ff6cd8c294e7953f942c30337413
+7,448 bytes · 11 immutable ranges zeroed
+Build artifact, masked
+0xd52797712c1f07d0a74b87b991ae9bc7b947ff6cd8c294e7953f942c30337413
+7,448 bytes
+
+SPYx corporate-action guard (CorporateActionGuard)
+
+Sandbox-only market, compared with this repo's build
+
+0x0E2FbE2361eF17b437b6280e8bf3BFbCd936f0Ae
+equal
+Sandbox, masked
+0xed7c8041a8bcdc7be3d94e1a496aa4ae5543d29d1f7a23681eaa631c5b9646b3
+4,785 bytes · 11 immutable ranges zeroed
+Build artifact, masked
+0xed7c8041a8bcdc7be3d94e1a496aa4ae5543d29d1f7a23681eaa631c5b9646b3
+4,785 bytes
+Reproduce with cast
+Divergence ledger
+Every departure from X Layer a session makes: funding moved from real holders by impersonation, time warps, keeper posts, and replayed scenarios with their data sources and hashes.
+
+22 entries from https://intatto-rpc.larinova.com/session/0rt93_mhyU05I6sPjEsiHQ/ledger
+
+note
+chain time 2026-09-25 10:34:27 UTC
+
+fork of X Layer mainnet at block 71563431, after Intatto's mainnet deployment at block 71562056: the core contracts and the NVDAx market are the live mainnet contracts at their mainnet addresses
+
+note
+chain time 2026-09-25 10:34:27 UTC
+
+sandbox only: the mainnet keeper/owner 0xaBa1F7e4FB0500696855BF38012676c10e3ef808 is impersonated on the fork (owner changes below, and every sandbox keeper post)
+
+fund
+chain time 2026-09-25 10:34:27 UTC
+
+1 OKB from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+tx 0x2f1dd1…213549
+
+deploy
+chain time 2026-09-25 10:34:36 UTC
+
+sandbox only: SPYx market deployed on the fork on top of the mainnet core (DeploySecondMarket.s.sol) and wired: vault.addMarket, reserve.setMarket, market.setLiquidator, liquidator.setMarket, caps.setInitialCap 50000 USDG
+
+note
+chain time 2026-09-25 10:34:36 UTC
+
+sandbox only: NVDAx relay USDG/USD staleness limit widened to 30 days (the forked feed cannot update in simulated time); peg band still 1%
+
+tx 0xc7dc23…31957c
+
+note
+chain time 2026-09-25 10:34:37 UTC
+
+sandbox only: SPYx relay USDG/USD staleness limit widened to 30 days (the forked feed cannot update in simulated time); peg band still 1%
+
+tx 0x6c0c6d…80a9db
+
+note
+chain time 2026-09-25 10:34:37 UTC
+
+sandbox only: NVDAx ticker cap set from mainnet's 1000 USDG to 50000 USDG, sized to the sandbox lender, so scenario borrowers fit under it
+
+tx 0x3013f0…9fb422
+
+fund
+chain time 2026-09-25 10:34:37 UTC
+
+0.01 OKB from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+tx 0x45af5a…b140a6
+
+fund
+chain time 2026-09-25 10:34:37 UTC
+
+50000 USDG transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+tx 0x60be25…5b4769
+
+fund
+chain time 2026-09-25 10:34:40 UTC
+
+gap reserve topped up with 100 USDG from real holder (now 100.5 USDG with mainnet's seed)
+
+tx 0x88050a…9719d5
+
+keeper
+chain time 2026-09-25 10:34:40 UTC
+
+keeper posted session EXTENDED
+
+tx 0x906bba…883aab
+
+keeper
+chain time 2026-09-25 10:34:40 UTC
+
+keeper posted NVDAx quote $225.945713 (accepted)
+
+tx 0xfbe7c7…f76d49
+
+keeper
+chain time 2026-09-25 10:34:45 UTC
+
+keeper posted SPYx quote $769.016994 (accepted)
+
+tx 0x959ddc…520d9d
+
+note
+chain time 2026-09-25 10:34:47 UTC
+
+session started from the snapshot of X Layer block 71563431 built 2026-09-25T10:35:08.373Z
+
+warp
+chain time 2026-09-25 11:28:31 UTC
+
+session clock set to the wall clock (2026-09-25T11:28:31Z); the snapshot was taken at 2026-09-25T10:34:47Z
+
+keeper
+chain time 2026-09-25 11:28:31 UTC
+
+keeper posted session EXTENDED
+
+tx 0xd03160…a3ae1c
+
+keeper
+chain time 2026-09-25 11:28:31 UTC
+
+keeper posted NVDAx quote $225.945713 (accepted)
+
+tx 0x177428…a40be3
+
+keeper
+chain time 2026-09-25 11:28:31 UTC
+
+keeper posted SPYx quote $769.016994 (accepted)
+
+tx 0x4c800b…4cda0c
+
+fund
+chain time 2026-09-25 11:28:31 UTC
+
+0.1 OKB from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+tx 0xc19e58…882710
+
+fund
+chain time 2026-09-25 11:28:31 UTC
+
+10 NVDAx transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+tx 0xd1733a…ce23a7
+
+fund
+chain time 2026-09-25 11:28:31 UTC
+
+2 SPYx transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+tx 0x3a121e…7a5f97
+
+fund
+chain time 2026-09-25 11:28:31 UTC
+
+1000 USDG transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E
+
+tx 0xdab3d9…f9347e

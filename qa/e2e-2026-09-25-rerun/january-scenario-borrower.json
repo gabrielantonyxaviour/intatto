@@ -1,0 +1,16 @@
+{
+  "shares": "19966033847089196648",
+  "assets": "19999999999999999999",
+  "valueUsdg": "3755262119",
+  "debt": "2237953050",
+  "ltvBps": "5959",
+  "maxLtvBps": "4000",
+  "borrowCapacity": "0",
+  "healthFactorE18": "1090693291063456402",
+  "liquidationPriceE18": "172150234615384615393",
+  "liquidatable": false,
+  "walletToken": "0",
+  "walletUsdg": "2236862558",
+  "vaultShares": "0",
+  "vaultAssets": "0"
+}

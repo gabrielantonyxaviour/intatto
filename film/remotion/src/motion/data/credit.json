@@ -1,0 +1,51 @@
+{
+  "sourceUrl": "https://intatto.larinova.com/api/credit?chain=196&market=NVDAx&wallet=0x7F23b131F7312bd0f63EF79974E215Dc3E12a415",
+  "retrievedAt": "2026-09-25T14:37:56.725Z",
+  "payload": {
+    "service": "intatto-credit",
+    "version": "1",
+    "network": "mainnet",
+    "chainId": 196,
+    "block": 71578040,
+    "wallet": "0x7F23b131F7312bd0f63EF79974E215Dc3E12a415",
+    "market": "NVDAx",
+    "session": {
+      "state": "OPEN",
+      "maxNewBorrowLtvBps": 5000,
+      "periodChangedAt": "2026-09-25T13:30:00.000Z",
+      "postedAt": "2026-09-25T14:36:59.000Z"
+    },
+    "price": {
+      "usdPerToken": "223.8645",
+      "fetchedAt": "2026-09-25T14:33:56.000Z",
+      "sourceTimestamp": null,
+      "source": "keeper relay of the xStocks issuer's indicative quote (trusted relayer, bounded onchain)"
+    },
+    "guards": {
+      "fresh": true,
+      "inBand": true,
+      "pegOk": true,
+      "corporateActionPaused": false,
+      "issuerPaused": false
+    },
+    "position": {
+      "collateralTokens": "0.00487805547415048",
+      "collateralWrapperShares": "0.004869771035243362",
+      "valueUsdg": "1.092023",
+      "debtUsdg": "0.40001",
+      "ltvBps": 3663,
+      "healthFactor": "1.774493012674683132"
+    },
+    "capacity": {
+      "borrowableNowUsdg": "0.146001",
+      "limitBps": 5000
+    },
+    "liquidation": {
+      "thresholdBps": 6500,
+      "liquidationPriceUsd": "126.156826887495113527",
+      "gapToLiquidationBps": 4364,
+      "liquidatableNow": false
+    },
+    "asOf": "2026-09-25T14:37:56.000Z"
+  }
+}

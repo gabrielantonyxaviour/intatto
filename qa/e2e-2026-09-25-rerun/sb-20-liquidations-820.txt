@@ -1,0 +1,49 @@
+Intatto
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-10-05 22:58:21 UTC
+
+Exit sandbox
+Risk console
+
+Every price the keeper posted or had refused, every session, cap, corporate action and liquidation, read from the sandbox fork with its transaction. Nothing here comes from our servers. Back to the market
+
+Market
+NVDAx
+
+Events from blocks #71,562,056–#71,563,530 (from the sandbox deployment) · 50 events · chain time 2026-10-05 22:58:21 UTC · latest #71,563,530
+
+Refresh
+Analysis
+Liquidations
+Liquidations
+
+Past 65% LTV a position is sold into the pool in slices, never below a floor under the relayed price (15% below while trading, 3% while CLOSED). A slice that cannot fill at its floor waits.
+
+Gap reserve now
+0.00 USDG
+Lender deficit now
+148.17 USDG (1)
+Repaid by slices read
+1,940.55 USDG
+Reserve covered · deficit
+149.20 USDG · 148.17 USDG
+Executed
+EXTENDED
+2026-10-05 22:37:14
+Borrower
+0x0000…5Ce7
+Sold · oracle · floor
+19.966 wNVDAx
+103.44 USDG/share · floor 87.92 USDG/share
+Proceeds
+2,037.58 USDG
+Repaid · penalty
+1,940.55 USDG
+penalty 97.02 USDG
+Reserve · deficit
+149.20 USDG
+deficit 148.17 USDG
+Transaction
+0x73a7be…806406

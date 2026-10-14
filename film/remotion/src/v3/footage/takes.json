@@ -1,0 +1,242 @@
+{
+ "agents": {
+  "stamp": "2026-09-25T11-10-18",
+  "file": "takes/agentsT11-10-18.mp4",
+  "seconds": 47.576,
+  "marks": {
+   "loaded": 0.352,
+   "credit-card": 2.354,
+   "keeper-card": 4.84,
+   "try-it": 7.249,
+   "type-wallet": 9.765,
+   "submit": 13.154,
+   "report": 15.405,
+   "json": 24.618,
+   "to-risk": 29.381,
+   "keeper-log": 32.066,
+   "price-posts": 41.402,
+   "end": 47.172
+  }
+ },
+ "agents-credit": {
+  "stamp": "2026-09-25T17-14-35",
+  "file": "takes/agents-creditT17-14-35.mp4",
+  "seconds": 24.198,
+  "marks": {
+   "loaded": -0.008,
+   "listing": 1.593,
+   "try-it": 4.726,
+   "type-wallet": 6.89,
+   "submit": 10.255,
+   "report": 12.18,
+   "details": 17.677,
+   "end": 23.74
+  }
+ },
+ "borrow-mainnet": {
+  "stamp": "2026-09-25T10-57-46",
+  "file": "takes/borrow-mainnetT10-57-46.mp4",
+  "seconds": 31.176,
+  "marks": {
+   "loaded": 0.386,
+   "connect": 2.187,
+   "connected": 5.704,
+   "collateral": 7.205,
+   "debt": 9.64,
+   "ltv-health": 11.864,
+   "can-fall": 14.339,
+   "monday-table": 17.588,
+   "preview": 25.162,
+   "preview-clear": 29.565,
+   "end": 30.775
+  }
+ },
+ "explorer": {
+  "stamp": "2026-09-25T10-58-19",
+  "file": "takes/explorerT10-58-19.mp4",
+  "seconds": 38.416,
+  "marks": {
+   "loaded": 21.856,
+   "contract": 23.357,
+   "borrow-row": 26.239,
+   "from-wallet": 29.788,
+   "contracts-tab": 32.387,
+   "end": 38.015
+  }
+ },
+ "friday": {
+  "stamp": "2026-09-25T17-00-28",
+  "file": "takes/fridayT17-00-28.mp4",
+  "seconds": 39.494,
+  "marks": {
+   "loaded": -0.021,
+   "open": 1.782,
+   "limit": 4.241,
+   "collateral": 6.974,
+   "can-borrow": 9.819,
+   "loan": 12.255,
+   "review": 16.348,
+   "approve": 19.363,
+   "deposit": 22.34,
+   "borrow": 27.405,
+   "borrowed": 29.449,
+   "back": 32.821,
+   "position": 35.58,
+   "end": 39.089
+  }
+ },
+ "keeper-explorer": {
+  "stamp": "2026-09-25T11-11-45",
+  "file": "takes/keeper-explorerT11-11-45.mp4",
+  "seconds": 41.259,
+  "marks": {
+   "loaded": 24.041,
+   "address": 26.047,
+   "rows": 29.241,
+   "end": 40.857
+  }
+ },
+ "lend-primer": {
+  "stamp": "2026-09-25T17-06-11",
+  "file": "takes/lend-primerT17-06-11.mp4",
+  "seconds": 10.691,
+  "marks": {
+   "primer": 0.004,
+   "interest": 1.848,
+   "lose": 6.1,
+   "end": 10.262
+  }
+ },
+ "mainnet-position": {
+  "stamp": "2026-09-25T17-13-27",
+  "file": "takes/mainnet-positionT17-13-27.mp4",
+  "seconds": 22.792,
+  "marks": {
+   "loaded": -0.014,
+   "collateral": 1.858,
+   "debt": 4.549,
+   "ltv": 9.177,
+   "liq-price": 11.541,
+   "contracts": 14.799,
+   "end": 22.366
+  }
+ },
+ "market": {
+  "stamp": "2026-09-25T10-56-02",
+  "file": "takes/marketT10-56-02.mp4",
+  "seconds": 34.642,
+  "marks": {
+   "loaded": 0.681,
+   "stats": 3.184,
+   "scroll-market": 6.119,
+   "session": 8.142,
+   "max-ltv": 10.887,
+   "threshold": 13.862,
+   "relay": 16.595,
+   "guards": 21.252,
+   "price-made": 27.806,
+   "keeper-posts": 30.227,
+   "end": 34.24
+  }
+ },
+ "monday-risk": {
+  "stamp": "2026-09-25T17-05-16",
+  "file": "takes/monday-riskT17-05-16.mp4",
+  "seconds": 14.639,
+  "marks": {
+   "summary": 0.012,
+   "loans": 3.423,
+   "liquidations": 8.576,
+   "end": 14.183
+  }
+ },
+ "replays": {
+  "stamp": "2026-09-25T11-06-56",
+  "file": "takes/replaysT11-06-56.mp4",
+  "seconds": 212.014,
+  "marks": {
+   "sandbox-loaded": 0.421,
+   "start-click": 1.422,
+   "session-ready": 18.866,
+   "scroll-scenarios": 20.368,
+   "jan-click": 27.191,
+   "jan-done": 86.262,
+   "ledger": 88.942,
+   "to-risk": 93.469,
+   "risk-loans": 97.981,
+   "risk-liqs": 108.612,
+   "to-sandbox": 115.015,
+   "syn-click": 119.64,
+   "syn-done": 171.555,
+   "to-risk-2": 174.214,
+   "risk-liqs-2": 177.783,
+   "risk-deficit-tile": 185.091,
+   "to-lend": 188.815,
+   "primer-lose": 191.921,
+   "primer-close": 197.372,
+   "share-price": 200.713,
+   "deficit": 204.344,
+   "end": 211.613
+  }
+ },
+ "rigcheck": {
+  "stamp": "2026-09-25T16-55-05",
+  "file": "takes/rigcheckT16-55-05.mp4",
+  "seconds": 7.031,
+  "marks": {
+   "loaded": 2.376,
+   "glide": 4.093,
+   "scrolled": 6.027,
+   "end": 6.63
+  }
+ },
+ "saturday": {
+  "stamp": "2026-09-25T17-01-27",
+  "file": "takes/saturdayT17-01-27.mp4",
+  "seconds": 48.099,
+  "marks": {
+   "loaded": 0.006,
+   "closed": 1.889,
+   "limit": 4.385,
+   "try-more": 7.74,
+   "refused": 11.788,
+   "repay-tab": 17.22,
+   "repay-typed": 20.38,
+   "repay-review": 25.372,
+   "approve-usdg": 33.535,
+   "repay": 38.316,
+   "repaid": 42.223,
+   "end": 47.61
+  }
+ },
+ "weekend": {
+  "stamp": "2026-09-25T11-00-09",
+  "file": "takes/weekendT11-00-09.mp4",
+  "seconds": 114.789,
+  "marks": {
+   "sandbox-loaded": 0.372,
+   "start-click": 2.874,
+   "session-ready": 34.303,
+   "to-borrow": 39.95,
+   "borrow-loaded": 42.186,
+   "loan-typed": 45.948,
+   "review": 49.889,
+   "approve": 52.462,
+   "deposit": 55.303,
+   "borrow": 58.317,
+   "borrowed": 61.549,
+   "to-sandbox": 70.045,
+   "saturday-click": 73.048,
+   "saturday-done": 80.809,
+   "to-borrow-2": 84.03,
+   "try-more": 91.008,
+   "refused": 92.689,
+   "repay-tab": 97.387,
+   "repay-review": 103.127,
+   "approve-usdg": 105.408,
+   "repay": 108.265,
+   "repaid": 110.766,
+   "end": 114.388
+  }
+ }
+}

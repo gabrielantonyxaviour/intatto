@@ -1,0 +1,19 @@
+Intatto
+X Layer
+0x7F23…a415
+Risk console
+
+Every price the keeper posted or had refused, every session, cap, corporate action and liquidation, read from X Layer with its transaction. Nothing here comes from our servers. Back to the market
+
+Market NVDAx
+
+Refresh
+Analysis
+Summary
+NVDAx summary
+
+Read (chain time –). The price is the issuer's indicative quote relayed by Intatto's keeper; it carries no source timestamp, so only the keeper's fetch time is shown.
+
+Across the loans read
+
+Borrowers are found from Borrow events in the scanned blocks.

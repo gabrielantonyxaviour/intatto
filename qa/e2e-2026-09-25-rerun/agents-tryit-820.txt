@@ -1,0 +1,165 @@
+Intatto
+X Layer
+0x7F23…a415
+
+Agents / Intatto credit and health
+
+Intatto credit and health
+v1
+
+Read a wallet's borrowing room, the session limit, and how far the price is from liquidation.
+
+intatto.larinova.com
+
+Try with
+
+Free per call. x402 on X Layer (eip155:196) after a real paid settlement is proven.
+
+OKX AI listing: not submitted yet.
+
+Resources
+2
+Tags
+credit
+health
+session
+Addresses
+0xaBa1F7…3ef808
+see every keeper post on the Risk console
+Pay-to: none while the call is free.
+Calls from this page
+
+Stored in this browser only. This is not a count of calls on the network.
+
+1
+
+2026-09-25T11:27:38.308Z · NVDAx · 0x7F23b131F7312bd0f63EF79974E215Dc3E12a415
+Endpoints
+GET
+/api/credit
+credit
+health
+
+Session, capacity, keeper price, guards, and liquidation distance for one wallet.
+
+Free
+GET
+/api/credit/health
+health
+
+Whether this service can read the chain right now.
+
+Free
+Parameters
+wallet
+Required
+
+0x address
+
+40 hex characters, all lowercase or checksummed.
+
+market
+Required
+
+NVDAx or SPYx
+
+SPYx is listed only in the sandbox.
+
+network
+Optional
+
+mainnet or sandbox
+
+Defaults to mainnet.
+
+session
+Optional
+
+sandbox session id
+
+Sent with sandbox calls so the service can find that fork.
+
+Try it
+Wallet
+Market
+NVDAx
+NVDAx
+SPYx
+
+Calls this app's /api/credit on mainnet.
+
+Try it
+Session
+EXTENDED
+Max new-borrow LTV (bps)
+4000
+Debt (USDG)
+0.400003
+Capacity now (USDG)
+0.041295
+Price (USD per token)
+226.165
+Fetched by the keeper at
+2026-09-25T11:26:42.000Z
+Liquidation price (USD per token)
+126.15461919821681432
+Gap to liquidation (bps)
+4422
+
+Keeper relay of the xStocks issuer's indicative quote (a trusted relayer, bounded onchain). The issuer quote has no source timestamp.
+
+Keeper post under 30 min: yes
+Inside the 30-min pool band: yes
+USDG within 1% of peg: yes
+Corporate action pause: no
+Issuer pause: no
+
+see every keeper post on the Risk console
+
+{
+  "service": "intatto-credit",
+  "version": "1",
+  "network": "mainnet",
+  "chainId": 196,
+  "block": 71566621,
+  "wallet": "0x7F23b131F7312bd0f63EF79974E215Dc3E12a415",
+  "market": "NVDAx",
+  "session": {
+    "state": "EXTENDED",
+    "maxNewBorrowLtvBps": 4000,
+    "periodChangedAt": "2026-09-25T08:00:00.000Z",
+    "postedAt": "2026-09-25T11:20:48.000Z"
+  },
+  "price": {
+    "usdPerToken": "226.165",
+    "fetchedAt": "2026-09-25T11:26:42.000Z",
+    "sourceTimestamp": null,
+    "source": "keeper relay of the xStocks issuer's indicative quote (trusted relayer, bounded onchain)"
+  },
+  "guards": {
+    "fresh": true,
+    "inBand": true,
+    "pegOk": true,
+    "corporateActionPaused": false,
+    "issuerPaused": false
+  },
+  "position": {
+    "collateralTokens": "0.00487805547415048",
+    "collateralWrapperShares": "0.004869771035243362",
+    "valueUsdg": "1.103245",
+    "debtUsdg": "0.400003",
+    "ltvBps": 3625,
+    "healthFactor": "1.792759679302405231"
+  },
+  "capacity": {
+    "borrowableNowUsdg": "0.041295",
+    "limitBps": 4000
+  },
+  "liquidation": {
+    "thresholdBps": 6500,
+    "liquidationPriceUsd": "126.15461919821681432",
+    "gapToLiquidationBps": 4422,
+    "liquidatableNow": false
+  },
+  "asOf": "2026-09-25T11:27:37.000Z"
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "cold-open",
+    "vo": "Friday night in New York. The last trade prints, and NVIDIA stops trading until Monday. Its token doesn't."
+  },
+  {
+    "id": "problem",
+    "vo": "That's a problem if you lend against it. All weekend, nobody can trade the real stock. The issuer won't even take an order. Then Monday opens wherever the news took it. In January 2025, after the DeepSeek weekend, NVIDIA opened twelve and a half percent lower. And when one platform got a stock split wrong, four hundred and five people were liquidated. So who pays for the weekend?"
+  },
+  {
+    "id": "idea",
+    "vo": "This is Intatto. Italian for intact. The stock market keeps hours. So do our loans. While it's open, you can borrow up to half your collateral. As it closes, that limit tightens, toward twenty percent by Monday. The liquidation line never moves."
+  },
+  {
+    "id": "real",
+    "vo": "This isn't a mockup. It's live on X Layer mainnet. This wallet deposited real NVDAx, and borrowed real USDG. Here's the transaction, on a verified contract."
+  },
+  {
+    "id": "saturday",
+    "vo": "But you can't wait for a weekend in a three-minute demo. So we built one. A fork of X Layer mainnet, with the same contracts and the same state, where we can move time. Let's make it Saturday. I try to borrow more. The contract says no, before I even sign. But repaying is always open. Reducing risk is never blocked."
+  },
+  {
+    "id": "replay",
+    "vo": "Now, the real thing. The DeepSeek weekend, minute by minute. A loan opened at the weekday limit rides the gap down, and stops near sixty percent. Under the line. Nobody liquidated. The limits held."
+  },
+  {
+    "id": "worst",
+    "vo": "And if it's worse? Here's a made-up forty-five percent crash. The loan is sold in bounded slices, never below a floor. Our reserve pays first. What's left is shown as a loss to lenders, in plain words. They're told that before they ever deposit."
+  },
+  {
+    "id": "proof",
+    "vo": "You don't have to trust our fork. Your own browser checks it against mainnet: same block, same code, same state."
+  },
+  {
+    "id": "agents",
+    "vo": "Agents can use it too. Intatto is built for OKX AI: any agent can ask how much a wallet can borrow right now. And our keeper checks the market every minute, and posts it onchain."
+  },
+  {
+    "id": "close",
+    "vo": "X Layer holds about ninety million dollars of tokenized stocks. Aave on X Layer lists none of them. Intatto. Your loan, intact. Live on X Layer."
+  }
+]

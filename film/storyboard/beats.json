@@ -1,0 +1,67 @@
+{
+ "beats": [
+  {
+   "id": "1bed7e08-e21f-403a-8178-456e6abeb615",
+   "text": "Split frame: NVDA on Nasdaq CLOSED on a Saturday vs NVDAx trading on X Layer. Three fact cards with sources: issuer's closed-period max order $0 (xStocks asset API, read 25 Sep 2026) \u00b7 Venus launched stock collateral with borrow caps at 0 \u00b7 Ventuals' mishandled 5-for-1 split liquidated 405 users.",
+   "voiceover": "Tokenized NVIDIA trades around the clock. NVIDIA doesn't. While the market is closed, the issuer quotes a maximum order of zero dollars. Venus listed stock collateral with borrowing switched off. And a mishandled split on Ventuals liquidated four hundred and five users.",
+   "seconds": 18,
+   "clipId": "c2113380-3b6a-4ec2-8f1b-e4930a393926"
+  },
+  {
+   "id": "b49028b4-9f99-4b10-9a32-7995e7c5bf24",
+   "text": "Name card 'Intatto', then the live Market page on X Layer mainnet: session pill, max LTV for new loans, the fixed 65% threshold, and the price-relay disclosure. Label: LIVE \u00b7 X Layer mainnet.",
+   "voiceover": "Intatto lets you borrow against tokenized stocks on X Layer, with limits that know when the stock market is closed. How much you can borrow follows the US session. The liquidation line never moves. The price is our keeper relaying the issuer's quote, bounded onchain, and the app says so.",
+   "seconds": 21,
+   "clipId": "93605661-7104-4519-a549-702b290e50ea"
+  },
+  {
+   "id": "93e35c10-ab57-4940-b9b9-d7ab618ab39e",
+   "text": "Borrow page for demo wallet 0x7F23\u2026a415 (read-only, nothing signed on camera): 0.004878 NVDAx collateral, 0.40 USDG debt, 36% LTV, health 1.79, liquidation price. Then OKLink: borrow tx 0xa933\u20260f45 and a verified contract. Label: LIVE \u00b7 X Layer mainnet.",
+   "voiceover": "And it's live, on X Layer mainnet. This wallet deposited real NVDAx and borrowed real USDG. Thirty-six percent loan-to-value, health one point seven nine. NVIDIA would have to fall about forty-four percent before this loan is liquidated. Here's the borrow on the explorer, on a verified contract.",
+   "seconds": 21,
+   "clipId": "2ba2c8ef-3990-4f2a-8891-ecc3872eface"
+  },
+  {
+   "id": "c69525a4-f0c2-4994-b8f6-023b401cacb6",
+   "text": "Hosted sandbox: start a session, burner funded from a real holder, borrow on a weekday, Jump to Saturday (pill turns CLOSED, max new borrow 30%), try to borrow more: 'Refused: SessionLimit', then Repay succeeds. Label: SANDBOX \u00b7 fork of X Layer mainnet.",
+   "voiceover": "To show you the weekend, here's a sandbox: a fork of X Layer mainnet, the same contracts, and a burner wallet funded from a real holder. I borrow on a weekday. Now, let's make it Saturday. The session closes, and the limit for new loans drops below thirty percent, falling toward twenty by Monday. I ask for more, and the contract refuses, with its reason: SessionLimit. Repaying still works. Reducing risk is never blocked.",
+   "seconds": 33,
+   "clipId": "855641e7-ff12-4f1c-aa68-945d75010982"
+  },
+  {
+   "id": "807a5d03-85f6-4eb5-9aac-7cd6c0b728cb",
+   "text": "Fork proof page: checks turn green in the browser (block hash, bytecode, state, Intatto code), then the 'everything we changed' ledger. Label: SANDBOX.",
+   "voiceover": "And you don't have to trust the fork. These checks run in your own browser: same block, same contracts, same state, and a ledger of everything we changed.",
+   "seconds": 12,
+   "clipId": "1cdd4725-3036-48dd-9349-8b6831ce0100"
+  },
+  {
+   "id": "164b58e7-f74e-43a8-a942-740bd7803bff",
+   "text": "Sandbox: Replay the January 2025 gap; ledger shows the Dukascopy CFD source. Risk console: the scenario loan ends near 60% LTV, under 65%, no liquidation, reserve untouched. Label: REPLAY \u00b7 CFD data.",
+   "voiceover": "Now a real weekend. January 2025, the DeepSeek weekend. NVIDIA closed on Friday and opened Monday twelve and a half percent lower. Replayed on the fork from minute data, a loan opened at the weekday limit ends near sixty percent. Under the line. Nobody is liquidated. The limits held.",
+   "seconds": 22,
+   "clipId": "29e2dc82-c796-4ec3-a928-6e23dcf2f817"
+  },
+  {
+   "id": "73cb6f35-a811-4be8-b944-df61af06eb04",
+   "text": "Sandbox: Run a synthetic 45% gap. Risk console: liquidation slices; Lend: the reserve paid, then the lender deficit and the share-price drop. Label: SYNTHETIC \u00b7 not market data.",
+   "voiceover": "To show a real crash, here's a synthetic forty-five percent gap. The loan is sold into the pool in bounded slices, never below a price floor. The gap reserve pays first, all of it. What it can't cover, about a hundred and forty-eight dollars, is recognised openly as a loss to lenders. They're told that before they deposit.",
+   "seconds": 25,
+   "clipId": "6b3233de-30f6-4f79-8863-8dd1a71ab5dc"
+  },
+  {
+   "id": "a1020c75-90d9-4ff4-96ad-c02456b110b1",
+   "text": "Agents page and a live call to /api/credit for the demo wallet: session, borrowable now, liquidation price, gap to liquidation. Then the keeper's own transactions on OKLink (post / postSession every few minutes). Keeper agent identity shown as 'registration pending'.",
+   "voiceover": "Agents can ask too. Intatto's credit API is built for OKX AI. It answers how much a wallet can borrow right now, and why, from onchain reads. And our keeper agent reads the issuer every minute, and posts the session and price onchain. Every post is a transaction you can check.",
+   "seconds": 22,
+   "clipId": "3708ea76-85d9-449f-b453-cf6a4f6d8dde"
+  },
+  {
+   "id": "5fdcde64-614f-4394-afda-375caf0bdb89",
+   "text": "Plain type: everything Intatto needs is on X Layer (xStocks, pools, USDG, OKX AI) \u00b7 ~$91.5M of xStocks on X Layer (Crypto Briefing, 12 Sep 2026) \u00b7 X Layer's Aave lists no xStocks (onchain read 25 Sep 2026) \u00b7 Next: Chainlink Data Streams live, more stocks. Wordmark Intatto, intatto.larinova.com.",
+   "voiceover": "Everything Intatto needs lives on X Layer: the xStocks, their pools, USDG, and OKX AI. X Layer holds about ninety-one million dollars of xStocks, and its Aave market lists none of them. Next: Chainlink Data Streams, and more stocks. Intatto. Borrow against tokenized stocks on X Layer, with limits that know when the market is closed. And it's live.",
+   "seconds": 26,
+   "clipId": "6531aeae-ac95-47a5-bbbf-e885a7b3ba3f"
+  }
+ ]
+}

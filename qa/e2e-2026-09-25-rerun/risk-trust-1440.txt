@@ -1,0 +1,108 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Risk console
+
+Every price the keeper posted or had refused, every session, cap, corporate action and liquidation, read from X Layer with its transaction. Nothing here comes from our servers. Back to the market
+
+Market NVDAx
+
+Events from blocks #71,562,056–#71,566,642 (from the deployment block) · 27 events · chain time 2026-09-25 11:28:08 UTC · latest #71,566,652
+
+Refresh
+Summary
+Price posts
+Price shock
+Loans near liquidation
+Caps and LTV spread
+Market overview
+Sessions
+Corporate actions
+Liquidations
+Keeper log
+Trust and bounds
+Trust and bounds
+
+What you are trusting when you use Intatto, and where the contracts stop that trust.
+
+The keeper is a trusted relayer
+
+The NVDAx price is the issuer's indicative quote, relayed by Intatto's keeper (
+0xaBa1…f808
+(opens OKLink)
+). The quote carries no source timestamp, so the console shows when the keeper fetched it, never how fresh the stock price is.
+
+It can
+post the market session, the price, the credit cap target and upcoming corporate actions; a wrong session post can open borrowing up to the OPEN limit, never beyond it
+run liquidation slices (anyone can; the keeper usually does)
+stop posting, which turns borrowing off once its posts go stale
+The contracts stop it from
+moving anyone's collateral, deposits or the reserve
+posting a price outside the TWAP band, beyond the max move, or while USDG is off peg
+lending past the OPEN session's limit, or raising the cap faster than its ramp
+selling collateral below the liquidation floor
+
+The operator (
+0xaBa1…f808
+(opens OKLink)
+) can change these bounds and the keeper address; every change emits an event.
+
+Chainlink Data Streams adapter
+Not live
+Built and unit-tested
+
+A v10 report verifier for Chainlink Data Streams is built and unit-tested, but not wired live: Intatto has no Data Streams entitlement on X Layer yet, so the keeper relay above is the only price source.
+
+Bounds read onchain
+
+Each mechanism and the number the contract enforces now.
+
+Price freshness
+30 min
+A price older than this is stale: new borrowing and liquidation stop until the keeper posts again.
+Fetch age at post
+5 min
+The keeper must post within this long of fetching the quote.
+TWAP band
+±3% open · ±8% otherwise
+A post outside the band around the pool's 30-minute TWAP is rejected.
+Max move per post
+15%
+A bigger jump from the last accepted price is rejected; the keeper has to step towards it.
+USDG/USD peg
+within 1%, fresh within 26 h
+Checked against Chainlink USDG/USD on every post.
+Session liveness
+30 min
+Without a session post for this long the market reads UNKNOWN and lends nothing new.
+New-borrow LTV
+50% / 40% / 30%→20%
+OPEN / EXTENDED / CLOSED start → floor. HALTED, CORPORATE_ACTION and UNKNOWN allow 0%.
+Liquidation LTV
+65%
+Fixed in the market contract, the same in every session.
+Liquidation penalty
+5%
+Of the debt repaid; half to whoever ran the slice, half to the gap reserve.
+Liquidation floor
+15% open · 3% closed
+A slice never sells below the relayed price minus this. While CLOSED a waiting slice widens to 8% after 6 h.
+Cap ramp
+25% or 100 USDG per hour
+How fast a higher cap target takes effect. Lower targets apply at once.
+Corporate action pause
+30 min
+Borrowing and liquidation pause this long before a multiplier change activates.
+Reserve factor
+20%
+Share of borrower interest kept for the protocol instead of lenders.
+A liquidation, worked through
+
+Say a loan has 1,000 USDG of NVDAx collateral and 700 USDG of debt: 70% LTV, past the 65% line. The liquidator seizes enough wrapper shares to cover the debt plus the 5% penalty and sells them into the pool, never below the floor. Proceeds repay the 700 USDG; the penalty (35 USDG) goes half to the caller and half to the gap reserve; anything left returns to the borrower. If the collateral runs out first, the gap reserve pays the rest and only then do lenders share a deficit.

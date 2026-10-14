@@ -1,0 +1,108 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-09-25 11:28:32 UTC
+
+Exit sandbox
+Borrow USDG with NVDAx
+NVDAx · NVDA
+EXTENDED
+
+Deposit NVDAx and borrow USDG against it. How much you can borrow follows the US market session; the liquidation line stays at 65% LTV around the clock.
+
+Deposit & borrow
+Repay & withdraw
+Collateral
+NVDAx
+≈ $225.94 · held as 0.9983 wNVDAx
+Wallet 9.9999 NVDAx
+Max
+NVDAx price
+$225.94
+· fetched by the keeper at 2026-09-25 11:28:31 UTC
+EXTENDED session · max new-borrow LTV
+40.00%
+Sessions, guards and caps on the Risk page
+Loan
+USDG
+45 USDG
+79 USDG
+108 USDG
+Max
+Can borrow 90.3782 USDG
+LTV
+35.40%
+Medium
+EXTENDED max 40.00%
+Liquidation 65.00%
+Liquidation price $123.07
+NVDA can fall 45.5% before liquidation
+Interest rate
+Variable
+
+2.00%
+
+≈ 1.60 USDG / year on 80.00 USDG at today's rate
+
+Review
+Your position
+1 wNVDAx = 1.0017 NVDAx (issuer multiplier). Collateral is held as wNVDAx and valued at the relayed price.
+Collateral
+0 NVDAx
+0.9999 NVDAx
+Held as
+0 wNVDAx
+0.9983 wNVDAx
+Collateral value
+0.00 USDG
+225.94 USDG
+Debt
+0.00 USDG
+80.00 USDG
+LTV
+0.00%
+35.40%
+Health factor
+∞
+1.83
+Liquidation price
+–
+$123.07
+
+New-borrow limit 40.00% (EXTENDED) · liquidation at 65.00%
+
+If NVDA opens lower on Monday (after this change)
+Monday open	NVDAx	LTV	Health	Status	Lenders lose (est.)
+−5%	$214.64	37.27%	1.74	Safe	
+0.00 USDG
+
+−10%	$203.35	39.34%	1.65	Safe	
+0.00 USDG
+
+−20%	$180.75	44.25%	1.46	Safe	
+0.00 USDG
+
+−30%	$158.16	50.58%	1.28	Safe	
+0.00 USDG
+
+−40%	$135.56	59.01%	1.10	Safe	
+0.00 USDG
+
+−45.53%	$123.07	65.00%	0.99	Liquidation starts	
+0.00 USDG
+
+−50%	$112.97	70.81%	0.91	Liquidatable	
+0.00 USDG
+
+−60%	$90.37	88.51%	0.73	Liquidatable	
+0.00 USDG
+
+Liquidation starts above 65.00% LTV (health below 1.00) in every session, with a 5% penalty. Lender loss is an estimate at the oracle price with no slippage: the debt that selling all the collateral would not repay after the penalty, less the gap reserve's 100.50 USDG (shared by every position). Market-wide stress on the Risk page.

@@ -1,0 +1,21 @@
+NVDAx
+Read at
+2026-09-25 12:29:58 UTC
+Trading period
+extended
+open
+next change 2026-09-25 13:30:00 UTC
+Market halt
+not halted
+Atomic halt
+not halted
+Quote
+$225.945
+Multiplier now
+1.001701196801074×
+Pending multiplier
+none
+Mapped session
+EXTENDED
+Disagreement
+none

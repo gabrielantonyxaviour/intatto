@@ -1,0 +1,18 @@
+import { chromium } from "@playwright/test"
+import { READ_ONLY_WALLET } from "./rig.mjs"
+const b = await chromium.launch()
+const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, timezoneId: "UTC" })
+await ctx.addInitScript(READ_ONLY_WALLET())
+const p = await ctx.newPage()
+p.on("console", m => { if (m.type() === "error") console.log("console:", m.text().slice(0, 200)) })
+await p.goto("https://intatto.larinova.com/borrow")
+await p.waitForTimeout(4000)
+await p.getByRole("button", { name: /Connect wallet/ }).click()
+await p.waitForTimeout(800)
+await p.screenshot({ path: "film/look/probe-connect-menu.png" })
+console.log(await p.locator("[role=menu]").innerText().catch(() => "no menu"))
+await p.getByRole("menuitem", { name: /Browser wallet/ }).click().catch(e => console.log("no browser wallet item", e.message))
+await p.waitForTimeout(6000)
+await p.screenshot({ path: "film/look/probe-borrow-connected.png", fullPage: true })
+console.log((await p.locator("body").innerText()).replace(/\n+/g, " | ").slice(0, 2500))
+await b.close()

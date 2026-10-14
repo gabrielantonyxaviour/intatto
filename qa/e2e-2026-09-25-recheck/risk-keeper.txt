@@ -1,0 +1,417 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Risk console
+
+Contract state (market lens, guards and positions) is read by your browser directly from X Layer. Event history comes through Intatto's log cache (/api/risk/logs: raw eth_getLogs results, cached, not modified), and falls back to a direct X Layer read when that route fails. The keeper's own log and last issuer read come from the keeper service at intatto-keeper.larinova.com (/log and /status). Back to the market
+
+Market NVDAx
+
+Events from blocks #71,562,056–#71,570,126 (from the deployment block) · 45 events · chain time 2026-09-25 12:26:03 UTC · latest #71,570,127
+
+Refresh
+
+Events via Intatto log cache.
+
+Summary
+Price posts
+Price shock
+Loans near liquidation
+Caps and LTV spread
+Market overview
+Sessions
+Corporate actions
+Liquidations
+Keeper log
+Trust and bounds
+Keeper log
+
+The keeper is Intatto's agent: an off-chain service that relays the issuer's quote and the market session, samples pool depth and runs liquidations. The onchain actions below are event history. Events via Intatto log cache. The keeper service log and last issuer read, when shown, come from the keeper service.
+
+Keeper identity
+Keeper address
+0xaBa1…f808
+(opens OKLink)
+Actions read
+44 in the scanned blocks · 0 price posts rejected by the relay
+Agent profile
+See the keeper's agent identity
+All 44
+Price 27
+Session 14
+Cap 3
+Corporate action 0
+Liquidation 0
+Action	Mined (UTC)	What it did	Transaction
+Session	2026-09-25 12:25:59	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0x2af521…d6e3b2
+(opens OKLink)
+
+Cap	2026-09-25 12:22:01	Posted cap target 22,510.23 USDG, slice 11,255.11 USDG; cap now 1,562.50 USDG	
+0x7ce0ce…b5bc56
+(opens OKLink)
+
+Price	2026-09-25 12:21:59	Posted price $225.94: accepted	
+0xa2c3dc…40084c
+(opens OKLink)
+
+Price	2026-09-25 12:16:48	Posted price $225.91: accepted	
+0xe8ef09…b8b790
+(opens OKLink)
+
+Session	2026-09-25 12:15:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0x3db0c5…4d7201
+(opens OKLink)
+
+Price	2026-09-25 12:11:48	Posted price $226.10: accepted	
+0x377116…554896
+(opens OKLink)
+
+Price	2026-09-25 12:06:47	Posted price $226.27: accepted	
+0xdd9f29…9791c0
+(opens OKLink)
+
+Session	2026-09-25 12:04:47	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0x1e3c70…caebde
+(opens OKLink)
+
+Price	2026-09-25 12:01:49	Posted price $226.16: accepted	
+0xc27a2b…03cffa
+(opens OKLink)
+
+Price	2026-09-25 11:56:48	Posted price $226.04: accepted	
+0x32e9d3…c06bf0
+(opens OKLink)
+
+Session	2026-09-25 11:53:47	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xd60f2f…2f5a59
+(opens OKLink)
+
+Price	2026-09-25 11:51:47	Posted price $226.08: accepted	
+0x6afa0a…cf219c
+(opens OKLink)
+
+Price	2026-09-25 11:46:48	Posted price $226.02: accepted	
+0x259dfd…5d5156
+(opens OKLink)
+
+Session	2026-09-25 11:42:47	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xe43e63…7c60ef
+(opens OKLink)
+
+Price	2026-09-25 11:41:47	Posted price $226.02: accepted	
+0x36a0d6…e99814
+(opens OKLink)
+
+Price	2026-09-25 11:36:49	Posted price $226.24: accepted	
+0x8e761f…042394
+(opens OKLink)
+
+Price	2026-09-25 11:31:50	Posted price $226.08: accepted	
+0x8a748a…1ff701
+(opens OKLink)
+
+Session	2026-09-25 11:31:47	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xfd3752…756f3c
+(opens OKLink)
+
+Price	2026-09-25 11:26:48	Posted price $226.16: accepted	
+0x4a33e1…9bcbf8
+(opens OKLink)
+
+Cap	2026-09-25 11:21:52	Posted cap target 22,492.70 USDG, slice 11,246.35 USDG; cap now 1,250.00 USDG	
+0x890119…9f72a0
+(opens OKLink)
+
+Price	2026-09-25 11:21:48	Posted price $226.05: accepted	
+0xd7cec5…15daac
+(opens OKLink)
+
+Session	2026-09-25 11:20:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xf71cc0…46695e
+(opens OKLink)
+
+Price	2026-09-25 11:16:48	Posted price $225.95: accepted	
+0xd7b628…fa9781
+(opens OKLink)
+
+Price	2026-09-25 11:14:48	Posted price $225.69: accepted	
+0xc41c71…f13530
+(opens OKLink)
+
+Session	2026-09-25 11:09:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0x02daa6…1cdbb2
+(opens OKLink)
+
+Price	2026-09-25 11:08:48	Posted price $225.66: accepted	
+0x3673d7…195bc5
+(opens OKLink)
+
+Price	2026-09-25 11:03:47	Posted price $225.57: accepted	
+0x14b29e…7ed81a
+(opens OKLink)
+
+Price	2026-09-25 10:58:51	Posted price $225.83: accepted	
+0x3bed88…a1bd09
+(opens OKLink)
+
+Session	2026-09-25 10:58:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xd9b81f…b3c6a0
+(opens OKLink)
+
+Price	2026-09-25 10:52:48	Posted price $225.94: accepted	
+0x5f4955…1273b3
+(opens OKLink)
+
+Price	2026-09-25 10:47:50	Posted price $225.86: accepted	
+0x10fffa…07a8d0
+(opens OKLink)
+
+Session	2026-09-25 10:47:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0x34484b…27e440
+(opens OKLink)
+
+Price	2026-09-25 10:42:49	Posted price $225.94: accepted	
+0x674227…f9ce51
+(opens OKLink)
+
+Price	2026-09-25 10:36:51	Posted price $226.12: accepted	
+0xa466c6…1c94ad
+(opens OKLink)
+
+Session	2026-09-25 10:36:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xcbd56f…038043
+(opens OKLink)
+
+Price	2026-09-25 10:31:47	Posted price $226.22: accepted	
+0xff7630…eff489
+(opens OKLink)
+
+Price	2026-09-25 10:26:47	Posted price $226.23: accepted	
+0x814b62…90aae4
+(opens OKLink)
+
+Session	2026-09-25 10:25:47	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0x795fb1…716702
+(opens OKLink)
+
+Cap	2026-09-25 10:20:53	Posted cap target 22,519.37 USDG, slice 11,259.68 USDG; cap now 1,000.00 USDG	
+0x064010…c5b327
+(opens OKLink)
+
+Price	2026-09-25 10:20:48	Posted price $226.21: accepted	
+0x33af58…47a135
+(opens OKLink)
+
+Price	2026-09-25 10:15:38	Posted price $226.26: accepted	
+0x1319c1…a8d9e5
+(opens OKLink)
+
+Session	2026-09-25 10:15:37	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xbdeafc…fe6da1
+(opens OKLink)
+
+Price	2026-09-25 10:15:10	Posted price $226.22: accepted	
+0xb16c87…6cbb8a
+(opens OKLink)
+
+Session	2026-09-25 10:15:09	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xc2a7c9…73183d
+(opens OKLink)
+Last issuer read
+
+From the keeper service (GET /status), not from the chain. The quote, trading period, halt flags and multiplier from the keeper's latest read of the issuer. A disagreement is why that cycle posted nothing from the reading.
+
+NVDAx
+Read at
+2026-09-25 12:25:57 UTC
+Trading period
+extended
+open
+next change 2026-09-25 13:30:00 UTC
+Market halt
+not halted
+Atomic halt
+not halted
+Quote
+$225.8925
+Multiplier now
+1.001701196801074×
+Pending multiplier
+none
+Mapped session
+EXTENDED
+Disagreement
+none
+Keeper service log
+
+From the keeper service (GET /log), not from the chain. The keeper's own record of its last 50 steps, including backoffs and skipped cycles that send no transaction.
+
+Step	At	Market	Detail	Transaction
+session	2026-09-25 12:25:56	NVDAx	refreshed session EXTENDED (last post 10 min old)	
+0x2af521…d6e3b2
+(opens OKLink)
+
+cap	2026-09-25 12:21:56	NVDAx	posted depth cap 22,510.23 USDG, slice 11,255.12 USDG: selling 200 wNVDAx returns 45,020.47 USDG at 225.1/share vs 226.13 at the smallest size	
+0x7ce0ce…b5bc56
+(opens OKLink)
+
+price	2026-09-25 12:21:56	NVDAx	posted $225.9450 (moved 2 bps, last post 314 s old)	
+0xa2c3dc…40084c
+(opens OKLink)
+
+price	2026-09-25 12:16:42	NVDAx	posted $225.9135 (moved 9 bps, last post 300 s old)	
+0xe8ef09…b8b790
+(opens OKLink)
+
+session	2026-09-25 12:15:43	NVDAx	refreshed session EXTENDED (last post 11 min old)	
+0x3db0c5…4d7201
+(opens OKLink)
+
+price	2026-09-25 12:11:43	NVDAx	posted $226.1000 (moved 8 bps, last post 300 s old)	
+0x377116…554896
+(opens OKLink)
+
+price	2026-09-25 12:06:43	NVDAx	posted $226.2760 (moved 6 bps, last post 300 s old)	
+0xdd9f29…9791c0
+(opens OKLink)
+
+session	2026-09-25 12:04:43	NVDAx	refreshed session EXTENDED (last post 11 min old)	
+0x1e3c70…caebde
+(opens OKLink)
+
+price	2026-09-25 12:01:42	NVDAx	posted $226.1600 (moved 6 bps, last post 300 s old)	
+0xc27a2b…03cffa
+(opens OKLink)
+
+price	2026-09-25 11:56:43	NVDAx	posted $226.0450 (moved 2 bps, last post 300 s old)	
+0x32e9d3…c06bf0
+(opens OKLink)
+
+session	2026-09-25 11:53:42	NVDAx	refreshed session EXTENDED (last post 11 min old)	
+0xd60f2f…2f5a59
+(opens OKLink)
+
+price	2026-09-25 11:51:43	NVDAx	posted $226.0850 (moved 3 bps, last post 300 s old)	
+0x6afa0a…cf219c
+(opens OKLink)
+
+price	2026-09-25 11:46:43	NVDAx	posted $226.0250 (moved 0 bps, last post 300 s old)	
+0x259dfd…5d5156
+(opens OKLink)
+
+session	2026-09-25 11:42:42	NVDAx	refreshed session EXTENDED (last post 11 min old)	
+0xe43e63…7c60ef
+(opens OKLink)
+
+price	2026-09-25 11:41:42	NVDAx	posted $226.0250 (moved 10 bps, last post 300 s old)	
+0x36a0d6…e99814
+(opens OKLink)
+
+skipped	2026-09-25 11:39:43	NVDAx	price step failed after retries, next cycle retries: transaction 0x… reverted onchain	none
+price	2026-09-25 11:36:43	NVDAx	posted $226.2400 (moved 7 bps, last post 300 s old)	
+0x8e761f…042394
+(opens OKLink)
+
+price	2026-09-25 11:31:42	NVDAx	posted $226.0850 (moved 4 bps, last post 300 s old)	
+0x8a748a…1ff701
+(opens OKLink)
+
+session	2026-09-25 11:31:42	NVDAx	refreshed session EXTENDED (last post 11 min old)	
+0xfd3752…756f3c
+(opens OKLink)
+
+price	2026-09-25 11:26:42	NVDAx	posted $226.1650 (moved 5 bps, last post 300 s old)	
+0x4a33e1…9bcbf8
+(opens OKLink)
+
+cap	2026-09-25 11:21:42	NVDAx	posted depth cap 22,492.7 USDG, slice 11,246.35 USDG: selling 200 wNVDAx returns 44,985.41 USDG at 224.93/share vs 225.96 at the smallest size	
+0x890119…9f72a0
+(opens OKLink)
+
+price	2026-09-25 11:21:42	NVDAx	posted $226.0550 (moved 5 bps, last post 300 s old)	
+0xd7cec5…15daac
+(opens OKLink)
+
+session	2026-09-25 11:20:42	NVDAx	refreshed session EXTENDED (last post 11 min old)	
+0xf71cc0…46695e
+(opens OKLink)
+
+price	2026-09-25 11:16:43	NVDAx	posted $225.9585 (moved 12 bps, last post 119 s old)	
+0xd7b628…fa9781
+(opens OKLink)
+
+price	2026-09-25 11:14:43	NVDAx	posted $225.6950 (moved 2 bps, last post 360 s old)	
+0xc41c71…f13530
+(opens OKLink)
+
+session	2026-09-25 11:09:42	NVDAx	refreshed session EXTENDED (last post 11 min old)	
+0x02daa6…1cdbb2
+(opens OKLink)
+
+price	2026-09-25 11:08:43	NVDAx	posted $225.6600 (moved 4 bps, last post 301 s old)	
+0x3673d7…195bc5
+(opens OKLink)
+
+price	2026-09-25 11:03:42	NVDAx	posted $225.5700 (moved 12 bps, last post 300 s old)	
+0x14b29e…7ed81a
+(opens OKLink)
+
+price	2026-09-25 10:58:42	NVDAx	posted $225.8315 (moved 5 bps, last post 359 s old)	
+0x3bed88…a1bd09
+(opens OKLink)
+
+session	2026-09-25 10:58:42	NVDAx	refreshed session EXTENDED (last post 11 min old)	
+0xd9b81f…b3c6a0
+(opens OKLink)
+
+price	2026-09-25 10:52:42	NVDAx	posted $225.9400 (moved 4 bps, last post 301 s old)	
+0x5f4955…1273b3
+(opens OKLink)
+
+price	2026-09-25 10:47:42	NVDAx	posted $225.8675 (moved 4 bps, last post 300 s old)	
+0x10fffa…07a8d0
+(opens OKLink)
+
+session	2026-09-25 10:47:42	NVDAx	refreshed session EXTENDED (last post 11 min old)	
+0x34484b…27e440
+(opens OKLink)
+
+price	2026-09-25 10:42:42	NVDAx	posted $225.9400 (moved 8 bps, last post 359 s old)	
+0x674227…f9ce51
+(opens OKLink)
+
+price	2026-09-25 10:36:42	NVDAx	posted $226.1200 (moved 5 bps, last post 301 s old)	
+0xa466c6…1c94ad
+(opens OKLink)
+
+session	2026-09-25 10:36:42	NVDAx	refreshed session EXTENDED (last post 11 min old)	
+0xcbd56f…038043
+(opens OKLink)
+
+price	2026-09-25 10:31:42	NVDAx	posted $226.2200 (moved 1 bps, last post 300 s old)	
+0xff7630…eff489
+(opens OKLink)
+
+price	2026-09-25 10:26:42	NVDAx	posted $226.2350 (moved 1 bps, last post 359 s old)	
+0x814b62…90aae4
+(opens OKLink)
+
+session	2026-09-25 10:25:42	NVDAx	refreshed session EXTENDED (last post 10 min old)	
+0x795fb1…716702
+(opens OKLink)
+
+cap	2026-09-25 10:20:43	NVDAx	posted depth cap 22,519.38 USDG, slice 11,259.69 USDG: selling 200 wNVDAx returns 45,038.75 USDG at 225.19/share vs 226.28 at the smallest size	
+0x064010…c5b327
+(opens OKLink)
+
+price	2026-09-25 10:20:43	NVDAx	posted $226.2150 (moved 2 bps, last post 309 s old)	
+0x33af58…47a135
+(opens OKLink)

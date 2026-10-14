@@ -1,0 +1,101 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+
+Agents / Intatto credit and health
+
+Intatto credit and health
+v1
+
+Read a wallet's borrowing room, the session limit, and how far the price is from liquidation.
+
+intatto.larinova.com
+
+Try with
+
+Free per call. x402 on X Layer (eip155:196) after a real paid settlement is proven.
+
+OKX AI listing: under review (agent #13907) 0xe1d2770368121cdc5457fcb6adaabdaedf57f7ecd804ca73916bfb0c1dc2b3c7
+
+Resources
+2
+Tags
+credit
+health
+session
+Addresses
+0xaBa1F7…3ef808
+see every keeper post on the Risk console
+Pay-to: none while the call is free.
+Calls from this page
+
+Stored in this browser only. This is not a count of calls on the network.
+
+0
+
+No calls from this page yet.
+
+Endpoints
+GET
+/api/credit
+credit
+health
+
+Session, capacity, keeper price, guards, and liquidation distance for one wallet.
+
+Free
+GET
+/api/credit/health
+health
+
+Whether this service can read the chain right now.
+
+Free
+Parameters
+wallet
+Required
+
+0x address
+
+40 hex characters, all lowercase or checksummed.
+
+market
+Required
+
+NVDAx or SPYx
+
+SPYx is listed only in the sandbox.
+
+network
+Optional
+
+mainnet or sandbox
+
+Defaults to mainnet.
+
+session
+Optional
+
+sandbox session id
+
+Sent with sandbox calls so the service can find that fork.
+
+Try it
+Wallet
+Market
+NVDAx
+NVDAx
+SPYx
+
+Calls this app's /api/credit on mainnet.
+
+Try it
+
+No call yet. Run Try it to read this wallet.

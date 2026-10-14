@@ -1,0 +1,6 @@
+Intatto
+X Layer
+0x7F23…a415
+Market
+
+Borrow USDG against tokenized stocks on X Layer. How much you can borrow follows the US market session; the liquidation line stays put.

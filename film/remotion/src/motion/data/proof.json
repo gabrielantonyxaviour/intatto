@@ -1,0 +1,183 @@
+{
+  "retrievedAt": "2026-09-25T14:41:14.986Z",
+  "sourceCommand": "node src/motion/data/fetch-proof.mjs",
+  "sourceUrls": [
+    "https://rpc.xlayer.tech",
+    "https://intatto-rpc.larinova.com/rpc/R8BnTTLlC_Vs8Ckvge5e6Q"
+  ],
+  "sessionId": "R8BnTTLlC_Vs8Ckvge5e6Q",
+  "forkBlock": 71563431,
+  "comparison": "Mainnet pinned to fork block; live sandbox latest. Raw bytecode keccak, no immutable masking.",
+  "scope": "Selected block, four external bytecodes, one state value, and CollateralMarket bytecode; not the full browser proof suite.",
+  "rows": [
+    {
+      "id": "fork-block",
+      "label": "Fork block 71563431",
+      "group": "block",
+      "mainnet": {
+        "value": "0x39cd860eb0a09786ec4a3931622ba185fbeadb237f1e585044deecc81371c039",
+        "sourceCommand": "cast block 71563431 --rpc-url https://rpc.xlayer.tech --json",
+        "retrievedAt": "2026-09-25T14:41:02.923Z",
+        "number": "0x443f8a7",
+        "timestamp": "0x6ab64e33"
+      },
+      "sandbox": {
+        "value": "0x39cd860eb0a09786ec4a3931622ba185fbeadb237f1e585044deecc81371c039",
+        "sourceCommand": "cast block 71563431 --rpc-url https://intatto-rpc.larinova.com/rpc/R8BnTTLlC_Vs8Ckvge5e6Q --json",
+        "retrievedAt": "2026-09-25T14:41:03.773Z",
+        "number": "0x443f8a7",
+        "timestamp": "0x6ab64e33"
+      },
+      "equal": true
+    },
+    {
+      "id": "NVDAx",
+      "label": "NVDAx · bytecode keccak",
+      "group": "code",
+      "address": "0xc845b2894dBddd03858fd2D643B4eF725fE0849d",
+      "forkAddress": "0xc845b2894dBddd03858fd2D643B4eF725fE0849d",
+      "masked": false,
+      "mainnet": {
+        "value": "0xe7cbfea5a664672738dd729f7774677b0fa82dbdda74320df20eec49d2211b4c",
+        "sourceCommand": "cast code 0xc845b2894dBddd03858fd2D643B4eF725fE0849d --block 71563431 --rpc-url https://rpc.xlayer.tech",
+        "retrievedAt": "2026-09-25T14:41:04.707Z",
+        "byteLength": 2138,
+        "hashCommand": "cast keccak <bytecode returned by sourceCommand>"
+      },
+      "sandbox": {
+        "value": "0xe7cbfea5a664672738dd729f7774677b0fa82dbdda74320df20eec49d2211b4c",
+        "sourceCommand": "cast code 0xc845b2894dBddd03858fd2D643B4eF725fE0849d --rpc-url https://intatto-rpc.larinova.com/rpc/R8BnTTLlC_Vs8Ckvge5e6Q",
+        "retrievedAt": "2026-09-25T14:41:05.410Z",
+        "byteLength": 2138,
+        "hashCommand": "cast keccak <bytecode returned by sourceCommand>"
+      },
+      "equal": true
+    },
+    {
+      "id": "wNVDAx",
+      "label": "wNVDAx · bytecode keccak",
+      "group": "code",
+      "address": "0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5",
+      "forkAddress": "0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5",
+      "masked": false,
+      "mainnet": {
+        "value": "0x22c711b98473b782f9d8863b9033148c180d6d4d8e3e3bce129ff566352500e8",
+        "sourceCommand": "cast code 0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5 --block 71563431 --rpc-url https://rpc.xlayer.tech",
+        "retrievedAt": "2026-09-25T14:41:06.287Z",
+        "byteLength": 2138,
+        "hashCommand": "cast keccak <bytecode returned by sourceCommand>"
+      },
+      "sandbox": {
+        "value": "0x22c711b98473b782f9d8863b9033148c180d6d4d8e3e3bce129ff566352500e8",
+        "sourceCommand": "cast code 0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5 --rpc-url https://intatto-rpc.larinova.com/rpc/R8BnTTLlC_Vs8Ckvge5e6Q",
+        "retrievedAt": "2026-09-25T14:41:07.053Z",
+        "byteLength": 2138,
+        "hashCommand": "cast keccak <bytecode returned by sourceCommand>"
+      },
+      "equal": true
+    },
+    {
+      "id": "Pool",
+      "label": "Pool · bytecode keccak",
+      "group": "code",
+      "address": "0x2a2B11730C2b6d99a58034A869dd810D7300a7b2",
+      "forkAddress": "0x2a2B11730C2b6d99a58034A869dd810D7300a7b2",
+      "masked": false,
+      "mainnet": {
+        "value": "0x038691e59a3c8497c5b2f21d4e625690ad032f1d346d03500c2280584cab8e5c",
+        "sourceCommand": "cast code 0x2a2B11730C2b6d99a58034A869dd810D7300a7b2 --block 71563431 --rpc-url https://rpc.xlayer.tech",
+        "retrievedAt": "2026-09-25T14:41:07.801Z",
+        "byteLength": 22142,
+        "hashCommand": "cast keccak <bytecode returned by sourceCommand>"
+      },
+      "sandbox": {
+        "value": "0x038691e59a3c8497c5b2f21d4e625690ad032f1d346d03500c2280584cab8e5c",
+        "sourceCommand": "cast code 0x2a2B11730C2b6d99a58034A869dd810D7300a7b2 --rpc-url https://intatto-rpc.larinova.com/rpc/R8BnTTLlC_Vs8Ckvge5e6Q",
+        "retrievedAt": "2026-09-25T14:41:08.547Z",
+        "byteLength": 22142,
+        "hashCommand": "cast keccak <bytecode returned by sourceCommand>"
+      },
+      "equal": true
+    },
+    {
+      "id": "USDG",
+      "label": "USDG · bytecode keccak",
+      "group": "code",
+      "address": "0x4ae46a509F6b1D9056937BA4500cb143933D2dc8",
+      "forkAddress": "0x4ae46a509F6b1D9056937BA4500cb143933D2dc8",
+      "masked": false,
+      "mainnet": {
+        "value": "0x5e4dcb0bb1910f6429e5fe91678990088a51c6d1cfe1b31d05fb9d948cc7867c",
+        "sourceCommand": "cast code 0x4ae46a509F6b1D9056937BA4500cb143933D2dc8 --block 71563431 --rpc-url https://rpc.xlayer.tech",
+        "retrievedAt": "2026-09-25T14:41:09.885Z",
+        "byteLength": 708,
+        "hashCommand": "cast keccak <bytecode returned by sourceCommand>"
+      },
+      "sandbox": {
+        "value": "0x5e4dcb0bb1910f6429e5fe91678990088a51c6d1cfe1b31d05fb9d948cc7867c",
+        "sourceCommand": "cast code 0x4ae46a509F6b1D9056937BA4500cb143933D2dc8 --rpc-url https://intatto-rpc.larinova.com/rpc/R8BnTTLlC_Vs8Ckvge5e6Q",
+        "retrievedAt": "2026-09-25T14:41:10.698Z",
+        "byteLength": 708,
+        "hashCommand": "cast keccak <bytecode returned by sourceCommand>"
+      },
+      "equal": true
+    },
+    {
+      "id": "CollateralMarket",
+      "label": "CollateralMarket · bytecode keccak",
+      "group": "intatto",
+      "address": "0xE6708CC6598F17611f9A468f9907052688459D0D",
+      "forkAddress": "0xE6708CC6598F17611f9A468f9907052688459D0D",
+      "masked": false,
+      "mainnet": {
+        "value": "0x0b49cb424e0010d8bc30519e164be762c9dd2a33f2451f364207e7e00617b153",
+        "sourceCommand": "cast code 0xE6708CC6598F17611f9A468f9907052688459D0D --block 71563431 --rpc-url https://rpc.xlayer.tech",
+        "retrievedAt": "2026-09-25T14:41:11.767Z",
+        "byteLength": 11365,
+        "hashCommand": "cast keccak <bytecode returned by sourceCommand>"
+      },
+      "sandbox": {
+        "value": "0x0b49cb424e0010d8bc30519e164be762c9dd2a33f2451f364207e7e00617b153",
+        "sourceCommand": "cast code 0xE6708CC6598F17611f9A468f9907052688459D0D --rpc-url https://intatto-rpc.larinova.com/rpc/R8BnTTLlC_Vs8Ckvge5e6Q",
+        "retrievedAt": "2026-09-25T14:41:12.529Z",
+        "byteLength": 11365,
+        "hashCommand": "cast keccak <bytecode returned by sourceCommand>"
+      },
+      "equal": true
+    },
+    {
+      "id": "usdg-supply",
+      "label": "USDG · totalSupply (raw units)",
+      "group": "state",
+      "mainnet": {
+        "value": "1513579282911390",
+        "sourceCommand": "cast call 0x4ae46a509F6b1D9056937BA4500cb143933D2dc8 totalSupply()(uint256) --block 71563431 --rpc-url https://rpc.xlayer.tech",
+        "retrievedAt": "2026-09-25T14:41:13.983Z"
+      },
+      "sandbox": {
+        "value": "1513579282911390",
+        "sourceCommand": "cast call 0x4ae46a509F6b1D9056937BA4500cb143933D2dc8 totalSupply()(uint256) --rpc-url https://intatto-rpc.larinova.com/rpc/R8BnTTLlC_Vs8Ckvge5e6Q",
+        "retrievedAt": "2026-09-25T14:41:14.984Z"
+      },
+      "equal": true
+    }
+  ],
+  "checks": [
+    {
+      "group": "block",
+      "equal": true
+    },
+    {
+      "group": "code",
+      "equal": true
+    },
+    {
+      "group": "state",
+      "equal": true
+    },
+    {
+      "group": "intatto",
+      "equal": true
+    }
+  ]
+}

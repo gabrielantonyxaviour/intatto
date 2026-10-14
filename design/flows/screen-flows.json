@@ -1,0 +1,487 @@
+[
+ {
+  "screenId": "pg_market",
+  "flowName": "Kamino xStocks market \u2192 NVDAx reserve",
+  "product": "Kamino Lend",
+  "note": "Same collateral asset as Intatto (NVDAx). Captured without a wallet (Solana not mocked). For connected aggregates see aave/01, aave/04.",
+  "steps": [
+   {
+    "order": 1,
+    "file": "kamino/01-borrow-markets-list.png",
+    "url": "https://kamino.com/borrow",
+    "click": "Open kamino.com/borrow (no wallet connected) and dismiss the promo modal",
+    "reaction": "Borrow hub: market size + active borrows headline, category chips (New, SOL, xStocks, BTC, LSTs, RWA, Memes), market cards each with collateral/debt icons, borrow APY, market size, and an expandable reserve table (total supply, total borrow, Liq LTV, supply APY, borrow APY, Supply/Borrow buttons)"
+   },
+   {
+    "order": 2,
+    "file": "kamino/02-xstocks-filter.png",
+    "url": "https://kamino.com/borrow?collateralFilter=XsP7xzNPvEHS1m6qfanPUGjNmdnmsLKEoNAnHjdxxyZ%2CXsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W%2CXsCPL9dNWBMvFtTmwcCA5v3xWPSMEBCszbQdiLLq6aN%2CXs8S1uUs1zvS2p7iwtsG3b6fkhpvmwz4GYU3gWAmWHZ%2CXsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB%2CXsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh%2CXsueG8BtpquVJX9LVLLEGuViXUungE6WmK5YZ3p3bd1%2CXs78JED6PFZxWc2wCEPspZW9kL3Se5J7L5TChKgsidH%2CXsvNBAYkrDRNhA7wPHQfX3ZUXZyZLdnCQDfHZ56bzpg%2CXsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp&borrowFilter=XsP7xzNPvEHS1m6qfanPUGjNmdnmsLKEoNAnHjdxxyZ%2CXsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W%2CXsCPL9dNWBMvFtTmwcCA5v3xWPSMEBCszbQdiLLq6aN%2CXs8S1uUs1zvS2p7iwtsG3b6fkhpvmwz4GYU3gWAmWHZ%2CXsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB%2CXsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh%2CXsueG8BtpquVJX9LVLLEGuViXUungE6WmK5YZ3p3bd1%2CXs78JED6PFZxWc2wCEPspZW9kL3Se5J7L5TChKgsidH%2CXsvNBAYkrDRNhA7wPHQfX3ZUXZyZLdnCQDfHZ56bzpg%2CXsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp&filterWalletAssets=false&featuredFilter=false",
+    "click": "Click the \"xStocks\" category chip",
+    "reaction": "Chip highlights; \"Showing 3 of 3 markets\": xStocks Market (collateral MSTRx +9, borrow APY 5.90%, size $28.85M), Sentora xStocks Market, STRCx Market"
+   },
+   {
+    "order": 3,
+    "file": "kamino/03-xstocks-market-expanded.png",
+    "url": "https://kamino.com/borrow?collateralFilter=XsP7xzNPvEHS1m6qfanPUGjNmdnmsLKEoNAnHjdxxyZ%2CXsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W%2CXsCPL9dNWBMvFtTmwcCA5v3xWPSMEBCszbQdiLLq6aN%2CXs8S1uUs1zvS2p7iwtsG3b6fkhpvmwz4GYU3gWAmWHZ%2CXsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB%2CXsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh%2CXsueG8BtpquVJX9LVLLEGuViXUungE6WmK5YZ3p3bd1%2CXs78JED6PFZxWc2wCEPspZW9kL3Se5J7L5TChKgsidH%2CXsvNBAYkrDRNhA7wPHQfX3ZUXZyZLdnCQDfHZ56bzpg%2CXsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp&borrowFilter=XsP7xzNPvEHS1m6qfanPUGjNmdnmsLKEoNAnHjdxxyZ%2CXsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W%2CXsCPL9dNWBMvFtTmwcCA5v3xWPSMEBCszbQdiLLq6aN%2CXs8S1uUs1zvS2p7iwtsG3b6fkhpvmwz4GYU3gWAmWHZ%2CXsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB%2CXsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh%2CXsueG8BtpquVJX9LVLLEGuViXUungE6WmK5YZ3p3bd1%2CXs78JED6PFZxWc2wCEPspZW9kL3Se5J7L5TChKgsidH%2CXsvNBAYkrDRNhA7wPHQfX3ZUXZyZLdnCQDfHZ56bzpg%2CXsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp&filterWalletAssets=false&featuredFilter=false",
+    "click": "Click the \"xStocks Market\" card header",
+    "reaction": "Card expands into its reserve table: MSTRx, SPYx, GOOGLx, QQQx, TSLAx\u2026 with Total supply, Total borrow, Liq LTV (40\u201375% per stock), Supply APY, Borrow APY; collateral-only stocks show \"-\" and no Borrow button; header chips Collateral (MSTRx +9), Debt, Borrow APY 5.90%, Market size $28.85M; \"What are xStocks?\" help chip"
+   },
+   {
+    "order": 4,
+    "file": "kamino/06-nvdax-reserve-overview.png",
+    "url": "https://kamino.com/borrow/reserve/5wJeMrUYECGq41fxRESKALVcHnNX26TAWy4W98yULsua/7B66Az3tJhAo4bLkX8PzTixQ9ZGyHkkjxfVLhF26sP5q",
+    "click": "Click the NVDAx row in the xStocks market",
+    "reaction": "\"NVDAx Reserve (xStocks Market)\" page: header chips Price $224.56, Soft Liquidations from 1.00%, Oracle: Scope; stat tiles 11.55K NVDAx supplied, 456.60 liq. available, 43.47 borrowed (0.38% util), Supply APY 0.02%, Borrow APY 5.82%; left section nav (General stats, Supply/Borrow overview, Utilization, Interest rate curve, Token price, Proof of reserves); Connect Wallet CTA top-right"
+   },
+   {
+    "order": 5,
+    "file": "kamino/07-soft-liquidation-tooltip.png",
+    "url": "https://kamino.com/borrow/reserve/5wJeMrUYECGq41fxRESKALVcHnNX26TAWy4W98yULsua/7B66Az3tJhAo4bLkX8PzTixQ9ZGyHkkjxfVLhF26sP5q",
+    "click": "Hover \"Soft Liquidations From 1.00%\"",
+    "reaction": "Tooltip: liquidations are a partial unwinding (~20% of debt repaid from collateral when LTV crosses liquidation LTV), fee as low as ~1.00% for NVDAx, repeated until healthy, with a worked $100 collateral / $80 debt example"
+   },
+   {
+    "order": 6,
+    "file": "kamino/08-oracle-tooltip.png",
+    "url": "https://kamino.com/borrow/reserve/5wJeMrUYECGq41fxRESKALVcHnNX26TAWy4W98yULsua/7B66Az3tJhAo4bLkX8PzTixQ9ZGyHkkjxfVLhF26sP5q",
+    "click": "Hover \"Oracle Scope\"",
+    "reaction": "Tooltip: \"Checked NVDAx/USD (MostRecent NVDAx/USD, Floored by ChainlinkX NVDAx/USD AU, Referenced by Pyth Lazer NVDA/USD, Capped by ChainlinkX NVDAx/USD AU, Referenced by Pyth Lazer NVDA/USD)\""
+   },
+   {
+    "order": 7,
+    "file": "kamino/13-nvdax-token-price.png",
+    "url": "https://kamino.com/borrow/reserve/5wJeMrUYECGq41fxRESKALVcHnNX26TAWy4W98yULsua/7B66Az3tJhAo4bLkX8PzTixQ9ZGyHkkjxfVLhF26sP5q/market-overview",
+    "click": "Click \"Token Price\" in the section rail",
+    "reaction": "\"NVDAx Price\" chart (7D/30D/3M): step-shaped line with long flat stretches between moves, plus the Proof of Reserves block below"
+   },
+   {
+    "order": 8,
+    "file": "kamino/14-nvdax-proof-of-reserves.png",
+    "url": "https://kamino.com/borrow/reserve/5wJeMrUYECGq41fxRESKALVcHnNX26TAWy4W98yULsua/7B66Az3tJhAo4bLkX8PzTixQ9ZGyHkkjxfVLhF26sP5q/market-overview",
+    "click": "Click \"Proof of Reserves\" in the section rail",
+    "reaction": "Proof of Reserves card: Supplied 11.55K NVDAx, Borrowed 43.47, Available 456.60, Reserve address link to the explorer"
+   }
+  ]
+ },
+ {
+  "screenId": "pg_borrow",
+  "flowName": "Liquity V2 borrow: collateral \u2192 loan \u2192 rate \u2192 review \u2192 wallet step",
+  "product": "Liquity V2 (Sepolia)",
+  "primary": true,
+  "note": "Primary because Gabriel chose Liquity V2 patterns for the Borrow/Lend components. Covers opening a position; the Morpho entry below covers repay/withdraw and refusal states.",
+  "steps": [
+   {
+    "order": 1,
+    "file": "liquity-borrow/1-open-app.png",
+    "url": "https://liquity2-sepolia.vercel.app/",
+    "click": "Open https://liquity2-sepolia.vercel.app (mock read-only wallet 0x2bfe\u2026775c on Sepolia auto-connected)",
+    "reaction": "Home: yellow data-availability banner; nav Dashboard / Borrow / Multiply / Earn / Stake; four action cards (Borrow, Multiply, Earn with BOLD, Stake LQTY); footer TVL + token prices"
+   },
+   {
+    "order": 2,
+    "file": "liquity-borrow/2-borrow-empty.png",
+    "url": "https://liquity2-sepolia.vercel.app/borrow",
+    "click": "Click \"Borrow\" in the top nav",
+    "reaction": "Single-column form \"Borrow BOLD with ETH\": Collateral field (ETH selector, wallet balance + Max), ETH price $2,000 and Max LTV 90.91% under it; Loan field (BOLD) with creation fee, Liquidation price \"\u2212\", Liquidation risk dot (grey), LTV \"\u2212\"; Interest rate panel (Manual dropdown, %/year, Redemption risk dot); redemption explainer; \"Next: Summary\" button"
+   },
+   {
+    "order": 3,
+    "file": "liquity-borrow/3-collateral-max.png",
+    "url": "https://liquity2-sepolia.vercel.app/borrow",
+    "click": "Click \"Max 12.99 ETH\" under the Collateral field",
+    "reaction": "Collateral fills 12.99 ETH ($25,986.89); \"Max 12.99 ETH\" link sits in the field (wallet 13.11 ETH, gas kept back); loan preset chips $7.1K / $14K / $19K appear"
+   },
+   {
+    "order": 4,
+    "file": "liquity-borrow/4-loan-low-risk.png",
+    "url": "https://liquity2-sepolia.vercel.app/borrow",
+    "click": "Type 10000 in the Loan (BOLD) field",
+    "reaction": "8.97 BOLD creation fee; Liquidation price $847.34; LTV 38.52%; green dot \"Low liquidation risk\""
+   },
+   {
+    "order": 5,
+    "file": "liquity-borrow/5-loan-high-risk.png",
+    "url": "https://liquity2-sepolia.vercel.app/borrow",
+    "click": "Change the loan to 20000 BOLD",
+    "reaction": "17.95 BOLD creation fee; Liquidation price $1,694.68; LTV 77.03%; red dot \"High liquidation risk\""
+   },
+   {
+    "order": 6,
+    "file": "liquity-borrow/6-loan-exceeds-max-ltv.png",
+    "url": "https://liquity2-sepolia.vercel.app/borrow",
+    "click": "Change the loan to 26000 BOLD (above Max LTV)",
+    "reaction": "Liquidation price $2,203.08 (above the $2,000 spot); LTV shows \">90.91%\" in red; \"High liquidation risk\""
+   },
+   {
+    "order": 7,
+    "file": "liquity-borrow/7-loan-set-12000.png",
+    "url": "https://liquity2-sepolia.vercel.app/borrow",
+    "click": "Set the loan to 12000 BOLD (or tap a preset chip $7.1K / $14K / $19K)",
+    "reaction": "Liquidation price $1,016.81, LTV 46.22%, green \"Low liquidation risk\"; preset chips carry green/amber/red dots for their risk level"
+   },
+   {
+    "order": 8,
+    "file": "liquity-borrow/8-rate-mode-menu.png",
+    "url": "https://liquity2-sepolia.vercel.app/borrow",
+    "click": "Click the \"Manual\" interest-rate mode dropdown",
+    "reaction": "Menu: \"Manual \u2014 The interest rate is set manually and can be updated at any time\", then \"Delegated\"\u2026"
+   },
+   {
+    "order": 9,
+    "file": "liquity-borrow/9-rate-entered.png",
+    "url": "https://liquity2-sepolia.vercel.app/borrow",
+    "click": "Type 6 in the Interest rate (%) field",
+    "reaction": "\"720.00 BOLD / year\" appears under the 6% rate; Redemption risk dot stays grey (Sepolia banner says The Graph data is unavailable, so the rate-distribution based risk is not computed)"
+   },
+   {
+    "order": 10,
+    "file": "liquity-borrow/10-summary-preview.png",
+    "url": "https://liquity2-sepolia.vercel.app/transactions",
+    "click": "Click \"Next: Summary\"",
+    "reaction": "Navigates to /transactions: dark \"BOLD LOAN \u2014 PREVIEW\" card (loan 12,010.77, collateral 12.99 ETH, liquidation price $1,016.81, LTV 46.22% in green, interest 6.00%, liquidation risk Low) above \"Review & Send Transaction\" rows: Collateral 12.99 ETH ($25,986.89), Loan 12,010.77 BOLD incl. 10.77 creation fee, Interest 6.00% = 720.65 BOLD/yr, Refundable gas deposit 0.0375 ETH \"only used in case of liquidation\""
+   },
+   {
+    "order": 11,
+    "file": "liquity-borrow/11-summary-open-position.png",
+    "url": "https://liquity2-sepolia.vercel.app/transactions",
+    "click": "Scroll to the bottom of the summary",
+    "reaction": "\"Open Position\" primary button with the note \"This action will open your wallet to sign the transaction.\""
+   },
+   {
+    "order": 12,
+    "file": "liquity-borrow/12-awaiting-signature.png",
+    "url": "https://liquity2-sepolia.vercel.app/transactions",
+    "click": "Click \"Open Position\"",
+    "reaction": "\"Open Position\" button greys out; message under it \"Please sign the transaction in your wallet. Retry\" while the wallet request is pending (mock delayed its rejection 9 s to expose this state)"
+   },
+   {
+    "order": 13,
+    "file": "liquity-borrow/13-signature-rejected-retry.png",
+    "url": "https://liquity2-sepolia.vercel.app/transactions",
+    "click": "Wait \u2014 the read-only mock rejects the signature request (code 4001)",
+    "reaction": "Button turns blue \"Retry: Open Position\"; \"An error occurred. Please try again.\"; red box \"Error: ContractFunctionExecutionError \u2014 More details\". Nothing was signed or sent"
+   },
+   {
+    "order": 14,
+    "file": "liquity-borrow/14-error-details-expanded.png",
+    "url": "https://liquity2-sepolia.vercel.app/transactions",
+    "click": "Click \"More details\" on the error box",
+    "reaction": "Box expands to the raw error \"User rejected the request\" with request arguments (from, to, value 13.03 ETH, calldata). STOPPED here"
+   }
+  ]
+ },
+ {
+  "screenId": "pg_borrow",
+  "flowName": "Morpho isolated market: supply collateral & borrow, refusal, review, repay/withdraw",
+  "product": "Morpho",
+  "primary": false,
+  "note": "My pick for the whole screen before Gabriel's Liquity choice: collateral-in/borrow-out in one panel, LTV vs LLTV, liquidation price, refusal as the CTA label, repay + withdraw bundle. Step 7 closes the review (not confirmed) and edits the borrow amount.",
+  "steps": [
+   {
+    "order": 1,
+    "file": "morpho/01-borrow-onboarding-explainer.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#market",
+    "click": "Open the weETH/USDC isolated market page (wallet connected via read-only mock) for the first time",
+    "reaction": "Full-screen \"How Borrowing Works\" explainer: diagram Borrower \u2192 Collateral \u2192 Market \u2192 Loan, four numbered steps (Provide collateral, Borrow liquidity, Monitor position, Repay debt), risk + regulatory notes, terms checkbox; Proceed disabled until ticked"
+   },
+   {
+    "order": 2,
+    "file": "morpho/02-market-page-borrow-panel.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#market",
+    "click": "Tick the terms box and click Proceed",
+    "reaction": "Market page: title \"USDC | weETH 77%\" (LLTV badge), market id + network; headline stats Outstanding loans, Total liquidity, Borrow rate (6h), Lend rate (6h); curator logos \"Trusted by\u2026\"; sticky right panel with Borrow / Repay / Lend tabs, stacked \"Supply Collateral weETH\" and \"Borrow USDC\" inputs (each with wallet/max-borrowable + MAX) and a live summary box (Loan, Collateral, LTV 44.29%, Liquidation LTV 77%, Rate); CTA disabled \"Enter an amount\""
+   },
+   {
+    "order": 3,
+    "file": "morpho/04-collateral-typed.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#market",
+    "click": "Type 10 in \"Supply Collateral weETH\"",
+    "reaction": "USD echo $29.49K; summary Collateral 800 \u2192 810, LTV 44.29% \u2192 43.75%; CTA becomes \"Supply collateral\""
+   },
+   {
+    "order": 4,
+    "file": "morpho/05-borrow-typed-ltv.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#market",
+    "click": "Type 100000 in \"Borrow USDC\" (with 10 weETH collateral)",
+    "reaction": "Summary Loan 1.05M \u2192 1.15M, Collateral 800 \u2192 810, LTV 44.29% \u2192 47.91% (Liquidation LTV 77%, Rate 6.13%); CTA becomes \"Supply collateral & borrow\""
+   },
+   {
+    "order": 5,
+    "file": "morpho/06-review-simulating.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#market",
+    "click": "Click \"Supply collateral & borrow\"",
+    "reaction": "\"Review\" modal opens: market chip (USDC | weETH 77.00%), Supply Collateral 10 weETH ($29.49k), Borrow 100,000 USDC ($99.98k); after-values for Loan / Collateral / LTV show loading skeletons while the bundle is simulated; info note about the Bundles contract approval; Confirm disabled while simulating"
+   },
+   {
+    "order": 6,
+    "file": "morpho/07-review-confirm.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#market",
+    "click": "Wait ~8s on the Review modal",
+    "reaction": "Simulation resolves: Loan 1.05M \u2192 1.15M, Collateral 800 \u2192 810, LTV 44.29% \u2192 47.91% vs Liquidation LTV 77%, Rate 6.13%; Confirm turns solid blue (STOPPED \u2014 not clicked)"
+   },
+   {
+    "order": 7,
+    "file": "morpho/08-borrow-exceeds-refusal.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#market",
+    "click": "Close the Review modal (Confirm not clicked), then change Borrow USDC to 900000",
+    "reaction": "LTV 44.29% \u2192 81.2% in red with a (!) icon (above the 77% liquidation LTV); Loan 1.05M \u2192 1.95M; CTA greys out and reads \"Maximum borrowable exceeded\""
+   },
+   {
+    "order": 8,
+    "file": "morpho/09-borrow-max.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#market",
+    "click": "Click MAX on Borrow USDC",
+    "reaction": "Borrow fills 110720.61195 USDC (the \"110.72k USDC\" cap shown under the field \u2014 equals the market's available liquidity), MAX greys out; LTV 44.29% \u2192 48.36%; CTA back to \"Supply collateral & borrow\""
+   },
+   {
+    "order": 9,
+    "file": "morpho/10-repay-tab.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#market",
+    "click": "Click the Repay tab in the action panel",
+    "reaction": "Panel swaps to \"Repay Loan USDC\" (wallet 0.00 USDC, MAX disabled) + \"Withdraw Collateral weETH\" (315.51 weETH withdrawable, MAX); same summary box; CTA \"Enter an amount\""
+   },
+   {
+    "order": 10,
+    "file": "morpho/11-repay-and-withdraw-typed.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#market",
+    "click": "Type 200000 in Repay USDC and 100 in Withdraw weETH",
+    "reaction": "Summary Loan 1.05M \u2192 851.39k, Collateral 800 \u2192 700, LTV 44.29% \u2192 40.99%; withdrawable updates to 407.67 weETH; CTA disabled \"Insufficient USDC balance\""
+   },
+   {
+    "order": 11,
+    "file": "morpho/13-your-position-section.png",
+    "url": "https://app.morpho.org/ethereum/variable/0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd/usdc-weeth#yourPosition",
+    "click": "Click the \"Your Position\" anchor tab",
+    "reaction": "Your Position: Loan 1,051,392.33 USDC, Collateral 800 weETH, LTV / Liquidation LTV 44.54% / 77%, Oracle liquidation price 1,706.8 USDC per weETH, Utilization 92.19%; borrow-position history chart (Loan/Collateral, USD, 3 months)"
+   }
+  ]
+ },
+ {
+  "screenId": "pg_lend",
+  "flowName": "Morpho vault: primer \u2192 deposit \u2192 allocation \u2192 risk disclosure",
+  "product": "Morpho",
+  "note": "Loss disclosure wording to borrow: kamino/11-bad-debt-faq-expanded.png (\"no insurance fund\u2026 losses are socialized among the lenders\"). Liquity V2 Earn was not captured.",
+  "steps": [
+   {
+    "order": 1,
+    "file": "morpho/20-vault-onboarding-explainer.png",
+    "url": "https://app.morpho.org/ethereum/vault/0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB/steakhouse-usdc#overview",
+    "click": "Open the Steakhouse USDC vault page for the first time",
+    "reaction": "\"How Earn Works\" explainer: Lender \u2192 Deposit \u2192 Vault diagram; 3 steps (deposit in a vault, assets supplied to curator-whitelisted markets, earn yield from over-collateralised borrowers); risk + regulatory notes; terms checkbox gates Proceed"
+   },
+   {
+    "order": 2,
+    "file": "morpho/21-vault-page.png",
+    "url": "https://app.morpho.org/ethereum/vault/0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB/steakhouse-usdc#overview",
+    "click": "Tick the terms box and click Proceed",
+    "reaction": "Vault page: hero with vault name, curator (Steakhouse Financial), asset, headline TVL / APY / liquidity; anchored tabs Overview, Allocation, Performance, Risk, Activity, Your Position; sticky right panel \"Deposit USDC\" with wallet balance + MAX and a summary (Deposit, APY 4.71%, Projected monthly / yearly earnings); CTA disabled \"Enter an amount\""
+   },
+   {
+    "order": 3,
+    "file": "morpho/22-vault-deposit-typed.png",
+    "url": "https://app.morpho.org/ethereum/vault/0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB/steakhouse-usdc#overview",
+    "click": "Type 10000 in Deposit USDC",
+    "reaction": "USD echo updates; summary recomputes Deposit 0 \u2192 10,000, projected monthly and yearly earnings at the current APY; CTA shows the refusal reason \"Insufficient USDC balance\" because the watched wallet holds 0 USDC"
+   },
+   {
+    "order": 4,
+    "file": "morpho/23-vault-allocation.png",
+    "url": "https://app.morpho.org/ethereum/vault/0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB/steakhouse-usdc#allocation",
+    "click": "Click the \"Allocation\" anchor tab",
+    "reaction": "Allocation table: each market the vault supplies (e.g., \"USDC backed by cbBTC 86% LLTV\") with vault supply, liquidity, supply cap, APY, utilisation; exposure donut/bar"
+   },
+   {
+    "order": 5,
+    "file": "morpho/24-vault-risk.png",
+    "url": "https://app.morpho.org/ethereum/vault/0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB/steakhouse-usdc#risk",
+    "click": "Click the \"Risk\" anchor tab",
+    "reaction": "Risk section: curator, roles (owner/curator/guardian), timelock, market-level risk (collateral, oracle, LLTV), bad-debt figures and disclosures"
+   }
+  ]
+ },
+ {
+  "screenId": "pg_risk",
+  "flowName": "Kamino risk dashboard: summary \u2192 oracles \u2192 price shock \u2192 loans near liquidation \u2192 LTV distribution \u2192 market overview",
+  "product": "Kamino Risk Dashboard",
+  "note": "Per-position risk visuals: aave/13-risk-details-modal.png; market-level liquidation curve: morpho/15-collateral-at-risk-chart.png; daily caps: kamino/12-oracle-and-daily-limits.png.",
+  "steps": [
+   {
+    "order": 1,
+    "file": "risk/01-kamino-risk-summary.png",
+    "url": "https://risk.kamino.finance/",
+    "click": "Open risk.kamino.finance",
+    "reaction": "Streamlit risk dashboard: left nav of analyses (Market overview, Detailed risk metrics, Value at risk, Loans analysis (realtime), Market risk, Price shock, Oracles, Single loan, Borrow caps, \u2026); Summary shows aggregate loans/deposits/borrows/TVL with 24h deltas and a deposit vs borrow bar by category"
+   },
+   {
+    "order": 2,
+    "file": "risk/02-oracles-analysis.png",
+    "url": "https://risk.kamino.finance/Oracles_Analysis",
+    "click": "Click \"Oracles Analysis\"",
+    "reaction": "\"Oracles Analysis: Main Market\": market/token/period/quantile selectors; table of timestamps with spot_price, TWAP_price and twap_divergence_perc per minute"
+   },
+   {
+    "order": 3,
+    "file": "risk/03-price-shock-analysis.png",
+    "url": "https://risk.kamino.finance/Price_Shock_Analysis",
+    "click": "Click \"Price Shock Analysis\"",
+    "reaction": "\"Price Shock Analysis: Main Market\": three scenario accordions \u2014 S1 all assets (excl. stables) shocked by %, S2 individual asset shocked by %, S3 correlation-based shock"
+   },
+   {
+    "order": 4,
+    "file": "risk/04-loans-realtime.png",
+    "url": "https://risk.kamino.finance/Loans_Analysis_Realtime",
+    "click": "Click \"Loans Analysis Realtime\"",
+    "reaction": "\"Loans Analysis: Main Market\", high-frequency data timestamp; filters (eMode, sort by dist_to_liq, collateral/debt token, min values, top N); table Owner, Current LTV, Max LTV, Unhealthy LTV, Dist to Liq, Collateral, Debt, Net value, Coll liq price, tokens"
+   },
+   {
+    "order": 5,
+    "file": "risk/05-borrow-caps.png",
+    "url": "https://risk.kamino.finance/Borrow_Caps_Analysis",
+    "click": "Click \"Borrow Caps Analysis\"",
+    "reaction": "\"Borrow Caps Analysis\": selectors (market, collateral token, remove zero-debt loans, distribution x-axis, loans to display) and a \"Current LTV Distribution\" histogram of debt by LTV (clusters near 0.25 and 0.8\u20130.85)"
+   },
+   {
+    "order": 6,
+    "file": "risk/06-market-overview.png",
+    "url": "https://risk.kamino.finance/Market_Overview",
+    "click": "Click \"Market Overview\"",
+    "reaction": "\"Market Overview: Main Market\", data-updated timestamp; Current Stats tiles (loans, deposited, borrowed, TVL, SOL price) with deltas; Table 1 per-token price / utilization % (heat-coloured red at 79\u201396%) / borrow APY"
+   }
+  ]
+ },
+ {
+  "screenId": "pg_agents",
+  "flowName": "x402scan: catalog \u2192 service page \u2192 try-with menu",
+  "product": "x402scan",
+  "note": "Try-it calls need a paying x402 wallet, so no request was executed.",
+  "steps": [
+   {
+    "order": 1,
+    "file": "agents/01-x402scan-discover.png",
+    "url": "https://www.x402scan.com/",
+    "click": "Open x402scan.com",
+    "reaction": "Discover view: chain filter, \u2318K navigate, tabs (All / Facilitators / Networks), \"Add your API\"; grid of paid API servers each with name, description, domain and a \"Try it\" button; usage stats over the past 30 days"
+   },
+   {
+    "order": 2,
+    "file": "agents/02-server-page.png",
+    "url": "https://www.x402scan.com/server/b8a06bde-b6e8-4a10-b4e0-cc6a25fb9efb",
+    "click": "Click the \"StableEnrich\" server card",
+    "reaction": "Server page: name + v2 badge, description, \"Try with AgentCash\" dropdown + copy; side facts Resources 39, Tags, 2 pay-to addresses; Activity tiles (transactions 85.5K, volume $2.04K, buyers 336) with sparkbars; Resources list \u2014 method badge (POST/GET), path, tags, one-line description, per-call price ($0.20, $0.10, Free) and copy button"
+   },
+   {
+    "order": 3,
+    "file": "agents/03-try-with-agentcash-menu.png",
+    "url": "https://www.x402scan.com/server/b8a06bde-b6e8-4a10-b4e0-cc6a25fb9efb",
+    "click": "Click \"Try with AgentCash \u25be\" on the server header",
+    "reaction": "Dropdown of agent clients to try the service with: AgentCash, Poncho, awal, Agent Wallet, pay.sh"
+   }
+  ]
+ },
+ {
+  "screenId": "pg_sandbox",
+  "flowName": "Tenderly Virtual Environments: fork home \u2192 create \u2192 state sync \u2192 time-travel cheatcodes \u2192 snapshot/revert \u2192 activity \u2192 simulate",
+  "product": "Tenderly Virtual Environments (docs)",
+  "note": "Docs pages (the dashboard needs a paid login); dashboard UI appears as screenshots inside the docs.",
+  "steps": [
+   {
+    "order": 1,
+    "file": "tenderly/01-vnet-overview-home.png",
+    "url": "https://docs.tenderly.co/virtual-environments/overview",
+    "click": "Open https://docs.tenderly.co/virtual-environments/overview and scroll to the dashboard screenshot",
+    "reaction": "Docs show the Virtual Environment Home view: Admin RPC + Public RPC endpoints, setup steps, Network Mirror / Bridge / Contracts cards, attached network with chain ID and fork block number"
+   },
+   {
+    "order": 2,
+    "file": "tenderly/02-vnet-create.png",
+    "url": "https://docs.tenderly.co/virtual-environments/quickstart",
+    "click": "Open \"Quickstart\" (create a Virtual Environment)",
+    "reaction": "Quickstart page: configure chain ID, state sync and public explorer, then connect MetaMask and send transactions; next steps list (send / simulate transactions, deploy contracts, API)"
+   },
+   {
+    "order": 3,
+    "file": "tenderly/03-vnet-state-sync.png",
+    "url": "https://docs.tenderly.co/virtual-environments/state-sync",
+    "click": "Open \"State Sync\"",
+    "reaction": "Diagram: State Sync OFF (fork frozen at the fork block) vs ON (fork keeps pulling parent-chain state); section \"Which parent-network state does latest reflect?\""
+   },
+   {
+    "order": 4,
+    "file": "tenderly/04-vnet-admin-rpc-time-travel.png",
+    "url": "https://docs.tenderly.co/virtual-environments/admin-rpc",
+    "click": "Open \"Admin RPC\" (Custom RPC methods)",
+    "reaction": "Cheatcode list: evm_increaseTime, evm_setNextBlockTimestamp, evm_increaseBlocks (time travel), tenderly_setBalance / setErc20Balance, evm_snapshot / evm_revert; each call appears in the activity table as a TenderlyCheatcodes transaction (setErc20Balance, addBalance, syncState)"
+   },
+   {
+    "order": 5,
+    "file": "tenderly/05-vnet-snapshot-revert.png",
+    "url": "https://docs.tenderly.co/virtual-environments/develop/revert-state",
+    "click": "Open \"Revert state\"",
+    "reaction": "Diagram of a fork branching off mainnet with evm_snapshot then evm_revert rolling back; \"Revert distance limit\": one evm_revert can roll back at most 2000 blocks"
+   },
+   {
+    "order": 6,
+    "file": "tenderly/06-vnet-explorer.png",
+    "url": "https://docs.tenderly.co/virtual-environments/explorer",
+    "click": "Open \"Explorer\"",
+    "reaction": "Virtual Environment Activity view: executed transactions with network, status, function, block, hash, from, to; sidebar Contracts, Wallets, JSON-RPC Calls"
+   },
+   {
+    "order": 7,
+    "file": "tenderly/07-vnet-simulate.png",
+    "url": "https://docs.tenderly.co/virtual-environments/interact/simulate-transactions",
+    "click": "Open \"Simulate transactions\"",
+    "reaction": "\"Simulate Transactions in Virtual Environments\": preview outcome, gas, state changes and emitted events before sending; entry cards Simulator UI, Simulation RPC, Bundle Simulation RPC, Simulation API"
+   }
+  ]
+ },
+ {
+  "screenId": "pg_fork_proof",
+  "flowName": "Aave seatbelt fork-simulation report: payloads \u2192 proposal \u2192 named checks with evidence",
+  "product": "Aave seatbelt (aave-dao/seatbelt-gov-v3)",
+  "steps": [
+   {
+    "order": 1,
+    "file": "seatbelt/02-seatbelt-payloads.png",
+    "url": "https://github.com/aave-dao/seatbelt-gov-v3/blob/main/reports/proposals/271.md",
+    "click": "Open https://github.com/aave-dao/seatbelt-gov-v3/blob/main/reports/proposals/271.md (Aave governance \"seatbelt\" fork-simulation report)",
+    "reaction": "Payloads list \u2014 one link per chain (Ethereum, Avalanche, OP, Arbitrum, Base, Gnosis, Scroll, BNB) with PayloadsController address and payload id"
+   },
+   {
+    "order": 2,
+    "file": "seatbelt/01-seatbelt-report-top.png",
+    "url": "https://github.com/aave-dao/seatbelt-gov-v3/blob/main/reports/proposals/271.md",
+    "click": "Scroll to \"Proposal 271\"",
+    "reaction": "Proposal block: Tenderly simulation link, state Active, creator, maximumAccessLevelRequired, payload JSON; Payloads list above"
+   },
+   {
+    "order": 3,
+    "file": "seatbelt/03-check-state-changes.png",
+    "url": "https://github.com/aave-dao/seatbelt-gov-v3/blob/main/reports/proposals/271.md",
+    "click": "Scroll to \"Check: Reports all state changes \u2705\"",
+    "reaction": "Under \"Check: Reports all state changes \u2705\": per-contract storage diffs (red \u2212 old value / green + new value per slot or decoded key, e.g. outboundNonce 17 \u2192 18)"
+   },
+   {
+    "order": 4,
+    "file": "seatbelt/04-check-events.png",
+    "url": "https://github.com/aave-dao/seatbelt-gov-v3/blob/main/reports/proposals/271.md",
+    "click": "Scroll to \"Check: Reports all events emitted from the proposal \u2705\"",
+    "reaction": "Decoded events emitted during the fork execution, grouped by contract"
+   },
+   {
+    "order": 5,
+    "file": "seatbelt/05-check-verified-contracts.png",
+    "url": "https://github.com/aave-dao/seatbelt-gov-v3/blob/main/reports/proposals/271.md",
+    "click": "Scroll to \"Check: Check all touched contracts are verified on Etherscan \u2705\"",
+    "reaction": "List of every touched address labelled \"Contract (verified) (Name)\", \"EOA (verification not applicable)\" or \"Contract (not verified)\""
+   },
+   {
+    "order": 6,
+    "file": "seatbelt/06-check-selfdestruct.png",
+    "url": "https://github.com/aave-dao/seatbelt-gov-v3/blob/main/reports/proposals/271.md",
+    "click": "Scroll to \"Check: Check all touched contracts do not contain selfdestruct \u2705\"",
+    "reaction": "Per-contract result list for the selfdestruct check"
+   }
+  ]
+ }
+]

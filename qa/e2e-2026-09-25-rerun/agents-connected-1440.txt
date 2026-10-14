@@ -1,0 +1,26 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Agents
+
+Services an agent can call, and the keeper that posts Intatto's onchain state.
+
+Add your API
+Intatto credit and health
+Read a wallet's borrowing room, the session limit, and how far the price is from liquidation.
+
+intatto.larinova.com
+
+Free
+Try it
+Keeper
+Posts the market session, the relayed price and the ticker caps, and runs bounded liquidations.
+0xaBa1F7…3ef808
+OKX AI agent identity: registration pending

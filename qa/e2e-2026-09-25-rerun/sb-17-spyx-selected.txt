@@ -1,0 +1,115 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-10-05 22:58:16 UTC
+
+Exit sandbox
+Borrow USDG with SPYx
+SPYx · SPY
+EXTENDED
+
+Deposit SPYx and borrow USDG against it. How much you can borrow follows the US market session; the liquidation line stays at 65% LTV around the clock.
+
+Deposit & borrow
+Repay & withdraw
+Collateral
+SPYx
+≈ $76.90 · held as 0.0994 wSPYx
+Wallet 1.9999 SPYx
+Max
+SPYx price
+$769.01
+· fetched by the keeper at 2026-10-05 22:58:16 UTC
+EXTENDED session · max new-borrow LTV
+40.00%
+Sessions, guards and caps on the Risk page
+Loan
+USDG
+15 USDG
+26 USDG
+36 USDG
+Max
+Can borrow 30.7606 USDG
+LTV
+13.00%
+Low
+EXTENDED max 40.00%
+Liquidation 65.00%
+Liquidation price $153.84
+SPY can fall 80.0% before liquidation
+Interest rate
+Variable
+
+2.00%
+
+≈ 0.20 USDG / year on 10.00 USDG at today's rate
+
+Review
+Your position
+1 wSPYx = 1.0057 SPYx (issuer multiplier). Collateral is held as wSPYx and valued at the relayed price.
+Collateral
+0 SPYx
+0.0999 SPYx
+Held as
+0 wSPYx
+0.0994 wSPYx
+Collateral value
+0.00 USDG
+76.90 USDG
+Debt
+0.00 USDG
+10.00 USDG
+LTV
+0.00%
+13.00%
+Health factor
+∞
+4.99
+Liquidation price
+–
+$153.84
+
+New-borrow limit 40.00% (EXTENDED) · liquidation at 65.00%
+
+If SPY opens lower on Monday (after this change)
+Monday open	SPYx	LTV	Health	Status	Lenders lose (est.)
+−5%	$730.56	13.68%	4.74	Safe	
+0.00 USDG
+
+−10%	$692.11	14.44%	4.49	Safe	
+0.00 USDG
+
+−20%	$615.21	16.25%	3.99	Safe	
+0.00 USDG
+
+−30%	$538.31	18.57%	3.49	Safe	
+0.00 USDG
+
+−40%	$461.41	21.67%	2.99	Safe	
+0.00 USDG
+
+−50%	$384.50	26.00%	2.49	Safe	
+0.00 USDG
+
+−60%	$307.60	32.50%	1.99	Safe	
+0.00 USDG
+
+−70%	$230.70	43.34%	1.49	Safe	
+0.00 USDG
+
+−80%	$153.80	65.01%	0.99	Liquidation starts	
+0.00 USDG
+
+−90%	$76.90	130.03%	0.49	Liquidatable	
+2.67 USDG
+reserve covers 0.00 USDG
+
+Liquidation starts above 65.00% LTV (health below 1.00) in every session, with a 5% penalty. Lender loss is an estimate at the oracle price with no slippage: the debt that selling all the collateral would not repay after the penalty, less the gap reserve's 0.00 USDG (shared by every position). Market-wide stress on the Risk page.

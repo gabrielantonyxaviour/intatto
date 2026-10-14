@@ -1,0 +1,77 @@
+{
+  "status": 200,
+  "body": {
+    "sessionId": "0rt93_mhyU05I6sPjEsiHQ",
+    "entries": [
+      {
+        "kind": "warp",
+        "summary": "past the multiplier activation",
+        "detail": {
+          "from": 1791239919,
+          "to": 1791241095
+        },
+        "chainTime": 1791241095,
+        "at": "2026-09-25T11:34:27.963Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session EXTENDED",
+        "detail": {
+          "periodChangedAt": 1791230400
+        },
+        "txHash": "0x12a55e593f14262b45e468bdd80c70910218aceba011398fd7feca228749146f",
+        "chainTime": 1791241096,
+        "at": "2026-09-25T11:34:28.118Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $10.3269262 (accepted)",
+        "txHash": "0x35d052c8550ec961b1829bdffa02f3a2455807015676639c961b5ef9dbf236fc",
+        "chainTime": 1791241096,
+        "at": "2026-09-25T11:34:28.256Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted SPYx quote $769.016994 (accepted)",
+        "txHash": "0xccfe9e5ff4c5d6ecffc1dae89c41fb800862959db322819048556a3a901f02ba",
+        "chainTime": 1791241096,
+        "at": "2026-09-25T11:34:28.553Z"
+      },
+      {
+        "kind": "scenario",
+        "summary": "corporate action activated: the keeper posted the post-split quote (accepted); the guard resolved and borrowing reopened",
+        "detail": {
+          "replay": "nvda-corporate-action",
+          "label": "Issuer multiplier history (current multiplier from the public API); the activation replayed in the sandbox is a scenario",
+          "kind": "issuer-multiplier",
+          "sources": [
+            {
+              "url": "https://api.xstocks.fi/api/v2/public/assets/NVDAx/multiplier?network=XLayer",
+              "retrievedAt": "2026-09-25T05:36:15.497129+00:00",
+              "sha256": "dcbeae97cb0d53e05e2aeede080fd458ebd16d06d2d1700fbf6cce4986a326ce"
+            },
+            {
+              "url": "https://api.xstocks.fi/api/v2/public/assets/NVDAx/multiplier?network=XLayer",
+              "retrievedAt": "2026-09-25T09:32:27.000Z",
+              "sha256": "9e0763f9b5234a4889a889e55e1e50754f4f49cd3fd932999ebe35e369d7c6dd"
+            }
+          ],
+          "fileSha256": "b99821960a7ee44fcd891d2003e337b1f6cc3162c99bedc85d896e79ed6318c9",
+          "contentSha256": "ddc7d7e1a2a790bf3c8d906ba1dcd40c475055e7c62b839b7b98d45b9ac9b3fc",
+          "note": "A 10-for-1 split applied as a multiplier change; NVDA's real 10-for-1 split took effect 10 June 2024.",
+          "accepted": true,
+          "paused": false
+        },
+        "chainTime": 1791241096,
+        "at": "2026-09-25T11:34:28.567Z"
+      }
+    ],
+    "chain": {
+      "chainTime": 1791241096,
+      "block": 71563527,
+      "forkBlock": 71563431,
+      "session": "EXTENDED",
+      "burnerAddress": "0x4dBFf93af70F7Ca0C4C5A098b0FA55751562BaeC"
+    }
+  }
+}

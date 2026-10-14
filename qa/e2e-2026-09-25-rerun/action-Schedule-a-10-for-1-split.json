@@ -1,0 +1,70 @@
+{
+  "status": 200,
+  "body": {
+    "sessionId": "0rt93_mhyU05I6sPjEsiHQ",
+    "entries": [
+      {
+        "kind": "scenario",
+        "summary": "scenario corporate-action started: 10-for-1 split applied as a multiplier change (Issuer multiplier history (current multiplier from the public API); the activation replayed in the sandbox is a scenario)",
+        "detail": {
+          "replay": "nvda-corporate-action",
+          "label": "Issuer multiplier history (current multiplier from the public API); the activation replayed in the sandbox is a scenario",
+          "kind": "issuer-multiplier",
+          "sources": [
+            {
+              "url": "https://api.xstocks.fi/api/v2/public/assets/NVDAx/multiplier?network=XLayer",
+              "retrievedAt": "2026-09-25T05:36:15.497129+00:00",
+              "sha256": "dcbeae97cb0d53e05e2aeede080fd458ebd16d06d2d1700fbf6cce4986a326ce"
+            },
+            {
+              "url": "https://api.xstocks.fi/api/v2/public/assets/NVDAx/multiplier?network=XLayer",
+              "retrievedAt": "2026-09-25T09:32:27.000Z",
+              "sha256": "9e0763f9b5234a4889a889e55e1e50754f4f49cd3fd932999ebe35e369d7c6dd"
+            }
+          ],
+          "fileSha256": "b99821960a7ee44fcd891d2003e337b1f6cc3162c99bedc85d896e79ed6318c9",
+          "contentSha256": "ddc7d7e1a2a790bf3c8d906ba1dcd40c475055e7c62b839b7b98d45b9ac9b3fc",
+          "note": "A 10-for-1 split applied as a multiplier change; NVDA's real 10-for-1 split took effect 10 June 2024."
+        },
+        "chainTime": 1791239835,
+        "at": "2026-09-25T11:33:56.318Z"
+      },
+      {
+        "kind": "actor",
+        "summary": "simulated issuer action: multiplier updater 0x5F7A4c11bde4f218f0025Ef444c369d838ffa2aD scheduled 10-for-1 (multiplier 1001701196801074000 → 10017011968010740000)",
+        "txHash": "0x88e48f71df9b03e77c24f98603c313c1384ba02b68e7d883a3926e67a14bfa7f",
+        "chainTime": 1791239919,
+        "at": "2026-09-25T11:33:56.935Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted pending corporate action for NVDAx",
+        "detail": {
+          "activationAt": 1791241035,
+          "expectedMultiplier": "10017011968010740000"
+        },
+        "txHash": "0xb56273cc55d585b7e8d5b2c73c5df33c218404c00e9e91aa338ed79b17a6f3a0",
+        "chainTime": 1791239919,
+        "at": "2026-09-25T11:33:57.068Z"
+      },
+      {
+        "kind": "scenario",
+        "summary": "corporate action pending: multiplier 1001701196801074000 → 10017011968010740000 activates at 2026-10-05T22:57:15Z; NVDAx borrowing and liquidation pause until the keeper resolves it",
+        "detail": {
+          "activationAt": 1791241035,
+          "before": "1001701196801074000",
+          "after": "10017011968010740000"
+        },
+        "chainTime": 1791239919,
+        "at": "2026-09-25T11:33:57.081Z"
+      }
+    ],
+    "chain": {
+      "chainTime": 1791239919,
+      "block": 71563522,
+      "forkBlock": 71563431,
+      "session": "EXTENDED",
+      "burnerAddress": "0x4dBFf93af70F7Ca0C4C5A098b0FA55751562BaeC"
+    }
+  }
+}

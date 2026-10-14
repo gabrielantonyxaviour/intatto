@@ -1,0 +1,26 @@
+{
+  "lastCycle": {
+    "at": "2026-09-25T12:24:57.000Z",
+    "chainTime": 1790339097,
+    "actions": 0,
+    "sent": 0,
+    "failures": 0,
+    "durationMs": 1550
+  },
+  "readings": {
+    "NVDAx": {
+      "at": "2026-09-25T12:24:57.000Z",
+      "period": "extended",
+      "openNow": true,
+      "nextChangeAt": "2026-09-25T13:30:00.000Z",
+      "halted": false,
+      "atomicHalted": false,
+      "quote": "225.98",
+      "currentMultiplier": "1.001701196801074",
+      "newMultiplier": null,
+      "activationDateTime": null,
+      "mappedSession": "EXTENDED",
+      "disagreement": null
+    }
+  }
+}

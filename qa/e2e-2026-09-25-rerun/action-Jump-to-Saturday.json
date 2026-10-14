@@ -1,0 +1,49 @@
+{
+  "status": 200,
+  "body": {
+    "sessionId": "0rt93_mhyU05I6sPjEsiHQ",
+    "entries": [
+      {
+        "kind": "warp",
+        "summary": "jump to Saturday 12:00 UTC (market closed)",
+        "detail": {
+          "from": 1790335812,
+          "to": 1790424000
+        },
+        "chainTime": 1790424000,
+        "at": "2026-09-25T11:30:33.558Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session CLOSED",
+        "detail": {
+          "periodChangedAt": 1790380800
+        },
+        "txHash": "0x1d9735f209ad26d59934735e0d7e0c63b0acea491cd7405f0ffee68d5c903589",
+        "chainTime": 1790424000,
+        "at": "2026-09-25T11:30:33.692Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $225.945713 (accepted)",
+        "txHash": "0xc56a954147579ca1e3f1c40e67a3dcc134009b471df1d5c2e0ff6e78ca433838",
+        "chainTime": 1790424000,
+        "at": "2026-09-25T11:30:33.895Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted SPYx quote $769.016994 (accepted)",
+        "txHash": "0xfb1041659dec6f9ce7f2e47ed91b99c89631a6160abe4ac61aaac1689899c5bd",
+        "chainTime": 1790424000,
+        "at": "2026-09-25T11:30:34.080Z"
+      }
+    ],
+    "chain": {
+      "chainTime": 1790424001,
+      "block": 71563467,
+      "forkBlock": 71563431,
+      "session": "CLOSED",
+      "burnerAddress": "0x4dBFf93af70F7Ca0C4C5A098b0FA55751562BaeC"
+    }
+  }
+}

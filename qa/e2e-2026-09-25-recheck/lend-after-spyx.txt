@@ -1,0 +1,196 @@
+Intatto USDG vault
+iUSDG
+Vault
+0x89fC…308C
+Intatto sandbox (fork of X Layer)
+Asset USDG
+Lends to NVDAx and SPYx
+
+Deposit USDG and earn the interest people pay to borrow against NVDAx and SPYx. The vault lends to each of these markets, and borrowing limits follow the US stock market session.
+
+Total deposits
+50,001 USDG
+Idle, withdrawable now
+49,991 USDG
+Lent out
+10.4 USDG
+0.02% utilisation
+Supply rate
+0.00%
+a year, variable
+Deposit
+Withdraw
+Deposit USDG
+USDG
+Wallet 1,010 USDG
+Max
+Network
+Intatto sandbox
+Your deposit
+0.00 USDG
+Supply rate
+0.00%
+Projected monthly earnings
+0.00 USDG
+Projected yearly earnings
+0.00 USDG
+
+Projections use today's supply rate as simple interest. The rate moves with utilisation.
+
+Read how lending works before your first deposit.
+Read and accept
+1
+Approve USDG
+Lets the contract move your USDG.
+2
+Deposit USDG
+Accept the lending terms first
+How lending works
+Overview
+Allocation
+Rates
+Risk
+Deficits
+Your position
+Overview
+Vault contract
+0x89fC…308C
+Share price
+1.000000 USDG
+Share token
+iUSDG (ERC-4626, 6 decimals)
+Shares outstanding
+50,001.46 iUSDG
+Withdrawals
+Any time, up to the idle USDG
+Markets
+2 (NVDAx, SPYx)
+Where the money is lent
+
+The vault lends into 2 markets (NVDAx and SPYx). Every USDG that is not idle is owed by people borrowing against one of them.
+
+Lent out 10.4 USDG
+Idle 49,991 USDG (100.0%)
+Market	Borrowed	Collateral value	Threshold	Debt cap	Can still be borrowed
+
+USDG
+|
+NVDAx
+65% LT
+	0.40 USDG	1.1021 USDG	65%	50,000 USDG
+0.0% used
+	49,991 USDG
+
+USDG
+|
+SPYx
+65% LT
+Sandbox only
+	10.00 USDG	769.01 USDG	65%	50,000 USDG
+0.0% used
+	49,990 USDG
+
+NVDAx new-borrow limit now: 40% · extended hours. It follows the US market session; the 65% liquidation threshold does not.
+
+SPYx new-borrow limit now: 40% · extended hours. It follows the US market session; the 65% liquidation threshold does not.
+
+Collateral is NVDAx held as the issuer's wNVDAx wrapper shares. Its price is the issuer's indicative quote, $225.94 per NVDAx, fetched by the keeper at 2026-09-25 12:30:09 UTC. The relay's guards pass: the post is recent, inside the band around the pool's 30-minute average, and USDG is on peg.
+
+Collateral is SPYx held as the issuer's wSPYx wrapper shares. Its price is the issuer's indicative quote, $769.01 per SPYx, fetched by the keeper at 2026-09-25 12:30:10 UTC. The relay's guards pass: the post is recent, inside the band around the pool's 30-minute average, and USDG is on peg. SPYx is sandbox-only: it is not on X Layer mainnet.
+
+Interest rates
+Supply rate
+0.00%
+Borrow rate
+2.00%
+Utilisation
+0.02%
+0%
+55%
+110%
+0%
+25%
+50%
+75%
+100%
+Now 0.0%
+kink 80%
+Borrow rate
+Supply rate
+x: utilisation · y: rate a year
+
+Borrowers pay 2.00% a year at zero utilisation, rising by 8.00% up to the 80% kink, then by a further 100.00% between the kink and full utilisation, so idle USDG comes back quickly. Lenders receive the borrow rate × utilisation, less the 20% that funds the gap reserve.
+
+Risk
+Loss risk
+Lenders can lose money in a gap larger than the reserve. There is no insurance fund beyond the gap reserve. If NVDAx or SPYx opens far below where it closed and a liquidation cannot recover the debt, the gap reserve pays first; any remainder lowers the value of every lender's shares, in proportion to what they hold. SPYx is sandbox-only.
+Who pays for a loss, in order
+1. Recovered collateral
+
+770.11 USDG
+
+An unhealthy position's collateral is sold into the pool in bounded slices. The proceeds repay its debt and the 5% penalty first. Right now 770.11 USDG of collateral backs 10.4 USDG of debt (1.4% loan-to-value across all borrowers).
+
+2. Gap reserve
+
+100.50 USDG
+
+If the collateral is gone and debt is left, the gap reserve pays the rest straight into the vault, up to its balance.
+
+3. Lenders, pro rata
+
+50,001.49 USDG
+
+Whatever the reserve cannot pay is written off. Every share loses the same fraction. Each 1,000 USDG written off lowers the share price by 1.999% at today's deposits.
+
+Every open loan, ranked by how close it is to liquidation, and price-shock scenarios are on the Risk page.
+
+How the gap reserve is funded
+Balance now
+100.50 USDG
+Seed
+USDG sent by the operator at launch (anyone can add more)
+Interest
+20% of all interest borrowers pay
+Liquidations
+Half of each 5% penalty (the keeper who liquidates keeps the other half)
+Withdrawals
+None: it can only pay shortfalls to the vault
+Market risk parameters
+Liquidation threshold
+NVDAx 65% · SPYx 65% in every session
+New-borrow limit
+50% open · 40% extended · 30% falling to 20% over 64 h closed · 0% halted
+Liquidation penalty
+5%, half to the keeper, half to the gap reserve
+Reserve factor
+20% of interest
+Roles
+Operator (owner)
+0xaBa1…f808
+Keeper
+0xaBa1…f808
+
+The operator can change the interest-rate model, the session limits, the price guards and the liquidation floors, and add markets to the vault, with no timelock. The keeper posts the market session, the price of each market and the debt cap, and runs liquidations; the contracts refuse a price outside their guards. Contracts: vault 
+0x89fC…308C
+, gap reserve 
+0x4CB0…CB52
+.
+
+Recognised deficits
+Deficits recognised
+0
+Total written off
+0.000000 USDG
+
+No deficits recognised. Every liquidation so far was covered by its collateral or the gap reserve.
+
+Your position
+Your shares
+0 iUSDG
+Worth now
+0.000000 USDG
+Share of the vault
+0.0000%
+USDG in your wallet
+1,010.00 USDG

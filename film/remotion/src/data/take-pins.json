@@ -1,0 +1,11 @@
+{
+  "borrow-mainnet": {
+    "aliases": { "monday-table": "monday-gap" }
+  },
+  "replays": {
+    "aliases": { "ledger": "jan-ledger" }
+  },
+  "agents": {
+    "aliases": { "json": "response-details" }
+  }
+}

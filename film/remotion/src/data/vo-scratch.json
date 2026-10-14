@@ -1,0 +1,52 @@
+{
+ "cold-open": {
+  "file": "vo/scratch/01-cold-open.wav",
+  "seconds": 7.045,
+  "words": null
+ },
+ "problem": {
+  "file": "vo/scratch/02-problem.wav",
+  "seconds": 24.541,
+  "words": null
+ },
+ "idea": {
+  "file": "vo/scratch/03-idea.wav",
+  "seconds": 16.684,
+  "words": null
+ },
+ "real": {
+  "file": "vo/scratch/04-real.wav",
+  "seconds": 10.865,
+  "words": null
+ },
+ "saturday": {
+  "file": "vo/scratch/05-saturday.wav",
+  "seconds": 20.285,
+  "words": null
+ },
+ "replay": {
+  "file": "vo/scratch/06-replay.wav",
+  "seconds": 13.207,
+  "words": null
+ },
+ "worst": {
+  "file": "vo/scratch/07-worst.wav",
+  "seconds": 15.421,
+  "words": null
+ },
+ "proof": {
+  "file": "vo/scratch/08-proof.wav",
+  "seconds": 7.433,
+  "words": null
+ },
+ "agents": {
+  "file": "vo/scratch/09-agents.wav",
+  "seconds": 11.694,
+  "words": null
+ },
+ "close": {
+  "file": "vo/scratch/10-close.wav",
+  "seconds": 9.558,
+  "words": null
+ }
+}

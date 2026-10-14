@@ -1,0 +1,24 @@
+{
+  "status": 200,
+  "body": {
+    "sessionId": "0rt93_mhyU05I6sPjEsiHQ",
+    "entries": [
+      {
+        "kind": "reset",
+        "summary": "session reset to its start: burner funded, keeper fresh; every later transaction, warp and scenario was discarded",
+        "detail": {
+          "fromChainTime": 1791241101
+        },
+        "chainTime": 1790335712,
+        "at": "2026-09-25T11:35:56.989Z"
+      }
+    ],
+    "chain": {
+      "chainTime": 1790335712,
+      "block": 71563460,
+      "forkBlock": 71563431,
+      "session": "EXTENDED",
+      "burnerAddress": "0x4dBFf93af70F7Ca0C4C5A098b0FA55751562BaeC"
+    }
+  }
+}

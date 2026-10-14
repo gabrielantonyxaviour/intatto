@@ -1,0 +1,112 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-09-25 11:30:12 UTC
+
+Exit sandbox
+Borrow USDG with NVDAx
+NVDAx · NVDA
+EXTENDED
+
+Deposit NVDAx and borrow USDG against it. How much you can borrow follows the US market session; the liquidation line stays at 65% LTV around the clock.
+
+Deposit & borrow
+Repay & withdraw
+Back
+Done
+YOUR USDG LOAN
+80.00 USDG
+Collateral
+0.9999 NVDAx
+0.9983 wNVDAx
+Liquidation price
+$123.07
+LTV
+35.40% of 40.00% allowed
+Interest rate
+2.01% variable
+Liquidation risk
+Medium
+Health factor
+1.83
+Collateral deposit
+1 NVDAx
+≈ $225.94 · held as 0.9983 wNVDAx
+Loan
+80.00 USDG
+Sent to your wallet
+Interest rate
+2.01% variable
+≈ 1.60 USDG per year at today's rate
+Liquidation penalty
+5%
+Only charged if the position is liquidated
+Deposited 1 NVDAx
+Confirmed · 0x8f9cd4…4c262e
+Borrowed 80.00 USDG
+Confirmed · 0x403052…6bbd38
+
+You borrowed 80.00 USDG. Watch the position panel: it shows what a Monday gap would do to it.
+
+Back to the form
+Your position
+1 wNVDAx = 1.0017 NVDAx (issuer multiplier). Collateral is held as wNVDAx and valued at the relayed price.
+Collateral
+0.9999 NVDAx
+Held as
+0.9983 wNVDAx
+Collateral value
+225.94 USDG
+Debt
+80.00 USDG
+LTV
+35.40%
+Health factor
+1.83
+Liquidation price
+$123.07
+
+New-borrow limit 40.00% (EXTENDED) · liquidation at 65.00%
+
+If NVDA opens lower on Monday
+Monday open	NVDAx	LTV	Health	Status	Lenders lose (est.)
+−5%	$214.64	37.27%	1.74	Safe	
+0.00 USDG
+
+−10%	$203.35	39.34%	1.65	Safe	
+0.00 USDG
+
+−20%	$180.75	44.25%	1.46	Safe	
+0.00 USDG
+
+−30%	$158.16	50.58%	1.28	Safe	
+0.00 USDG
+
+−40%	$135.56	59.01%	1.10	Safe	
+0.00 USDG
+
+−45.53%	$123.07	65.00%	0.99	Liquidation starts	
+0.00 USDG
+
+−50%	$112.97	70.81%	0.91	Liquidatable	
+0.00 USDG
+
+−60%	$90.37	88.51%	0.73	Liquidatable	
+0.00 USDG
+
+Liquidation starts above 65.00% LTV (health below 1.00) in every session, with a 5% penalty. Lender loss is an estimate at the oracle price with no slippage: the debt that selling all the collateral would not repay after the penalty, less the gap reserve's 100.50 USDG (shared by every position). Market-wide stress on the Risk page.
+
+USDG borrowed
+Transaction 0x4030520f…
+Collateral deposited
+Transaction 0x8f9cd4a4…
+NVDAx approved
+Transaction 0xc9fc59a4…

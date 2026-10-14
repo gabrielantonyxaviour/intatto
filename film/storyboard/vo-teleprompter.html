@@ -1,0 +1,109 @@
+<title>Intatto Voice-Over</title>
+<style>
+:root {
+  --bg:#ffffff; --ink:#0a0a0a; --muted:#6b6b6b; --line:#e7e7e7; --card:#fafafa; --accent:#0a0a0a; --done:#30a46c;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0a0a0a; --ink:#f5f5f5; --muted:#a3a3a3; --line:#262626; --card:#121212; --accent:#f5f5f5; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg:#0a0a0a; --ink:#f5f5f5; --muted:#a3a3a3; --line:#262626; --card:#121212; --accent:#f5f5f5; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 80px; display: grid; gap: 22px; }
+.top { display: grid; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+.top h1 { font-size: clamp(26px, 4vw, 34px); letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.top p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.55; max-width: 65ch; }
+.top code, .meta code { font-family: var(--mono); font-size: 13px; }
+.tips { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; color: var(--muted); }
+.progress { font-family: var(--mono); font-size: 13px; }
+.beat { border: 1px solid var(--line); border-radius: 10px; background: var(--card); padding: 18px 20px 20px; display: grid; gap: 12px; scroll-margin-top: 16px; }
+.beat.is-done { opacity: .55; }
+.beat header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.num { font-family: var(--mono); font-size: 14px; color: var(--muted); }
+.beat h2 { margin: 0; font-size: 20px; letter-spacing: -0.01em; flex: 1 1 auto; }
+.meta { font-size: 13px; color: var(--muted); display: inline-flex; gap: 6px; align-items: baseline; }
+.meta code { color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 2px 6px; }
+.done { font-size: 13px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.done input { width: 17px; height: 17px; accent-color: var(--done); }
+.lines { display: grid; gap: 14px; }
+.lines p { margin: 0; font-size: clamp(20px, 2.6vw, 26px); line-height: 1.5; max-width: 60ch; }
+input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+<main class="wrap">
+  <section class="top">
+    <h1>Intatto demo: voice-over</h1>
+    <p>The final script (v5.3), one card per recording. Read it the way you'd explain it to someone. Changing a word so it sounds like you is fine; keep the numbers. About 4:02 at a relaxed pace.</p>
+    <div class="tips"><span>One file per card, named as shown</span><span>1 s of silence at each end</span><span>Stumble? Pause and redo the sentence</span><span>Quiet room, phone ~20 cm away</span></div>
+    <p>Save the files to <code>~/Documents/products/intatto/film/vo/gabriel/</code>, or send them however is easiest. One long take with 3 s gaps between cards also works.</p>
+    <p class="progress" id="progress" aria-live="polite">0 of 11 recorded</p>
+  </section>
+  <article class="beat" id="b1">
+  <header><span class="num">01</span><h2>Hook</h2>
+  <span class="meta"><code>01-hook.mp3</code><span class="dot">·</span>~14 s</span>
+  <label class="done"><input type="checkbox" id="done-1" data-n="1"> Recorded</label></header>
+  <div class="lines"><p>Tokenized stocks trade twenty-four seven, but the stocks underneath them don&#x27;t.</p><p>There&#x27;s about ninety million dollars of them on X Layer, and right now you can&#x27;t borrow against any of it.</p></div>
+</article><article class="beat" id="b2">
+  <header><span class="num">02</span><h2>Why it&#x27;s hard</h2>
+  <span class="meta"><code>02-why.mp3</code><span class="dot">·</span>~25 s</span>
+  <label class="done"><input type="checkbox" id="done-2" data-n="2"> Recorded</label></header>
+  <div class="lines"><p>Bybit, Kraken and Bitget already lend against these tokens, but doing it onchain is harder, because the weekend breaks pricing.</p><p>Price discovery stops Friday at 8 p.m. Eastern. The token keeps trading on thin liquidity, and even the issuer stops quoting until the open. Lend into that, and you&#x27;re carrying gap risk with no real price.</p></div>
+</article><article class="beat" id="b3">
+  <header><span class="num">03</span><h2>Intatto</h2>
+  <span class="meta"><code>03-intatto.mp3</code><span class="dot">·</span>~30 s</span>
+  <label class="done"><input type="checkbox" id="done-3" data-n="3"> Recorded</label></header>
+  <div class="lines"><p>So we built Intatto, a lending market that lives natively on X Layer. You just put in your tokenized stocks and borrow USDG against them, any day of the week.</p><p>The key thing is that Intatto knows when the actual stock market is open. Your borrowing limit tracks the market session: it&#x27;s higher while the stock is actually trading, and it tightens once the market closes.</p><p>And the liquidation threshold never moves, so a market close never pushes an existing loan toward liquidation.</p></div>
+</article><article class="beat" id="b4">
+  <header><span class="num">04</span><h2>Live, and forked for this demo</h2>
+  <span class="meta"><code>04-live.mp3</code><span class="dot">·</span>~18 s</span>
+  <label class="done"><input type="checkbox" id="done-4" data-n="4"> Recorded</label></header>
+  <div class="lines"><p>Intatto is live on X Layer mainnet right now. For this demo, we forked mainnet, so we can show you how it behaves at different points in the market week. Everything you see in the demo, you can try yourself on the fork.</p></div>
+</article><article class="beat" id="b5">
+  <header><span class="num">05</span><h2>Friday</h2>
+  <span class="meta"><code>05-friday.mp3</code><span class="dot">·</span>~18 s</span>
+  <label class="done"><input type="checkbox" id="done-5" data-n="5"> Recorded</label></header>
+  <div class="lines"><p>Let&#x27;s say it&#x27;s a Friday afternoon right now, and the market&#x27;s open. I&#x27;m going to deposit some NVDAx and borrow USDG against it. Since the market&#x27;s open, the protocol lets me borrow up to fifty percent of what my NVDAx is worth.</p></div>
+</article><article class="beat" id="b6">
+  <header><span class="num">06</span><h2>Saturday</h2>
+  <span class="meta"><code>06-saturday.mp3</code><span class="dot">·</span>~24 s</span>
+  <label class="done"><input type="checkbox" id="done-6" data-n="6"> Recorded</label></header>
+  <div class="lines"><p>Now let&#x27;s jump ahead to Saturday. With the stock market closed, the protocol has lowered my borrowing limit. So when I try to borrow a little more, the contract rejects the transaction before I even sign it. Repaying still goes through, though, because reducing your risk is never blocked.</p></div>
+</article><article class="beat" id="b7">
+  <header><span class="num">07</span><h2>The real weekend</h2>
+  <span class="meta"><code>07-weekend.mp3</code><span class="dot">·</span>~24 s</span>
+  <label class="done"><input type="checkbox" id="done-7" data-n="7"> Recorded</label></header>
+  <div class="lines"><p>Now here&#x27;s a real example. In January 2025, after DeepSeek&#x27;s new AI model took off over a weekend, NVIDIA opened twelve and a half percent down that Monday. Replayed on our fork, a loan taken at the weekday limit goes up to about sixty percent LTV, which is still under the sixty-five percent liquidation threshold, so nobody gets liquidated.</p></div>
+</article><article class="beat" id="b8">
+  <header><span class="num">08</span><h2>How it handles risk</h2>
+  <span class="meta"><code>08-risk.mp3</code><span class="dot">·</span>~29 s</span>
+  <label class="done"><input type="checkbox" id="done-8" data-n="8"> Recorded</label></header>
+  <div class="lines"><p>Under the hood, we&#x27;ve been really careful about risk. The price comes onchain through our keeper, and the contracts check it against the pool before accepting it. For production, we&#x27;ve already built an adapter for Chainlink Data Streams, so that price becomes fully verifiable. We only lend what X Layer&#x27;s pools could absorb in a sale.</p></div>
+</article><article class="beat" id="b9">
+  <header><span class="num">09</span><h2>The model</h2>
+  <span class="meta"><code>09-model.mp3</code><span class="dot">·</span>~20 s</span>
+  <label class="done"><input type="checkbox" id="done-9" data-n="9"> Recorded</label></header>
+  <div class="lines"><p>The model is pretty simple: borrowers pay interest, eighty percent of it goes to lenders, and twenty percent goes into the gap reserve. We make money by running the keeper, which earns half of the five percent liquidation penalty, and the credit API is built for pay-per-call through x402, so agents can pay per query once we switch it on.</p><p>Every stock is its own isolated market, so adding the next stock is just a deployment away. We already run NVDAx and SPYx on our fork, and NVDAx on mainnet.</p></div>
+</article><article class="beat" id="b10">
+  <header><span class="num">10</span><h2>Agents</h2>
+  <span class="meta"><code>10-okx-ai.mp3</code><span class="dot">·</span>~27 s</span>
+  <label class="done"><input type="checkbox" id="done-10" data-n="10"> Recorded</label></header>
+  <div class="lines"><p>We&#x27;ve also registered Intatto on the OKX AI marketplace. It provides an A2MCP service called Borrow capacity and health, so anyone can have their agent call it and ask how much a wallet can borrow right now. It reads straight from the chain, works out the numbers, and responds with the session, the limit, the LTV and the liquidation price.</p></div>
+</article><article class="beat" id="b11">
+  <header><span class="num">11</span><h2>Close</h2>
+  <span class="meta"><code>11-close.mp3</code><span class="dot">·</span>~13 s</span>
+  <label class="done"><input type="checkbox" id="done-11" data-n="11"> Recorded</label></header>
+  <div class="lines"><p>That&#x27;s Intatto. You can borrow against your tokenized stocks on X Layer twenty-four seven, and it&#x27;s live right now at intatto dot larinova dot com.</p></div>
+</article>
+</main>
+<script>
+const boxes = [...document.querySelectorAll('.done input')];
+const key = 'intatto-vo-done';
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) { saved = {}; }
+function paint() {
+  let n = 0;
+  boxes.forEach(b => { const on = !!saved[b.dataset.n]; b.checked = on; b.closest('.beat').classList.toggle('is-done', on); if (on) n++; });
+  document.getElementById('progress').textContent = n + ' of ' + boxes.length + ' recorded';
+}
+boxes.forEach(b => b.addEventListener('change', () => { saved[b.dataset.n] = b.checked; try { localStorage.setItem(key, JSON.stringify(saved)); } catch (e) {} paint(); }));
+paint();
+</script>

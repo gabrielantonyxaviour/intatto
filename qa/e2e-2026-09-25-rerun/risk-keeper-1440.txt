@@ -1,0 +1,155 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Risk console
+
+Every price the keeper posted or had refused, every session, cap, corporate action and liquidation, read from X Layer with its transaction. Nothing here comes from our servers. Back to the market
+
+Market NVDAx
+
+Events from blocks #71,562,056–#71,566,642 (from the deployment block) · 27 events · chain time 2026-09-25 11:28:08 UTC · latest #71,566,652
+
+Refresh
+Summary
+Price posts
+Price shock
+Loans near liquidation
+Caps and LTV spread
+Market overview
+Sessions
+Corporate actions
+Liquidations
+Keeper log
+Trust and bounds
+Keeper log
+
+The keeper is Intatto's agent: an off-chain service that relays the issuer's quote and the market session, samples pool depth and runs liquidations. Everything it sent onchain is listed here.
+
+Keeper identity
+Keeper address
+0xaBa1…f808
+(opens OKLink)
+Actions read
+26 in the scanned blocks · 0 price posts rejected by the relay
+Agent profile
+See the keeper's agent identity
+All 26
+Price 16
+Session 8
+Cap 2
+Corporate action 0
+Liquidation 0
+Action	Mined (UTC)	What it did	Transaction
+Price	2026-09-25 11:26:48	Posted price $226.16: accepted	
+0x4a33e1…9bcbf8
+(opens OKLink)
+
+Cap	2026-09-25 11:21:52	Posted cap target 22,492.70 USDG, slice 11,246.35 USDG; cap now 1,250.00 USDG	
+0x890119…9f72a0
+(opens OKLink)
+
+Price	2026-09-25 11:21:48	Posted price $226.05: accepted	
+0xd7cec5…15daac
+(opens OKLink)
+
+Session	2026-09-25 11:20:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xf71cc0…46695e
+(opens OKLink)
+
+Price	2026-09-25 11:16:48	Posted price $225.95: accepted	
+0xd7b628…fa9781
+(opens OKLink)
+
+Price	2026-09-25 11:14:48	Posted price $225.69: accepted	
+0xc41c71…f13530
+(opens OKLink)
+
+Session	2026-09-25 11:09:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0x02daa6…1cdbb2
+(opens OKLink)
+
+Price	2026-09-25 11:08:48	Posted price $225.66: accepted	
+0x3673d7…195bc5
+(opens OKLink)
+
+Price	2026-09-25 11:03:47	Posted price $225.57: accepted	
+0x14b29e…7ed81a
+(opens OKLink)
+
+Price	2026-09-25 10:58:51	Posted price $225.83: accepted	
+0x3bed88…a1bd09
+(opens OKLink)
+
+Session	2026-09-25 10:58:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xd9b81f…b3c6a0
+(opens OKLink)
+
+Price	2026-09-25 10:52:48	Posted price $225.94: accepted	
+0x5f4955…1273b3
+(opens OKLink)
+
+Price	2026-09-25 10:47:50	Posted price $225.86: accepted	
+0x10fffa…07a8d0
+(opens OKLink)
+
+Session	2026-09-25 10:47:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0x34484b…27e440
+(opens OKLink)
+
+Price	2026-09-25 10:42:49	Posted price $225.94: accepted	
+0x674227…f9ce51
+(opens OKLink)
+
+Price	2026-09-25 10:36:51	Posted price $226.12: accepted	
+0xa466c6…1c94ad
+(opens OKLink)
+
+Session	2026-09-25 10:36:48	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xcbd56f…038043
+(opens OKLink)
+
+Price	2026-09-25 10:31:47	Posted price $226.22: accepted	
+0xff7630…eff489
+(opens OKLink)
+
+Price	2026-09-25 10:26:47	Posted price $226.23: accepted	
+0x814b62…90aae4
+(opens OKLink)
+
+Session	2026-09-25 10:25:47	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0x795fb1…716702
+(opens OKLink)
+
+Cap	2026-09-25 10:20:53	Posted cap target 22,519.37 USDG, slice 11,259.68 USDG; cap now 1,000.00 USDG	
+0x064010…c5b327
+(opens OKLink)
+
+Price	2026-09-25 10:20:48	Posted price $226.21: accepted	
+0x33af58…47a135
+(opens OKLink)
+
+Price	2026-09-25 10:15:38	Posted price $226.26: accepted	
+0x1319c1…a8d9e5
+(opens OKLink)
+
+Session	2026-09-25 10:15:37	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xbdeafc…fe6da1
+(opens OKLink)
+
+Price	2026-09-25 10:15:10	Posted price $226.22: accepted	
+0xb16c87…6cbb8a
+(opens OKLink)
+
+Session	2026-09-25 10:15:09	Posted session EXTENDED (period began 2026-09-25 08:00:00 UTC)	
+0xc2a7c9…73183d
+(opens OKLink)
+Keeper service log
+
+The keeper's own record of its last 50 steps, including backoffs and skipped cycles that send no transaction.

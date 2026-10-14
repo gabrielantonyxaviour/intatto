@@ -1,0 +1,21 @@
+{
+  "summary": "4 of 4 passed",
+  "checks": [
+    {
+      "id": "blocks",
+      "status": "pass"
+    },
+    {
+      "id": "bytecode",
+      "status": "pass"
+    },
+    {
+      "id": "state",
+      "status": "pass"
+    },
+    {
+      "id": "intatto",
+      "status": "pass"
+    }
+  ]
+}

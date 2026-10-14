@@ -1,0 +1,18 @@
+# Intatto live re-check — 25 September 2026
+
+Read-only against https://intatto.larinova.com (brief: web `8ecfc928`, keeper `00d6b9b7`, sandbox `169cc954`). Headless Chromium, 1440×1000, with Lend also captured at 390 and 820. No mainnet transaction was signed. The read-only wallet was `0x7F23b131F7312bd0f63EF79974E215Dc3E12a415`.
+
+| # | Check | Result | Evidence |
+|---|---|---|---|
+| 1 | Bare `GET /api/credit/receipts` | **PASS** | 200 JSON. `calls` `{"okx-ai": 0, "direct": 12}`, `total` 12, 12 `latest` rows. `?limit=5` is 200 with 5 rows and the same counts. `?source=direct` is 200 with `calls` 12. `?source=okx-ai` is 200 with `calls` 0. [receipts.json](receipts.json) |
+| 2 | Sandbox Lend lists every market | **PASS** | Fresh session. Deposited 1 SPYx and borrowed 10.00 USDG (`/borrow?market=SPYx`). Lend says “The vault lends into 2 markets (NVDAx and SPYx).” Overview `2 (NVDAx, SPYx)`. NVDAx borrowed **0.40 USDG**, collateral **1.1021**, threshold **65%**, cap **50,000**. SPYx borrowed **10.00 USDG**, collateral **769.01**, threshold **65%**, cap **50,000**, marked sandbox-only. Lent out **10.4 USDG** = 0.40 + 10.00. Loss line: **770.11** collateral backs **10.4** debt. Burner USDG **1,010.00**. [lend-after-spyx.json](lend-after-spyx.json), [lend-after-spyx.png](lend-after-spyx.png) |
+| 3 | Risk source copy | **PASS** | Mainnet `/risk` says contract state is read directly from X Layer, event history comes through the log cache `/api/risk/logs` (raw `eth_getLogs`, cached, not modified) with a direct fallback, and the keeper log and last issuer read come from `intatto-keeper.larinova.com`. Scan: blocks #71,562,056–#71,570,126, **45 events**, “Events via Intatto log cache.” 82 `GET /api/risk/logs` responses were 200. The page does not say nothing comes from our servers, and it does not say the RPC did not answer. [risk-mainnet.txt](risk-mainnet.txt), [risk-network.json](risk-network.json) |
+| 4 | Capacity to 6 decimals | **PASS** | Same moment, wallet above, market NVDAx. Market “Can borrow now” **0.040863 USDG**. Borrow “Can borrow **0.040863 USDG**”. `GET /api/credit?wallet=0x7F23b131F7312bd0f63EF79974E215Dc3E12a415&market=NVDAx` `borrowableNowUsdg` **"0.040863"**. All three are 40863 micro-USDG. [capacity-comparison.json](capacity-comparison.json) |
+| 5 | Fork proof | **PASS** | Fresh hosted session, then `/sandbox/proof`. **4 of 4 passed**: blocks, bytecode, state, intatto. Fork block **71563431**, sandbox chain **1960196**, X Layer 196. [proof-result.json](proof-result.json), [proof.txt](proof.txt) |
+| 6 | Agents credit listing | **PASS** | https://intatto.larinova.com/agents/credit shows “OKX AI listing: under review (agent #13907)” and links the registration tx `0xe1d2770368121cdc5457fcb6adaabdaedf57f7ecd804ca73916bfb0c1dc2b3c7` to https://www.oklink.com/x-layer/tx/0xe1d2770368121cdc5457fcb6adaabdaedf57f7ecd804ca73916bfb0c1dc2b3c7. [agents-credit.txt](agents-credit.txt) |
+| 7 | Last issuer read | **PASS** | `/risk` Keeper log, card “Last issuer read”, compared with `GET https://intatto-keeper.larinova.com/status` at that moment. NVDAx: period **extended**, market halt **not halted**, atomic halt **not halted**, quote **$225.945**, multiplier **1.001701196801074×**. Each matches the status payload. [risk-issuer.txt](risk-issuer.txt), [keeper-status-same-moment.json](keeper-status-same-moment.json) |
+
+## Notes
+
+- Item 5 and item 2 used two fresh sandbox sessions. The proof session is the one at fork block 71563431. The SPYx borrow was a later session; its Lend figures are in the item 2 row.
+- The SPYx session was not closed from the UI. It expires after idle time.

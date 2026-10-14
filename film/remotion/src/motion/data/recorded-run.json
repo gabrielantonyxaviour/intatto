@@ -1,0 +1,30 @@
+{
+  "retrievedAt": "2026-09-25T14:37:56.286Z",
+  "source": "../../../../../film/storyboard/MOTION_BRIEF.md",
+  "sourceCommand": "read film/storyboard/MOTION_BRIEF.md beats 5–7",
+  "evidenceKind": "Coordinator-supplied recorded run; not refreshed by the collector",
+  "replay": {
+    "terminalLtvPercent": 59.57,
+    "liquidationThresholdPercent": 65,
+    "liquidations": 0
+  },
+  "synthetic": {
+    "label": "SYNTHETIC · not market data",
+    "crashPercent": 45,
+    "slices": 1,
+    "soldWnvdax": "19.966",
+    "receivedUsdg": "2037.58",
+    "floorHeld": true,
+    "reserveBeforeUsdg": "149.10",
+    "reserveAfterUsdg": "0.00",
+    "lenderLossUsdg": "147.69",
+    "shareBefore": "1.000008",
+    "shareAfter": "0.997054",
+    "shareChangePercent": "-0.2954"
+  },
+  "saturday": {
+    "error": "SESSIONLIMIT",
+    "repayment": "Repay goes through",
+    "label": "SANDBOX"
+  }
+}

@@ -1,0 +1,198 @@
+Intatto
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-10-05 22:38:39 UTC
+
+Exit sandbox
+Borrow USDG with NVDAx
+NVDAx · NVDA
+EXTENDED
+
+Deposit NVDAx and borrow USDG against it. How much you can borrow follows the US market session; the liquidation line stays at 65% LTV around the clock.
+
+New borrowing is paused
+
+Because a split or dividend is being applied.
+
+Repaying always works. Adding collateral works too, and withdrawing does when you have no debt. See every guard on the Risk page.
+
+Deposit & borrow
+Repay & withdraw
+Collateral
+NVDAx
+Adds to your collateral
+Wallet 8.9999 NVDAx
+Max
+NVDAx price
+$103.26
+· fetched by the keeper at 2026-10-05 22:37:13 UTC
+EXTENDED session · max new-borrow LTV
+40.00%
+Sessions, guards and caps on the Risk page
+Loan
+USDG
+20 USDG
+36 USDG
+49 USDG
+Max
+Can borrow 41.3077 USDG
+
+New borrowing is refused right now: Refused: CorporateActionPending. A split or dividend is activating for this stock; borrowing and liquidation are paused.
+
+LTV
+0.96%
+Low
+EXTENDED max 40.00%
+Liquidation 65.00%
+Liquidation price $1.53
+NVDA can fall 98.5% before liquidation
+Interest rate
+Variable
+
+2.00%
+
+≈ 0.02 USDG / year on 1.00 USDG at today's rate
+
+Refused: CorporateActionPending
+
+A split or dividend is activating for this stock; borrowing and liquidation are paused.
+
+The contract refused this in a simulation. Nothing was signed or sent.
+
+Your position
+1 wNVDAx = 1.0017 NVDAx (issuer multiplier). Collateral is held as wNVDAx and valued at the relayed price.
+Collateral
+0.9999 NVDAx
+Held as
+0.9983 wNVDAx
+Collateral value
+103.26 USDG
+Debt
+0.00 USDG
+1.00 USDG
+LTV
+0.00%
+0.96%
+Health factor
+∞
+67.12
+Liquidation price
+–
+$1.53
+
+New-borrow limit 40.00% (EXTENDED) · liquidation at 65.00%
+
+If NVDA opens lower on Monday (after this change)
+Opens −5%
+Safe
+NVDAx
+$98.10
+LTV
+1.01%
+Health
+63.76
+Lenders lose
+0.00 USDG
+Opens −10%
+Safe
+NVDAx
+$92.94
+LTV
+1.07%
+Health
+60.41
+Lenders lose
+0.00 USDG
+Opens −20%
+Safe
+NVDAx
+$82.61
+LTV
+1.21%
+Health
+53.70
+Lenders lose
+0.00 USDG
+Opens −30%
+Safe
+NVDAx
+$72.28
+LTV
+1.38%
+Health
+46.98
+Lenders lose
+0.00 USDG
+Opens −40%
+Safe
+NVDAx
+$61.96
+LTV
+1.61%
+Health
+40.27
+Lenders lose
+0.00 USDG
+Opens −50%
+Safe
+NVDAx
+$51.63
+LTV
+1.93%
+Health
+33.56
+Lenders lose
+0.00 USDG
+Opens −60%
+Safe
+NVDAx
+$41.30
+LTV
+2.42%
+Health
+26.85
+Lenders lose
+0.00 USDG
+Opens −70%
+Safe
+NVDAx
+$30.98
+LTV
+3.22%
+Health
+20.13
+Lenders lose
+0.00 USDG
+Opens −80%
+Safe
+NVDAx
+$20.65
+LTV
+4.84%
+Health
+13.42
+Lenders lose
+0.00 USDG
+Opens −90%
+Safe
+NVDAx
+$10.32
+LTV
+9.68%
+Health
+6.71
+Lenders lose
+0.00 USDG
+Opens −98.52%
+Liquidation starts
+NVDAx
+$1.52
+LTV
+65.42%
+Health
+0.99
+Lenders lose
+0.00 USDG
+
+Liquidation starts above 65.00% LTV (health below 1.00) in every session, with a 5% penalty. Lender loss is an estimate at the oracle price with no slippage: the debt that selling all the collateral would not repay after the penalty, less the gap reserve's 0.00 USDG (shared by every position). Market-wide stress on the Risk page.

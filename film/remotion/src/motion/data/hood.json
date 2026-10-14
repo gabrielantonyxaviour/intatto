@@ -1,0 +1,514 @@
+{
+ "retrievedAt": "2026-09-25T17:06:01.000Z",
+ "rpc": "https://rpc.xlayer.tech",
+ "latestBlock": 71586851,
+ "contracts": {
+  "relay": "0xf69c0EA60a6f6b94fF3C0F40af8bA3B97A4567a4",
+  "market": "0xE6708CC6598F17611f9A468f9907052688459D0D",
+  "depthCaps": "0x30279C37B299b51f03F4b2b5898902670e13F986",
+  "wrapper": "0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5",
+  "usdg": "0x4ae46a509F6b1D9056937BA4500cb143933D2dc8",
+  "pool": "0x2a2B11730C2b6d99a58034A869dd810D7300a7b2",
+  "quoterV2": "0xd1b797d92d87b688193a2b976efc8d577d204343",
+  "deployBlock": 71562056
+ },
+ "keeperDefaults": {
+  "source": "services/keeper/src/context.ts",
+  "depthSizes": [
+   "0.5",
+   "2",
+   "10",
+   "50",
+   "200"
+  ],
+  "depthSlippageBps": 200,
+  "capHaircutBps": 5000,
+  "sliceBps": 2500
+ },
+ "pricePosted": {
+  "event": "PricePosted(uint256,uint256,uint256,uint256,uint256,int256,uint64,uint64)",
+  "sourceCommands": [
+   "cast receipt 0x6dea085797b3479f19b6fbd1f467fa4f6cafdfcf7c8cf1015f628ec4a21c7439 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xcf167196672e647feff644b4f1807323d96b1679b8053fe5ed7193cdfa31a0f3 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x770b4cca2b856b17e57eee9fd7786b9bdebc1fd99ff6c5a8b2c45a41a40a8827 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x98e33d156c66f6dd2fa187ef5415feb070133d434e9f896b5a57cddb4a980cc2 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xaa25d5107c92b9dd4bf413f9102526b4e5e1b3e217965f3679678c920828111f --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xd1dbc2477856f4ed7bae6972e7431e995bdfb102f7e57ef4e8df019e3da9e698 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x531b8b54baaedcd59c1418ab1839432893540d68e1687fd3b21124d443f0a8b6 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xc5b0893fc3b4cbaba577173fce98cdda6fd1224f1ce1ddafb5bae6d23040de24 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x344c3af5a1610f74209fac0c91c85b7b4fb57027446684e1b67a8b1bb20c4fb6 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xf6ce0a01a17bfcdea838c367dc9ad1db2d708be5e6fd70c89fd9cf7385ea6ec7 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xd2d958fc78c55333c0eb8b551d323acc34ffa9b1555df73b23983c6ceb5687df --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xb0b07cbcecd783053177a26cac443b74a20b7bc6a57f4763b882acde469befae --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x805bb88a36ec274593bf9e7fa63a8551bacad5a42116e10cedd7b388c69b545d --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xb1ec4f01988e0c39c37eeb52af0fa8c70ec6c4481694a044c11ff5d4bff9ca87 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x9d1a02bc9753f420e904ef83b0145da8c5bdacf1a9dd569b10f079986b2d54e1 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x61969b624d3cf0ad3cba68fa289eeeecad757426ba94291f12217860354055d9 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x247979212a7f04b062310beda553b52e5c73718b0adaec53a235e17a3f81f7f5 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x33eedcc5306a57e739b3928d3a5cd2cc6dd5364060ef364824d6f46ffe8c00c1 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x69797fca58544fb7a7ed46821643ac80eb32aebb6a65e69097d196e4a58515de --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x3fccfec768cad2cbe1d1e4d5f7abf58bbff74e380694f52a98a8f5e001aafee5 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x24138e20a0bcee8800394ea8bfbc41fc1e7627c6f632f1f59324314cbbe97e11 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xaa0c3eefda1fdb9defee40840651020c6f8952ed7ebdea77988f07e5c854fded --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x8d8192418acc515ff856d37e5b24e6f40433c5d07be39867e8dfc302481894c6 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x1d22aa9a9aba6d6f46dc6f86f2b293ab2a1d49d4fdae7d2f5c4d40c76105007a --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x8936f7a0be25bc385a2652508dcf125da0bfc4f7dfca9b08f2d9de36d0933b0b --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xc138f05e4178855bfaa20cddee53d5b4d2df5dd5ff4b829b860a96882424bcb3 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xf1a7b243e99212b3bb690773d03d20df65eb5a1071b971e8f12a46076b928920 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x0e1322840b01a8d4d20d093c596550bf1741ce7ae809c448f87a3eb1e5d372b5 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xf634989500ce40536cdca8539b3e9fcc3f9a4097e33db6e7d1a94da3d16cdae1 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x29a0ccf6a3c17b920c1dce152d7af64030d412e03c50cc36032b33b11ecde288 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x90ff9ba5fcc493dc4db434ffda93ee0d14eff77864c743321eee6d041623725b --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0xdd789f3d758ad92023c3a2977dd2ca18230161de67b1b4067c03cbf0bc554657 --json --rpc-url https://rpc.xlayer.tech",
+   "cast receipt 0x6bb43aa8f86b40a9beb253260ab88576032246bb5e0805ad9e1b7f77e054093d --json --rpc-url https://rpc.xlayer.tech"
+  ],
+  "posts": [
+   {
+    "block": 71571683,
+    "tx": "0x6bb43aa8f86b40a9beb253260ab88576032246bb5e0805ad9e1b7f77e054093d",
+    "keeperAt": "2026-09-25T12:51:56.000Z",
+    "quoteE18": "225260000000000000000",
+    "wrapperPriceE18": "225643211591409929240",
+    "twapWrapperPriceE18": "226021833556200000000",
+    "deviationBps": 17,
+    "moveBps": 11,
+    "fetchedAt": 1790340716
+   },
+   {
+    "block": 71571983,
+    "tx": "0xdd789f3d758ad92023c3a2977dd2ca18230161de67b1b4067c03cbf0bc554657",
+    "keeperAt": "2026-09-25T12:56:56.000Z",
+    "quoteE18": "225490000000000000000",
+    "wrapperPriceE18": "225873602866674176260",
+    "twapWrapperPriceE18": "225931447595700000000",
+    "deviationBps": 3,
+    "moveBps": 11,
+    "fetchedAt": 1790341016
+   },
+   {
+    "block": 71572260,
+    "tx": "0x90ff9ba5fcc493dc4db434ffda93ee0d14eff77864c743321eee6d041623725b",
+    "keeperAt": "2026-09-25T13:01:33.000Z",
+    "quoteE18": "225211000000000000000",
+    "wrapperPriceE18": "225594128232766676614",
+    "twapWrapperPriceE18": "225841097631600000000",
+    "deviationBps": 11,
+    "moveBps": 13,
+    "fetchedAt": 1790341293
+   },
+   {
+    "block": 71572403,
+    "tx": "0x29a0ccf6a3c17b920c1dce152d7af64030d412e03c50cc36032b33b11ecde288",
+    "keeperAt": "2026-09-25T13:03:56.000Z",
+    "quoteE18": "225487500000000000000",
+    "wrapperPriceE18": "225871098613682173575",
+    "twapWrapperPriceE18": "225795936148200000000",
+    "deviationBps": 4,
+    "moveBps": 13,
+    "fetchedAt": 1790341436
+   },
+   {
+    "block": 71572703,
+    "tx": "0xf634989500ce40536cdca8539b3e9fcc3f9a4097e33db6e7d1a94da3d16cdae1",
+    "keeperAt": "2026-09-25T13:08:56.000Z",
+    "quoteE18": "225490000000000000000",
+    "wrapperPriceE18": "225873602866674176260",
+    "twapWrapperPriceE18": "225728210921400000000",
+    "deviationBps": 7,
+    "moveBps": 1,
+    "fetchedAt": 1790341736
+   },
+   {
+    "block": 71573063,
+    "tx": "0x0e1322840b01a8d4d20d093c596550bf1741ce7ae809c448f87a3eb1e5d372b5",
+    "keeperAt": "2026-09-25T13:14:56.000Z",
+    "quoteE18": "225760000000000000000",
+    "wrapperPriceE18": "226144062189810466240",
+    "twapWrapperPriceE18": "225705640178700000000",
+    "deviationBps": 20,
+    "moveBps": 12,
+    "fetchedAt": 1790342096
+   },
+   {
+    "block": 71573243,
+    "tx": "0xf1a7b243e99212b3bb690773d03d20df65eb5a1071b971e8f12a46076b928920",
+    "keeperAt": "2026-09-25T13:17:56.000Z",
+    "quoteE18": "225460000000000000000",
+    "wrapperPriceE18": "225843551830770144040",
+    "twapWrapperPriceE18": "225705640178700000000",
+    "deviationBps": 7,
+    "moveBps": 14,
+    "fetchedAt": 1790342276
+   },
+   {
+    "block": 71573542,
+    "tx": "0xc138f05e4178855bfaa20cddee53d5b4d2df5dd5ff4b829b860a96882424bcb3",
+    "keeperAt": "2026-09-25T13:22:56.000Z",
+    "quoteE18": "225510000000000000000",
+    "wrapperPriceE18": "225893636890610197740",
+    "twapWrapperPriceE18": "225728210921400000000",
+    "deviationBps": 8,
+    "moveBps": 3,
+    "fetchedAt": 1790342576
+   },
+   {
+    "block": 71573663,
+    "tx": "0x8936f7a0be25bc385a2652508dcf125da0bfc4f7dfca9b08f2d9de36d0933b0b",
+    "keeperAt": "2026-09-25T13:24:56.000Z",
+    "quoteE18": "225235000000000000000",
+    "wrapperPriceE18": "225618169061489902390",
+    "twapWrapperPriceE18": "225728210921400000000",
+    "deviationBps": 5,
+    "moveBps": 13,
+    "fetchedAt": 1790342696
+   },
+   {
+    "block": 71573962,
+    "tx": "0x1d22aa9a9aba6d6f46dc6f86f2b293ab2a1d49d4fdae7d2f5c4d40c76105007a",
+    "keeperAt": "2026-09-25T13:29:56.000Z",
+    "quoteE18": "225060000000000000000",
+    "wrapperPriceE18": "225442871352049714440",
+    "twapWrapperPriceE18": "225728210921400000000",
+    "deviationBps": 13,
+    "moveBps": 8,
+    "fetchedAt": 1790342996
+   },
+   {
+    "block": 71574084,
+    "tx": "0x8d8192418acc515ff856d37e5b24e6f40433c5d07be39867e8dfc302481894c6",
+    "keeperAt": "2026-09-25T13:31:56.000Z",
+    "quoteE18": "225490000000000000000",
+    "wrapperPriceE18": "225873602866674176260",
+    "twapWrapperPriceE18": "225728210921400000000",
+    "deviationBps": 7,
+    "moveBps": 20,
+    "fetchedAt": 1790343115
+   },
+   {
+    "block": 71574144,
+    "tx": "0xaa0c3eefda1fdb9defee40840651020c6f8952ed7ebdea77988f07e5c854fded",
+    "keeperAt": "2026-09-25T13:32:56.000Z",
+    "quoteE18": "226405000000000000000",
+    "wrapperPriceE18": "226790159461747158970",
+    "twapWrapperPriceE18": "225728210921400000000",
+    "deviationBps": 48,
+    "moveBps": 41,
+    "fetchedAt": 1790343176
+   },
+   {
+    "block": 71574263,
+    "tx": "0x24138e20a0bcee8800394ea8bfbc41fc1e7627c6f632f1f59324314cbbe97e11",
+    "keeperAt": "2026-09-25T13:34:56.000Z",
+    "quoteE18": "226540000000000000000",
+    "wrapperPriceE18": "226925389123315303960",
+    "twapWrapperPriceE18": "225795936148200000000",
+    "deviationBps": 51,
+    "moveBps": 23,
+    "fetchedAt": 1790343296
+   },
+   {
+    "block": 71574443,
+    "tx": "0x3fccfec768cad2cbe1d1e4d5f7abf58bbff74e380694f52a98a8f5e001aafee5",
+    "keeperAt": "2026-09-25T13:37:56.000Z",
+    "quoteE18": "225810000000000000000",
+    "wrapperPriceE18": "226194147249650519940",
+    "twapWrapperPriceE18": "225886268114100000000",
+    "deviationBps": 14,
+    "moveBps": 33,
+    "fetchedAt": 1790343476
+   },
+   {
+    "block": 71574503,
+    "tx": "0x69797fca58544fb7a7ed46821643ac80eb32aebb6a65e69097d196e4a58515de",
+    "keeperAt": "2026-09-25T13:38:56.000Z",
+    "quoteE18": "225308000000000000000",
+    "wrapperPriceE18": "225691293248856380792",
+    "twapWrapperPriceE18": "225886268114100000000",
+    "deviationBps": 9,
+    "moveBps": 23,
+    "fetchedAt": 1790343536
+   },
+   {
+    "block": 71574683,
+    "tx": "0x33eedcc5306a57e739b3928d3a5cd2cc6dd5364060ef364824d6f46ffe8c00c1",
+    "keeperAt": "2026-09-25T13:41:56.000Z",
+    "quoteE18": "225014000000000000000",
+    "wrapperPriceE18": "225396793096996865036",
+    "twapWrapperPriceE18": "225886268114100000000",
+    "deviationBps": 22,
+    "moveBps": 14,
+    "fetchedAt": 1790343716
+   },
+   {
+    "block": 71574983,
+    "tx": "0x247979212a7f04b062310beda553b52e5c73718b0adaec53a235e17a3f81f7f5",
+    "keeperAt": "2026-09-25T13:46:56.000Z",
+    "quoteE18": "225045000000000000000",
+    "wrapperPriceE18": "225427845834097698330",
+    "twapWrapperPriceE18": "225863681373000000000",
+    "deviationBps": 20,
+    "moveBps": 2,
+    "fetchedAt": 1790344016
+   },
+   {
+    "block": 71575283,
+    "tx": "0x61969b624d3cf0ad3cba68fa289eeeecad757426ba94291f12217860354055d9",
+    "keeperAt": "2026-09-25T13:51:56.000Z",
+    "quoteE18": "224740000000000000000",
+    "wrapperPriceE18": "225122326969073370760",
+    "twapWrapperPriceE18": "225841097631600000000",
+    "deviationBps": 32,
+    "moveBps": 14,
+    "fetchedAt": 1790344316
+   },
+   {
+    "block": 71575403,
+    "tx": "0x9d1a02bc9753f420e904ef83b0145da8c5bdacf1a9dd569b10f079986b2d54e1",
+    "keeperAt": "2026-09-25T13:53:56.000Z",
+    "quoteE18": "225070500000000000000",
+    "wrapperPriceE18": "225453389214616125717",
+    "twapWrapperPriceE18": "225841097631600000000",
+    "deviationBps": 18,
+    "moveBps": 15,
+    "fetchedAt": 1790344436
+   },
+   {
+    "block": 71575524,
+    "tx": "0xb1ec4f01988e0c39c37eeb52af0fa8c70ec6c4481694a044c11ff5d4bff9ca87",
+    "keeperAt": "2026-09-25T13:55:57.000Z",
+    "quoteE18": "225374000000000000000",
+    "wrapperPriceE18": "225757405527845251676",
+    "twapWrapperPriceE18": "225818515890000000000",
+    "deviationBps": 3,
+    "moveBps": 14,
+    "fetchedAt": 1790344557
+   },
+   {
+    "block": 71575855,
+    "tx": "0x805bb88a36ec274593bf9e7fa63a8551bacad5a42116e10cedd7b388c69b545d",
+    "keeperAt": "2026-09-25T14:01:27.000Z",
+    "quoteE18": "225012500000000000000",
+    "wrapperPriceE18": "225395290545201663425",
+    "twapWrapperPriceE18": "225818515890000000000",
+    "deviationBps": 19,
+    "moveBps": 17,
+    "fetchedAt": 1790344887
+   },
+   {
+    "block": 71576062,
+    "tx": "0xb0b07cbcecd783053177a26cac443b74a20b7bc6a57f4763b882acde469befae",
+    "keeperAt": "2026-09-25T14:04:56.000Z",
+    "quoteE18": "224605500000000000000",
+    "wrapperPriceE18": "224987598158103626307",
+    "twapWrapperPriceE18": "225728210921400000000",
+    "deviationBps": 33,
+    "moveBps": 19,
+    "fetchedAt": 1790345096
+   },
+   {
+    "block": 71576123,
+    "tx": "0xd2d958fc78c55333c0eb8b551d323acc34ffa9b1555df73b23983c6ceb5687df",
+    "keeperAt": "2026-09-25T14:05:56.000Z",
+    "quoteE18": "224185000000000000000",
+    "wrapperPriceE18": "224566382804848774690",
+    "twapWrapperPriceE18": "225683072435700000000",
+    "deviationBps": 50,
+    "moveBps": 19,
+    "fetchedAt": 1790345156
+   },
+   {
+    "block": 71576303,
+    "tx": "0xf6ce0a01a17bfcdea838c367dc9ad1db2d708be5e6fd70c89fd9cf7385ea6ec7",
+    "keeperAt": "2026-09-25T14:08:56.000Z",
+    "quoteE18": "224619000000000000000",
+    "wrapperPriceE18": "225001121124260440806",
+    "twapWrapperPriceE18": "225525157228800000000",
+    "deviationBps": 24,
+    "moveBps": 20,
+    "fetchedAt": 1790345336
+   },
+   {
+    "block": 71576363,
+    "tx": "0x344c3af5a1610f74209fac0c91c85b7b4fb57027446684e1b67a8b1bb20c4fb6",
+    "keeperAt": "2026-09-25T14:09:56.000Z",
+    "quoteE18": "225035000000000000000",
+    "wrapperPriceE18": "225417828822129687590",
+    "twapWrapperPriceE18": "225502606484100000000",
+    "deviationBps": 4,
+    "moveBps": 19,
+    "fetchedAt": 1790345396
+   },
+   {
+    "block": 71576602,
+    "tx": "0xc5b0893fc3b4cbaba577173fce98cdda6fd1224f1ce1ddafb5bae6d23040de24",
+    "keeperAt": "2026-09-25T14:13:56.000Z",
+    "quoteE18": "224731000000000000000",
+    "wrapperPriceE18": "225113311658302161094",
+    "twapWrapperPriceE18": "225434969248500000000",
+    "deviationBps": 15,
+    "moveBps": 14,
+    "fetchedAt": 1790345636
+   },
+   {
+    "block": 71576664,
+    "tx": "0x531b8b54baaedcd59c1418ab1839432893540d68e1687fd3b21124d443f0a8b6",
+    "keeperAt": "2026-09-25T14:14:56.000Z",
+    "quoteE18": "224088000000000000000",
+    "wrapperPriceE18": "224469217788759070512",
+    "twapWrapperPriceE18": "225434969248500000000",
+    "deviationBps": 43,
+    "moveBps": 29,
+    "fetchedAt": 1790345696
+   },
+   {
+    "block": 71576843,
+    "tx": "0xd1dbc2477856f4ed7bae6972e7431e995bdfb102f7e57ef4e8df019e3da9e698",
+    "keeperAt": "2026-09-25T14:17:56.000Z",
+    "quoteE18": "223674500000000000000",
+    "wrapperPriceE18": "224055014343881826413",
+    "twapWrapperPriceE18": "225322286517900000000",
+    "deviationBps": 57,
+    "moveBps": 19,
+    "fetchedAt": 1790345876
+   },
+   {
+    "block": 71577143,
+    "tx": "0xaa25d5107c92b9dd4bf413f9102526b4e5e1b3e217965f3679678c920828111f",
+    "keeperAt": "2026-09-25T14:22:56.000Z",
+    "quoteE18": "223690000000000000000",
+    "wrapperPriceE18": "224070540712432243060",
+    "twapWrapperPriceE18": "225142109537400000000",
+    "deviationBps": 48,
+    "moveBps": 1,
+    "fetchedAt": 1790346176
+   },
+   {
+    "block": 71577444,
+    "tx": "0x98e33d156c66f6dd2fa187ef5415feb070133d434e9f896b5a57cddb4a980cc2",
+    "keeperAt": "2026-09-25T14:27:56.000Z",
+    "quoteE18": "223641500000000000000",
+    "wrapperPriceE18": "224021958204387390971",
+    "twapWrapperPriceE18": "224962076542500000000",
+    "deviationBps": 42,
+    "moveBps": 3,
+    "fetchedAt": 1790346476
+   },
+   {
+    "block": 71577563,
+    "tx": "0x770b4cca2b856b17e57eee9fd7786b9bdebc1fd99ff6c5a8b2c45a41a40a8827",
+    "keeperAt": "2026-09-25T14:29:56.000Z",
+    "quoteE18": "223280000000000000000",
+    "wrapperPriceE18": "223659843221743802720",
+    "twapWrapperPriceE18": "224872114539600000000",
+    "deviationBps": 54,
+    "moveBps": 17,
+    "fetchedAt": 1790346596
+   },
+   {
+    "block": 71577744,
+    "tx": "0xcf167196672e647feff644b4f1807323d96b1679b8053fe5ed7193cdfa31a0f3",
+    "keeperAt": "2026-09-25T14:32:56.000Z",
+    "quoteE18": "223515000000000000000",
+    "wrapperPriceE18": "223895243002992055110",
+    "twapWrapperPriceE18": "224714766276000000000",
+    "deviationBps": 37,
+    "moveBps": 11,
+    "fetchedAt": 1790346776
+   },
+   {
+    "block": 71577803,
+    "tx": "0x6dea085797b3479f19b6fbd1f467fa4f6cafdfcf7c8cf1015f628ec4a21c7439",
+    "keeperAt": "2026-09-25T14:33:56.000Z",
+    "quoteE18": "223864500000000000000",
+    "wrapperPriceE18": "224245337571274030473",
+    "twapWrapperPriceE18": "224669830770000000000",
+    "deviationBps": 19,
+    "moveBps": 16,
+    "fetchedAt": 1790346836
+   }
+  ]
+ },
+ "params": {
+  "bandOpenBps": {
+   "value": "300",
+   "sourceCommand": "cast call 0xf69c0EA60a6f6b94fF3C0F40af8bA3B97A4567a4 bandOpenBps()(uint256) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:30.484Z"
+  },
+  "bandOtherBps": {
+   "value": "800",
+   "sourceCommand": "cast call 0xf69c0EA60a6f6b94fF3C0F40af8bA3B97A4567a4 bandOtherBps()(uint256) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:32.517Z"
+  },
+  "twapWindow": {
+   "value": "1800",
+   "sourceCommand": "cast call 0xf69c0EA60a6f6b94fF3C0F40af8bA3B97A4567a4 twapWindow()(uint32) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:33.705Z"
+  },
+  "reserveFactorBps": {
+   "value": "2000",
+   "sourceCommand": "cast call 0xE6708CC6598F17611f9A468f9907052688459D0D RESERVE_FACTOR_BPS()(uint256) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:35.270Z"
+  },
+  "capUsdg": {
+   "value": "3814697265",
+   "sourceCommand": "cast call 0x30279C37B299b51f03F4b2b5898902670e13F986 capOf(address)(uint256) 0xE6708CC6598F17611f9A468f9907052688459D0D --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:37.136Z"
+  },
+  "sliceUsdg": {
+   "value": "3814697265",
+   "sourceCommand": "cast call 0x30279C37B299b51f03F4b2b5898902670e13F986 sliceOf(address)(uint256) 0xE6708CC6598F17611f9A468f9907052688459D0D --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:38.842Z"
+  }
+ },
+ "poolFee": "500",
+ "depth": [
+  {
+   "shares": 0.5,
+   "outUsdg": "112402141",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,500000000000000000,500,0) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:43.886Z"
+  },
+  {
+   "shares": 2,
+   "outUsdg": "449594083",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,2000000000000000000,500,0) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:46.239Z"
+  },
+  {
+   "shares": 10,
+   "outUsdg": "2247584262",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,10000000000000000000,500,0) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:48.717Z"
+  },
+  {
+   "shares": 50,
+   "outUsdg": "11228281549",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,50000000000000000000,500,0) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:51.201Z"
+  },
+  {
+   "shares": 200,
+   "outUsdg": "44772979097",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,200000000000000000000,500,0) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:53.765Z"
+  },
+  {
+   "shares": 400,
+   "outUsdg": "89172071664",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,400000000000000000000,500,0) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:56.575Z"
+  },
+  {
+   "shares": 800,
+   "outUsdg": "176854552942",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,800000000000000000000,500,0) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:05:58.872Z"
+  },
+  {
+   "shares": 1600,
+   "outUsdg": "347316480798",
+   "sourceCommand": "cast call 0xd1b797d92d87b688193a2b976efc8d577d204343 quoteExactInputSingle((address,address,uint256,uint24,uint160))(uint256,uint160,uint32,uint256) (0xa8ddb5Cd96b5222AFe198316E9A57CAA642850D5,0x4ae46a509F6b1D9056937BA4500cb143933D2dc8,1600000000000000000000,500,0) --rpc-url https://rpc.xlayer.tech",
+   "retrievedAt": "2026-09-25T17:06:01.000Z"
+  }
+ ]
+}

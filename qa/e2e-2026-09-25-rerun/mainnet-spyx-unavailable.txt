@@ -1,0 +1,16 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Borrow USDG with NVDAx
+NVDAx · NVDA
+
+Deposit NVDAx and borrow USDG against it. How much you can borrow follows the US market session; the liquidation line stays at 65% LTV around the clock.
+
+There is no SPYx market in this deployment (SPYx exists only in the sandbox), so this is the NVDAx market.

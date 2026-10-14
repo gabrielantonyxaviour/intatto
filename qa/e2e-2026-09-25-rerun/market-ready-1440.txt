@@ -1,0 +1,177 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+X Layer
+0x7F23…a415
+Market
+
+Borrow USDG against tokenized stocks on X Layer. How much you can borrow follows the US market session; the liquidation line stays put.
+
+Total deposits
+1.497504 USDG
+Loans
+0.400003 USDG
+Available
+1.097501 USDG
+Collateral value
+1.103245 USDG
+Utilisation
+26.71%
+Gap reserve
+0.50 USDG
+Recognised deficits
+0.00 USDG
+0 recorded
+
+If a liquidation cannot repay a loan, the gap reserve pays the rest; anything beyond it becomes a recognised deficit that lenders share pro rata. How losses are covered
+
+Markets
+Showing 1 of 1 stock market
+Asset
+Supplied
+Borrowed
+Max LTV now / liq.
+Supply / borrow rate (yr)
+Actions
+NVDAx
+Collateral only
+EXTENDED
+(Extended hours)
+Show the NVDAx market below
+0.004878 NVDAx
+1.103245 USDG
+0.400003 USDG
+40.00% / 65%
+– / –
+Add collateral
+USDG
+Lend or borrow
+1.497504 USDG
+0.400003 USDG
+–
+0.99% / 4.67%
+Lend
+Borrow
+NVDAx market
+EXTENDED
+(Extended hours)
+Lend USDG
+Borrow USDG
+Price
+$226.16
+Relay
+keeper, bounded onchain
+Liquidation
+bounded slices · 5% penalty
+Market session
+EXTENDED
+(Extended hours)
+Extended hours
+
+Pre-market, after-hours or overnight trading. New loans can reach 40% of collateral value. The price band is ±8%.
+
+Posted by the keeper at 2026-09-25 11:20:48 UTC; this period began 2026-09-25 08:00:00 UTC.
+
+Max LTV for new loans, now
+40.00%
+Set by the EXTENDED session
+Liquidation threshold
+65%
+The same in every session
+Liquidation penalty
+5%
+Of the debt a liquidation repays
+Guards
+Every check a new borrow needs passes right now.
+Fresh price 
+passes
+✓
+The keeper posted just now (limit 30 min).
+In band 
+passes
+✓
+Implied wNVDAx price $226.54 is 0.23% from the pool's 30-min TWAP $226.02; inside ±8%.
+USDG peg 
+passes
+✓
+Chainlink USDG/USD reads $0.9999, within 1% of $1, updated 2026-09-24 19:25:07 UTC.
+Corporate action 
+passes
+✓
+No split or dividend is activating.
+Issuer pause 
+passes
+✓
+The issuer has not paused NVDAx or its wrapper.
+
+Each check's history, the keeper's log and the caps are on the Risk page.
+
+Borrowing cap for NVDAx
+Total debt against NVDAx may not pass a cap the keeper sizes from what the pool can absorb in a sale.
+0.03%
+0.400003 USDG of 1,250.00 USDG
+Room left: 1,249.59 USDG. While the market is closed a liquidation slice sells at most 1,250.00 USDG.
+How the NVDAx price is made
+$226.16 per NVDAx, fetched by the keeper at 2026-09-25 11:26:42 UTC
+The keeper relays the issuer's indicative NVDAx/USD quote: $226.16, fetched by the keeper at 2026-09-25 11:26:42 UTC. The quote has no source timestamp.
+Checked against the wNVDAx/USDG pool's 30-minute TWAP (±3% while open, ±8% otherwise); a post that moves more than 15% from the last one is rejected.
+USDG is converted with Chainlink USDG/USD, which must be recent and within 1% of $1.
+Recent keeper posts
+
+Newest first. Each post passed the relay's checks when it landed.
+
+The relayed price next to the pool TWAP over time is on the Risk page.
+
+Collateral held onchain
+0.004878 NVDAx held as 0.004869 wNVDAx shares, worth 1.103245 USDG at the relayed price.
+Market (holds the collateral)
+0xE670…9D0D
+(opens OKLink)
+Price relay
+0xf69c…67a4
+(opens OKLink)
+NVDAx token
+0xc845…849d
+(opens OKLink)
+wNVDAx wrapper
+0xa8dd…50D5
+(opens OKLink)
+wNVDAx/USDG pool
+0x2a2B…a7b2
+(opens OKLink)
+USDG vault
+0x89fC…308C
+(opens OKLink)
+Your info
+Your balances and position in the NVDAx market.
+Wallet
+NVDAx
+<0.000001 NVDAx
+USDG
+0.40 USDG
+Your NVDAx loan
+Collateral
+0.004878 NVDAx
+Collateral value
+1.103245 USDG
+Debt
+0.400003 USDG
+Liquidation price
+$126.15
+LTV
+36.25%
+Medium
+Session max LTV 40.00%
+Liquidation 65.00%
+Can borrow now
+0.041295 USDG
+Lending
+In the USDG vault
+1.497503 USDG
+Lend USDG
+Borrow USDG

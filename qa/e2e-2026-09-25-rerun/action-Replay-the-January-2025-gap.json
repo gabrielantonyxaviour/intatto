@@ -1,0 +1,262 @@
+{
+  "status": 200,
+  "body": {
+    "sessionId": "0rt93_mhyU05I6sPjEsiHQ",
+    "entries": [
+      {
+        "kind": "scenario",
+        "summary": "scenario gap-2025-01 started: CFD counterfactual prices, not historical X Layer liquidity",
+        "detail": {
+          "replay": "nvda-2025-01-gap",
+          "label": "CFD counterfactual prices, not historical X Layer liquidity",
+          "kind": "cfd-counterfactual",
+          "sources": [
+            {
+              "url": "https://jetta.dukascopy.com/v1/candles/minute/NVDA.US-USD/BID/2025/1/24",
+              "retrievedAt": "2026-09-25T05:46:50.604362+00:00",
+              "sha256": "e2ca743f234eb999934e78787e99abc6c4d4083fed8ee0d2df64c12917b1356f"
+            },
+            {
+              "url": "https://jetta.dukascopy.com/v1/candles/minute/NVDA.US-USD/BID/2025/1/27",
+              "retrievedAt": "2026-09-25T05:46:50.604362+00:00",
+              "sha256": "260e214fc90fd217f711c6862482282decca6c9e820c2f0e4f37550663f2a6ec"
+            }
+          ],
+          "fileSha256": "cd61c45e911dc8563a6fb0ec896b95d79ee48e501aebbc521a2e2658290f35a7",
+          "contentSha256": "7ecf988351485323b53fc6010dcffa8fe852a9e98df78542821f6b01ce772d07"
+        },
+        "chainTime": 1790424026,
+        "at": "2026-09-25T11:31:14.164Z"
+      },
+      {
+        "kind": "warp",
+        "summary": "move to regular US trading hours",
+        "detail": {
+          "from": 1790424026,
+          "to": 1790602260
+        },
+        "chainTime": 1790602260,
+        "at": "2026-09-25T11:31:14.388Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session OPEN",
+        "detail": {
+          "periodChangedAt": 1790602200
+        },
+        "txHash": "0x462251df37ba98142c15248ccb69c62e793926cace20b7936915a58c8afc9b62",
+        "chainTime": 1790602260,
+        "at": "2026-09-25T11:31:14.550Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $225.945713 (accepted)",
+        "txHash": "0x0b06cf7c163f2e179709195d8e43a11446841b3441b9215079d224dc3a33b006",
+        "chainTime": 1790602260,
+        "at": "2026-09-25T11:31:14.813Z"
+      },
+      {
+        "kind": "fund",
+        "summary": "0.1 OKB from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E",
+        "detail": {
+          "to": "0x0000000000000000000000000000000000005Ce7"
+        },
+        "txHash": "0xc2bae13f1cea65cb2b38224092a550c8cc488785c4def4d23baa1b12970d0d4d",
+        "chainTime": 1790602260,
+        "at": "2026-09-25T11:31:15.009Z"
+      },
+      {
+        "kind": "fund",
+        "summary": "20 NVDAx transferred from real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E",
+        "detail": {
+          "to": "0x0000000000000000000000000000000000005Ce7",
+          "token": "0xc845b2894dbddd03858fd2d643b4ef725fe0849d"
+        },
+        "txHash": "0x6364d13fb2f4486b70c1195c3faedadcf1684b260c152473b507de117423a833",
+        "chainTime": 1790602260,
+        "at": "2026-09-25T11:31:15.237Z"
+      },
+      {
+        "kind": "scenario",
+        "summary": "scenario borrower 0x0000000000000000000000000000000000005Ce7 opened 50% LTV",
+        "txHash": "0x8f08f77707b6c83cd25c9255ca4276ea7eef565393a6832b8e01cdda57abb41b",
+        "chainTime": 1790602261,
+        "at": "2026-09-25T11:31:15.914Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted SPYx quote $769.016994 (accepted)",
+        "txHash": "0xefcc5675c6c4fe683bace3f9c46c62be85282dae62c3e8696ee00d1f0294f325",
+        "chainTime": 1790602261,
+        "at": "2026-09-25T11:31:16.087Z"
+      },
+      {
+        "kind": "scenario",
+        "summary": "replay nvda-2025-01-gap: CFD counterfactual prices, not historical X Layer liquidity",
+        "detail": {
+          "sources": [
+            {
+              "url": "https://jetta.dukascopy.com/v1/candles/minute/NVDA.US-USD/BID/2025/1/24",
+              "retrievedAt": "2026-09-25T05:46:50.604362+00:00",
+              "sha256": "e2ca743f234eb999934e78787e99abc6c4d4083fed8ee0d2df64c12917b1356f"
+            },
+            {
+              "url": "https://jetta.dukascopy.com/v1/candles/minute/NVDA.US-USD/BID/2025/1/27",
+              "retrievedAt": "2026-09-25T05:46:50.604362+00:00",
+              "sha256": "260e214fc90fd217f711c6862482282decca6c9e820c2f0e4f37550663f2a6ec"
+            }
+          ]
+        },
+        "chainTime": 1790602262,
+        "at": "2026-09-25T11:31:16.108Z"
+      },
+      {
+        "kind": "warp",
+        "summary": "jump to Saturday 12:00 UTC (market closed)",
+        "detail": {
+          "from": 1790602262,
+          "to": 1791028800
+        },
+        "chainTime": 1791028800,
+        "at": "2026-09-25T11:31:16.243Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session CLOSED",
+        "detail": {
+          "periodChangedAt": 1790985600
+        },
+        "txHash": "0x05a7de2827e6a41539898e24ccc71d0d28827345427a2ed0ece1eeacded24b7e",
+        "chainTime": 1791028800,
+        "at": "2026-09-25T11:31:16.383Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $225.945713 (accepted)",
+        "txHash": "0x199c4296ec607bf8faa613aaeb34ed04aa552545279c0170105cdf389d740576",
+        "chainTime": 1791028800,
+        "at": "2026-09-25T11:31:16.560Z"
+      },
+      {
+        "kind": "warp",
+        "summary": "Monday open",
+        "detail": {
+          "from": 1791028800,
+          "to": 1791207000
+        },
+        "chainTime": 1791207000,
+        "at": "2026-09-25T11:31:16.664Z"
+      },
+      {
+        "kind": "actor",
+        "summary": "simulated arbitrageur (real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E) sold wNVDAx into the real pool: $226.33 → $198.11",
+        "detail": {
+          "dropBps": 1247
+        },
+        "txHash": "0x009549cc8be42c467004bc6c8f100e1f4acd291d94dd4e32b1b132f6ec3daa71",
+        "chainTime": 1791207016,
+        "at": "2026-09-25T11:31:32.738Z"
+      },
+      {
+        "kind": "warp",
+        "summary": "Monday open gap: let the 30-minute TWAP settle",
+        "detail": {
+          "from": 1791207016,
+          "to": 1791208876
+        },
+        "chainTime": 1791208876,
+        "at": "2026-09-25T11:31:32.834Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session OPEN",
+        "detail": {
+          "periodChangedAt": 1791207000
+        },
+        "txHash": "0x210be004260e4d5027220aad2cbae1d485bbdf6ad70eb79afd298798454b2209",
+        "chainTime": 1791208876,
+        "at": "2026-09-25T11:31:32.977Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $197.770282 (accepted)",
+        "txHash": "0xb05ef57d4bfa1a894e3600899e715d97a470b23d7d281d57f401a68641c17d8a",
+        "chainTime": 1791208876,
+        "at": "2026-09-25T11:31:33.144Z"
+      },
+      {
+        "kind": "warp",
+        "summary": "Monday afternoon",
+        "detail": {
+          "from": 1791208877,
+          "to": 1791230477
+        },
+        "chainTime": 1791230477,
+        "at": "2026-09-25T11:31:33.267Z"
+      },
+      {
+        "kind": "actor",
+        "summary": "simulated arbitrageur (real holder 0x5075FF68A0Efb54dB13423AD924bd680327D305E) sold wNVDAx into the real pool: $198.11 → $188.08",
+        "detail": {
+          "dropBps": 506
+        },
+        "txHash": "0x6dc8ecc9c9d1d7e23374f56eaa081d514fb550a9d2e21396787bf7d0c98fb7f9",
+        "chainTime": 1791230486,
+        "at": "2026-09-25T11:31:42.727Z"
+      },
+      {
+        "kind": "warp",
+        "summary": "Monday close: let the 30-minute TWAP settle",
+        "detail": {
+          "from": 1791230486,
+          "to": 1791232346
+        },
+        "chainTime": 1791232346,
+        "at": "2026-09-25T11:31:42.839Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted session EXTENDED",
+        "detail": {
+          "periodChangedAt": 1791230400
+        },
+        "txHash": "0x7322d5cac7721b301e67974d1574bca76bce56b962d7226774371107fb4c1a47",
+        "chainTime": 1791232346,
+        "at": "2026-09-25T11:31:42.968Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted NVDAx quote $187.763106 (accepted)",
+        "txHash": "0x20fcf7de172ecef03465a04c7b8a7dadbc10548450cabca4fa2756591c999631",
+        "chainTime": 1791232346,
+        "at": "2026-09-25T11:31:43.122Z"
+      },
+      {
+        "kind": "keeper",
+        "summary": "keeper posted SPYx quote $769.016994 (accepted)",
+        "txHash": "0xc3bbce7cc08482d2dd72d4f84db660ab2f414bcd22c3a10619244d75b09f36e6",
+        "chainTime": 1791232347,
+        "at": "2026-09-25T11:31:43.312Z"
+      },
+      {
+        "kind": "scenario",
+        "summary": "gap replay finished: Monday open gap 12.47%, then 5.06% into the close; 0 bounded liquidation slice(s)",
+        "detail": {
+          "replay": "nvda-2025-01-gap",
+          "openGapBps": 1247,
+          "closeMoveBps": 506,
+          "slices": []
+        },
+        "chainTime": 1791232347,
+        "at": "2026-09-25T11:31:43.325Z"
+      }
+    ],
+    "chain": {
+      "chainTime": 1791232347,
+      "block": 71563496,
+      "forkBlock": 71563431,
+      "session": "EXTENDED",
+      "burnerAddress": "0x4dBFf93af70F7Ca0C4C5A098b0FA55751562BaeC"
+    }
+  }
+}

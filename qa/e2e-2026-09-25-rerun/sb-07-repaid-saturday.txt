@@ -1,0 +1,78 @@
+Intatto
+Market
+Borrow
+Lend
+Risk
+Agents
+Sandbox
+Fork proof
+Sandbox burner
+0x4dBF…BaeC
+
+Sandbox · fork of X Layer mainnet at block 71563431 · chain 1960196 · chain time 2026-09-26 12:00:26 UTC
+
+Exit sandbox
+Borrow USDG with NVDAx
+NVDAx · NVDA
+CLOSED
+
+Deposit NVDAx and borrow USDG against it. How much you can borrow follows the US market session; the liquidation line stays at 65% LTV around the clock.
+
+Deposit & borrow
+Repay & withdraw
+Back
+Done
+YOUR POSITION
+0.00 USDG
+Collateral
+0.9999 NVDAx
+0.9983 wNVDAx
+Liquidation price
+–
+LTV
+– of 28.12% allowed
+Interest rate
+2.00% variable
+Liquidation risk
+None
+Health factor
+∞
+Repay
+80.00 USDG
+The whole loan, plus interest accrued until it lands
+Price or session checks on repay
+None
+Repay works in every session, even when borrowing is paused
+Repaid the whole loan (80.00 USDG)
+Confirmed · 0x05e665…2626da
+
+Your loan is fully repaid.
+
+Back to the form
+Your position
+1 wNVDAx = 1.0017 NVDAx (issuer multiplier). Collateral is held as wNVDAx and valued at the relayed price.
+Collateral
+0.9999 NVDAx
+Held as
+0.9983 wNVDAx
+Collateral value
+225.94 USDG
+Debt
+0.00 USDG
+LTV
+0.00%
+Health factor
+∞
+Liquidation price
+–
+
+New-borrow limit 28.12% (CLOSED) · liquidation at 65.00%
+
+If NVDA opens lower on Monday
+
+With no debt, no gap can liquidate you.
+
+Loan repaid
+Transaction 0x05e665b6…
+USDG approved
+Transaction 0x4818ef9a…
