@@ -1,53 +1,20 @@
 import type { MarketState } from "@/lib/chain"
-import { cn } from "@/lib/utils"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { bps, usdg, usdgPair } from "./format"
+import { DefinitionPopover } from "@/components/ui/ix"
+import { bpsShort, usdgDisplay, usdgExact } from "./format"
 
-const R = 26
-const C = 2 * Math.PI * R
-
-/** Ticker cap usage as a ring: total debt against this stock out of the cap sized from pool exit depth. */
 export function CapUsage({ symbol, state: s }: { symbol: string; state: MarketState }) {
   const usedBps = s.capUsdg === 0n ? (s.totalDebt > 0n ? 10_000n : 0n) : (s.totalDebt * 10_000n) / s.capUsdg
-  const fraction = Math.min(Number(usedBps) / 10_000, 1)
-  const [debtText, capText] = usdgPair(s.totalDebt, s.capUsdg)
-  const tone = usedBps >= 10_000n ? "stroke-destructive" : usedBps >= 8_000n ? "stroke-warning" : "stroke-primary"
+  const percentage = Math.min(Number(usedBps) / 100, 100)
   return (
-    <Card data-testid="cap-usage">
-      <CardHeader>
-        <CardTitle>Borrowing cap for {symbol}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex items-center gap-4">
-        <div className="relative size-20 shrink-0">
-          <svg viewBox="0 0 64 64" className="size-20 -rotate-90" role="img" aria-label={`${bps(usedBps)} of the cap used`}>
-            <circle cx="32" cy="32" r={R} fill="none" strokeWidth="6" className="stroke-muted" />
-            <circle
-              cx="32"
-              cy="32"
-              r={R}
-              fill="none"
-              strokeWidth="6"
-              strokeLinecap="round"
-              strokeDasharray={`${C * fraction} ${C}`}
-              className={cn(fraction === 0 ? "stroke-transparent" : tone)}
-            />
-          </svg>
-          <span data-testid="cap-used" className="absolute inset-0 grid place-items-center text-xs font-medium tabular-nums">
-            {bps(usedBps)}
-          </span>
-        </div>
-        <div className="grid min-w-0 flex-1 gap-1 text-sm">
-          <span className="font-medium tabular-nums">
-            {debtText} <span className="font-normal text-muted-foreground">of</span> {capText}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            Room left: {usdg(s.capUsdg > s.totalDebt ? s.capUsdg - s.totalDebt : 0n)}.{" "}
-            {s.sliceUsdg > 0n
-              ? `While the market is closed a liquidation slice sells at most ${usdg(s.sliceUsdg)}.`
-              : "The keeper has not posted a slice size yet, so no liquidation slice can sell while the market is closed."}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
+    <div data-testid="cap-usage" className="grid gap-2 border-t pt-4">
+      <div className="flex items-center justify-between gap-2 text-xs">
+        <span className="flex items-center gap-1 text-muted-foreground">Borrowing cap<DefinitionPopover term={`Borrowing cap for ${symbol}`}>The cap follows pool exit depth. Room left: {usdgExact(s.capUsdg > s.totalDebt ? s.capUsdg - s.totalDebt : 0n)}. {s.sliceUsdg > 0n ? `Closed-market liquidations sell at most ${usdgExact(s.sliceUsdg)} per slice.` : "No slice size posted; a closed-market liquidation cannot sell yet."}</DefinitionPopover></span>
+        <span data-testid="cap-used" className="tabular-nums">{bpsShort(usedBps)} used</span>
+      </div>
+      <div role="progressbar" aria-label={`${symbol} borrowing cap used`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percentage} aria-valuetext={`${usdgDisplay(s.totalDebt)} of ${usdgDisplay(s.capUsdg)} used`} className="h-1.5 overflow-hidden rounded-full bg-muted">
+        <div className="h-full rounded-full bg-foreground" style={{ width: `${percentage}%` }} />
+      </div>
+      <p title={`${usdgExact(s.totalDebt)} of ${usdgExact(s.capUsdg)}`} className="text-xs text-muted-foreground tabular-nums">{usdgDisplay(s.totalDebt)} of {usdgDisplay(s.capUsdg)} used</p>
+    </div>
   )
 }

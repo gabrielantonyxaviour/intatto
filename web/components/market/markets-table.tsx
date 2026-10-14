@@ -2,18 +2,16 @@
 
 import { useState, type ReactNode } from "react"
 import Link from "next/link"
-import { TriangleAlertIcon } from "lucide-react"
 import type { MarketDeployment } from "@intatto/config/deployments"
 import { useIntatto, type MarketState, type VaultState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { SessionBadge } from "./session-badge"
 import { refusalsFor } from "./copy"
-import { borrowHref, bps, bpsShort, sharesToTokens, tokens, usdg } from "./format"
+import { borrowHref, bpsShort, sharesToTokens, tokenDisplay as tokens, usdgDisplay as usdg } from "./format"
 
 export type MarketRow = { deployment: MarketDeployment; state: MarketState }
 
@@ -31,17 +29,19 @@ function Cell({ label, children, className }: { label: string; children: ReactNo
 function StockRow({ row, selected, onSelect }: { row: MarketRow; selected: boolean; onSelect: () => void }) {
   const { deployment: d, state: s } = row
   const amount = sharesToTokens(s.totalShares, s.assetsPerShare)
+  const { mode } = useIntatto()
+  const borrowingOff = refusalsFor(s).length > 0
   return (
     <li
       data-testid={`market-row-${d.symbol}`}
       aria-current={selected ? "true" : undefined}
-      className={cn("grid gap-2 rounded-lg border p-3 text-sm lg:rounded-none lg:border-0 lg:border-t lg:px-3 lg:py-2.5", GRID, selected && "bg-muted/60")}
+      className={cn("grid gap-3 rounded-xl border p-4 text-sm lg:rounded-none lg:border-0 lg:border-t lg:px-5 lg:py-4", GRID, selected && "bg-muted/60")}
     >
       <button type="button" onClick={onSelect} className="flex min-w-0 flex-wrap items-center gap-2 rounded-md text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
         <span className="font-medium underline-offset-4 hover:underline">{d.symbol}</span>
-        <Badge variant="outline" size="sm">Collateral only</Badge>
         <SessionBadge session={s.session} />
         <span className="sr-only">Show the {d.symbol} market below</span>
+        {d.symbol === "SPYx" ? <span className="text-xs text-muted-foreground">Sandbox only</span> : null}
       </button>
       <Cell label="Collateral supplied">
         {tokens(amount, d.symbol)}
@@ -49,7 +49,7 @@ function StockRow({ row, selected, onSelect }: { row: MarketRow; selected: boole
       </Cell>
       <Cell label="Borrowed against it">{usdg(s.totalDebt)}</Cell>
       <Cell label="Max LTV now / liquidation">
-        <span data-testid={`row-max-ltv-${d.symbol}`}>{bps(s.maxLtvBps)}</span>
+        <span data-testid={`row-max-ltv-${d.symbol}`}>{bpsShort(s.maxLtvBps)}</span>
         <span className="text-muted-foreground"> / {bpsShort(s.liquidationThresholdBps)}</span>
       </Cell>
       <Cell label="Supply / borrow rate">
@@ -60,13 +60,16 @@ function StockRow({ row, selected, onSelect }: { row: MarketRow; selected: boole
           <Link href={borrowHref(d.symbol)}>Add collateral</Link>
         </Button>
       </div>
+      {borrowingOff ? (
+        <p className="text-xs leading-relaxed text-muted-foreground lg:col-span-6">New borrowing paused · repay and add collateral anytime. {mode === "live" ? <Link href="/sandbox" className="underline underline-offset-4">Try borrowing in the sandbox</Link> : null}</p>
+      ) : null}
     </li>
   )
 }
 
 function UsdgRow({ vault, loans, selected, borrowingOff }: { vault: VaultState; loans: bigint; selected: string; borrowingOff: boolean }) {
   return (
-    <li data-testid="market-row-USDG" className={cn("grid gap-2 rounded-lg border p-3 text-sm lg:rounded-none lg:border-0 lg:border-t lg:px-3 lg:py-2.5", GRID)}>
+    <li data-testid="market-row-USDG" className={cn("grid gap-3 rounded-xl border p-4 text-sm lg:rounded-none lg:border-0 lg:border-t lg:px-5 lg:py-4", GRID)}>
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-medium">USDG</span>
         <Badge variant="outline" size="sm">Lend or borrow</Badge>
@@ -75,13 +78,13 @@ function UsdgRow({ vault, loans, selected, borrowingOff }: { vault: VaultState; 
       <Cell label="Borrowed">{usdg(loans)}</Cell>
       <Cell label="Max LTV now / liquidation">–</Cell>
       <Cell label="Supply / borrow rate">
-        {bps(vault.supplyRateBps)} / {bps(vault.borrowRateBps)}
+        {bpsShort(vault.supplyRateBps)} / {bpsShort(vault.borrowRateBps)}
       </Cell>
       <div className="flex justify-end gap-2 pt-1 lg:pt-0">
         <Button asChild size="sm" variant="outline">
           <Link href="/lend">Lend</Link>
         </Button>
-        <Button asChild size="sm">
+        <Button asChild size="sm" variant="outline">
           <Link href={borrowHref(selected)}>{borrowingOff ? "Manage position" : "Borrow"}</Link>
         </Button>
       </div>
@@ -101,7 +104,6 @@ export function MarketsTable({
   selected: string
   onSelect: (symbol: MarketDeployment["symbol"]) => void
 }) {
-  const { mode } = useIntatto()
   const open = rows.filter((r) => refusalsFor(r.state).length === 0)
   const off = rows.filter((r) => refusalsFor(r.state).length > 0)
   const [showOff, setShowOff] = useState(open.length === 0)
@@ -113,7 +115,7 @@ export function MarketsTable({
   return (
     <section aria-labelledby="markets-title" className="grid gap-3">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <h2 id="markets-title" className="text-base font-medium">
+        <h2 id="markets-title" className="text-lg font-semibold">
           Markets
         </h2>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
@@ -131,7 +133,7 @@ export function MarketsTable({
         </div>
       </div>
       <div className="lg:rounded-xl lg:ring-1 lg:ring-foreground/10">
-        <div className={cn("hidden px-3 py-2 text-xs text-muted-foreground", GRID)} aria-hidden>
+        <div className={cn("hidden px-5 py-3 text-xs text-muted-foreground", GRID)} aria-hidden>
           <span>Asset</span>
           <span>Supplied</span>
           <span>Borrowed</span>
@@ -147,22 +149,6 @@ export function MarketsTable({
         </ul>
         {off.length > 0 && (showOff || open.length === 0) ? (
           <div data-testid="markets-off" className="grid gap-3 pt-3 lg:gap-0 lg:border-t lg:pt-0">
-            <Alert variant="warning" className="lg:m-3 lg:w-auto">
-              <TriangleAlertIcon aria-hidden />
-              <AlertDescription>
-                New borrowing is off in {off.length === 1 ? "this market" : "these markets"} right now; repaying and adding
-                collateral still work. Open a market to see which check refuses it.
-                {mode === "live" ? (
-                  <span className="block">
-                    To try borrowing with a funded test wallet, {" "}
-                    <Link href="/sandbox" className="font-medium underline underline-offset-4">
-                      start a mainnet-fork sandbox session
-                    </Link>
-                    . No mainnet funds move.
-                  </span>
-                ) : null}
-              </AlertDescription>
-            </Alert>
             <ul className="grid gap-3 lg:gap-0">
               {off.map((r) => (
                 <StockRow key={r.deployment.symbol} row={r} selected={selected === r.deployment.symbol} onSelect={() => onSelect(r.deployment.symbol)} />

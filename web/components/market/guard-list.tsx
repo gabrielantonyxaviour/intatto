@@ -1,77 +1,48 @@
 "use client"
 
 import Link from "next/link"
-import { CircleCheckIcon, CircleXIcon } from "lucide-react"
+import { CheckIcon, XIcon } from "lucide-react"
 import type { MarketState } from "@/lib/chain"
 import { cn } from "@/lib/utils"
 import { DefinitionPopover } from "@/components/ui/ix"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { guardResults, type MarketTerms } from "./copy"
+import { relativeTime } from "./format"
 import type { RelayDetail } from "./use-market-params"
 
-type Props = {
-  symbol: string
-  state: MarketState
-  relay: RelayDetail | undefined
-  relayFailed: boolean
-  now: number
-  terms: MarketTerms | undefined
-}
+type Props = { symbol: string; state: MarketState; relay: RelayDetail | undefined; relayFailed: boolean; now: number; terms: MarketTerms | undefined }
 
-/** Pass or fail stays on the row. The reading behind a passing check opens from its button. */
 export function GuardList({ symbol, state, relay, relayFailed, now, terms }: Props) {
   const guards = guardResults(state, relay, now, symbol, relayFailed, terms?.twapWindowSeconds)
-  const failing = guards.filter((g) => !g.ok).length
+  const failing = guards.filter((g) => !g.ok)
+  const reasons: Record<string, string> = {
+    fresh: state.priceE18 === 0n ? "No keeper price posted yet." : `Keeper price is stale; fetched ${relativeTime(now, state.fetchedAt)}.`,
+    inBand: "Price is outside the allowed pool band or the TWAP is unavailable.",
+    pegOk: "USDG peg is outside its allowed band or the feed is stale.",
+    corporateAction: "A split or dividend is activating; borrowing and liquidation are paused.",
+    issuerPause: `The issuer has paused ${symbol} or its wrapper.`,
+  }
   return (
-    <Card data-testid="guards">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-1">
-          Guards
-          <DefinitionPopover term="Guards" contentTestId="guards-meaning">
-            Fresh is the keeper post against the relay&apos;s liveness limit. In band is the implied wrapper price against the session&apos;s
-            pool TWAP band. Peg is Chainlink USDG/USD against the relay&apos;s peg band. A failing row is the current outcome, not a definition.
-          </DefinitionPopover>
-        </CardTitle>
-        <CardDescription>
-          {failing === 0 ? "Every check a new borrow needs passes right now." : `${failing} of ${guards.length} checks fail, so new borrowing is refused.`}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ul className="grid gap-3">
-          {guards.map((g) => (
-            <li key={g.key} data-testid={`guard-${g.key}`} data-ok={g.ok ? "true" : "false"} className="flex gap-2.5 text-sm">
-              {g.ok ? (
-                <CircleCheckIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-success" />
-              ) : (
-                <CircleXIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-destructive" />
-              )}
-              <div className="grid min-w-0 gap-0.5">
-                <span className={cn("font-medium", !g.ok && "text-destructive")}>
-                  {g.label} <span className="sr-only">{g.ok ? "passes" : "fails"}</span>
-                  <span aria-hidden className="font-normal text-muted-foreground">
-                    {" "}
-                    {g.ok ? "✓" : "✗"}
-                  </span>
-                </span>
-                {g.ok ? (
-                  <DefinitionPopover term={g.label} contentTestId={`guard-${g.key}-meaning`}>
-                    {g.reason}
-                  </DefinitionPopover>
-                ) : (
-                  <span className="break-words text-muted-foreground">{g.reason}</span>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-4 text-sm text-muted-foreground">
-          Each check&apos;s history, the keeper&apos;s log and the caps are on{" "}
-          <Link href="/risk" data-testid="guards-risk-link" className="font-medium text-foreground underline underline-offset-4">
-            the Risk page
-          </Link>
-          .
-        </p>
-      </CardContent>
-    </Card>
+    <div data-testid="guards" className="grid gap-3">
+      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <h3 className="font-medium">Borrowing checks</h3>
+        <DefinitionPopover term="Guards" contentTestId="guards-meaning">Checks cover keeper price freshness, the pool TWAP band, the USDG peg, corporate actions and issuer pauses. Session limits and caps also apply.</DefinitionPopover>
+        <span className="ml-auto">{guards.length - failing.length}/{guards.length} passing</span>
+      </div>
+      <ul className="flex flex-wrap gap-2">
+        {guards.map((g) => <li key={g.key} data-testid={`guard-${g.key}`} data-ok={g.ok ? "true" : "false"}>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button type="button" aria-label={`About ${g.label}: ${g.ok ? "passes" : "fails"}`} className={cn("flex min-h-8 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring", !g.ok && "border-warning/40 bg-warning/5")}>
+                {g.ok ? <CheckIcon aria-hidden className="size-3.5 text-muted-foreground" /> : <XIcon aria-hidden className="size-3.5 text-warning" />}{g.label}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent data-testid={`guard-${g.key}-meaning`}><h4 className="font-medium">{g.label} · {g.ok ? "passes" : "fails"}</h4><p className="text-xs leading-relaxed">{g.reason}</p></PopoverContent>
+          </Popover>
+        </li>)}
+      </ul>
+      {failing.length > 0 ? <ul className="grid gap-1 text-xs leading-relaxed text-muted-foreground">{failing.map((g) => <li key={g.key}>{reasons[g.key]}</li>)}</ul> : null}
+      <Link href="/risk" data-testid="guards-risk-link" className="w-fit text-xs text-muted-foreground underline underline-offset-4">View risk & check history</Link>
+    </div>
   )
 }

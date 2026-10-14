@@ -54,7 +54,7 @@ export function PriceEvidence({ symbol, state: s, terms }: { symbol: MarketSymbo
   const state: EvidenceState = pending ? "fetching" : failed ? "unavailable" : rows.length === 0 ? "empty" : partial ? "partial" : sheetState(false, false, rows.length)
   const poolNote = symbol === "SPYx" ? " This sheet is the SPYx market and its wSPYx/USDG pool, not the NVDAx pool." : ""
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="contents">
       <EvidenceSheet
         title={`${symbol} price history`}
         triggerLabel="View price history"
@@ -75,6 +75,13 @@ export function PriceEvidence({ symbol, state: s, terms }: { symbol: MarketSymbo
             </ul>
           ) : null}
           <PostRows posts={rows} mode="price" />
+          <p className="text-xs text-muted-foreground">
+            The relayed price next to the pool TWAP over time is on{" "}
+            <Link href="/risk" data-testid="price-risk-link" className="font-medium text-foreground underline underline-offset-4">
+              the Risk page
+            </Link>
+            .
+          </p>
         </div>
       </EvidenceSheet>
       <EvidenceSheet
@@ -89,13 +96,6 @@ export function PriceEvidence({ symbol, state: s, terms }: { symbol: MarketSymbo
       >
         <PostRows posts={rows} mode="keeper" />
       </EvidenceSheet>
-      <p className="w-full text-sm text-muted-foreground">
-        The relayed price next to the pool TWAP over time is on{" "}
-        <Link href="/risk" data-testid="price-risk-link" className="font-medium text-foreground underline underline-offset-4">
-          the Risk page
-        </Link>
-        .
-      </p>
     </div>
   )
 }
