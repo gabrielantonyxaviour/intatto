@@ -8,12 +8,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 /** Live-mode and wallet states every screen has to show before a call is useful. */
 export function ChainNotices() {
   const { deployment, mode, chainId, chain } = useIntatto()
-  const { address, chainId: walletChain, status } = useAccount()
+  const { chainId: walletChain, status } = useAccount()
   const wrongNetwork = status === "connected" && walletChain !== undefined && walletChain !== chainId
-  const disconnected = status === "disconnected"
 
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-3 empty:hidden">
       {!deployment ? (
         <Alert>
           <AlertTitle>Not deployed on X Layer yet</AlertTitle>
@@ -37,14 +36,7 @@ export function ChainNotices() {
           </AlertDescription>
         </Alert>
       ) : null}
-      {disconnected && !address ? (
-        <Alert variant="info">
-          <AlertTitle>No wallet connected</AlertTitle>
-          <AlertDescription>
-            Connect a wallet, or open the credit service and paste an address.
-          </AlertDescription>
-        </Alert>
-      ) : null}
+
     </div>
   )
 }

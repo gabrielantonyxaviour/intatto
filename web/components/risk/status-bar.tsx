@@ -34,40 +34,47 @@ export function ScanStatus() {
   return (
     <div
       data-testid="risk-scan"
-      className="flex flex-col gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4"
+      className="flex flex-wrap items-center gap-x-4 gap-y-2 border-y py-2 text-xs text-muted-foreground"
     >
       {logs.range ? (
-        <p className="min-w-0 break-words sm:min-w-72 sm:flex-1">
-          Events from blocks <span className="font-mono tabular-nums">{blockNo(logs.range.from)}</span>–
-          <span className="font-mono tabular-nums">{blockNo(logs.range.to)}</span>
-          {logs.range.from <= logs.floor ? (mode === "sandbox" ? " (from the sandbox deployment)" : " (from the deployment block)") : null}
-          {" · "}
-          {logs.logs.length.toLocaleString("en-US")} events · chain time {utc(now)}
-          {latestBlock !== null ? <> · latest {blockNo(latestBlock)}</> : null}
+        <p className="min-w-0 flex-1" title={`Events ${blockNo(logs.range.from)}–${blockNo(logs.range.to)} · chain time ${utc(now)}${latestBlock !== null ? ` · latest ${blockNo(latestBlock)}` : ""}`}>
+          {logs.logs.length.toLocaleString("en-US")} events read
+          {logs.range.from <= logs.floor ? (mode === "sandbox" ? " · since this session began" : " · since deployment") : " · partial history"}
         </p>
       ) : (
         <Skeleton className="h-4 w-full max-w-72" aria-label="Reading events" />
       )}
-      <Button variant="outline" size="sm" className="self-start sm:self-auto" onClick={logs.refresh} disabled={logs.refreshing || logs.status === "pending"}>
+      <Button variant="ghost" size="sm" className="h-7 px-2" onClick={logs.refresh} disabled={logs.refreshing || logs.status === "pending"}>
         {logs.refreshing ? <Loader2Icon aria-hidden className="animate-spin" /> : <RotateCwIcon aria-hidden />}
         Refresh
       </Button>
       {logs.range && logs.backfilling ? (
         <p className="flex w-full items-center gap-1.5" data-testid="risk-backfill">
           <Loader2Icon aria-hidden className="size-3 shrink-0 animate-spin" />
-          Still loading older blocks back to the deployment ({Math.round(logs.progress * 100)}% read); rows appear as they arrive.
+          Still loading older blocks ({Math.round(logs.progress * 100)}% read)
         </p>
       ) : null}
       {logs.eventSource ? (
-        <p className="w-full min-w-0 break-words" data-testid="event-source">
-          {eventSourceLabel(logs.eventSource)}.
-        </p>
+        <details className="w-full min-w-0" data-testid="event-source">
+          <summary className="cursor-pointer">Read details</summary>
+          <p className="pt-1">{eventSourceLabel(logs.eventSource)}. {logs.range ? `Blocks ${blockNo(logs.range.from)}–${blockNo(logs.range.to)}.` : ""} Chain time {utc(now)}.</p>
+        </details>
       ) : null}
       {logs.error && logs.range ? (
         <p className="w-full text-warning-foreground">Reads are being limited; retrying with backoff. Rows read so far stay on screen.</p>
       ) : null}
     </div>
   )
+}
+
+const GUARD_SUMMARIES: Record<string, string> = {
+  UnknownSession: "Session unavailable · waiting for a keeper update.",
+  SessionLimit: "Trading paused · the current session allows no new borrowing.",
+  StalePrice: "Price is stale · waiting for a fresh keeper post.",
+  PriceOutOfBand: "Price is outside the pool’s permitted band.",
+  UsdgOffPeg: "USDG peg check is stale or outside its permitted range.",
+  CorporateActionPending: "Corporate action pending · waiting for reconciliation.",
+  IssuerPaused: "Issuer paused · borrowing waits for the pause to clear.",
 }
 
 /** The frozen-state line: which guard is failing, what it refuses and what stays open. */
@@ -97,14 +104,13 @@ export function GuardAlerts() {
       <AlertDescription>
         <ul className="grid gap-1">
           {failing.map((f) => (
-            <li key={f.name} data-guard={f.name}>
-              <span className="font-medium text-foreground">{f.name}</span>: {f.text}
+            <li key={f.name} data-guard={f.name} title={`${f.name}: ${f.text}`}>
+              {GUARD_SUMMARIES[f.name] ?? f.text}
             </li>
           ))}
         </ul>
         <p>
-          New borrowing is refused while this lasts{liquidationPaused ? " and liquidation waits" : ""}. Repaying and adding collateral stay
-          open.
+          Borrowing is paused{liquidationPaused ? "; liquidations wait" : ""}. Repayments and collateral deposits stay open.
         </p>
       </AlertDescription>
     </Alert>

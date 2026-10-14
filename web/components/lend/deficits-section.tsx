@@ -76,9 +76,10 @@ export function DeficitsSection({ vault }: { vault: VaultState }) {
           {usdg(vault.totalDeficit, 6)}
         </SummaryRow>
       </dl>
+      <div className="justify-self-start [&>button]:h-8 [&>button]:border-0 [&>button]:px-0 [&>button]:text-sm [&>button]:underline [&>button]:underline-offset-4 [&>button]:shadow-none">
       <EvidenceSheet
         title="Deficits"
-        triggerLabel="Deficits"
+        triggerLabel="Details"
         summary="LendingVault deficit history"
         state={state}
         open={open}
@@ -120,6 +121,7 @@ export function DeficitsSection({ vault }: { vault: VaultState }) {
           </>
         ) : null}
       </EvidenceSheet>
+      </div>
     </Section>
   )
 }

@@ -135,8 +135,8 @@ export function AllocationSection({ vault, markets }: { vault: VaultState; marke
         </div>
         <Progress value={Number(vault.utilizationBps) / 100} aria-label="Share of deposits lent out" />
       </div>
-      <Button type="button" variant="outline" aria-expanded={open} data-testid="allocation-toggle" onClick={() => setOpen((v) => !v)}>
-        {open ? "Hide allocation" : "Allocation"}
+      <Button type="button" variant="link" size="sm" className="justify-self-start px-0" aria-expanded={open} data-testid="allocation-toggle" onClick={() => setOpen((v) => !v)}>
+        {open ? "Hide details" : "Details"}
       </Button>
       {open ? (
         <div className="grid gap-4">

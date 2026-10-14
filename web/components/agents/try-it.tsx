@@ -2,6 +2,8 @@
 
 import { useEffect, useState, type FormEvent } from "react"
 import { useAccount } from "wagmi"
+import { formatTokenAmount } from "@/components/ui/web3"
+import { parseUnits } from "viem"
 import { REFUSALS } from "@intatto/config/session"
 import type { CreditReport } from "@/lib/credit/compute"
 import { useIntatto, useProtocolParams } from "@/lib/chain"
@@ -13,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EvidenceSheet } from "@/components/ui/ix"
-import { creditQuery, curlFor, type CallLog } from "./content"
+import { creditQuery, curlFor, DEMO_WALLET, type CallLog } from "./content"
 import { CopyButton } from "./copy-button"
 import { GUARD_ORDER, guardIsGood, guardLabel, guardOn } from "./guard-labels"
 
@@ -80,7 +82,7 @@ export function TryIt({ onCall }: { onCall: (entry: CallLog) => void }) {
     <section className="grid min-w-0 gap-4">
       <h2 className="text-lg font-medium">Try it</h2>
       <form className="grid gap-3" onSubmit={onSubmit}>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_10rem]">
           <div className="grid gap-1.5">
             <Label htmlFor="credit-wallet">Wallet</Label>
             <Input
@@ -108,9 +110,10 @@ export function TryIt({ onCall }: { onCall: (entry: CallLog) => void }) {
             </Select>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Calls this app&apos;s /api/credit on {network}
-          {session ? ` for sandbox session ${session}` : ""}.
+        <p className="text-xs text-muted-foreground">
+          {address ? "Your connected wallet is filled in." : "No wallet needed. Paste an address or "}
+          {!address ? <button type="button" className="underline underline-offset-4" onClick={() => { setTouched(true); setWallet(DEMO_WALLET) }}>use the demo wallet</button> : null}{!address ? "." : ""}
+          {" "}Reads {network === "sandbox" ? "your sandbox simulation" : "X Layer mainnet"}; no transaction or payment.
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <Button type="submit" disabled={pending} aria-busy={pending}>
@@ -143,12 +146,15 @@ export function TryIt({ onCall }: { onCall: (entry: CallLog) => void }) {
   )
 }
 
-function Field({ label, testId, value }: { label: string; testId: string; value: string }) {
+function Field({ label, testId, value, money = false }: { label: string; testId: string; value: string; money?: boolean }) {
+  const shown = money && /^-?\d+(\.\d{1,18})?$/.test(value)
+    ? formatTokenAmount(parseUnits(value, 18), 18, { minFractionDigits: 2, maxFractionDigits: 2 })
+    : value
   return (
-    <div className="grid gap-1 rounded-lg border p-3">
+    <div className="grid min-w-0 gap-1 rounded-lg bg-muted/50 p-3">
       <span className="text-xs text-muted-foreground">{label}</span>
-      <span data-testid={testId} className="font-mono text-sm break-all">
-        {value}
+      <span data-testid={testId} title={value} className="font-mono text-sm tabular-nums break-all">
+        {shown}
       </span>
     </div>
   )
@@ -163,8 +169,8 @@ function ReportView({ report }: { report: CreditReport }) {
     <div className="grid min-w-0 gap-3">
       <div className="grid gap-3 sm:grid-cols-3">
         <Field label="Session" testId="credit-session" value={report.session.state} />
-        <Field label="Debt (USDG)" testId="credit-debt" value={report.position.debtUsdg} />
-        <Field label="Capacity now (USDG)" testId="credit-capacity" value={report.capacity.borrowableNowUsdg} />
+        <Field money label="Debt (USDG)" testId="credit-debt" value={report.position.debtUsdg} />
+        <Field money label="Capacity now (USDG)" testId="credit-capacity" value={report.capacity.borrowableNowUsdg} />
       </div>
       {reason ? (
         <Alert variant="warning">
@@ -186,9 +192,9 @@ function ReportView({ report }: { report: CreditReport }) {
         <div className="grid min-w-0 gap-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Max new-borrow LTV (bps)" testId="credit-ltv" value={String(report.session.maxNewBorrowLtvBps)} />
-            <Field label="Price (USD per token)" testId="credit-price" value={report.price.usdPerToken ?? "none"} />
+            <Field money label="Price (USD per token)" testId="credit-price" value={report.price.usdPerToken ?? "none"} />
             <Field label="Fetched by the keeper at" testId="credit-fetched" value={report.price.fetchedAt ?? "none"} />
-            <Field label="Liquidation price (USD per token)" testId="credit-liq-price" value={report.liquidation.liquidationPriceUsd ?? "none"} />
+            <Field money label="Liquidation price (USD per token)" testId="credit-liq-price" value={report.liquidation.liquidationPriceUsd ?? "none"} />
             <Field
               label="Gap to liquidation (bps)"
               testId="credit-gap"
@@ -216,12 +222,17 @@ function ReportView({ report }: { report: CreditReport }) {
               ? `Freshness, pool band and peg limits read from the price relay at block ${bounds.blockNumber}.`
               : "Freshness, pool band and peg limits are omitted until the price relay read succeeds."}
           </p>
-          <pre className="max-w-full overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs whitespace-pre-wrap break-all" data-testid="credit-json">
-            {json}
-          </pre>
-          <CopyButton value={json} label="Copy response JSON" />
         </div>
       </EvidenceSheet>
+      <div className="grid min-w-0 gap-3 rounded-xl bg-muted/50 p-4">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-medium text-muted-foreground">JSON response</p>
+          <CopyButton value={json} label="Copy response JSON" />
+        </div>
+        <pre className="max-h-[32rem] max-w-full overflow-auto font-mono text-xs leading-relaxed whitespace-pre-wrap break-all" data-testid="credit-json">
+          {json}
+        </pre>
+      </div>
     </div>
   )
 }

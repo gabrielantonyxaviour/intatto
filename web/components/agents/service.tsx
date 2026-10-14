@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { DefinitionPopover, EvidenceSheet } from "@/components/ui/ix"
 import { KeeperAddress } from "./keeper-address"
 import { EndpointList, ParameterList } from "./endpoints"
+import { ApiExample } from "./api-example"
 import { TryIt } from "./try-it"
 import { ChainNotices } from "./notices"
 import {
@@ -21,7 +22,6 @@ import {
   readCalls,
   recordCall,
   SERVICE_DESCRIPTION,
-  SERVICE_NAME,
   VERIFIED_ON,
   type CallLog,
 } from "./content"
@@ -38,30 +38,29 @@ export function CreditService() {
   )
 
   return (
-    <div className="grid min-w-0 gap-6">
+    <div className="mx-auto grid w-full max-w-5xl min-w-0 gap-8">
       <p className="text-sm text-muted-foreground">
         <Link href="/agents" className="hover:underline">
-          Agents
+          Developers
         </Link>
-        <span> / {SERVICE_NAME}</span>
+        <span> / Credit and health</span>
       </p>
 
       <header className="grid gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight">{SERVICE_NAME}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Credit and health</h1>
           <Badge variant="outline">v1</Badge>
         </div>
         <p className="max-w-xl text-sm text-muted-foreground">{SERVICE_DESCRIPTION}</p>
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <Badge variant="success-light">{PRICE_LABEL}</Badge>
+          <Badge variant="secondary">{PRICE_LABEL}</Badge>
           <span>No paid receipt.</span>
           <DefinitionPopover term="Payment details" side="bottom" source={VERIFIED_ON}>
             <p>{PAYMENT_NOTE}.</p>
             <p>This call is free. Opening this note is not a payment, and no paid receipt exists.</p>
           </DefinitionPopover>
         </div>
-        <p className="text-sm">{LISTING_STATUS}</p>
-        <p className="text-sm text-muted-foreground">{VERIFIED_ON}. Registration is not listing approval.</p>
+        <Badge variant="outline" className="max-w-full whitespace-normal" title={`${VERIFIED_ON}. Registration is not listing approval.`}>{LISTING_STATUS}</Badge>
         <div className="flex flex-wrap items-center gap-3">
           <EvidenceSheet
             title="Agent details"
@@ -74,15 +73,17 @@ export function CreditService() {
           >
             <AgentRecord />
           </EvidenceSheet>
-          <Link href="/risk" className="text-sm underline underline-offset-4">
-            see every keeper post on the Risk console
+          <Link href="/risk#keeper" className="text-sm underline underline-offset-4">
+            View keeper log
           </Link>
         </div>
       </header>
 
       <ChainNotices />
-      <TryIt onCall={(entry) => setCalls(recordCall(entry))} />
-      <Usage calls={calls} />
+      <ApiExample />
+      <div className="min-w-0 rounded-xl border p-4 sm:p-6">
+        <TryIt onCall={(entry) => setCalls(recordCall(entry))} />
+      </div>
 
       <details className="min-w-0 rounded-lg border">
         <summary className="cursor-pointer px-4 py-3 text-sm font-medium">API reference</summary>
@@ -91,10 +92,14 @@ export function CreditService() {
           <ParameterList />
           <div className="grid min-w-0 gap-2">
             <p className="text-sm font-medium">Example</p>
-            <pre className="max-w-full overflow-x-auto font-mono text-xs">{example}</pre>
+            <pre className="max-w-full font-mono text-xs whitespace-pre-wrap break-all">{example}</pre>
           </div>
           <p className="text-sm text-muted-foreground">{A2MCP_SUMMARY}</p>
         </div>
+      </details>
+      <details className="min-w-0 border-t pt-4">
+        <summary className="cursor-pointer text-sm font-medium">Calls from this browser · {calls.length}</summary>
+        <div className="pt-4"><Usage calls={calls} /></div>
       </details>
     </div>
   )

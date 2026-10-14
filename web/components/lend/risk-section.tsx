@@ -98,9 +98,10 @@ export function RiskSection({ vault, markets }: { vault: VaultState; markets: Le
       <SummaryRow label="Gap reserve" testId="reserve-balance">
         {usdg(vault.reserveBalance)}
       </SummaryRow>
+      <div className="justify-self-start [&>button]:h-8 [&>button]:border-0 [&>button]:px-0 [&>button]:text-sm [&>button]:underline [&>button]:underline-offset-4 [&>button]:shadow-none">
       <EvidenceSheet
         title="Risk and reserve"
-        triggerLabel="Risk and reserve"
+        triggerLabel="Details"
         summary="CollateralMarket, SessionRiskController, LendingVault.owner and PriceRelayAdapter.keeper"
         asOf={blockNumber !== undefined ? `Block ${blockNumber}` : undefined}
         state={state}
@@ -197,6 +198,7 @@ export function RiskSection({ vault, markets }: { vault: VaultState; markets: Le
           </div>
         ) : null}
       </EvidenceSheet>
+      </div>
     </Section>
   )
 }
